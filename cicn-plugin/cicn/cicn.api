@@ -1,0 +1,502 @@
+/*
+ * Copyright (c) 2017 Cisco and/or its affiliates.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
+ * cicn plug-in api description/structures, shared between plugin
+ * and management client(s)
+ *
+ * - Include the generated file, see BUILT_SOURCES in Makefile.am
+ */
+define cicn_api_node_params_set {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Enable / disable ICN forwarder in VPP */
+    u8 enable_disable;
+
+    /* PIT maximum size, otherwise -1 to assign default value */
+    i32 pit_max_size;
+
+    /* FIB maximum size, otherwise -1 to assign default value */
+    i32 fib_max_size;
+
+    /* CS maximum size, otherwise -1 to assign default value */
+    i32 cs_max_size;
+
+    /* Default PIT entry lifetime */
+    f64 pit_dflt_lifetime_sec;
+
+    /* Lower bound on PIT entry lifetime */
+    f64 pit_min_lifetime_sec;
+
+    /* Upper bound on PIT entry lifetime */
+    f64 pit_max_lifetime_sec;
+};
+
+define cicn_api_node_params_set_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_node_params_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+};
+
+define cicn_api_node_params_get_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+
+    /* Enabled / disabled flag */
+    u8 is_enabled;
+
+    /* compile-time plugin features */
+    u8 feature_multithread;
+    u8 feature_cs;
+    u8 feature_dpdk_rtembuf_cloning;
+    u8 feature_vpp_vlib_cloning;
+
+    /* Number of VPP workers */
+    u32 worker_count;
+
+    /* PIT maximum size, otherwise -1 to assign default value */
+    u32 pit_max_size;
+
+    /* FIB maximum size, otherwise -1 to assign default value */
+    u32 fib_max_size;
+
+    /* CS maximum size, otherwise -1 to assign default value */
+    u32 cs_max_size;
+
+    /* Default PIT entry lifetime */
+    f64 pit_dflt_lifetime_sec;
+
+    /* Lower bound on PIT entry lifetime */
+    f64 pit_min_lifetime_sec;
+
+    /* Upper bound on PIT entry lifetime */
+    f64 pit_max_lifetime_sec;
+};
+
+define cicn_api_face_add {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* IPv4 local address */
+    u32 local_addr;
+
+    /* IPv4 local port number */
+    u16 local_port;
+
+    /* IPv4 destination (next-hop) address*/
+    u32 remote_addr;
+
+    /* IPv4 destination (next-hop) port number */
+    u16 remote_port;
+};
+
+define cicn_api_face_add_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value: new Face ID, -1 means no Face was created */
+    i32 faceid;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_face_delete {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* A Face ID to be deleted */
+    i32 faceid;
+};
+
+define cicn_api_face_delete_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_face_params_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* A Face to be retrieved */
+    i32 faceid;
+};
+
+define cicn_api_face_params_get_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+
+    /* Local IP address */
+    u32 local_addr;
+
+    /* Local port */
+    u16 local_port;
+
+    /* Remote IP address */
+    u32 remote_addr;
+
+    /* Remote port */
+    u16 remote_port;
+
+    /* Face flags */
+    i32 flags;
+
+    /* VPP interface (index) associated with the face */
+    i32 sw_interface_id;
+};
+
+define cicn_api_face_props_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+};
+
+define cicn_api_face_props_get_reply {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+
+    /* Number of valid entries in the response */
+    i32 nentries;
+
+    /* Array of 1000 cicn_api_face_entry_t */
+    u8 face[24000];
+};
+
+define cicn_api_face_stats_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Face ID to retrieve stats from */
+    i32 faceid;
+};
+
+define cicn_api_face_stats_get_reply {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+
+    /* Face ID */
+    i32 faceid;
+
+    /* Interest msgs originated */
+    u64 orig_interests;
+
+    /* Data msgs originated */
+    u64 orig_datas;
+
+    /* InterestReturn (i.e. network level NACK) msgs originated */
+    u64 orig_naks;
+
+    /* Interest msgs terminated */
+    u64 term_interests;
+
+    /* Data msgs terminated */
+    u64 term_datas;
+
+    /* InterestReturn (i.e. network level NACK) msgs terminated */
+    u64 term_naks;
+
+    /* Interest msgs received */
+    u64 in_interests;
+
+    /* Data msgs received */
+    u64 in_datas;
+
+    /* InterestReturn (i.e. network level NACK) msgs received */
+    u64 in_naks;
+
+    /* Interest msgs transmitted */
+    u64 out_interests;
+
+    /* Data msgs transmitted */
+    u64 out_datas;
+
+    /* InterestReturn (i.e. network level NACK) msgs transmitted */
+    u64 out_naks;
+};
+
+define cicn_api_fib_entry_nh_add {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Prefix to be added to the FIB */
+    u8 prefix[500];
+
+    /* A Face ID to the next hop forwarder for the specified prefix */
+    i32 faceid;
+
+    /* A weight (priority) of the specified Face ID */
+    i32 weight;
+};
+
+define cicn_api_fib_entry_nh_add_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_fib_entry_nh_delete {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Prefix to be removed from the FIB */
+    u8 prefix[500];
+
+    /* Specific next-hop to be removed, or 0 to remove all next-hops */
+    i32 faceid;
+};
+
+define cicn_api_fib_entry_nh_delete_reply {
+    /* From the request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_fib_entry_props_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Requested page number */
+    i32 pagenum;
+};
+
+define cicn_api_fib_entry_props_get_reply {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Array of 512 cicn_api_fib_entry_t */
+    u8 fibentry[324608];
+
+    /* Number of valid FIB entries in this page */
+    i32 nentries;
+
+    /* Requested page number, or -1 if page number is out of bound */
+    i32 pagenum;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_fib_xprops_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+};
+
+define cicn_api_fib_details {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Name prefix */
+    u8 prefix[500];
+
+    /* Number of valid next-hops (faces) */
+    i32 nfaces;
+
+    /* Next-hop Face IDs */
+    i32 faceid[16];
+
+    /* Face weights */
+    i32 faceweight[16];
+ };
+
+define cicn_api_node_stats_get {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+};
+
+define cicn_api_node_stats_get_reply {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+
+    /* ICN packets processed */
+    u64 pkts_processed;
+
+    /* ICN interests forwarded */
+    u64 pkts_interest_count;
+
+    /* ICN data msgs forwarded */
+    u64 pkts_data_count;
+
+    /* ICN Nak msgs forwarded */
+    u64 pkts_nak_count;
+
+    /* ICN cached data msg replies */
+    u64 pkts_from_cache_count;
+
+    /* ICN Nak msgs originated */
+    u64 pkts_nacked_interests_count;
+
+    /* ICN hoplimit exceeded errors */
+    u64 pkts_nak_hoplimit_count;
+
+    /* ICN no-route errors */
+    u64 pkts_nak_no_route_count;
+
+    /* ICN no PIT entry drops */
+    u64 pkts_no_pit_count;
+
+    /* ICN expired PIT entries */
+    u64 pit_expired_count;
+
+    /* ICN expired CS entries */
+    u64 cs_expired_count;
+
+    /* ICN LRU CS entries freed */
+    u64 cs_lru_count;
+
+    /* ICN msgs dropped due to no packet buffers */
+    u64 pkts_drop_no_buf;
+
+    /* ICN Interest messages aggregated in PIT */
+    u64 interests_aggregated;
+
+    /* ICN Interest messages retransmitted */
+    u64 interests_retx;
+
+    /* Number of entries in PIT at the present moment */
+    u64 pit_entries_count;
+
+    /* Number of entries in CS at the present moment */
+    u64 cs_entries_count;
+};
+
+define cicn_api_test_run_get {
+    u32 client_index;   // Client identifier, set from api_main.my_client_index
+    u32 context;       // Arbitrary context, so client can match reply to req
+    i32 testid;        // test to run or -1 for all
+};
+
+define cicn_api_test_run_get_reply {
+    u32 client_index;  // Client identifier, set from api_main.my_client_index
+    u32 context;       // Arbitrary context, so client can match reply to req
+    i32 retval;        // Return value, zero means all OK
+    i32 nentries;      // Number of valid entries (suites) in the response
+
+    u8 suites[10000];  // Array of 1000/176=56 cicn_api_test_suite_results_t
+};
+
+define cicn_api_face_events_subscribe {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* 1 => register for events, 0 => cancel registration */
+    u16 enable_disable;
+};
+
+define cicn_api_face_events_subscribe_reply {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Return value, zero means all OK */
+    i32 retval;
+};
+
+define cicn_api_face_event {
+    /* Client identifier, set from api_main.my_client_index */
+    u32 client_index;
+
+    /* Arbitrary context, so client can match reply to request */
+    u32 context;
+
+    /* Face ID */
+    i32 faceid;
+
+    /* Face flags */
+    i32 flags;
+};
