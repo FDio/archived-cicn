@@ -63,3 +63,25 @@ git clone -b http-server/master  https://gerrit.fd.io/r/cicn http-server;
 git clone -b viper/master        https://gerrit.fd.io/r/cicn viper;
 git clone -b vicn/master         https://gerrit.fd.io/r/cicn vicn;
 git clone -b android-sdk         https://gerrit.fd.io/r/cicn android-sdk;
+
+### For committers
+
+By having multiple sub-projects in the same repo, it is highly recommended
+to use the following approach while using branches and pushing patch sets.
+
+$ subp = cicm-plugin
+$ committer = user
+
+$ git clone -b cicn-plugin/master ssh://committer@gerrit.fd.io:29418/cicn subp;
+$ scp -p -P 29418 committer@gerrit.fd.io:hooks/commit-msg subp/.git/hooks/;
+
+If you use an email alias like user+fdio@email.com that is registered in the
+gerrit frontend it is recommended to set the following kind of configuration
+
+$ git config --local user.email "$committer+fdio@email.com"
+$ git config --local alias.push-for-review "push origin HEAD:refs/for/$subp/master"
+
+this allows to avoid pushing for review to different sub-project branches
+using the command
+
+$ git push-for-review
