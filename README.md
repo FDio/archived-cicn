@@ -45,3 +45,21 @@ For sub-project cicn-plugin, the master branch is cicn-plugin/master
 that can be cloned as follows:
 
 $ git clone -b cicn-plugin/master https://gerrit.fd.io/r/cicn cicn-plugin
+
+## How to manage different master branches
+
+It is suggested to clone each subproject branch in a different workspace to 
+avoid error prone operations. The cicn git repo stores several projects which
+are independent one to another. While access control and isolation is
+guaranteed at a certain level by gerrit, using one single workspace is
+discouraged.
+
+git clone -b cicn-plugin/master  https://gerrit.fd.io/r/cicn cicn-plugin;
+git clone -b sb-forwarder/master https://gerrit.fd.io/r/cicn sb-forwarder;
+git clone -b libicnet/master     https://gerrit.fd.io/r/cicn libicnet;
+git clone -b cframework/master   https://gerrit.fd.io/r/cicn cframework;
+git clone -b ccnxlibs/master     https://gerrit.fd.io/r/cicn ccnxlibs;
+git clone -b http-server/master  https://gerrit.fd.io/r/cicn http-server;
+git clone -b viper/master        https://gerrit.fd.io/r/cicn viper;
+git clone -b vicn/master         https://gerrit.fd.io/r/cicn vicn;
+git clone -b android-sdk         https://gerrit.fd.io/r/cicn android-sdk;
