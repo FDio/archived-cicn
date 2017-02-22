@@ -6,7 +6,7 @@ using an ICN protocol stack. It also provides some useful tools showing how to u
 Dependencies
 ------------
 
-- libboost-all-dev
+- libboost-system-dev
 - libparc
 - libccnx-common
 - long-bow
