@@ -68,9 +68,6 @@ void Portal::sendInterest(const Interest &interest,
       std::unordered_map<Name, std::unique_ptr<PendingInterest>>::iterator it = pending_interest_hash_table_.find(name);
       if (it != pending_interest_hash_table_.end()) {
         it->second->getOnTimeoutCallback()(*it->second->getInterest());
-      } else {
-        std::cerr << "Timeout on interest already received_! [" << it->second->getInterest()->getName() << "]"
-                  << std::endl;
       }
     }
   };
@@ -148,12 +145,7 @@ void Portal::processContentObject(CCNxMetaMessage *response) {
   // Content object for a consumer
 
   CCNxContentObject *content_object = ccnxContentObject_Acquire(ccnxMetaMessage_GetContentObject(response));
-
   CCNxName *n = ccnxContentObject_GetName(content_object);
-  size_t n_components = ccnxName_GetSegmentCount(n);
-  CCNxNameSegment *last_segment = ccnxName_GetSegment(n, n_components - 1);
-
-  bool has_chunk_number = ccnxNameSegmentNumber_IsValid(last_segment);
 
   PendingInterestHashTable::iterator it = pending_interest_hash_table_.find(Name(n));
 
@@ -167,10 +159,7 @@ void Portal::processContentObject(CCNxMetaMessage *response) {
     if (!interest_ptr->isReceived()) {
       interest_ptr->setReceived();
       interest_ptr->getOnDataCallback()(*interest_ptr->getInterest(), *data_ptr);
-
-      if (!has_chunk_number) {
-        pending_interest_hash_table_.erase(interest_ptr->getInterest()->getName());
-      }
+      pending_interest_hash_table_.erase(interest_ptr->getInterest()->getName());
     }
   }
 

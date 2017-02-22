@@ -27,7 +27,7 @@ VegasTransportProtocol::VegasTransportProtocol(Socket *icnet_socket)
       current_window_size_(default_values::min_window_size),
       interests_in_flight_(0),
       segment_number_(0),
-      interest_retransmissions_(default_values::max_window_size),
+      interest_retransmissions_(default_values::default_buffer_size),
       interest_timepoints_(default_values::default_buffer_size),
       receive_buffer_(default_values::default_buffer_size),
       unverified_segments_(default_values::default_buffer_size),
