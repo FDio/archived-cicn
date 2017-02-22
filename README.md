@@ -39,3 +39,12 @@ For installing the library:
  $ cd build
  $ sudo make install
 ```
+
+Platforms
+---------
+
+Libicnet has been tested in:
+
+    - Ubuntu 16.04 (x86_64)
+    - Debian Testing
+    - MacOSX 10.12
