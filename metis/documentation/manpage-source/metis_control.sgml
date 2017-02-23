@@ -1,0 +1,164 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<!-- -->
+<!-- Copyright (c) 2017 Cisco and/or its affiliates. -->
+<!--  Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!--  you may not use this file except in compliance with the License. -->
+<!--  You may obtain a copy of the License at: -->
+<!--  -->
+<!--      http://www.apache.org/licenses/LICENSE-2.0 -->
+<!--  -->
+<!--  Unless required by applicable law or agreed to in writing, software -->
+<!--  distributed under the License is distributed on an "AS IS" BASIS, -->
+<!--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!--  See the License for the specific language governing permissions and -->
+<!--  limitations under the License. -->
+<!--  -->
+<!-- -->
+<refentry>
+<refmeta>
+	<refentrytitle>
+		<application>metis_control</application>
+	</refentrytitle>
+	<manvolnum>1</manvolnum>
+</refmeta>
+
+<refnamediv>
+	<refname>
+		<application>metis_control</application>
+	</refname>
+	<refpurpose>
+Metis is the CCNx 1.0 forwarder, which runs on each end system and as a software forwarder
+on intermediate systems.  <command>metis_control</command> is the program to configure the forwarder,
+<command>metis_daemon</command>.
+	</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+	<cmdsynopsis>
+	<command>metis_control</command>
+<arg choice="opt"><option>--keystore</option> <replaceable class="parameter">keystore</replaceable></arg>
+<arg choice="opt"><option>--password</option> <replaceable class="parameter">password</replaceable></arg>
+<arg choice="opt">commandline</arg>
+	</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1>
+	<title>DESCRIPTION</title>
+	<para>
+	<command>metis_control</command>
+	is the program used to configure a running forwarder <command>metis_daemon</command>.  It will connect to
+	the forwarder over a local listener (e.g. TCP to localhost or a unix domain socket).  If a
+	<replaceable class="option">commandline</replaceable> option is specified, <command>metis_control</command>
+	will send that one command to Metis and then exit.  If no <replaceable class="option">commandline</replaceable>
+	is specified, <command>metis_command</command> will enter interacitve mode where the user can issue
+	multiple commands.
+	</para>
+	<para>
+	<command>metis_control</command> requires a signing keystore for communicating over the network.  The
+	<replaceable class="parameter">keystore</replaceable> file is a standard PKCS12 keystore, and may be
+	created using
+	<citerefentry><refentrytitle>parc_publickey</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+	If no <replaceable class="parameter">keystore</replaceable> is specified, <command>metis_control</command>
+	will look in the standard path ~/.ccnx/.ccnx_keystore.p12.
+	The keystore password is specified in <replaceable class="parameter">password</replaceable>.  If not specified,
+	no password is used.  If the keystore does not open, the user will be prompted for a password.
+	</para>
+	<para>
+	See <citerefentry><refentrytitle>metis.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry> for
+	a specification of the available <replaceable class="option">commandline</replaceable>.
+	</para>
+	<para>
+	The environment variable METIS_PORT may be used to specify what TCP port to use to connect to the local Metis.
+	The environment variable METIS_LOCALPATH may be used to specific the UNIX domain socket to connect to the local Metis
+	and takes priority over METIS_PORT.
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>OPTIONS</title>
+	<variablelist>
+
+	<varlistentry>
+		<term>--keystore <replaceable class="parameter">keystore</replaceable></term>
+		<listitem>
+			<para>
+				<command>metis_control</command> requires a signing keystore for communicating over the network.  The
+				<replaceable class="parameter">keystore</replaceable> file is a standard PKCS12 keystore, and may be
+				created using
+				<citerefentry><refentrytitle>parc_publickey</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+				If no <replaceable class="parameter">keystore</replaceable> is specified, <command>metis_control</command>
+				will look in the standard path ~/.ccnx/.ccnx_keystore.p12.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>--password <replaceable class="parameter">password</replaceable></term>
+		<listitem>
+			<para>
+				The keystore password is specified in <replaceable class="parameter">password</replaceable>.  If not specified,
+				no password is used.  If the keystore does not open, the user will be prompted for a password.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>commandline</term>
+		<listitem>
+			<para>
+			The remainder of the arguments are the commandline to send to Metis.  See USAGE.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	</variablelist>
+</refsect1>
+<refsect1>
+	<title>USAGE</title>
+	<para>
+	<command>metis_control</command> --keystore keystore.p12
+	</para>
+	<para>
+	<command>metis_control</command> --keystore keystore.p12 list interfaces
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>SEE ALSO</title>
+	<para>
+	See <citerefentry><refentrytitle>parc_publickey</refentrytitle><manvolnum>1</manvolnum></citerefentry> for a utility
+	to create a PKCS keystore.
+	</para>
+	<para>
+	For a list of all configuration lines that may be used with
+	<command>metis_control</command> and by <replaceable class="option">--config</replaceable> configuration file,
+	see <citerefentry><refentrytitle>metis.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry>.
+	</para>
+	<para>
+	The default keystore is ~/.ccnx/.ccnx_keystore.p12.
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>CAVEATS</title>
+	<para>
+	</para>
+</refsect1>
+<refsect1>
+	<title>BUGS</title>
+	<para>
+	</para>
+</refsect1>
+<refsect1>
+	<title>AUTHOR</title>
+	<para>
+	<author>
+		<firstname>Marc</firstname>
+		<surname>Mosko</surname>
+		<contrib>Palo Alto Research Center</contrib>
+	</author>
+	</para>
+</refsect1>
+</refentry>
+
+

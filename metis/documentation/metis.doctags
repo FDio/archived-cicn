@@ -1,0 +1,2535 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<tagfile>
+  <compound kind="file">
+    <name>metis_CommandLineInterface.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___command_line_interface_8h</filename>
+    <member kind="function">
+      <type>MetisCommandLineInterface *</type>
+      <name>metisCommandLineInterface_Create</name>
+      <anchorfile>metis___command_line_interface_8h.html</anchorfile>
+      <anchor>a507100a2eb182e879182d8c7ef7a83bf</anchor>
+      <arglist>(MetisForwarder *metis, uint16_t port)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisCommandLineInterface_Destroy</name>
+      <anchorfile>metis___command_line_interface_8h.html</anchorfile>
+      <anchor>a1c21ace75da716c55253bbc544198121</anchor>
+      <arglist>(MetisCommandLineInterface **cliPtr)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_CommandOps.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___command_ops_8h</filename>
+    <includes id="metis___command_return_8h" name="metis_CommandReturn.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_CommandReturn.h</includes>
+    <class kind="struct">metis_command_ops</class>
+    <member kind="function">
+      <type>MetisCommandOps *</type>
+      <name>metisCommandOps_Create</name>
+      <anchorfile>metis___command_ops_8h.html</anchorfile>
+      <anchor>a460a77764ab96dbe960465c670038c2e</anchor>
+      <arglist>(void *closure, const char *command, void(*init)(struct metis_command_parser *parser, MetisCommandOps *ops), MetisCommandReturn(*execute)(struct metis_command_parser *parser, MetisCommandOps *ops, PARCList *args), void(*destroyer)(MetisCommandOps **opsPtr))</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisCommandOps_Destroy</name>
+      <anchorfile>metis___command_ops_8h.html</anchorfile>
+      <anchor>ae5e8adaf088328e346ea831735cb0e75</anchor>
+      <arglist>(MetisCommandOps **opsPtr)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_CommandParser.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___command_parser_8h</filename>
+    <includes id="metis___command_return_8h" name="metis_CommandReturn.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_CommandReturn.h</includes>
+    <includes id="metis___command_ops_8h" name="metis_CommandOps.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_CommandOps.h</includes>
+    <member kind="function">
+      <type>MetisCommandParser *</type>
+      <name>metisCommandParser_Create</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a44dcdf60ae4d9118a6a769c858df23eb</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisCommandParser_Destroy</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a2f5021ae0fc62a743164cf3fdc971526</anchor>
+      <arglist>(MetisCommandParser **statePtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisCommandParser_RegisterCommand</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a940f9f340d5c83de0926eaa9d98ca0e8</anchor>
+      <arglist>(MetisCommandParser *state, MetisCommandOps *command)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisCommandReturn</type>
+      <name>metisCommandParser_DispatchCommand</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a89912d93eff7fc70edb9613551b41dbb</anchor>
+      <arglist>(MetisCommandParser *state, PARCList *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisCommandParser_SetDebug</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a9ea10b379a52313ad290a088051a2dcc</anchor>
+      <arglist>(MetisCommandParser *state, bool debugFlag)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisCommandParser_GetDebug</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a49e8533a529047d9781cba77279e2c38</anchor>
+      <arglist>(MetisCommandParser *state)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisCommandParser_ContainsCommand</name>
+      <anchorfile>metis___command_parser_8h.html</anchorfile>
+      <anchor>a12b1473cf6169833adde186a6cc5801b</anchor>
+      <arglist>(MetisCommandParser *parser, const char *command)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_CommandReturn.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___command_return_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>metis_Configuration.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___configuration_8h</filename>
+    <member kind="function">
+      <type>MetisConfiguration *</type>
+      <name>metisConfiguration_Create</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a6382879264adb58b9f2a3c83ce68ecdf</anchor>
+      <arglist>(MetisForwarder *metis)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConfiguration_Destroy</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a906d7d9d6d73dbeebbdc143a99093552</anchor>
+      <arglist>(MetisConfiguration **configPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConfiguration_Receive</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>aa881601d3b38400c4f0e840b159ee714</anchor>
+      <arglist>(MetisConfiguration *config, MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>CCNxControl *</type>
+      <name>metisConfiguration_ReceiveControl</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a1792d16c3672844069c02f76d50bcdb0</anchor>
+      <arglist>(MetisConfiguration *config, CCNxControl *request, unsigned ingressId)</arglist>
+    </member>
+    <member kind="function">
+      <type>CCNxJson *</type>
+      <name>metisConfiguration_GetVersion</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a7b6f0cbd8bdadf8d228bc866c1294bd4</anchor>
+      <arglist>(MetisConfiguration *config)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConfiguration_StartCLI</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a7c3b48170736c7a2b0554783e85c1100</anchor>
+      <arglist>(MetisConfiguration *config, uint16_t port)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisConfiguration_GetObjectStoreSize</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a3e81e392888558dc354dae53754f4025</anchor>
+      <arglist>(MetisConfiguration *config)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConfiguration_SetObjectStoreSize</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a0c48eb7e4f055f4b700b755cf5ce019e</anchor>
+      <arglist>(MetisConfiguration *config, size_t maximumContentObjectCount)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisForwarder *</type>
+      <name>metisConfiguration_GetForwarder</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>a161b6c11a69aae4422129d76ab40d487</anchor>
+      <arglist>(const MetisConfiguration *config)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLogger *</type>
+      <name>metisConfiguration_GetLogger</name>
+      <anchorfile>metis___configuration_8h.html</anchorfile>
+      <anchor>acf15e9d246eed9fe88e15025e1ca159a</anchor>
+      <arglist>(const MetisConfiguration *config)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_ConfigurationFile.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___configuration_file_8h</filename>
+    <member kind="function">
+      <type>MetisConfigurationFile *</type>
+      <name>metisConfigurationFile_Create</name>
+      <anchorfile>metis___configuration_file_8h.html</anchorfile>
+      <anchor>aad7f425066389a09ec3b6ae85d526646</anchor>
+      <arglist>(MetisForwarder *metis, const char *filename)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisConfigurationFile_Process</name>
+      <anchorfile>metis___configuration_file_8h.html</anchorfile>
+      <anchor>ae67bdc76440f4f9e1e6297718802d400</anchor>
+      <arglist>(MetisConfigurationFile *configFile)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConfigurationFile_Release</name>
+      <anchorfile>metis___configuration_file_8h.html</anchorfile>
+      <anchor>a7524aea54c34d0504b8bf2d7221e0dcf</anchor>
+      <arglist>(MetisConfigurationFile **configFilePtr)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_ConfigurationListeners.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___configuration_listeners_8h</filename>
+    <includes id="metis___configuration_8h" name="metis_Configuration.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_Configuration.h</includes>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConfigurationListeners_SetupAll</name>
+      <anchorfile>metis___configuration_listeners_8h.html</anchorfile>
+      <anchor>a551220b4be78393ab80a7469a0205294</anchor>
+      <arglist>(const MetisConfiguration *config, uint16_t port, const char *localPath)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_ControlState.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___control_state_8h</filename>
+    <includes id="metis___command_parser_8h" name="metis_CommandParser.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_CommandParser.h</includes>
+    <member kind="function">
+      <type>MetisControlState *</type>
+      <name>metisControlState_Create</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>adb162154a9a7dbe7be3ea71b6c069844</anchor>
+      <arglist>(void *userdata, CCNxMetaMessage *(*writeRead)(void *userdata, CCNxMetaMessage *msg))</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisControlState_Destroy</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>a4dbc825fa9713b135d71fbffb4bb6b9e</anchor>
+      <arglist>(MetisControlState **statePtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisControlState_RegisterCommand</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>a087045ff79c7a98e089fe68c2573c3fc</anchor>
+      <arglist>(MetisControlState *state, MetisCommandOps *command)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisCommandReturn</type>
+      <name>metisControlState_DispatchCommand</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>ad33ee7773e4de244a7a4fa7cd5a2ab2e</anchor>
+      <arglist>(MetisControlState *state, PARCList *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>metisControlState_Interactive</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>a1f7288a5b94bdc1db5839bc7ad9541d0</anchor>
+      <arglist>(MetisControlState *state)</arglist>
+    </member>
+    <member kind="function">
+      <type>CCNxMetaMessage *</type>
+      <name>metisControlState_WriteRead</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>af6cb12f3b67209d0b4fabbe80cca92df</anchor>
+      <arglist>(MetisControlState *state, CCNxMetaMessage *msg)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisControlState_SetDebug</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>ad2b0757b736e33bb8ac74716e57082b8</anchor>
+      <arglist>(MetisControlState *state, bool debugFlag)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisControlState_GetDebug</name>
+      <anchorfile>metis___control_state_8h.html</anchorfile>
+      <anchor>a440772afa7a4513c4496d2e10093093f</anchor>
+      <arglist>(MetisControlState *state)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_SymbolicNameTable.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis___symbolic_name_table_8h</filename>
+    <member kind="function">
+      <type>MetisSymbolicNameTable *</type>
+      <name>metisSymbolicNameTable_Create</name>
+      <anchorfile>metis___symbolic_name_table_8h.html</anchorfile>
+      <anchor>a2dddf35b3d2284db5a9bac3d493f37e1</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisSymbolicNameTable_Destroy</name>
+      <anchorfile>metis___symbolic_name_table_8h.html</anchorfile>
+      <anchor>a7e5d4926fb584639b6b80cb99a9c34a8</anchor>
+      <arglist>(MetisSymbolicNameTable **tablePtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisSymbolicNameTable_Exists</name>
+      <anchorfile>metis___symbolic_name_table_8h.html</anchorfile>
+      <anchor>a6e7c36b832fe8faadaa9bfe8e06f3802</anchor>
+      <arglist>(MetisSymbolicNameTable *table, const char *symbolicName)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisSymbolicNameTable_Add</name>
+      <anchorfile>metis___symbolic_name_table_8h.html</anchorfile>
+      <anchor>a5725f161f69820a91dcccfd0b109f326</anchor>
+      <arglist>(MetisSymbolicNameTable *table, const char *symbolicName, unsigned connid)</arglist>
+    </member>
+    <member kind="function">
+      <type>unsigned</type>
+      <name>metisSymbolicNameTable_Get</name>
+      <anchorfile>metis___symbolic_name_table_8h.html</anchorfile>
+      <anchor>ac28d095e65cf9051d4afa82a7cb7b12c</anchor>
+      <arglist>(MetisSymbolicNameTable *table, const char *symbolicName)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_Add.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___add_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_AddConnection.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___add_connection_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_AddListener.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___add_listener_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_AddRoute.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___add_route_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_List.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___list_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_ListConnections.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___list_connections_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_ListInterfaces.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___list_interfaces_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_ListRoutes.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___list_routes_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_Quit.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___quit_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_Remove.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___remove_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_RemoveConnection.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___remove_connection_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_RemoveRoute.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___remove_route_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_Root.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___root_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_Set.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___set_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_SetDebug.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___set_debug_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_Unset.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___unset_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metisControl_UnsetDebug.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>metis_control___unset_debug_8h</filename>
+    <includes id="metis___control_state_8h" name="metis_ControlState.h" local="no" imported="no">ccnx/forwarder/metis/config/metis_ControlState.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metis_LruList.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/content_store/</path>
+    <filename>metis___lru_list_8h</filename>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLruList_EntryDestroy</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>aac95f183695fef8ad382a3650fd6b1bd</anchor>
+      <arglist>(MetisLruListEntry **entryPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLruList_EntryMoveToHead</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>a6287e1810508a80faca8cfea13099f39</anchor>
+      <arglist>(MetisLruListEntry *entry)</arglist>
+    </member>
+    <member kind="function">
+      <type>void *</type>
+      <name>metisLruList_EntryGetData</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>aeede642d3ff01e95c598d90e6272dc63</anchor>
+      <arglist>(MetisLruListEntry *entry)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLruList *</type>
+      <name>metisLruList_Create</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>af2135dc2ff89bb768fd17ebe11a3fd03</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLruList_Destroy</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>a6f6253a61e76f3ee2410fdf3919f015a</anchor>
+      <arglist>(MetisLruList **listPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisLruList_Length</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>ac0f77c6fbe79441bd78ea24d3300dabf</anchor>
+      <arglist>(const MetisLruList *lru)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLruListEntry *</type>
+      <name>metisLruList_NewHeadEntry</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>a6e3c09a439db12b26d727246deb6680a</anchor>
+      <arglist>(MetisLruList *lru, void *data)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLruListEntry *</type>
+      <name>metisLruList_PopTail</name>
+      <anchorfile>metis___lru_list_8h.html</anchorfile>
+      <anchor>ab4e2336b038c192d012d33c6ead013b2</anchor>
+      <arglist>(MetisLruList *list)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_Connection.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>metis___connection_8h</filename>
+    <includes id="metis___message_8h" name="metis_Message.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Message.h</includes>
+    <member kind="function">
+      <type>MetisConnection *</type>
+      <name>metisConnection_Create</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>a6603f61a89df25768f7ead85db061f43</anchor>
+      <arglist>(MetisIoOperations *ops)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConnection_Release</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>abf256e4e94de6add9565cc9e0e515a37</anchor>
+      <arglist>(MetisConnection **connectionPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisConnection *</type>
+      <name>metisConnection_Acquire</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>a0e036fa4608a82b809646207eb0ec9fa</anchor>
+      <arglist>(MetisConnection *connection)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisConnection_Send</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>a485ea3bdab9a0a0b50e2278071dbb8a0</anchor>
+      <arglist>(const MetisConnection *conn, MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisIoOperations *</type>
+      <name>metisConnection_GetIoOperations</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>ade5998d00c4ed27c48d94786bd2d1f40</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>unsigned</type>
+      <name>metisConnection_GetConnectionId</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>af6fb4f96acef9766c2ab85b01de95ba0</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>const MetisAddressPair *</type>
+      <name>metisConnection_GetAddressPair</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>a82c0a608ec7ab99752b67173819bf5e0</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisConnection_IsUp</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>a975463f86fa17d31e13a5c0fbd2bd195</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisConnection_IsLocal</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>adcd74cc8e59c28710df647b4d4aea1cb</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>const void *</type>
+      <name>metisConnection_Class</name>
+      <anchorfile>metis___connection_8h.html</anchorfile>
+      <anchor>a3801ef3ec37c0bf8d60cfbd3a0b03e4a</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_ConnectionList.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>metis___connection_list_8h</filename>
+    <includes id="metis___connection_8h" name="metis_Connection.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Connection.h</includes>
+    <member kind="function">
+      <type>MetisConnectionList *</type>
+      <name>metisConnectionList_Create</name>
+      <anchorfile>metis___connection_list_8h.html</anchorfile>
+      <anchor>a31b395f7a4af32660344d563bbce757b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConnectionList_Destroy</name>
+      <anchorfile>metis___connection_list_8h.html</anchorfile>
+      <anchor>a568d3b93704eec4a087ff6ca12f63a25</anchor>
+      <arglist>(MetisConnectionList **listPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisConnectionList_Append</name>
+      <anchorfile>metis___connection_list_8h.html</anchorfile>
+      <anchor>ab7fd2bdb3f46cac78ecca5a74a5b41cd</anchor>
+      <arglist>(MetisConnectionList *list, MetisConnection *entry)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisConnectionList_Length</name>
+      <anchorfile>metis___connection_list_8h.html</anchorfile>
+      <anchor>adb36c5596eb3799d9432785d299b5429</anchor>
+      <arglist>(const MetisConnectionList *list)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisConnection *</type>
+      <name>metisConnectionList_Get</name>
+      <anchorfile>metis___connection_list_8h.html</anchorfile>
+      <anchor>a43955c9189c58998dd2e7f8691582c16</anchor>
+      <arglist>(MetisConnectionList *list, size_t index)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_ConnectionManager.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>metis___connection_manager_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>metis_Logger.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>metis___logger_8h</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>MetisLoggerFacility</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>af6f96978398c78b149d59db816f07de1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>const char *</type>
+      <name>metisLogger_FacilityString</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>a78d7a12025012a82cb4af7a9f737b7b0</anchor>
+      <arglist>(MetisLoggerFacility facility)</arglist>
+    </member>
+    <member kind="function">
+      <type>const char *</type>
+      <name>metisLogger_LevelString</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>a9e36241234b77c2bc1bec0287758cce6</anchor>
+      <arglist>(PARCLogLevel level)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLogger *</type>
+      <name>metisLogger_Create</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>af47b695f9249597bf3c1842d94f6c624</anchor>
+      <arglist>(PARCLogReporter *reporter, const PARCClock *clock)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLogger_Release</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>a9187428da1b126545d6f955a027f6b7b</anchor>
+      <arglist>(MetisLogger **loggerPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLogger *</type>
+      <name>metisLogger_Acquire</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>a98867a5fd7b465b272820eb428d5bbf2</anchor>
+      <arglist>(const MetisLogger *logger)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLogger_SetLogLevel</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>ab30f66c50692ea6a6635a8a7742d0df9</anchor>
+      <arglist>(MetisLogger *logger, MetisLoggerFacility facility, PARCLogLevel minimumLevel)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisLogger_IsLoggable</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>add0c57181f96fbbbc6b4acae28c18bd8</anchor>
+      <arglist>(const MetisLogger *logger, MetisLoggerFacility facility, PARCLogLevel level)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLogger_Log</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>a0f3586d53e29fe5866c0f73cfd6d501d</anchor>
+      <arglist>(MetisLogger *logger, MetisLoggerFacility facility, PARCLogLevel level, const char *module, const char *format,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLogger_SetReporter</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>af15286afa1e2aaa4ca9abb49c5ac83fb</anchor>
+      <arglist>(MetisLogger *logger, PARCLogReporter *reporter)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisLogger_SetClock</name>
+      <anchorfile>metis___logger_8h.html</anchorfile>
+      <anchor>a83ad23793dfb55fceb99f7f52d61db93</anchor>
+      <arglist>(MetisLogger *logger, PARCClock *clock)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_Message.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>metis___message_8h</filename>
+    <includes id="metis___tlv_name_8h" name="metis_TlvName.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvName.h</includes>
+    <includes id="metis___tlv_8h" name="metis_Tlv.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_Tlv.h</includes>
+    <includes id="metis___ticks_8h" name="metis_Ticks.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Ticks.h</includes>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisMessage_ReadFromBuffer</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>af1ba0c2c77778536302768b60581f33d</anchor>
+      <arglist>(unsigned ingressConnectionId, MetisTicks receiveTime, PARCEventBuffer *input, size_t bytesToRead, MetisLogger *logger)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisMessage_CreateFromBuffer</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a58d74b697b257ecce0fdc1deda7b978d</anchor>
+      <arglist>(unsigned ingressConnectionId, MetisTicks receiveTime, PARCEventBuffer *input, MetisLogger *logger)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisMessage_CreateFromArray</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a2331b2752913632c0fc461871b37fe0f</anchor>
+      <arglist>(const uint8_t *data, size_t dataLength, unsigned ingressConnectionId, MetisTicks receiveTime, MetisLogger *logger)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisMessage_CreateFromParcBuffer</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a1913c53ddfb3d4e782aac2ff52ddf6e7</anchor>
+      <arglist>(PARCBuffer *buffer, unsigned ingressConnectionId, MetisTicks receiveTime, MetisLogger *logger)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisMessage_Acquire</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ae8e12171638e6d3a42a275efcd0fde6f</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessage_Release</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a05b9016dc77bd595ca42339a9b80584b</anchor>
+      <arglist>(MetisMessage **messagePtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_Write</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>aca1cbf7c196aaabf5e09245dd643e4cb</anchor>
+      <arglist>(PARCEventQueue *parcEventQueue, const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_Append</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ab39329d85848606adcfc2f70872b0444</anchor>
+      <arglist>(PARCEventBuffer *parcEventBuffer, const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisMessage_Length</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>af75f7f14b19e383907789aaa50b37470</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>unsigned</type>
+      <name>metisMessage_GetIngressConnectionId</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a2de1d0d0d08b0098a5fd31b362dbc146</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTicks</type>
+      <name>metisMessage_GetReceiveTime</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a1a401cf498ea2898c2f704fbc6130786</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessagePacketType</type>
+      <name>metisMessage_GetType</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ac8c3ed3c2fc9cda599ada528a20cd987</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasHopLimit</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a943fcc9ecbcbf05a42e6da22c4404a35</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>uint8_t</type>
+      <name>metisMessage_GetHopLimit</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ac8fe16cbe8451cc97d09d06a7a2d7a83</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessage_SetHopLimit</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ac53c411fd47fd57d22e072c48b18532c</anchor>
+      <arglist>(MetisMessage *message, uint8_t hoplimit)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvName *</type>
+      <name>metisMessage_GetName</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ab334cff141390ae4dd7536d55d948f2f</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_GetKeyIdHash</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ac302163f97228e48f99df48bea3458e7</anchor>
+      <arglist>(const MetisMessage *message, uint32_t *hashOutput)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_KeyIdEquals</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a019587b74d0780f432a984dbab4b4ccd</anchor>
+      <arglist>(const MetisMessage *a, const MetisMessage *b)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_ObjectHashEquals</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a42c2f3747020ecf00750d9785199c47a</anchor>
+      <arglist>(MetisMessage *a, MetisMessage *b)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_GetContentObjectHashHash</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ae658db6490ad9eafbf553bcbfdce1003</anchor>
+      <arglist>(MetisMessage *message, uint32_t *hashOutput)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasName</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a169de2b5541bb03567c7b3825d979023</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasKeyId</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a66586d7d04d83636e789a31c7675ea99</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasContentObjectHash</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ae437157cc6ec1fdbf64d2c561eb93d45</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>CCNxControl *</type>
+      <name>metisMessage_CreateControlMessage</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a4cc897a70a843bd5b051ddc5c5cc51a3</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasInterestLifetime</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>aa7b34ad79743ac61edd03b1463792e23</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>uint64_t</type>
+      <name>metisMessage_GetInterestLifetimeTicks</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a6757de2026b67d6a447117a448d3809a</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasRecommendedCacheTime</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a873a581cded8a51594a9a4686222b7dd</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>uint64_t</type>
+      <name>metisMessage_GetRecommendedCacheTimeTicks</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>aa0dde4efb311707b0f768c7a03c2dcbd</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasExpiryTime</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a4a97ddf76749006df702b9848adb3911</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>uint64_t</type>
+      <name>metisMessage_GetExpiryTimeTicks</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>ae2d52b47bed547b3506f1c4dc444dcb8</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessage_SetExpiryTimeTicks</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a6675444d2dbb17b4189731703f8a83d5</anchor>
+      <arglist>(MetisMessage *message, uint64_t expiryTimeTicks)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessage_SetRecommendedCacheTimeTicks</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>aaa1d77c618f5a1750e0d6e71384a1ae4</anchor>
+      <arglist>(MetisMessage *message, uint64_t recommendedCacheTimeTicks)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessage_HasFragmentPayload</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a40abfa45c5f7126090529189b674cf6a</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisMessage_AppendFragmentPayload</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a4ad30e42d4f8bcd5c60bd7ce49f07dc7</anchor>
+      <arglist>(const MetisMessage *message, PARCEventBuffer *buffer)</arglist>
+    </member>
+    <member kind="function">
+      <type>const uint8_t *</type>
+      <name>metisMessage_FixedHeader</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a63900417d180f9f794aace5cd209065b</anchor>
+      <arglist>(const MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisMessage_Slice</name>
+      <anchorfile>metis___message_8h.html</anchorfile>
+      <anchor>a3b5f3b0011981cce787aff21632716f8</anchor>
+      <arglist>(const MetisMessage *message, size_t offset, size_t length, size_t headerLength, const uint8_t header[headerLength])</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_Ticks.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>metis___ticks_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>metis_EtherConnection.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___ether_connection_8h</filename>
+    <includes id="metis___connection_8h" name="metis_Connection.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Connection.h</includes>
+    <member kind="function">
+      <type>MetisIoOperations *</type>
+      <name>metisEtherConnection_Create</name>
+      <anchorfile>metis___ether_connection_8h.html</anchorfile>
+      <anchor>a51a1a7ff06cae62f87f4d77d68ac8e5a</anchor>
+      <arglist>(MetisForwarder *metis, MetisGenericEther *ether, MetisAddressPair *pair)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisHopByHopFragmenter *</type>
+      <name>metisEtherConnection_GetFragmenter</name>
+      <anchorfile>metis___ether_connection_8h.html</anchorfile>
+      <anchor>a4b3a91b679cda4448afa93b270769ec8</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisEtherConnection_IsInstanceOf</name>
+      <anchorfile>metis___ether_connection_8h.html</anchorfile>
+      <anchor>a12ebd7ff845647c94b7b71fdacb3f7e7</anchor>
+      <arglist>(const MetisConnection *conn)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_EtherListener.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___ether_listener_8h</filename>
+    <member kind="function">
+      <type>MetisListenerOps *</type>
+      <name>metisEtherListener_Create</name>
+      <anchorfile>metis___ether_listener_8h.html</anchorfile>
+      <anchor>a52b483bd66c7f105d1a0249dae5f623d</anchor>
+      <arglist>(MetisForwarder *metis, const char *deviceName, uint16_t ethertype)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisGenericEther *</type>
+      <name>metisEtherListener_GetGenericEtherFromListener</name>
+      <anchorfile>metis___ether_listener_8h.html</anchorfile>
+      <anchor>a879b79f29b8689fd60d3d5c3ad3dc8d7</anchor>
+      <arglist>(MetisListenerOps *listenerOps)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_Ethernet.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___ethernet_8h</filename>
+    <member kind="define">
+      <type>#define</type>
+      <name>metisEthernet_IsValidEthertype</name>
+      <anchorfile>metis___ethernet_8h.html</anchorfile>
+      <anchor>abda02e865e5d9949944f561b39a6e319</anchor>
+      <arglist>(ethertype)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_Listener.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___listener_8h</filename>
+    <class kind="struct">metis_listener_ops</class>
+    <member kind="enumeration">
+      <type></type>
+      <name>MetisEncapType</name>
+      <anchorfile>metis___listener_8h.html</anchorfile>
+      <anchor>a4fa21327f3898624d3c5ed5216285822</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>METIS_ENCAP_TCP</name>
+      <anchorfile>metis___listener_8h.html</anchorfile>
+      <anchor>a4fa21327f3898624d3c5ed5216285822a39bb3c63c5d5ca812d7310a99fefc438</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>METIS_ENCAP_UDP</name>
+      <anchorfile>metis___listener_8h.html</anchorfile>
+      <anchor>a4fa21327f3898624d3c5ed5216285822a0cc713e4c4392a6ed11fabb0c0a66e02</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>METIS_ENCAP_ETHER</name>
+      <anchorfile>metis___listener_8h.html</anchorfile>
+      <anchor>a4fa21327f3898624d3c5ed5216285822a634e9642385bafbac465f1654b7124b5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>METIS_ENCAP_LOCAL</name>
+      <anchorfile>metis___listener_8h.html</anchorfile>
+      <anchor>a4fa21327f3898624d3c5ed5216285822a0286a0c76eeb875b7a7a24c20f24a9d6</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_ListenerSet.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___listener_set_8h</filename>
+    <includes id="metis___listener_8h" name="metis_Listener.h" local="no" imported="no">ccnx/forwarder/metis/io/metis_Listener.h</includes>
+    <member kind="function">
+      <type>MetisListenerSet *</type>
+      <name>metisListenerSet_Create</name>
+      <anchorfile>metis___listener_set_8h.html</anchorfile>
+      <anchor>a888a097e8ff73ab563032c274cae58a0</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisListenerSet_Destroy</name>
+      <anchorfile>metis___listener_set_8h.html</anchorfile>
+      <anchor>a7adae3c77b503356eaf0968be7afd91d</anchor>
+      <arglist>(MetisListenerSet **setPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisListenerSet_Add</name>
+      <anchorfile>metis___listener_set_8h.html</anchorfile>
+      <anchor>a6a254efd06f00ef6f76ea833e8b17720</anchor>
+      <arglist>(MetisListenerSet *set, MetisListenerOps *ops)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisListenerSet_Length</name>
+      <anchorfile>metis___listener_set_8h.html</anchorfile>
+      <anchor>aeb43bcfe0903a82adce80f27cce17a12</anchor>
+      <arglist>(const MetisListenerSet *set)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisListenerOps *</type>
+      <name>metisListenerSet_Get</name>
+      <anchorfile>metis___listener_set_8h.html</anchorfile>
+      <anchor>aea935badcab88442e08f282ded488cd0</anchor>
+      <arglist>(const MetisListenerSet *set, size_t index)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisListenerOps *</type>
+      <name>metisListenerSet_Find</name>
+      <anchorfile>metis___listener_set_8h.html</anchorfile>
+      <anchor>acdcff31c310e9e80ca67b2072d07e9c7</anchor>
+      <arglist>(const MetisListenerSet *set, MetisEncapType encapType, const CPIAddress *localAddress)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_TcpListener.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___tcp_listener_8h</filename>
+    <includes id="metis___listener_8h" name="metis_Listener.h" local="no" imported="no">ccnx/forwarder/metis/io/metis_Listener.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>metis_TcpTunnel.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___tcp_tunnel_8h</filename>
+    <member kind="function">
+      <type>MetisIoOperations *</type>
+      <name>metisTcpTunnel_Create</name>
+      <anchorfile>metis___tcp_tunnel_8h.html</anchorfile>
+      <anchor>ac86a8b944b3b4591f4b726a41020c687</anchor>
+      <arglist>(MetisForwarder *metis, const CPIAddress *localAddress, const CPIAddress *remoteAddress)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_UdpConnection.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___udp_connection_8h</filename>
+    <member kind="function">
+      <type>MetisIoOperations *</type>
+      <name>metisUdpConnection_Create</name>
+      <anchorfile>metis___udp_connection_8h.html</anchorfile>
+      <anchor>a0d1f779354382c3b2f5b3410b01ccece</anchor>
+      <arglist>(MetisForwarder *metis, int fd, const MetisAddressPair *pair, bool isLocal)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_UdpTunnel.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>metis___udp_tunnel_8h</filename>
+    <includes id="metis___listener_8h" name="metis_Listener.h" local="no" imported="no">ccnx/forwarder/metis/io/metis_Listener.h</includes>
+    <member kind="function">
+      <type>MetisIoOperations *</type>
+      <name>metisUdpTunnel_CreateOnListener</name>
+      <anchorfile>metis___udp_tunnel_8h.html</anchorfile>
+      <anchor>ad512a131944415d7dab6eeafa5bcaf48</anchor>
+      <arglist>(MetisForwarder *metis, MetisListenerOps *localListener, const CPIAddress *remoteAddress)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisIoOperations *</type>
+      <name>metisUdpTunnel_Create</name>
+      <anchorfile>metis___udp_tunnel_8h.html</anchorfile>
+      <anchor>a8edb7d377a2bfddc22f008f05ca05c64</anchor>
+      <arglist>(MetisForwarder *metis, const CPIAddress *localAddress, const CPIAddress *remoteAddress)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_MessengerRecipient.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/messenger/</path>
+    <filename>metis___messenger_recipient_8h</filename>
+    <member kind="typedef">
+      <type>void(</type>
+      <name>MetisMessengerRecipientCallback</name>
+      <anchorfile>metis___messenger_recipient_8h.html</anchorfile>
+      <anchor>addc508a682ebbc3c86ccdd7b4cdb78e8</anchor>
+      <arglist>)(MetisMessengerRecipient *recipient, MetisMissive *missive)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessengerRecipient *</type>
+      <name>metisMessengerRecipient_Create</name>
+      <anchorfile>metis___messenger_recipient_8h.html</anchorfile>
+      <anchor>a6e8d6204375a0a5c6776e67bc33ae617</anchor>
+      <arglist>(void *recipientContext, MetisMessengerRecipientCallback *recipientCallback)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessengerRecipient_Destroy</name>
+      <anchorfile>metis___messenger_recipient_8h.html</anchorfile>
+      <anchor>a5b497060ec18af2e63272b24ca546072</anchor>
+      <arglist>(MetisMessengerRecipient **recipientPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void *</type>
+      <name>metisMessengerRecipient_GetRecipientContext</name>
+      <anchorfile>metis___messenger_recipient_8h.html</anchorfile>
+      <anchor>a16a2252f9e965188209b7947c6843808</anchor>
+      <arglist>(MetisMessengerRecipient *recipient)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessengerRecipient_Deliver</name>
+      <anchorfile>metis___messenger_recipient_8h.html</anchorfile>
+      <anchor>ace08bf3dfd8e6b0fe9d2a1e3fe42a449</anchor>
+      <arglist>(MetisMessengerRecipient *recipient, MetisMissive *missive)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_Missive.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/messenger/</path>
+    <filename>metis___missive_8h</filename>
+    <member kind="function">
+      <type>MetisMissive *</type>
+      <name>metisMissive_Create</name>
+      <anchorfile>metis___missive_8h.html</anchorfile>
+      <anchor>a6f59ac32c5bc215445f7748170a0ebf3</anchor>
+      <arglist>(MetisMissiveType missiveType, unsigned connectionid)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMissive *</type>
+      <name>metisMissive_Acquire</name>
+      <anchorfile>metis___missive_8h.html</anchorfile>
+      <anchor>aa06bd2d655623d71f2fc9e045ec1d588</anchor>
+      <arglist>(MetisMissive *missive)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMissive_Release</name>
+      <anchorfile>metis___missive_8h.html</anchorfile>
+      <anchor>a56e43f3512c1a5173f7a6be3f2bca02a</anchor>
+      <arglist>(MetisMissive **missivePtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMissiveType</type>
+      <name>metisMissive_GetType</name>
+      <anchorfile>metis___missive_8h.html</anchorfile>
+      <anchor>aeec3b360ee915c205d6ac7082cf2f528</anchor>
+      <arglist>(const MetisMissive *missive)</arglist>
+    </member>
+    <member kind="function">
+      <type>unsigned</type>
+      <name>metisMissive_GetConnectionId</name>
+      <anchorfile>metis___missive_8h.html</anchorfile>
+      <anchor>a2baafbfb9c218f079a778b3bb54cd995</anchor>
+      <arglist>(const MetisMissive *missive)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_FibEntry.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___fib_entry_8h</filename>
+    <includes id="metis___tlv_name_8h" name="metis_TlvName.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvName.h</includes>
+    <includes id="metis___strategy_impl_8h" name="metis_StrategyImpl.h" local="no" imported="no">ccnx/forwarder/metis/strategies/metis_StrategyImpl.h</includes>
+    <member kind="function">
+      <type>void</type>
+      <name>metisFibEntry_Release</name>
+      <anchorfile>metis___fib_entry_8h.html</anchorfile>
+      <anchor>ac92805b30d5e6fc2cfede9a06dc2e1e3</anchor>
+      <arglist>(MetisFibEntry **fibEntryPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisFibEntry *</type>
+      <name>metisFibEntry_Acquire</name>
+      <anchorfile>metis___fib_entry_8h.html</anchorfile>
+      <anchor>afaec485a9ea6412690e58855855a5d1e</anchor>
+      <arglist>(const MetisFibEntry *fibEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>const MetisNumberSet *</type>
+      <name>metisFibEntry_GetNexthops</name>
+      <anchorfile>metis___fib_entry_8h.html</anchorfile>
+      <anchor>a2e0cf8d9bd40b4b49269d1a903d724a3</anchor>
+      <arglist>(const MetisFibEntry *fibEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvName *</type>
+      <name>metisFibEntry_GetPrefix</name>
+      <anchorfile>metis___fib_entry_8h.html</anchorfile>
+      <anchor>ae1d262272615ed49483cc5f919980ee5</anchor>
+      <arglist>(const MetisFibEntry *fibEntry)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_FibEntryList.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___fib_entry_list_8h</filename>
+    <includes id="metis___fib_entry_8h" name="metis_FibEntry.h" local="no" imported="no">ccnx/forwarder/metis/processor/metis_FibEntry.h</includes>
+    <member kind="function">
+      <type>MetisFibEntryList *</type>
+      <name>metisFibEntryList_Create</name>
+      <anchorfile>metis___fib_entry_list_8h.html</anchorfile>
+      <anchor>aba1a3595d5b7ab176167073cbad6f4e4</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisFibEntryList_Destroy</name>
+      <anchorfile>metis___fib_entry_list_8h.html</anchorfile>
+      <anchor>ad662a9e9c30a9be17374dfef10b100d4</anchor>
+      <arglist>(MetisFibEntryList **listPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisFibEntryList_Append</name>
+      <anchorfile>metis___fib_entry_list_8h.html</anchorfile>
+      <anchor>a74edf03a8a128f758f29717e92077f3e</anchor>
+      <arglist>(MetisFibEntryList *list, MetisFibEntry *fibEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisFibEntryList_Length</name>
+      <anchorfile>metis___fib_entry_list_8h.html</anchorfile>
+      <anchor>a5633fafd9ab07ba980dc4f2d54d3d592</anchor>
+      <arglist>(const MetisFibEntryList *list)</arglist>
+    </member>
+    <member kind="function">
+      <type>const MetisFibEntry *</type>
+      <name>metisFibEntryList_Get</name>
+      <anchorfile>metis___fib_entry_list_8h.html</anchorfile>
+      <anchor>a439ce4db2a9a62c79be001a34dcfcc44</anchor>
+      <arglist>(const MetisFibEntryList *list, size_t index)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_HashTableFunction.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___hash_table_function_8h</filename>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisHashTableFunction_MessageNameEquals</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>aca7c7730681178d54f74772eb302e3bd</anchor>
+      <arglist>(const void *metisMessageA, const void *metisMessageB)</arglist>
+    </member>
+    <member kind="function">
+      <type>HashCodeType</type>
+      <name>metisHashTableFunction_MessageNameHashCode</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>a5dceccc2c414d9748e499b19fb6292ea</anchor>
+      <arglist>(const void *metisMessageA)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisHashTableFunction_MessageNameAndKeyIdEquals</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>ac9812e77676744fe32a0c9038dfddb26</anchor>
+      <arglist>(const void *metisMessageA, const void *metisMessageB)</arglist>
+    </member>
+    <member kind="function">
+      <type>HashCodeType</type>
+      <name>metisHashTableFunction_MessageNameAndKeyIdHashCode</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>a7e0d71646c7b040ab8a9880cb06f8d35</anchor>
+      <arglist>(const void *metisMessageA)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisHashTableFunction_MessageNameAndObjectHashEquals</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>a4bf274cc19fa9714383690903b46ca27</anchor>
+      <arglist>(const void *metisMessageA, const void *metisMessageB)</arglist>
+    </member>
+    <member kind="function">
+      <type>HashCodeType</type>
+      <name>metisHashTableFunction_MessageNameAndObjectHashHashCode</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>ab45220b34506e98acc47c1ca3f149483</anchor>
+      <arglist>(const void *metisMessageA)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisHashTableFunction_TlvNameEquals</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>ada6e88f2604322e3ca7e08cd19f9a850</anchor>
+      <arglist>(const void *metisTlvNameA, const void *metisTlvNameB)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>metisHashTableFunction_TlvNameCompare</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>a8e2f7b6257ff163c9bbbc44342e05e02</anchor>
+      <arglist>(const void *keyA, const void *keyB)</arglist>
+    </member>
+    <member kind="function">
+      <type>HashCodeType</type>
+      <name>metisHashTableFunction_TlvNameHashCode</name>
+      <anchorfile>metis___hash_table_function_8h.html</anchorfile>
+      <anchor>a790c357d95846c69d593a7344f436a80</anchor>
+      <arglist>(const void *keyA)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_MessageProcessor.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___message_processor_8h</filename>
+    <includes id="metis___message_8h" name="metis_Message.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Message.h</includes>
+    <member kind="function">
+      <type>MetisMessageProcessor *</type>
+      <name>metisMessageProcessor_Create</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a93a615ea6bc0eaa9796391a12a440257</anchor>
+      <arglist>(MetisForwarder *metis)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessageProcessor_Destroy</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a130639c5131141590cf246271a4069a0</anchor>
+      <arglist>(MetisMessageProcessor **processorPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessageProcessor_Receive</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a1719693da99e24a46f92967fa8738f58</anchor>
+      <arglist>(MetisMessageProcessor *procesor, MetisMessage *message)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessageProcessor_AddTap</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>ad2f39bb814f6762e6df6da4e8f7d4e05</anchor>
+      <arglist>(MetisMessageProcessor *procesor, MetisTap *tap)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessageProcessor_RemoveTap</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a57586a65076765a69fcd6c396cf37b0c</anchor>
+      <arglist>(MetisMessageProcessor *procesor, const MetisTap *tap)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessageProcessor_AddOrUpdateRoute</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a2ab0caa2353068a9c34e5534f9b7ef3d</anchor>
+      <arglist>(MetisMessageProcessor *procesor, CPIRouteEntry *route)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisMessageProcessor_RemoveRoute</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a32c7f5ace5dd6c6be9bcbe7891b4bff3</anchor>
+      <arglist>(MetisMessageProcessor *procesor, CPIRouteEntry *route)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessageProcessor_RemoveConnectionIdFromRoutes</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a8d3826edc6b3e9086d55675af5065698</anchor>
+      <arglist>(MetisMessageProcessor *processor, unsigned connectionId)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisFibEntryList *</type>
+      <name>metisMessageProcessor_GetFibEntries</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>ad79c42f0775f44f405b56e008fef2771</anchor>
+      <arglist>(MetisMessageProcessor *processor)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisMessageProcessor_SetContentObjectStoreSize</name>
+      <anchorfile>metis___message_processor_8h.html</anchorfile>
+      <anchor>a07855c5e58e312bd8f0b32271bb3dab2</anchor>
+      <arglist>(MetisMessageProcessor *processor, size_t maximumContentStoreSize)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_PIT.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___p_i_t_8h</filename>
+    <includes id="metis___message_8h" name="metis_Message.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Message.h</includes>
+    <includes id="metis___pit_entry_8h" name="metis_PitEntry.h" local="no" imported="no">ccnx/forwarder/metis/processor/metis_PitEntry.h</includes>
+    <includes id="metis___p_i_t_verdict_8h" name="metis_PITVerdict.h" local="no" imported="no">ccnx/forwarder/metis/processor/metis_PITVerdict.h</includes>
+    <member kind="function">
+      <type>MetisPIT *</type>
+      <name>metisPIT_Create</name>
+      <anchorfile>metis___p_i_t_8h.html</anchorfile>
+      <anchor>acefd4bb72e4183afe554858f750ceb3a</anchor>
+      <arglist>(MetisForwarder *metis)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisPIT_Destroy</name>
+      <anchorfile>metis___p_i_t_8h.html</anchorfile>
+      <anchor>a3239e0b50c1652ba928d7690fb13d40f</anchor>
+      <arglist>(MetisPIT **pitPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisPITVerdict</type>
+      <name>metisPIT_ReceiveInterest</name>
+      <anchorfile>metis___p_i_t_8h.html</anchorfile>
+      <anchor>ae60cb68481debaad307847d1f6d0f370</anchor>
+      <arglist>(MetisPIT *pit, MetisMessage *interestMessage)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisNumberSet *</type>
+      <name>metisPIT_SatisfyInterest</name>
+      <anchorfile>metis___p_i_t_8h.html</anchorfile>
+      <anchor>a6a36a444d61e1ac96c6cf7c03272baa6</anchor>
+      <arglist>(MetisPIT *pit, const MetisMessage *objectMessage)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisPIT_RemoveInterest</name>
+      <anchorfile>metis___p_i_t_8h.html</anchorfile>
+      <anchor>ab0414dd838d58d7619873cb339c9812c</anchor>
+      <arglist>(MetisPIT *pit, const MetisMessage *interestMessage)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisPitEntry *</type>
+      <name>metisPIT_GetPitEntry</name>
+      <anchorfile>metis___p_i_t_8h.html</anchorfile>
+      <anchor>aa74b22c67cba8e31395186aec892d592</anchor>
+      <arglist>(const MetisPIT *pit, const MetisMessage *interestMessage)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_PitEntry.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___pit_entry_8h</filename>
+    <includes id="metis___ticks_8h" name="metis_Ticks.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Ticks.h</includes>
+    <includes id="metis___message_8h" name="metis_Message.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Message.h</includes>
+    <member kind="function">
+      <type>MetisPitEntry *</type>
+      <name>metisPitEntry_Create</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>a9d9bbdf46e5b0729d28e4ad57b4397c7</anchor>
+      <arglist>(MetisMessage *message, MetisTicks expiryTime)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisPitEntry_Release</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>aeb9cab48893700131c48dcd732dbc5b2</anchor>
+      <arglist>(MetisPitEntry **pitEntryPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisPitEntry *</type>
+      <name>metisPitEntry_Acquire</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>ad41668940a50b2050fd5e6a903b8d33d</anchor>
+      <arglist>(MetisPitEntry *original)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisPitEntry_AddIngressId</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>adcad3c8c3ffb19bc0e3c75b3a7a56140</anchor>
+      <arglist>(MetisPitEntry *pitEntry, unsigned ingressId)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisPitEntry_AddEgressId</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>a3dc668a819de5f87d8072342a6868e61</anchor>
+      <arglist>(MetisPitEntry *pitEntry, unsigned egressId)</arglist>
+    </member>
+    <member kind="function">
+      <type>const MetisNumberSet *</type>
+      <name>metisPitEntry_GetIngressSet</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>aea626737bb0f20d16e3d64bac5fbd88e</anchor>
+      <arglist>(const MetisPitEntry *pitEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>const MetisNumberSet *</type>
+      <name>metisPitEntry_GetEgressSet</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>a79e33eeff7e61342a2efc4c1b2f22a96</anchor>
+      <arglist>(const MetisPitEntry *pitEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisMessage *</type>
+      <name>metisPitEntry_GetMessage</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>aa615be358bd8824120991dab996615b0</anchor>
+      <arglist>(const MetisPitEntry *pitEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTicks</type>
+      <name>metisPitEntry_GetExpiryTime</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>ae13a59ec410028a7d10a89beef40c334</anchor>
+      <arglist>(const MetisPitEntry *pitEntry)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisPitEntry_SetExpiryTime</name>
+      <anchorfile>metis___pit_entry_8h.html</anchorfile>
+      <anchor>a503d85ec7345a1152aa127ef8f4966b3</anchor>
+      <arglist>(MetisPitEntry *pitEntry, MetisTicks expiryTime)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_PITVerdict.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>metis___p_i_t_verdict_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>metis_StrategyImpl.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/strategies/</path>
+    <filename>metis___strategy_impl_8h</filename>
+    <includes id="metis___message_8h" name="metis_Message.h" local="no" imported="no">ccnx/forwarder/metis/core/metis_Message.h</includes>
+    <class kind="struct">metis_strategy_impl</class>
+  </compound>
+  <compound kind="file">
+    <name>metis_Tlv.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_8h</filename>
+    <includes id="metis___tlv_extent_8h" name="metis_TlvExtent.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvExtent.h</includes>
+    <includes id="metis___tlv_skeleton_8h" name="metis_TlvSkeleton.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvSkeleton.h</includes>
+    <member kind="function">
+      <type>struct</type>
+      <name>__attribute__</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>a732a50f434b24bb55fadde940376fc78</anchor>
+      <arglist>((packed)) metis_tlv_type</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisTlv_FixedHeaderLength</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>ac4a63c4936b1d2632bbd9ebecae914f2</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisTlv_TotalHeaderLength</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>a0a06c16f5dedcc81b73264a59a35a00c</anchor>
+      <arglist>(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisTlv_TotalPacketLength</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>a25028d03d7748abd356bcd2532880f63</anchor>
+      <arglist>(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlv_NameSegments</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>a14f21b0e80c8d95c60850a3090b76b0c</anchor>
+      <arglist>(uint8_t *name, size_t nameLength, MetisTlvExtent **outputArrayPtr, size_t *outputLengthPtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>PARCBuffer *</type>
+      <name>metisTlv_EncodeControlPlaneInformation</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>a47e6afa43ac104f8f76f9a0cdc0b438b</anchor>
+      <arglist>(const CCNxControl *cpiControlMessage)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlv_ExtentToVarInt</name>
+      <anchorfile>metis___tlv_8h.html</anchorfile>
+      <anchor>a7d03676cf5557eb73af24ed42df1a4dc</anchor>
+      <arglist>(const uint8_t *packet, const MetisTlvExtent *extent, uint64_t *output)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_TlvExtent.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_extent_8h</filename>
+    <class kind="struct">MetisTlvExtent</class>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvExtent_Equals</name>
+      <anchorfile>metis___tlv_extent_8h.html</anchorfile>
+      <anchor>a16fd2c2e6fa4a61330e72b8b7078acf4</anchor>
+      <arglist>(const MetisTlvExtent *a, const MetisTlvExtent *b)</arglist>
+    </member>
+    <member kind="variable">
+      <type>const MetisTlvExtent</type>
+      <name>metisTlvExtent_NotFound</name>
+      <anchorfile>metis___tlv_extent_8h.html</anchorfile>
+      <anchor>a47fd23709789913e45c20c1bf137586c</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_TlvName.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_name_8h</filename>
+    <member kind="function">
+      <type>MetisTlvName *</type>
+      <name>metisTlvName_Create</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>ae1184ab52ee5b8b70390400a0ef550c5</anchor>
+      <arglist>(const uint8_t *memory, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvName *</type>
+      <name>metisTlvName_CreateFromCCNxName</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>ab3e8c5e0a0144af0f177c86eb07b4234</anchor>
+      <arglist>(const CCNxName *ccnxName)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvName_Release</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>af07ce2611bf0d09b5e85a81ccd452353</anchor>
+      <arglist>(MetisTlvName **namePtr)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvName *</type>
+      <name>metisTlvName_Acquire</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>a366ee96fc0817d9ad8941d68d5d38cc2</anchor>
+      <arglist>(const MetisTlvName *original)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvName *</type>
+      <name>metisTlvName_Slice</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>a4198dd85ddec0c10627753850167c10c</anchor>
+      <arglist>(const MetisTlvName *original, size_t segmentCount)</arglist>
+    </member>
+    <member kind="function">
+      <type>uint32_t</type>
+      <name>metisTlvName_HashCode</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>a6f372ebc3c6b2f11f9d18ea7b7ca7eb1</anchor>
+      <arglist>(const MetisTlvName *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvName_Equals</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>acd5b69f2ae230b35a74ee9f85da67605</anchor>
+      <arglist>(const MetisTlvName *a, const MetisTlvName *b)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>metisTlvName_Compare</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>ad3b3a46ca45bc99d62c37cc0cb4866a3</anchor>
+      <arglist>(const MetisTlvName *a, const MetisTlvName *b)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvName_StartsWith</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>adf825768034e44fb433e58720e0b5aab</anchor>
+      <arglist>(const MetisTlvName *name, const MetisTlvName *prefix)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisTlvName_SegmentCount</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>a2d49d7d4c48dedc9b97ffbc3a0f13d41</anchor>
+      <arglist>(const MetisTlvName *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>CCNxName *</type>
+      <name>metisTlvName_ToCCNxName</name>
+      <anchorfile>metis___tlv_name_8h.html</anchorfile>
+      <anchor>ab4ef3a6d61615fd60ce64ff3c2fe5cba</anchor>
+      <arglist>(const MetisTlvName *name)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_TlvOps.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_ops_8h</filename>
+    <includes id="metis___tlv_skeleton_8h" name="metis_TlvSkeleton.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvSkeleton.h</includes>
+    <class kind="struct">MetisTlvOps</class>
+  </compound>
+  <compound kind="file">
+    <name>metis_TlvSchemaV0.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_schema_v0_8h</filename>
+    <includes id="metis___tlv_ops_8h" name="metis_TlvOps.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvOps.h</includes>
+    <member kind="variable">
+      <type>const MetisTlvOps</type>
+      <name>MetisTlvSchemaV0_Ops</name>
+      <anchorfile>metis___tlv_schema_v0_8h.html</anchorfile>
+      <anchor>a7c5c57e8e3acf4ff7b5bc02c96a98c30</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_TlvSchemaV1.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_schema_v1_8h</filename>
+    <includes id="metis___tlv_ops_8h" name="metis_TlvOps.h" local="no" imported="no">ccnx/forwarder/metis/tlv/metis_TlvOps.h</includes>
+    <member kind="variable">
+      <type>const MetisTlvOps</type>
+      <name>MetisTlvSchemaV1_Ops</name>
+      <anchorfile>metis___tlv_schema_v1_8h.html</anchorfile>
+      <anchor>ae3151f3354693f887ad1de5369ae9ecd</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>metis_TlvSkeleton.h</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>metis___tlv_skeleton_8h</filename>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetName</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a6dbbbb57743df5d99cf98a2b1310170b</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetKeyId</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a1699fb53dc71918b1e46ef20b7ffdc54</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetObjectHash</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a7218badabe871cc4a80d7b636cb8c5fd</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetHopLimit</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a0bd252f946e5f86de3b0f7d4281450cf</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetInterestLifetime</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>af47845c9d75d7648357406d0f6a8d618</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetCacheTimeHeader</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>ad7f3a9865f9c3a093a8fe8d7b8ba6da3</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetExpiryTime</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a88ea0d1211527ff93fb1334347bc2f5d</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetCPI</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a127c202d43248fba9bbccc0f9d29c724</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>metisTlvSkeleton_SetFragmentPayload</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a107aedd0586c2d0eaf4170e43a08257b</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, size_t offset, size_t length)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvSkeleton_UpdateHopLimit</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a68b62b3cd3c59a090a579c87172407d3</anchor>
+      <arglist>(MetisTlvSkeleton *skeleton, uint8_t hoplimit)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetName</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a06cd176a03286e605932adfa3da129e6</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetKeyId</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>acb54a3b418d87e082c00791c631ce20b</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetObjectHash</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a814217e1ef09a685b952a7c36cb04fae</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetHopLimit</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>ac91f3c8511fbf7789d8c78c4d59f85dd</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetInterestLifetime</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>ab292ae7c41a51060999590a777c767f5</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetCacheTimeHeader</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a3572250ca49c58ae9b97e06019f1f8f8</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetExpiryTime</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a33660f021938968e2bda32ec4b172fc7</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetCPI</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a2ae19162c5226efdbdf29f8706ada759</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisTlvExtent</type>
+      <name>metisTlvSkeleton_GetFragmentPayload</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a1b46516247bc258be5a773d8c3514d4a</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>const uint8_t *</type>
+      <name>metisTlvSkeleton_GetPacket</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a461cda6c1bb30ade1b996d77967abafc</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>metisTlvSkeleton_TotalPacket</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a4a44b90670b04e21369d1f1d7f5a60d3</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>PARCCryptoHash *</type>
+      <name>metisTlvSkeleton_ComputeContentObjectHash</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a0b5fb55b81c9bb176353ab5f0450b989</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvSkeleton_IsPacketTypeInterest</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a93c18a86d2c9ba34f72168c26c289175</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvSkeleton_IsPacketTypeContentObject</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a62f14dbd00510871f5c1e692550b00b2</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvSkeleton_IsPacketTypeControl</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>a161ab721ad0d50dccc46f3005a817ba7</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvSkeleton_IsPacketTypeInterestReturn</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>aae3ecd7d00c55c7214129bf5121b6cd7</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>metisTlvSkeleton_IsPacketTypeHopByHopFragment</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>afd920b9ca995118924205c7868854dbf</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="function">
+      <type>MetisLogger *</type>
+      <name>metisTlvSkeleton_GetLogger</name>
+      <anchorfile>metis___tlv_skeleton_8h.html</anchorfile>
+      <anchor>ad13192c46b1041770f121636ad95e78e</anchor>
+      <arglist>(const MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>metis_command_ops</name>
+    <filename>structmetis__command__ops.html</filename>
+  </compound>
+  <compound kind="struct">
+    <name>MetisContentStoreConfig</name>
+    <filename>struct_metis_content_store_config.html</filename>
+  </compound>
+  <compound kind="struct">
+    <name>metis_contentstore_interface</name>
+    <filename>structmetis__contentstore__interface.html</filename>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>putContent</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>ace270e9426aba3d802c791e4ebf8cd99</anchor>
+      <arglist>)(MetisContentStoreInterface *storeImpl, MetisMessage *content, uint64_t currentTimeTicks)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>removeContent</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>a604e96274262f924ca808d05447a4770</anchor>
+      <arglist>)(MetisContentStoreInterface *storeImpl, MetisMessage *content)</arglist>
+    </member>
+    <member kind="variable">
+      <type>MetisMessage *(*</type>
+      <name>matchInterest</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>a6f03223331c65e1233f58ccea8a8e287</anchor>
+      <arglist>)(MetisContentStoreInterface *storeImpl, MetisMessage *interest)</arglist>
+    </member>
+    <member kind="variable">
+      <type>size_t(*</type>
+      <name>getObjectCapacity</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>a1a11ff5fe0e3389fca208e2b3bde3959</anchor>
+      <arglist>)(MetisContentStoreInterface *storeImpl)</arglist>
+    </member>
+    <member kind="variable">
+      <type>size_t(*</type>
+      <name>getObjectCount</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>acb9f016da47e88b6bb045b6a9d41ac55</anchor>
+      <arglist>)(MetisContentStoreInterface *storeImpl)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>log</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>a9590a92d4c7009fa531e981a9d7fd780</anchor>
+      <arglist>)(MetisContentStoreInterface *storeImpl)</arglist>
+    </member>
+    <member kind="variable">
+      <type>MetisContentStoreInterface *(*</type>
+      <name>acquire</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>aeb2504db9413e6a892417080ad1361ee</anchor>
+      <arglist>)(const MetisContentStoreInterface *storeImpl)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>release</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>a7feaff8252bc58fac3cf6bddf7d957ed</anchor>
+      <arglist>)(MetisContentStoreInterface **storeImpl)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void *</type>
+      <name>_privateData</name>
+      <anchorfile>structmetis__contentstore__interface.html</anchorfile>
+      <anchor>ad32bd844894d3d7870c2f48782895c0d</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>metis_io_ops</name>
+    <filename>structmetis__io__ops.html</filename>
+  </compound>
+  <compound kind="struct">
+    <name>metis_listener_ops</name>
+    <filename>structmetis__listener__ops.html</filename>
+    <member kind="variable">
+      <type>void *</type>
+      <name>context</name>
+      <anchorfile>structmetis__listener__ops.html</anchorfile>
+      <anchor>ae376f130b17d169ee51be68077a89ed0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>destroy</name>
+      <anchorfile>structmetis__listener__ops.html</anchorfile>
+      <anchor>ab351f1a0faac6a13ad2bea880eeae3a8</anchor>
+      <arglist>)(MetisListenerOps **listenerOpsPtr)</arglist>
+    </member>
+    <member kind="variable">
+      <type>unsigned(*</type>
+      <name>getInterfaceIndex</name>
+      <anchorfile>structmetis__listener__ops.html</anchorfile>
+      <anchor>ad61fc0db38afd0c8229ec92cfa4673f4</anchor>
+      <arglist>)(const MetisListenerOps *ops)</arglist>
+    </member>
+    <member kind="variable">
+      <type>const CPIAddress *(*</type>
+      <name>getListenAddress</name>
+      <anchorfile>structmetis__listener__ops.html</anchorfile>
+      <anchor>aaa3ad2ce97b8be6fc8d21095e091a0ef</anchor>
+      <arglist>)(const MetisListenerOps *ops)</arglist>
+    </member>
+    <member kind="variable">
+      <type>MetisEncapType(*</type>
+      <name>getEncapType</name>
+      <anchorfile>structmetis__listener__ops.html</anchorfile>
+      <anchor>a4d9598b4fa9b483750a1f936135e437a</anchor>
+      <arglist>)(const MetisListenerOps *ops)</arglist>
+    </member>
+    <member kind="variable">
+      <type>int(*</type>
+      <name>getSocket</name>
+      <anchorfile>structmetis__listener__ops.html</anchorfile>
+      <anchor>a40fc1619bfbc00af0c0296b3267148cd</anchor>
+      <arglist>)(const MetisListenerOps *ops)</arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>metis_strategy_impl</name>
+    <filename>structmetis__strategy__impl.html</filename>
+  </compound>
+  <compound kind="struct">
+    <name>metis_tap</name>
+    <filename>structmetis__tap.html</filename>
+    <member kind="variable">
+      <type>void *</type>
+      <name>context</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>ae376f130b17d169ee51be68077a89ed0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isTapOnReceive</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>a9c52b339606f937ae225435937ebb3e9</anchor>
+      <arglist>)(const MetisTap *tap)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isTapOnSend</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>a549d8ba30c8bf09c397b627117509be4</anchor>
+      <arglist>)(const MetisTap *tap)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isTapOnDrop</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>a9018847753a290e4fb321f5b0f8713bd</anchor>
+      <arglist>)(const MetisTap *tap)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>tapOnReceive</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>a4fde1ff1596dfe21bd66e7fd04c677a8</anchor>
+      <arglist>)(MetisTap *tap, const MetisMessage *message)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>tapOnSend</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>accdafaccd2a2c2b7a81cf6970baace42</anchor>
+      <arglist>)(MetisTap *tap, const MetisMessage *message)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>tapOnDrop</name>
+      <anchorfile>structmetis__tap.html</anchorfile>
+      <anchor>a11dcf8866ab30d59ebc9e89f5da745cb</anchor>
+      <arglist>)(MetisTap *tap, const MetisMessage *message)</arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>MetisTlvExtent</name>
+    <filename>struct_metis_tlv_extent.html</filename>
+  </compound>
+  <compound kind="struct">
+    <name>MetisTlvOps</name>
+    <filename>struct_metis_tlv_ops.html</filename>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>parse</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>a75f3f13b34ed4ce5446f9c298ce53c11</anchor>
+      <arglist>)(MetisTlvSkeleton *skeleton)</arglist>
+    </member>
+    <member kind="variable">
+      <type>PARCCryptoHash *(*</type>
+      <name>computeContentObjectHash</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>adb3e23026cc8289a4caf6dd305e78c48</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>PARCBuffer *(*</type>
+      <name>encodeControlPlaneInformation</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>a069666a1707e3f25bac3e0398c6ff5b7</anchor>
+      <arglist>)(const CCNxControl *cpiControlMessage)</arglist>
+    </member>
+    <member kind="variable">
+      <type>size_t(*</type>
+      <name>totalHeaderLength</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>af10dedd276576e04f0ad139cb2151693</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>size_t(*</type>
+      <name>totalPacketLength</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>ac2814f2d85a05b019eef67fccb3d8d38</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>size_t(*</type>
+      <name>fixedHeaderLength</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>a0c72c61d6c1d967fd8a03311718d0a92</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isPacketTypeInterest</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>af27d7d84ef0d7fa34f97e074d2a4c081</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isPacketTypeContentObject</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>adcc5141e6f8280bfdaf4aac88fe12d7a</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isPacketTypeInterestReturn</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>a9ee30558bb8c8f762dd7f0bbd8d754d1</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isPacketTypeControl</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>a60f8ca8013d736222f90266e3e443658</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool(*</type>
+      <name>isPacketTypeHopByHopFragment</name>
+      <anchorfile>struct_metis_tlv_ops.html</anchorfile>
+      <anchor>a3ac9301f8aed608209abb230dcd49090</anchor>
+      <arglist>)(const uint8_t *packet)</arglist>
+    </member>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/</path>
+    <filename>dir_bcfc85182c085d71da54f91e9bbfdc37.html</filename>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder</dir>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/</path>
+    <filename>dir_61559995d99aee0a184ff053457555e4.html</filename>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/metis_control</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/metis_daemon</dir>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config/</path>
+    <filename>dir_53f459e4205fd33777ae605604be70b4.html</filename>
+    <file>metis_CommandLineInterface.c</file>
+    <file>metis_CommandLineInterface.h</file>
+    <file>metis_CommandOps.c</file>
+    <file>metis_CommandOps.h</file>
+    <file>metis_CommandParser.c</file>
+    <file>metis_CommandParser.h</file>
+    <file>metis_CommandReturn.h</file>
+    <file>metis_Configuration.c</file>
+    <file>metis_Configuration.h</file>
+    <file>metis_ConfigurationFile.c</file>
+    <file>metis_ConfigurationFile.h</file>
+    <file>metis_ConfigurationListeners.c</file>
+    <file>metis_ConfigurationListeners.h</file>
+    <file>metis_ControlState.c</file>
+    <file>metis_ControlState.h</file>
+    <file>metis_SymbolicNameTable.c</file>
+    <file>metis_SymbolicNameTable.h</file>
+    <file>metis_WebInterface.h</file>
+    <file>metisControl_Add.c</file>
+    <file>metisControl_Add.h</file>
+    <file>metisControl_AddConnection.c</file>
+    <file>metisControl_AddConnection.h</file>
+    <file>metisControl_AddListener.c</file>
+    <file>metisControl_AddListener.h</file>
+    <file>metisControl_AddRoute.c</file>
+    <file>metisControl_AddRoute.h</file>
+    <file>metisControl_List.c</file>
+    <file>metisControl_List.h</file>
+    <file>metisControl_ListConnections.c</file>
+    <file>metisControl_ListConnections.h</file>
+    <file>metisControl_ListInterfaces.c</file>
+    <file>metisControl_ListInterfaces.h</file>
+    <file>metisControl_ListRoutes.c</file>
+    <file>metisControl_ListRoutes.h</file>
+    <file>metisControl_Quit.c</file>
+    <file>metisControl_Quit.h</file>
+    <file>metisControl_Remove.c</file>
+    <file>metisControl_Remove.h</file>
+    <file>metisControl_RemoveConnection.c</file>
+    <file>metisControl_RemoveConnection.h</file>
+    <file>metisControl_RemoveRoute.c</file>
+    <file>metisControl_RemoveRoute.h</file>
+    <file>metisControl_Root.c</file>
+    <file>metisControl_Root.h</file>
+    <file>metisControl_Set.c</file>
+    <file>metisControl_Set.h</file>
+    <file>metisControl_SetDebug.c</file>
+    <file>metisControl_SetDebug.h</file>
+    <file>metisControl_Unset.c</file>
+    <file>metisControl_Unset.h</file>
+    <file>metisControl_UnsetDebug.c</file>
+    <file>metisControl_UnsetDebug.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/content_store</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/content_store/</path>
+    <filename>dir_da15db01a0c1740d5d2cf1b7eaa642f0.html</filename>
+    <file>metis_ContentStoreEntry.c</file>
+    <file>metis_ContentStoreEntry.h</file>
+    <file>metis_ContentStoreInterface.c</file>
+    <file>metis_ContentStoreInterface.h</file>
+    <file>metis_LRUContentStore.c</file>
+    <file>metis_LRUContentStore.h</file>
+    <file>metis_LruList.c</file>
+    <file>metis_LruList.h</file>
+    <file>metis_TimeOrderedList.c</file>
+    <file>metis_TimeOrderedList.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core/</path>
+    <filename>dir_d0944960f0bc6d6ed79e71dabfb94b82.html</filename>
+    <file>metis_Connection.c</file>
+    <file>metis_Connection.h</file>
+    <file>metis_ConnectionList.c</file>
+    <file>metis_ConnectionList.h</file>
+    <file>metis_ConnectionManager.c</file>
+    <file>metis_ConnectionManager.h</file>
+    <file>metis_ConnectionTable.c</file>
+    <file>metis_ConnectionTable.h</file>
+    <file>metis_Dispatcher.c</file>
+    <file>metis_Dispatcher.h</file>
+    <file>metis_Forwarder.c</file>
+    <file>metis_Forwarder.h</file>
+    <file>metis_Logger.c</file>
+    <file>metis_Logger.h</file>
+    <file>metis_Message.c</file>
+    <file>metis_Message.h</file>
+    <file>metis_MessagePacketType.h</file>
+    <file>metis_NumberSet.c</file>
+    <file>metis_NumberSet.h</file>
+    <file>metis_StreamBuffer.c</file>
+    <file>metis_StreamBuffer.h</file>
+    <file>metis_System.h</file>
+    <file>metis_ThreadedForwarder.c</file>
+    <file>metis_ThreadedForwarder.h</file>
+    <file>metis_Ticks.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/darwin</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/darwin/</path>
+    <filename>dir_f8636dbddad0914cd28fb2329d39c7f0.html</filename>
+    <file>metis_GenericEther.c</file>
+    <file>metis_System.c</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/</path>
+    <filename>dir_4ee50b67fc4b706760971ccc714820b5.html</filename>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis</dir>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io/</path>
+    <filename>dir_94bf15c3dad66b9fa087937cefc0e4fc.html</filename>
+    <file>metis_AddressPair.c</file>
+    <file>metis_AddressPair.h</file>
+    <file>metis_EtherConnection.c</file>
+    <file>metis_EtherConnection.h</file>
+    <file>metis_EtherListener.c</file>
+    <file>metis_EtherListener.h</file>
+    <file>metis_Ethernet.h</file>
+    <file>metis_GenericEther.h</file>
+    <file>metis_HopByHopFragmenter.c</file>
+    <file>metis_HopByHopFragmenter.h</file>
+    <file>metis_Io.h</file>
+    <file>metis_IPMulticastListener.c</file>
+    <file>metis_IPMulticastListener.h</file>
+    <file>metis_Listener.h</file>
+    <file>metis_ListenerSet.c</file>
+    <file>metis_ListenerSet.h</file>
+    <file>metis_LocalListener.c</file>
+    <file>metis_LocalListener.h</file>
+    <file>metis_StreamConnection.c</file>
+    <file>metis_StreamConnection.h</file>
+    <file>metis_TcpListener.c</file>
+    <file>metis_TcpListener.h</file>
+    <file>metis_TcpTunnel.c</file>
+    <file>metis_TcpTunnel.h</file>
+    <file>metis_UdpConnection.c</file>
+    <file>metis_UdpConnection.h</file>
+    <file>metis_UdpController.h</file>
+    <file>metis_UdpListener.c</file>
+    <file>metis_UdpListener.h</file>
+    <file>metis_UdpTunnel.c</file>
+    <file>metis_UdpTunnel.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/linux</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/linux/</path>
+    <filename>dir_8b43bf6b3c312feb9882d61e79a2b952.html</filename>
+    <file>metis_GenericEther.c</file>
+    <file>metis_System.c</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/messenger</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/messenger/</path>
+    <filename>dir_37607365a96dca0bf90ecd46375f12b7.html</filename>
+    <file>metis_Messenger.c</file>
+    <file>metis_Messenger.h</file>
+    <file>metis_MessengerRecipient.c</file>
+    <file>metis_MessengerRecipient.h</file>
+    <file>metis_Missive.c</file>
+    <file>metis_Missive.h</file>
+    <file>metis_MissiveDeque.c</file>
+    <file>metis_MissiveDeque.h</file>
+    <file>metis_MissiveType.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/</path>
+    <filename>dir_e64ecc02f9581b59b9e6026f4e59781d.html</filename>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/config</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/content_store</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/core</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/io</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/messenger</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/strategies</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/testdata</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv</dir>
+    <file>metis_About.c</file>
+    <file>metis_About.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/metis_control</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/metis_control/</path>
+    <filename>dir_aefe288e02ddf0429fc3660b8d6e0913.html</filename>
+    <file>metisControl_main.c</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/metis_daemon</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/command-line/metis_daemon/</path>
+    <filename>dir_bdfb53277da556c143ba0b3170c1740d.html</filename>
+    <file>metis_daemon.c</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/</path>
+    <filename>dir_24bf99c83dd9d3b97453839b48f8fbe6.html</filename>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/darwin</dir>
+    <dir>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/platforms/linux</dir>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/processor/</path>
+    <filename>dir_831c94926ac1768bea48d105ac5e3c2f.html</filename>
+    <file>metis_ContentStore.c</file>
+    <file>metis_ContentStore.h</file>
+    <file>metis_ContentStoreEntry.c</file>
+    <file>metis_ContentStoreEntry.h</file>
+    <file>metis_FIB.c</file>
+    <file>metis_FIB.h</file>
+    <file>metis_FibEntry.c</file>
+    <file>metis_FibEntry.h</file>
+    <file>metis_FibEntryList.c</file>
+    <file>metis_FibEntryList.h</file>
+    <file>metis_HashTableFunction.c</file>
+    <file>metis_HashTableFunction.h</file>
+    <file>metis_MatchingRulesTable.c</file>
+    <file>metis_MatchingRulesTable.h</file>
+    <file>metis_MessageProcessor.c</file>
+    <file>metis_MessageProcessor.h</file>
+    <file>metis_PIT.c</file>
+    <file>metis_PIT.h</file>
+    <file>metis_PitEntry.c</file>
+    <file>metis_PitEntry.h</file>
+    <file>metis_PITVerdict.h</file>
+    <file>metis_Tap.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/strategies</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/strategies/</path>
+    <filename>dir_b3de3c19e8293656d51a9be4831d32e7.html</filename>
+    <file>metis_Strategy.h</file>
+    <file>metis_StrategyImpl.h</file>
+    <file>strategy_All.c</file>
+    <file>strategy_All.h</file>
+    <file>strategy_BestUnipath.h</file>
+    <file>strategy_CNF.h</file>
+    <file>strategy_WeightedRoundRobin.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/testdata</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/testdata/</path>
+    <filename>dir_05be9313265f0a7109110f819a26f7f0.html</filename>
+    <file>metis_TestDataV0.h</file>
+    <file>metis_TestDataV1.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv</name>
+    <path>/home/parallels/Distillery/Metis/ccnx/forwarder/metis/tlv/</path>
+    <filename>dir_b45adcd34b37ac4637ec690bd9c70d10.html</filename>
+    <file>metis_Tlv.c</file>
+    <file>metis_Tlv.h</file>
+    <file>metis_TlvExtent.c</file>
+    <file>metis_TlvExtent.h</file>
+    <file>metis_TlvName.c</file>
+    <file>metis_TlvName.h</file>
+    <file>metis_TlvNameCodec.c</file>
+    <file>metis_TlvNameCodec.h</file>
+    <file>metis_TlvOps.h</file>
+    <file>metis_TlvSchemaV0.c</file>
+    <file>metis_TlvSchemaV0.h</file>
+    <file>metis_TlvSchemaV1.c</file>
+    <file>metis_TlvSchemaV1.h</file>
+    <file>metis_TlvSkeleton.c</file>
+    <file>metis_TlvSkeleton.h</file>
+  </compound>
+</tagfile>

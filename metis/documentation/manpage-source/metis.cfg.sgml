@@ -1,0 +1,360 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<!-- -->
+<!-- Copyright (c) 2017 Cisco and/or its affiliates. -->
+<!--  Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!--  you may not use this file except in compliance with the License. -->
+<!--  You may obtain a copy of the License at: -->
+<!--  -->
+<!--      http://www.apache.org/licenses/LICENSE-2.0 -->
+<!--  -->
+<!--  Unless required by applicable law or agreed to in writing, software -->
+<!--  distributed under the License is distributed on an "AS IS" BASIS, -->
+<!--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!--  See the License for the specific language governing permissions and -->
+<!--  limitations under the License. -->
+<!--  -->
+<!-- -->
+
+<refentry>
+<refmeta>
+	<refentrytitle>
+		<filename>metis.cfg</filename>
+	</refentrytitle>
+	<manvolnum>5</manvolnum>
+</refmeta>
+
+<refnamediv>
+	<refname>
+		<filename>metis.cfg</filename>
+	</refname>
+	<refpurpose>
+<filename>metis.cfg</filename> is an example of a configuation file usable with
+<citerefentry><refentrytitle>metis_daemon</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+though there is nothing special about the actual filename.  Each line of the configuration file is also usable with
+<citerefentry><refentrytitle>metis_control</refentrytitle><manvolnum>1</manvolnum></citerefentry>.  This
+document specifies all available command lines used to configure and query Metis.
+
+All commands have a 'help', so typing 'help command' will display on-line help.
+
+In a configuration file, lines beginning with '#' are comments.
+	</refpurpose>
+</refnamediv>
+
+<refsect1>
+	<title>ADD COMMANDS</title>
+	<variablelist>
+		<varlistentry>
+			<term>add connection ether <replaceable class="parameter">symbolic</replaceable> <replaceable class="parameter">dmac</replaceable> <replaceable class="parameter">interface</replaceable></term>
+			<listitem>
+				<para>
+					Adds an Ethernet connection on <replaceable class="parameter">interface</replaceable>  to the given destination MAC address.
+					The <replaceable class="parameter">symbolic</replaceable> name is a symbolic name for the connection, which may be used in
+					later commands, such as <command>add route</command>.
+                    There must be an Ethernet Listener on the specified interface (see <command>add listener</command>), and the connection
+                    will use the same EtherType as the Listener. The <replaceable class="parameter">dmac</replaceable> destination MAC address
+					is in hexidecimal with optional "-" or ":" separators.
+				</para>
+				<para>
+					A connection is a target for a later route assignment or for use as an ingress identifier in the PIT.  When using a broadcast
+					or group address for a connection, an Interest routed over that connection will be broadcast.  Many receivers may respond.
+					When Metis receives a broadcast Interest it uses the unicast source MAC for the reverse route -- it will automatically create
+ 				    a new connection for the source node and put that in the PIT entry, so a Content Object answering the broadcast Interest will
+					only be unicast to the previous hop.
+				</para>
+				<para>
+					add connection ether conn7 e8-06-88-cd-28-de em3
+				</para>
+				<para>
+					add connection ether bcast0 FFFFFFFFFFFF eth0
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>add connection (tcp|udp) <replaceable class="parameter">symbolic</replaceable> <replaceable class="parameter">remote_ip</replaceable> <replaceable class="parameter">remote_port</replaceable> <replaceable class="parameter">local_ip</replaceable> <replaceable class="parameter">local_port</replaceable></term>
+			<listitem>
+				<para>
+					Opens a connection to the specific <replaceable class="parameter">remote_ip</replaceable> (which may be a hostname, though you do not have control over IPv4 or IPv6 in this case) on <replaceable class="parameter">remote_port</replaceable>.  The local endpoint is given by <replaceable class="parameter">local_ip</replaceable> <replaceable class="parameter">local_port</replaceable>.  While the <replaceable class="parameter">local_ip</replaceable> <replaceable class="parameter">local_port</replaceable> are technically optional parameters, the system's choice of local address may not be what one expects or may be a different protocols (4 or 6).  The default port is 9695.
+				</para>
+				<para>
+					A TCP connection will go through a TCP connection establishment and will not register as UP until the remote side accepts.  If one side goes down, the TCP connection will not auto-restart if it becomes availble again.
+				</para>
+				<para>
+					A UDP connection will start in the UP state and will not go DOWN unless there is a serious network error.
+				</para>
+				<variablelist>
+					<varlistentry>
+						<term>Opens a connection to 1.1.1.1 on port 1200 from the local address 2.2.2.2 port 1300</term>
+						<listitem>
+							<para>
+							add connection tcp conn0 1.1.1.1 1200 2.2.2.2 1300
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>opens connection to IPv6 address on port 1300</term>
+						<listitem>
+							<para>
+							add connection udp barney2 fe80::aa20:66ff:fe00:314a 1300
+							</para>
+						</listitem>
+					</varlistentry>
+				</variablelist>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>add listener (tcp|udp) <replaceable class="parameter">symbolic</replaceable> <replaceable class="parameter">ip_address</replaceable> <replaceable class="parameter">port</replaceable></term>
+			<term>add listener ether <replaceable class="parameter">symbolic</replaceable> <replaceable class="parameter">interfaceName</replaceable> <replaceable class="parameter">ethertype</replaceable></term>
+			<term>add listener local <replaceable class="parameter">symbolic</replaceable> <replaceable class="parameter">path</replaceable></term>
+			<listitem>
+				<para>
+					Adds a protocol listener to accept packets of a given protocol (TCP or UDP or Ethernet).
+					The <replaceable class="parameter">symbolic</replaceable> name represents the listener and will be used in future commands
+					such as access list restrictions.  If using a configuration file on <command>metis_daemon</command>, you must include
+					a listener on localhost for local applications to use.
+				</para>
+				<para>
+					The <replaceable class="parameter">ip_address</replaceable> is the IPv4 or IPv6 local address to bind to.
+					The <replaceable class="parameter">port</replaceable> is the TCP or UDP port to bind to.
+				</para>
+				<para>
+					The <replaceable class="parameter">interfaceName</replaceable> is the interface to open a raw socket on (e.g. "eth0").
+					The <replaceable class="parameter">ethertype</replaceable> is the EtherType to use, represented as a 0x hex number (e.g. 0x0801)
+					or an integer (e.g. 2049).
+				</para>
+				<para>
+					The <replaceable class="parameter">path</replaceable> parameter specifies the file path to a unix domain socket.  Metis
+					will create this file and remove it when it exits.
+				</para>
+				<variablelist>
+					<varlistentry>
+   						<term>Listens to 192.168.1.7 on tcp port 9695 with a symbolic name 'homenet'</term>
+						<listitem>
+							<para>
+							  add listener tcp homenet 192.168.1.7 9695
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Listens to IPv6 localhost on udp port 9695</term>
+						<listitem>
+							<para>
+							  add listener udp localhost6 ::1 9695
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Listens to interface 'en0' on ethertype 0x0801</term>
+						<listitem>
+							<para>
+							  add listener ether nic0 en0 0x0801
+							</para>
+						</listitem>
+					</varlistentry>
+				</variablelist>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>add route <replaceable class="parameter">symbolic</replaceable> <replaceable class="parameter">prefix</replaceable> <replaceable class="parameter">prefix</replaceable></term>
+			<listitem>
+				<para>
+					Adds a static route to a given <replaceable class="parameter">prefix</replaceable> to the FIB for longest match.
+				</para>
+				<para>
+					Currently, the <replaceable class="parameter">symbolic</replaceable> and <replaceable class="parameter">cost</replaceable> are not used.
+				</para>
+			</listitem>
+		</varlistentry>
+
+	</variablelist>
+</refsect1>
+
+<refsect1>
+	<title>LIST COMMANDS</title>
+	<variablelist>
+		<varlistentry>
+			<term>list connections</term>
+			<listitem>
+				<para>
+					Enumerates the current connections to Metis.  These include all TCP, UDP, Unix Domain, and Ethernet peers.
+					Each connection has an connection ID (connid) and a state (UP or DOWN) followed by the local (to metis) and remote
+					addresses.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>list interfaces</term>
+			<listitem>
+				<para>
+					Enumerates the system interfaces available to Metis.  Each interface has an Interface ID, a 'name' (e.g. 'eth0'),
+					an MTU as reported by the system, and one or more addresses.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>list routes</term>
+			<listitem>
+				<para>
+					Enumerates the routes installed in the FIB.
+					The <replaceable class="option">iface</replaceable> is the out-bound connection.
+					The <replaceable class="option">protocol</replaceable> is the the routing protocol that injected the route.
+					'STATIC' means it was manually entered via <command>metis_control</command>.
+					<replaceable class="option">route</replaceable> is the route type.  'LONGEST' means longest matching prefix
+				    and 'EXACT' means exact match.  Only 'LONGEST' is supported.
+					<replaceable class="option">cost</replaceable> is the cost of the route.  It is not used.
+					<replaceable class="option">next</replaceable> is the nexthop on a multiple access interface.  it is not used
+					because the current implementation uses one connection (iface)  per neighbor.
+					<replaceable class="option">prefix</replaceable> is the CCNx name prefix for the route.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>Examples</term>
+			<listitem>
+					<programlisting linenumbering="numbered">
+> list connections
+23   UP inet4://127.0.0.1:9695 inet4://127.0.0.1:64260 TCP
+
+> list interfaces
+int       name lm      MTU
+ 24        lo0 lm    16384 inet6://[::1%0]:0
+inet4://127.0.0.1:0
+inet6://[fe80::1%1]:0
+ 25        en0  m     1500 link://3c-15-c2-e7-c5-ca
+inet6://[fe80::3e15:c2ff:fee7:c5ca%4]:0
+inet4://13.1.110.60:0
+inet6://[2620::2e80:a015:3e15:c2ff:fee7:c5ca%0]:0
+inet6://[2620::2e80:a015:a4b2:7e10:61d1:8d97%0]:0
+ 26        en1  m     1500 link://72-00-04-43-4e-50
+inet4://192.168.1.1:0
+ 27        en2  m     1500 link://72-00-04-43-4e-51
+ 28    bridge0  m     1500 link://3e-15-c2-7e-96-00
+ 29       p2p0  m     2304 link://0e-15-c2-e7-c5-ca
+
+> list routes
+ iface  protocol   route     cost                 next prefix
+    23    STATIC LONGEST        1 ---.---.---.---/.... lci:/foo/bar
+Done
+					</programlisting>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+</refsect1>
+
+<refsect1>
+	<title>REMOVE COMMANDS</title>
+	<variablelist>
+		<varlistentry>
+			<term>remove connection</term>
+			<listitem>
+				<para>
+					Not implemented.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>remove route</term>
+			<listitem>
+				<para>
+					Not implemented.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+</refsect1>
+
+<refsect1>
+	<title>MISC COMMANDS</title>
+	<variablelist>
+		<varlistentry>
+			<term>quit</term>
+			<listitem>
+				<para>
+					In interactive mode of <command>metis_control</command>, it cause the program to exit.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>set debug</term>
+			<listitem>
+				<para>
+					Turns on the debugging flag in <command>metis_control</command> to display information about its connection to Metis.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>unset debug</term>
+			<listitem>
+				<para>
+					Turns off the debugging flag in <command>metis_control</command> to display information about its connection to Metis.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+</refsect1>
+
+<refsect1>
+	<title>USAGE</title>
+	<example><title>Example Linux metis.cfg configuration file</title>
+		<programlisting>
+#local listeners for applications
+add listener tcp local0 127.0.0.1 9695
+add listener udp local1 127.0.0.1 9695
+add listener local unix0 /tmp/metis.sock
+
+# add ethernet listener and connection
+add listener ether nic0 eth0 0x0801
+add connection ether conn0 ff:ff:ff:ff:ff:ff eth0
+add route conn0 lci:/ 1
+
+# add UDP tunnel to remote system
+add connection udp conn1 ccnx.example.com 9695
+add route conn1 lci:/example.com 1
+		</programlisting>
+	</example>
+	<example><title>Example one-shot metis_control commands</title>
+	<screen>
+		<command>metis_control</command> list routes
+		<command>metis_control</command> add listener local unix0 /tmp/metis.sock
+	</screen>
+	</example>
+</refsect1>
+
+<refsect1>
+	<title>SEE ALSO</title>
+	<para>
+	<citerefentry><refentrytitle>metis_control</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+	<citerefentry><refentrytitle>metis_daemon</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>CAVEATS</title>
+	<para>
+	</para>
+</refsect1>
+<refsect1>
+	<title>BUGS</title>
+	<itemizedlist mark='opencircle'>
+	<listitem><para>
+	The output of 'list interfaces' is difficult to read because multiple addresses
+    do not align.
+	</para></listitem>
+	</itemizedlist>
+
+</refsect1>
+<refsect1>
+	<title>AUTHOR</title>
+	<para>
+	<author>
+		<firstname>Marc</firstname>
+		<surname>Mosko</surname>
+		<contrib>Palo Alto Research Center</contrib>
+	</author>
+	</para>
+</refsect1>
+</refentry>
+
+

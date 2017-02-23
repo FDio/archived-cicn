@@ -1,0 +1,159 @@
+          mmeettiiss__ddaaeemmoonn   (1)General Commands Manual         mmeettiiss__ddaaeemmoonn   (1)
+
+
+
+NNAAMMEE
+       mmeettiiss__ddaaeemmoonn      — Metis is the CCNx 1.0 forwarder, which runs on each
+       end system and as a software forwarder on intermediate systems.
+
+
+SSYYNNOOPPSSIISS
+       mmeettiiss__ddaaeemmoonn [----ppoorrtt _p_o_r_t]  [----ddaaeemmoonn]   [----ccaappaacciittyy  _c_o_n_t_e_n_t_S_t_o_r_e_S_i_z_e]
+       [----lloogg _f_a_c_i_l_i_t_y_=_l_e_v_e_l ...]  [----lloogg--ffiillee _l_o_g_f_i_l_e]  [----ccoonnffiigg _c_o_n_f_i_g_f_i_l_e]
+
+DDEESSCCRRIIPPTTIIOONN
+       mmeettiiss__ddaaeemmoonn  is  the CCNx 1.0 forwarder, which runs on each end system
+       and as a software forwarder on intermediate systems.   metis_daemon  is
+       the  program  to  launch  Metis, either as a console program or a back‐
+       ground daemon (detatched from console).  Once running, use the  program
+       mmeettiiss__ccoonnttrrooll to configure Metis.
+
+
+       Metis is structured as a set of Listeners, each of which handles a spe‐
+       cific method of listening for packets.  For  example,  a  TCP  listener
+       will  accept  connections on a specific TCP port on a specific local IP
+       address.  An Ethernet listener will accept frames of a specific  Ether‐
+       Type on a specific Interface.
+
+
+       When  Metis  accepts a connection, it will create a Connection entry in
+       the ConnectionTable to represent that peer.  For Ethernet, a Connection
+       is the tuple {dmac, smac, ethertype}.  For TCP and UDP, it is the tuple
+       {source IP, source port, destination IP, destination port}.  The connid
+       (connection ID) becomes the reverse route index in the Pending Interest
+       Table.
+
+
+OOPPTTIIOONNSS
+       --config _c_o_n_f_i_g_f_i_l_e
+                 Reads configuration parameters from _c_o_n_f_i_g_f_i_l_e.   The  _-_-_p_o_r_t
+                 option  has  no effect in this mode and Metis will not listen
+                 to any ports.  This means that mmeettiiss__ccoonnttrrooll will not be able
+                 to  connect  to  Metis  to  configure  it  further unless one
+                 includes at least a listener for  TCP  localhost  or  a  unix
+                 domain socket.
+
+
+       --capacity _c_o_n_t_e_n_t_S_t_o_r_e_S_i_z_e
+                 Sets  the  capacity  of the Content Store to _c_o_n_t_e_n_t_S_t_o_r_e_S_i_z_e
+                 content objects.  Metis uses a  least-recently-used  eviction
+                 policy.  A size of 0 will disable the Content Store.
+
+
+                 The  Content Store sits on the fast path of the forwarder, so
+                 there is a cost associated with adding and removing items  to
+                 the Content Store tables.
+
+
+       --daemon  Runs  Metis  in  daemon mode, detaching from the console.  It
+                 must be run with the _-_-_l_o_g_-_f_i_l_e option.
+
+
+       --log _f_a_c_i_l_i_t_y=_l_e_v_e_l
+                 Sets the log level of the given  _f_a_c_i_l_i_t_y             to  the
+                 given  _l_e_v_e_l.  The _-_-_l_o_g option may be repeated several times
+                 setting the log level of different facilities.  If  the  same
+                 facility  is  listed  twice,  only  the  last occurance takes
+                 effect.  The default log level is Error for all facilities.
+
+
+                 Facilities:
+
+                    ·  all: All facilities.
+
+
+                    ·  config: Configuration activies.
+
+
+                    ·  core: Core forwarder, such as startup and shutdown.
+
+
+                    ·  io: Listeners, connections, and all I/O related activi‐
+                       ties.
+
+
+                    ·  message: CCNx messages, such as parsing.
+
+
+                    ·  processor:  Forwarding  processor, such as CS, FIB, and
+                       PIT activities.
+
+
+
+                 The log levels are:  debug,  info,  notice,  warning,  error,
+                 critical, alert, off.
+
+
+       --log-file _l_o_g_f_i_l_e
+                 Specifies  the _l_o_g_f_i_l_e             to write all log messages.
+                 This parameter is required with _-_-_d_a_e_m_o_n mode.
+
+
+       --port _p_o_r_t
+                 The UDP  and  TCP  port  to  listen  on.   If  no  _c_o_n_f_i_g_f_i_l_e
+                 is  specified,  Metis  will listen on this port on all inter‐
+                 faces including localhost.
+
+
+                 If this parameter is not given, Metis uses the  default  port
+                 9695.
+
+
+UUSSAAGGEE
+       mmeettiiss__ddaaeemmoonn  --config  metis.cfg  --log  all=info  --log  config=debug
+       --log-file metis.log
+
+
+SSEEEE AALLSSOO
+       See mmeettiiss__ccoonnttrrooll((11)) for a description of how to  configure  mmeettiiss__ddaaee‐‐
+       mmoonn.
+
+
+       For  a list of all configuration lines that may be used with mmeettiiss__ccoonn‐‐
+       ttrrooll and by _-_-_c_o_n_f_i_g configuration file, see mmeettiiss..ccffgg((55)).
+
+
+CCAAVVEEAATTSS
+          ·  A given interface may only have  one  Ethernet  listener  on  one
+             EtherType.
+
+
+          ·  If  there are multiple longest matching prefix entries that match
+             an Interest, it will be forwarded to all those routes (i.e.  mul‐
+             ticast).
+
+
+          ·  Ethernet  fragmentation will only use the interface MTU and there
+             is not MTU discovery.  If Metis is used in a bridged environment,
+             this may lead to errors if the MTU changes on different segments,
+             such as a 10G link at 9000 bytes and a  100  Mbps  link  at  1500
+             bytes.
+
+
+BBUUGGSS
+          ·  Adding the same listener twice will cause Metis to crash.
+
+
+          ·  Errors in the configuration file may cause Metis to crash.
+
+
+          ·  The  command  'list  connections' will display all connections as
+             TCP encapsulation.
+
+
+AAUUTTHHOORR
+       Marc Mosko Palo Alto Research Center
+
+
+
+                                                            mmeettiiss__ddaaeemmoonn   (1)

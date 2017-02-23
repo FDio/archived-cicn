@@ -1,0 +1,241 @@
+          mmeettiiss..ccffgg      (5)  File Formats Manual           mmeettiiss..ccffgg      (5)
+
+
+
+NNAAMMEE
+       mmeettiiss..ccffgg         --  mmeettiiss..ccffgg  is  an  example of a configuation file
+       usable with mmeettiiss__ddaaeemmoonn((11)), though there is nothing special about  the
+       actual  filename.   Each  line of the configuration file is also usable
+       with mmeettiiss__ccoonnttrrooll((11)).  This document specifies all  available  command
+       lines used to configure and query Metis.
+
+       All  commands  have a 'help', so typing 'help command' will display on-
+       line help.
+
+       In a configuration file, lines beginning with '#' are comments.
+
+
+AADDDD CCOOMMMMAANNDDSS
+       add connection ether _s_y_m_b_o_l_i_c _d_m_a_c _i_n_t_e_r_f_a_c_e
+                 Adds an Ethernet connection on _i_n_t_e_r_f_a_c_e  to the given desti-
+                 nation MAC address.  The _s_y_m_b_o_l_i_c name is a symbolic name for
+                 the connection, which may be used in later commands, such  as
+                 aadddd  rroouuttee.  There must be an Ethernet Listener on the speci-
+                 fied interface (see aadddd lliisstteenneerr), and  the  connection  will
+                 use  the same EtherType as the Listener. The _d_m_a_c destination
+                 MAC address is in hexidecimal with optional "-" or ":"  sepa-
+                 rators.
+
+
+                 A  connection is a target for a later route assignment or for
+                 use as an ingress identifier in the PIT.  When using a broad-
+                 cast  or  group  address for a connection, an Interest routed
+                 over that connection will be broadcast.  Many  receivers  may
+                 respond.   When  Metis  receives a broadcast Interest it uses
+                 the unicast source MAC for the reverse route -- it will auto-
+                 matically create a new connection for the source node and put
+                 that in the PIT entry, so  a  Content  Object  answering  the
+                 broadcast Interest will only be unicast to the previous hop.
+
+
+                 add connection ether conn7 e8-06-88-cd-28-de em3
+
+
+                 add connection ether bcast0 FFFFFFFFFFFF eth0
+
+
+       add   connection  (tcp|udp)  _s_y_m_b_o_l_i_c  _r_e_m_o_t_e___i_p  _r_e_m_o_t_e___p_o_r_t  _l_o_c_a_l___i_p
+       _l_o_c_a_l___p_o_r_t
+                 Opens a connection to the specific _r_e_m_o_t_e___i_p (which may be  a
+                 hostname, though you do not have control over IPv4 or IPv6 in
+                 this case) on _r_e_m_o_t_e___p_o_r_t.  The local endpoint  is  given  by
+                 _l_o_c_a_l___i_p _l_o_c_a_l___p_o_r_t.  While the _l_o_c_a_l___i_p _l_o_c_a_l___p_o_r_t are tech-
+                 nically optional parameters, the  system's  choice  of  local
+                 address  may  not  be  what one expects or may be a different
+                 protocols (4 or 6).  The default port is 9695.
+
+
+                 A TCP connection will go through a TCP connection  establish-
+                 ment  and  will  not  register  as  UP  until the remote side
+                 accepts.  If one side goes down, the TCP connection will  not
+                 auto-restart if it becomes availble again.
+
+
+                 A  UDP  connection will start in the UP state and will not go
+                 DOWN unless there is a serious network error.
+
+
+                 Opens a connection to 1.1.1.1 on port  1200  from  the  local
+                 address 2.2.2.2 port 1300
+                           add connection tcp conn0 1.1.1.1 1200 2.2.2.2 1300
+
+
+                 opens connection to IPv6 address on port 1300
+                           add          connection         udp         barney2
+                           fe80::aa20:66ff:fe00:314a 1300
+
+
+       add listener (tcp|udp) _s_y_m_b_o_l_i_c _i_p___a_d_d_r_e_s_s _p_o_r_t
+
+       add listener ether _s_y_m_b_o_l_i_c _i_n_t_e_r_f_a_c_e_N_a_m_e _e_t_h_e_r_t_y_p_e
+
+       add listener local _s_y_m_b_o_l_i_c _p_a_t_h
+                 Adds a protocol listener to accept packets of a given  proto-
+                 col  (TCP  or UDP or Ethernet).  The _s_y_m_b_o_l_i_c name represents
+                 the listener and will be used  in  future  commands  such  as
+                 access  list  restrictions.  If using a configuration file on
+                 mmeettiiss__ddaaeemmoonn, you must include a listener  on  localhost  for
+                 local applications to use.
+
+
+                 The  _i_p___a_d_d_r_e_s_s is the IPv4 or IPv6 local address to bind to.
+                 The _p_o_r_t is the TCP or UDP port to bind to.
+
+
+                 The _i_n_t_e_r_f_a_c_e_N_a_m_e is the interface to open a  raw  socket  on
+                 (e.g. "eth0").  The _e_t_h_e_r_t_y_p_e is the EtherType to use, repre-
+                 sented as a 0x hex number (e.g. 0x0801) or an  integer  (e.g.
+                 2049).
+
+
+                 The  _p_a_t_h  parameter specifies the file path to a unix domain
+                 socket.  Metis will create this file and remove  it  when  it
+                 exits.
+
+
+                 Listens  to 192.168.1.7 on tcp port 9695 with a symbolic name
+                 'homenet'
+                           add listener tcp homenet 192.168.1.7 9695
+
+
+                 Listens to IPv6 localhost on udp port 9695
+                           add listener udp localhost6 ::1 9695
+
+
+                 Listens to interface 'en0' on ethertype 0x0801
+                           add listener ether nic0 en0 0x0801
+
+
+       add route _s_y_m_b_o_l_i_c _p_r_e_f_i_x _p_r_e_f_i_x
+                 Adds a static route to a given _p_r_e_f_i_x to the FIB for  longest
+                 match.
+
+
+                 Currently, the _s_y_m_b_o_l_i_c and _c_o_s_t are not used.
+
+
+LLIISSTT CCOOMMMMAANNDDSS
+       list connections
+                 Enumerates  the  current connections to Metis.  These include
+                 all TCP, UDP, Unix Domain, and Ethernet peers.  Each  connec-
+                 tion  has  an connection ID (connid) and a state (UP or DOWN)
+                 followed by the local (to metis) and remote addresses.
+
+
+       list interfaces
+                 Enumerates the system interfaces available  to  Metis.   Each
+                 interface has an Interface ID, a 'name' (e.g. 'eth0'), an MTU
+                 as reported by the system, and one or more addresses.
+
+
+       list routes
+                 Enumerates the routes installed in the FIB.  The _i_f_a_c_e is the
+                 out-bound connection.  The _p_r_o_t_o_c_o_l is the the routing proto-
+                 col that injected  the  route.   _r_o_u_t_e  is  the  route  type.
+                 'LONGEST'  means  longest  matching  prefix and 'EXACT' means
+                 exact match.  Only 'LONGEST' is supported.  _c_o_s_t is the  cost
+                 of the route.  It is not used.  _n_e_x_t is the nexthop on a mul-
+                 tiple access interface.  it is not used because  the  current
+                 implementation  uses  one  connection  (iface)  per neighbor.
+                 _p_r_e_f_i_x is the CCNx name prefix for the route.
+
+
+       Examples
+
+       > list connections
+       23   UP inet4://127.0.0.1:9695 inet4://127.0.0.1:64260 TCP
+
+       > list interfaces
+       int       name lm      MTU
+       24        lo0 lm    16384 inet6://[::1%0]:0
+       inet4://127.0.0.1:0
+       inet6://[fe80::1%1]:0
+       25        en0  m     1500 link://3c-15-c2-e7-c5-ca
+       inet6://[fe80::3e15:c2ff:fee7:c5ca%4]:0
+       inet4://13.1.110.60:0
+       inet6://[2620::2e80:a015:3e15:c2ff:fee7:c5ca%0]:0
+       inet6://[2620::2e80:a015:a4b2:7e10:61d1:8d97%0]:0
+       26        en1  m     1500 link://72-00-04-43-4e-50
+       inet4://192.168.1.1:0
+       27        en2  m     1500 link://72-00-04-43-4e-51
+       28    bridge0  m     1500 link://3e-15-c2-7e-96-00
+       29       p2p0  m     2304 link://0e-15-c2-e7-c5-ca
+
+       > list routes
+       iface  protocol   route     cost                 next prefix
+       23    STATIC LONGEST        1 ---.---.---.---/.... lci:/foo/bar
+       Done
+
+
+RREEMMOOVVEE CCOOMMMMAANNDDSS
+       remove connection
+                 Not implemented.
+
+
+       remove route
+                 Not implemented.
+
+
+MMIISSCC CCOOMMMMAANNDDSS
+       quit      In interactive mode of mmeettiiss__ccoonnttrrooll, it cause the program to
+                 exit.
+
+
+       set debug Turns  on  the  debugging  flag  in  mmeettiiss__ccoonnttrrooll to display
+                 information about its connection to Metis.
+
+
+       unset debug
+                 Turns off the debugging  flag  in  mmeettiiss__ccoonnttrrooll  to  display
+                 information about its connection to Metis.
+
+
+UUSSAAGGEE
+       EExxaammppllee LLiinnuuxx mmeettiiss..ccffgg ccoonnffiigguurraattiioonn ffiillee
+
+       #local listeners for applications
+       add listener tcp local0 127.0.0.1 9695
+       add listener udp local1 127.0.0.1 9695
+       add listener local unix0 /tmp/metis.sock
+
+       # add ethernet listener and connection
+       add listener ether nic0 eth0 0x0801
+       add connection ether conn0 ff:ff:ff:ff:ff:ff eth0
+       add route conn0 lci:/ 1
+
+       # add UDP tunnel to remote system
+       add connection udp conn1 ccnx.example.com 9695
+       add route conn1 lci:/eample.com 1
+
+
+       EExxaammppllee oonnee--sshhoott mmeettiiss__ccoonnttrrooll ccoommmmaannddss
+
+       mmeettiiss__ccoonnttrrooll list routes
+       mmeettiiss__ccoonnttrrooll add listener local unix0 /tmp/metis.sock
+
+
+SSEEEE AALLSSOO
+       mmeettiiss__ccoonnttrrooll((11)) mmeettiiss__ddaaeemmoonn((11))
+
+CCAAVVEEAATTSS
+BBUUGGSS
+          +o  The output of 'list interfaces' is difficult to read because mul-
+             tiple addresses do not align.
+
+
+AAUUTTHHOORR
+       Marc Mosko Palo Alto Research Center
+
+
+
+                                                            mmeettiiss..ccffgg      (5)

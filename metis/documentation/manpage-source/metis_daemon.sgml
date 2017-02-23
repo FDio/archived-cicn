@@ -1,0 +1,260 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<!-- -->
+<!-- Copyright (c) 2017 Cisco and/or its affiliates. -->
+<!--  Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!--  you may not use this file except in compliance with the License. -->
+<!--  You may obtain a copy of the License at: -->
+<!--  -->
+<!--      http://www.apache.org/licenses/LICENSE-2.0 -->
+<!--  -->
+<!--  Unless required by applicable law or agreed to in writing, software -->
+<!--  distributed under the License is distributed on an "AS IS" BASIS, -->
+<!--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!--  See the License for the specific language governing permissions and -->
+<!--  limitations under the License. -->
+<!--  -->
+<!-- -->
+<refentry>
+<refmeta>
+	<refentrytitle>
+		<application>metis_daemon</application>
+	</refentrytitle>
+	<manvolnum>1</manvolnum>
+</refmeta>
+
+<refnamediv>
+	<refname>
+		<application>metis_daemon</application>
+	</refname>
+	<refpurpose>
+Metis is the CCNx 1.0 forwarder, which runs on each end system and as a software forwarder
+on intermediate systems.
+	</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+	<cmdsynopsis>
+	<command>metis_daemon</command>
+<arg choice="opt"><option>--port</option> <replaceable class="parameter">port</replaceable></arg>
+<arg choice="opt"><option>--daemon</option></arg>
+<arg choice="opt"><option>--capacity</option> <replaceable class="parameter">contentStoreSize</replaceable></arg>
+<arg choice="opt" rep="repeat"><option>--log</option> <replaceable class="parameter">facility=level</replaceable></arg>
+<arg choice="opt"><option>--log-file</option> <replaceable class="parameter">logfile</replaceable></arg>
+<arg choice="opt"><option>--config</option> <replaceable class="parameter">configfile</replaceable></arg>
+	</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1>
+	<title>DESCRIPTION</title>
+	<para>
+	<command>metis_daemon</command>
+is the CCNx 1.0 forwarder, which runs on each end system and as a software forwarder
+on intermediate systems.  metis_daemon is the program to launch Metis, either as a console program
+or a background daemon (detatched from console).  Once running, use the program <command>metis_control</command> to
+configure Metis.
+	</para>
+	<para>
+Metis is structured as a set of Listeners, each of which handles a specific method of listening for packets.
+For example, a TCP listener will accept connections on a specific TCP port on a specific local IP address.
+An Ethernet listener will accept frames of a specific EtherType on a specific Interface.
+	</para>
+	<para>
+When Metis accepts a connection, it will create a Connection entry in the ConnectionTable to represent that peer.
+For Ethernet, a Connection is the tuple {dmac, smac, ethertype}.  For TCP and UDP, it is the tuple {source IP, source port,
+destination IP, destination port}.  The connid (connection ID) becomes the reverse route index in the Pending Interest Table.
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>OPTIONS</title>
+	<variablelist>
+
+	<varlistentry>
+		<term>--config <replaceable class="parameter">configfile</replaceable></term>
+		<listitem>
+			<para>
+            Reads configuration parameters from
+            <replaceable class="parameter">configfile</replaceable>.
+            The
+            <replaceable class="option">--port</replaceable> option has no effect in this mode
+			and Metis will not listen to any ports.  This means that
+			<command>metis_control</command> will not be able to connect to Metis to configure it
+			further unless one includes at least a listener for TCP localhost or a unix domain socket.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>--capacity <replaceable class="parameter">contentStoreSize</replaceable></term>
+		<listitem>
+			<para>
+			Sets the capacity of the Content Store to
+            <replaceable class="parameter">contentStoreSize</replaceable> content objects.
+			Metis uses a least-recently-used eviction policy.  A size of 0 will disable the
+            Content Store.
+			</para>
+			<para>
+ 			The Content Store sits on the fast path of the forwarder, so there is a cost
+			associated with adding and removing items to the Content Store tables.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>--daemon</term>
+		<listitem>
+			<para>
+			Runs Metis in daemon mode, detaching from the console.  It must
+            be run with the <replaceable class="option">--log-file</replaceable> option.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>--log <replaceable class="parameter">facility</replaceable>=<replaceable class="parameter">level</replaceable></term>
+		<listitem>
+			<para>
+ 			Sets the log level of the given
+			<replaceable class="parameter">facility</replaceable>
+			to the given
+			<replaceable class="parameter">level</replaceable>.
+			The <replaceable class="option">--log</replaceable> option may be repeated
+			several times setting the log level of different facilities.  If the same
+			facility is listed twice, only the last occurance takes effect.
+			The default log level is Error for all facilities.
+			</para>
+
+			<para>
+			Facilities:<itemizedlist mark='opencircle'>
+				<listitem><para>
+				all: All facilities.
+				</para></listitem>
+
+				<listitem><para>
+				config: Configuration activies.
+				</para></listitem>
+
+				<listitem><para>
+				core: Core forwarder, such as startup and shutdown.
+				</para></listitem>
+
+				<listitem><para>
+				io: Listeners, connections, and all I/O related activities.
+				</para></listitem>
+
+				<listitem><para>
+				message: CCNx messages, such as parsing.
+				</para></listitem>
+
+				<listitem><para>
+				processor: Forwarding processor, such as CS, FIB, and PIT activities.
+				</para></listitem>
+			</itemizedlist>
+			</para>
+
+			<para>
+			The log levels are: debug, info, notice, warning, error, critical, alert, off.
+			</para>
+
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>--log-file <replaceable class="parameter">logfile</replaceable></term>
+		<listitem>
+			<para>
+			Specifies the
+			<replaceable class="parameter">logfile</replaceable>
+			to write all log messages.  This parameter is required with
+			<replaceable class="option">--daemon</replaceable> mode.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	<varlistentry>
+		<term>--port <replaceable class="parameter">port</replaceable></term>
+		<listitem>
+			<para>
+            The UDP and TCP port to listen on.  If no
+			<replaceable class="parameter">configfile</replaceable>
+            is specified, Metis will listen on this port on all interfaces
+            including localhost.
+			</para>
+			<para>
+            If this parameter is not given, Metis uses the default port 9695.
+			</para>
+		</listitem>
+	</varlistentry>
+
+	</variablelist>
+</refsect1>
+<refsect1>
+	<title>USAGE</title>
+	<para>
+	<command>metis_daemon</command> --config metis.cfg --log all=info --log config=debug --log-file metis.log
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>SEE ALSO</title>
+	<para>
+	See <citerefentry><refentrytitle>metis_control</refentrytitle><manvolnum>1</manvolnum></citerefentry> for a
+    description of how to configure <command>metis_daemon</command>.
+	</para>
+	<para>
+	For a list of all configuration lines that may be used with
+	<command>metis_control</command> and by <replaceable class="option">--config</replaceable> configuration file,
+	see <citerefentry><refentrytitle>metis.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry>.
+	</para>
+</refsect1>
+
+<refsect1>
+	<title>CAVEATS</title>
+	<itemizedlist mark='opencircle'>
+	<listitem><para>
+	A given interface may only have one Ethernet listener on one EtherType.	
+	</para></listitem>
+
+	<listitem><para>
+	If there are multiple longest matching prefix entries that match an Interest, it will be
+	forwarded to all those routes (i.e. multicast).
+	</para></listitem>
+
+	<listitem><para>
+	Ethernet fragmentation will only use the interface MTU and there is not MTU discovery.  If Metis is
+	used in a bridged environment, this may lead to errors if the MTU changes on different segments, such
+	as a 10G link at 9000 bytes and a 100 Mbps link at 1500 bytes.
+	</para></listitem>
+	</itemizedlist>
+</refsect1>
+<refsect1>
+	<title>BUGS</title>
+	<itemizedlist mark='opencircle'>
+	<listitem><para>
+	Adding the same listener twice will cause Metis to crash.
+	</para></listitem>
+
+	<listitem><para>
+	Errors in the configuration file may cause Metis to crash.
+	</para></listitem>
+
+	<listitem><para>
+	The command 'list connections' will display all connections as TCP encapsulation.
+	</para></listitem>
+
+	</itemizedlist>
+
+</refsect1>
+<refsect1>
+	<title>AUTHOR</title>
+	<para>
+	<author>
+		<firstname>Marc</firstname>
+		<surname>Mosko</surname>
+		<contrib>Palo Alto Research Center</contrib>
+	</author>
+	</para>
+</refsect1>
+</refentry>
+
+

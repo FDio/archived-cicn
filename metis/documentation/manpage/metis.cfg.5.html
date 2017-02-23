@@ -1,0 +1,468 @@
+<!-- Creator     : groff version 1.22.2 -->
+<!-- CreationDate: Tue May 26 01:54:12 2015 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta name="generator" content="groff -Thtml, see www.gnu.org">
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="Content-Style" content="text/css">
+<style type="text/css">
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<title>metis.cfg</title>
+
+</head>
+<body>
+
+<h1 align="center">metis.cfg</h1>
+
+<a href="#NAME">NAME</a><br>
+<a href="#ADD COMMANDS">ADD COMMANDS</a><br>
+<a href="#LIST COMMANDS">LIST COMMANDS</a><br>
+<a href="#REMOVE COMMANDS">REMOVE COMMANDS</a><br>
+<a href="#MISC COMMANDS">MISC COMMANDS</a><br>
+<a href="#USAGE">USAGE</a><br>
+<a href="#SEE ALSO">SEE ALSO</a><br>
+<a href="#CAVEATS">CAVEATS</a><br>
+<a href="#BUGS">BUGS</a><br>
+<a href="#AUTHOR">AUTHOR</a><br>
+
+<hr>
+
+
+<h2>NAME
+<a name="NAME"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%">
+
+
+<p><b>metis.cfg</b></p></td>
+<td width="15%"></td>
+<td width="8%"></td>
+<td width="69%">
+
+
+<p>&mdash; <b>metis.cfg</b> is an example of a configuation
+file usable with <b>metis_daemon(1)</b>, though there is
+nothing special about the actual filename. Each line of the
+configuration file is also usable with
+<b>metis_control(1)</b>. This document specifies all
+available command lines used to configure and query
+Metis.</p> </td></tr>
+</table>
+
+<p style="margin-left:11%; margin-top: 1em">All commands
+have a &rsquo;help&rsquo;, so typing &rsquo;help
+command&rsquo; will display on-line help.</p>
+
+<p style="margin-left:11%; margin-top: 1em">In a
+configuration file, lines beginning with &rsquo;#&rsquo; are
+comments.</p>
+
+<h2>ADD COMMANDS
+<a name="ADD COMMANDS"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">add connection
+ether <i>symbolic dmac interface</i></p>
+
+<p style="margin-left:26%;">Adds an Ethernet connection on
+<i>interface</i> to the given destination MAC address. The
+<i>symbolic</i> name is a symbolic name for the connection,
+which may be used in later commands, such as <b>add
+route</b>. There must be an Ethernet Listener on the
+specified interface (see <b>add listener</b>), and the
+connection will use the same EtherType as the Listener. The
+<i>dmac</i> destination MAC address is in hexidecimal with
+optional &quot;&minus;&quot; or &quot;:&quot;
+separators.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>A connection is a target for a later route assignment or
+for use as an ingress identifier in the PIT. When using a
+broadcast or group address for a connection, an Interest
+routed over that connection will be broadcast. Many
+receivers may respond. When Metis receives a broadcast
+Interest it uses the unicast source MAC for the reverse
+route &minus;&minus; it will automatically create a new
+connection for the source node and put that in the PIT
+entry, so a Content Object answering the broadcast Interest
+will only be unicast to the previous hop.</p></td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>add connection ether conn7 e8-06-88-cd-28-de em3</p></td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>add connection ether bcast0 FFFFFFFFFFFF eth0</p></td></tr>
+</table>
+
+<p style="margin-left:11%;">add connection (tcp|udp)
+<i>symbolic remote_ip remote_port local_ip <br>
+local_port</i></p>
+
+<p style="margin-left:26%;">Opens a connection to the
+specific <i>remote_ip</i> (which may be a hostname, though
+you do not have control over IPv4 or IPv6 in this case) on
+<i>remote_port</i>. The local endpoint is given by
+<i>local_ip local_port</i>. While the <i>local_ip
+local_port</i> are technically optional parameters, the
+system&rsquo;s choice of local address may not be what one
+expects or may be a different protocols (4 or 6). The
+default port is 9695.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>A TCP connection will go through a TCP connection
+establishment and will not register as UP until the remote
+side accepts. If one side goes down, the TCP connection will
+not auto-restart if it becomes availble again.</p></td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>A UDP connection will start in the UP state and will not
+go DOWN unless there is a serious network error.</p></td></tr>
+</table>
+
+<p style="margin-left:26%;">Opens a connection to 1.1.1.1
+on port 1200 from the local <br>
+address 2.2.2.2 port 1300</p>
+
+<p style="margin-left:42%;">add connection tcp conn0
+1.1.1.1 1200 2.2.2.2 1300</p>
+
+<p style="margin-left:26%;">opens connection to IPv6
+address on port 1300</p>
+
+<p style="margin-left:42%;">add connection udp barney2
+fe80::aa20:66ff:fe00:314a 1300</p>
+
+<p style="margin-left:11%;">add listener (tcp|udp)
+<i>symbolic ip_address port</i> <br>
+add listener ether <i>symbolic interfaceName ethertype</i>
+<br>
+add listener local <i>symbolic path</i></p>
+
+<p style="margin-left:26%;">Adds a protocol listener to
+accept packets of a given protocol (TCP or UDP or Ethernet).
+The <i>symbolic</i> name represents the listener and will be
+used in future commands such as access list restrictions. If
+using a configuration file on <b>metis_daemon</b>, you must
+include a listener on localhost for local applications to
+use.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>The <i>ip_address</i> is the IPv4 or IPv6 local address
+to bind to. The <i>port</i> is the TCP or UDP port to bind
+to.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>The <i>interfaceName</i> is the interface to open a raw
+socket on (e.g. &quot;eth0&quot;). The <i>ethertype</i> is
+the EtherType to use, represented as a 0x hex number (e.g.
+0x0801) or an integer (e.g. 2049).</p></td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="74%">
+
+
+<p>The <i>path</i> parameter specifies the file path to a
+unix domain socket. Metis will create this file and remove
+it when it exits.</p></td></tr>
+</table>
+
+<p style="margin-left:26%;">Listens to 192.168.1.7 on tcp
+port 9695 with a symbolic name <br>
+&rsquo;homenet&rsquo;</p>
+
+<p style="margin-left:42%;">add listener tcp homenet
+192.168.1.7 9695</p>
+
+<p style="margin-left:26%;">Listens to IPv6 localhost on
+udp port 9695</p>
+
+<p style="margin-left:42%;">add listener udp localhost6 ::1
+9695</p>
+
+<p style="margin-left:26%;">Listens to interface
+&rsquo;en0&rsquo; on ethertype 0x0801</p>
+
+<p style="margin-left:42%;">add listener ether nic0 en0
+0x0801</p>
+
+<p style="margin-left:11%;">add route <i>symbolic prefix
+prefix</i></p>
+
+<p style="margin-left:26%;">Adds a static route to a given
+<i>prefix</i> to the FIB for longest match.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="71%">
+
+
+<p>Currently, the <i>symbolic</i> and <i>cost</i> are not
+used.</p> </td>
+<td width="3%">
+</td></tr>
+</table>
+
+<h2>LIST COMMANDS
+<a name="LIST COMMANDS"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">list
+connections</p>
+
+<p style="margin-left:26%;">Enumerates the current
+connections to Metis. These include all TCP, UDP, Unix
+Domain, and Ethernet peers. Each connection has an
+connection ID (connid) and a state (UP or DOWN) followed by
+the local (to metis) and remote addresses.</p>
+
+<p style="margin-left:11%;">list interfaces</p>
+
+<p style="margin-left:26%;">Enumerates the system
+interfaces available to Metis. Each interface has an
+Interface ID, a &rsquo;name&rsquo; (e.g.
+&rsquo;eth0&rsquo;), an MTU as reported by the system, and
+one or more addresses.</p>
+
+<p style="margin-left:11%;">list routes</p>
+
+<p style="margin-left:26%;">Enumerates the routes installed
+in the FIB. The <i>iface</i> is the out-bound connection.
+The <i>protocol</i> is the the routing protocol that
+injected the route. <i>route</i> is the route type.
+&rsquo;LONGEST&rsquo; means longest matching prefix and
+&rsquo;EXACT&rsquo; means exact match. Only
+&rsquo;LONGEST&rsquo; is supported. <i>cost</i> is the cost
+of the route. It is not used. <i>next</i> is the nexthop on
+a multiple access interface. it is not used because the
+current implementation uses one connection (iface) per
+neighbor. <i>prefix</i> is the CCNx name prefix for the
+route.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="12%">
+
+
+<p>Examples</p></td>
+<td width="77%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;">&gt; list connections <br>
+23 UP inet4://127.0.0.1:9695 inet4://127.0.0.1:64260 TCP</p>
+
+<p style="margin-left:11%; margin-top: 1em">&gt; list
+interfaces <br>
+int name lm MTU <br>
+24 lo0 lm 16384 inet6://[::1%0]:0 <br>
+inet4://127.0.0.1:0 <br>
+inet6://[fe80::1%1]:0 <br>
+25 en0 m 1500 link://3c-15-c2-e7-c5-ca <br>
+inet6://[fe80::3e15:c2ff:fee7:c5ca%4]:0 <br>
+inet4://13.1.110.60:0 <br>
+inet6://[2620::2e80:a015:3e15:c2ff:fee7:c5ca%0]:0 <br>
+inet6://[2620::2e80:a015:a4b2:7e10:61d1:8d97%0]:0 <br>
+26 en1 m 1500 link://72-00-04-43-4e-50 <br>
+inet4://192.168.1.1:0 <br>
+27 en2 m 1500 link://72-00-04-43-4e-51 <br>
+28 bridge0 m 1500 link://3e-15-c2-7e-96-00 <br>
+29 p2p0 m 2304 link://0e-15-c2-e7-c5-ca</p>
+
+<p style="margin-left:11%; margin-top: 1em">&gt; list
+routes <br>
+iface protocol route cost next prefix <br>
+23 STATIC LONGEST 1
+&minus;&minus;-.&minus;&minus;-.&minus;&minus;-.&minus;&minus;-/....
+lci:/foo/bar <br>
+Done</p>
+
+<h2>REMOVE COMMANDS
+<a name="REMOVE COMMANDS"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">remove
+connection</p>
+
+<p style="margin-left:26%;">Not implemented.</p>
+
+<p style="margin-left:11%;">remove route</p>
+
+<p style="margin-left:26%;">Not implemented.</p>
+
+<h2>MISC COMMANDS
+<a name="MISC COMMANDS"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="14%">
+
+
+<p style="margin-top: 1em">quit</p></td>
+<td width="1%"></td>
+<td width="74%">
+
+
+<p style="margin-top: 1em">In interactive mode of
+<b>metis_control</b>, it cause the program to exit.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="14%">
+
+
+<p>set debug</p></td>
+<td width="1%"></td>
+<td width="74%">
+
+
+<p>Turns on the debugging flag in <b>metis_control</b> to
+display information about its connection to Metis.</p></td></tr>
+</table>
+
+<p style="margin-left:11%;">unset debug</p>
+
+<p style="margin-left:26%;">Turns off the debugging flag in
+<b>metis_control</b> to display information about its
+connection to Metis.</p>
+
+<h2>USAGE
+<a name="USAGE"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>Example
+Linux metis.cfg configuration file</b></p>
+
+<p style="margin-left:11%; margin-top: 1em">#local
+listeners for applications <br>
+add listener tcp local0 127.0.0.1 9695 <br>
+add listener udp local1 127.0.0.1 9695 <br>
+add listener local unix0 /tmp/metis.sock</p>
+
+<p style="margin-left:11%; margin-top: 1em"># add ethernet
+listener and connection <br>
+add listener ether nic0 eth0 0x0801 <br>
+add connection ether conn0 ff:ff:ff:ff:ff:ff eth0 <br>
+add route conn0 lci:/ 1</p>
+
+<p style="margin-left:11%; margin-top: 1em"># add UDP
+tunnel to remote system <br>
+add connection udp conn1 ccnx.example.com 9695 <br>
+add route conn1 lci:/eample.com 1</p>
+
+<p style="margin-left:11%; margin-top: 1em"><b>Example
+one-shot metis_control commands</b></p>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>metis_control</b>
+list routes <b><br>
+metis_control</b> add listener local unix0
+/tmp/metis.sock</p>
+
+<h2>SEE ALSO
+<a name="SEE ALSO"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%">
+
+
+<p><b>metis_control(1) metis_daemon(1)</b></p></td>
+<td width="23%"></td>
+<td width="7%"></td>
+<td width="62%">
+</td></tr>
+</table>
+
+<h2>CAVEATS
+<a name="CAVEATS"></a>
+</h2>
+
+
+<h2>BUGS
+<a name="BUGS"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="15%"></td>
+<td width="2%">
+
+
+<p style="margin-top: 1em">&bull;</p></td>
+<td width="3%"></td>
+<td width="80%">
+
+
+<p style="margin-top: 1em">The output of &rsquo;list
+interfaces&rsquo; is difficult to read because multiple
+addresses do not align.</p></td></tr>
+</table>
+
+<h2>AUTHOR
+<a name="AUTHOR"></a>
+</h2>
+
+
+<p>Marc Mosko Palo Alto Research Center</p></table>
+<hr>
+</body>
+</html>
