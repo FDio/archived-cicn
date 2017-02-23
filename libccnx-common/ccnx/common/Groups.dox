@@ -1,0 +1,16 @@
+/**
+@defgroup Naming CCN Naming
+@brief CCN Naming
+
+@defgroup Interest CCN Interest
+@brief Functions to manipulate CCN Interest instances
+
+@defgroup ContentObject CCN Content Object
+@brief Functions to manipulate CCN Content Object instances.
+
+@defgroup Signature Signatures and Keys
+@brief Functions to manipulate Signatures and Keys.
+
+@defgroup Utility General Purpose functionality.
+@brief General purpose utility objects and functionality.
+*/

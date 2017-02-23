@@ -1,0 +1,9 @@
+*.doctags
+Jekyll
+libccnx-documentation
+libccnx_api_control-documentation
+libccnx_api_keyvalue-documentation
+libccnx_api_mqueue-documentation
+libccnx_api_notify-documentation
+libccnx_api_portal-documentation
+librta-documentation

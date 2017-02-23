@@ -1,0 +1,47 @@
+body {
+        xbackground-color: #111111;
+        xcolor: white;
+        margin: 0;
+        padding: 11% 11% 0 11%;
+}
+
+xdiv#top {
+	margin: 0 11% 0 11%;
+    padding: 4em 3% 4em 3%;
+    background-color: white;
+	color: black;
+    border-radius: 8px;
+}
+
+xdiv.header {
+	margin: 0 11% 0 11%;
+    padding: 4em 3% 4em 3%;
+    background-color: grey;
+	color: black;
+    border-radius: 8px;
+}
+
+div.contents {
+    xbackground-image: url(noise_gradient.jpg);
+    xbackground-repeat: no-repeat;
+	/*margin: 0 11% 0 11%;*/
+    /*padding: 4em 3% 4em 3%;*/
+/*    background-color: white;*/
+	xcolor: white;
+    xborder-radius: 8px;
+}
+
+x#titlearea {
+    border: 2px solid red;
+    background-color: white;
+    color: black;
+}
+
+xhr.footer {
+    display: none;
+}
+
+x.footer {
+    background-color: #AAA;
+    color: black;
+}

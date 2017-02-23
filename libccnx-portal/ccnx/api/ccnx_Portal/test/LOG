@@ -1,0 +1,25 @@
+Tue Nov 17 11:07:47 PST 2015
+test_ccnx_Portal: 2 fixtures
+test_ccnx_Portal/Global: Ran 15 test cases. 100% (15) succeeded
+test_ccnx_Portal/Global/ccnxPortal_Open 1.003460s 0.000000s 0.000000s 58088 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Open_NonBlocking 1.004843s 0.000000s 0.000000s 7633 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Send 1.005196s 0.000000s 0.000000s 9095 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_GetStatus 1.005718s 0.000000s 0.000000s 8515 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_GetError 1.001110s 0.000000s 0.000000s 9675 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_GetFileId 1.004810s 0.000000s 0.000000s 9326 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Listen 1.005183s 0.000000s 0.000000s 11009 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Ignore 1.002009s 0.000000s 0.000000s 12281 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_GetKeyId 1.004295s 0.000000s 0.000000s 6628 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_IsEOF 1.001509s 0.000000s 0.000000s 8789 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_IsError 1.001177s 0.000000s 0.000000s 9116 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Receive_NeverTimeout 1.004686s 0.000000s 0.000000s 14333 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Receive_ImmediateTimeout 3.005053s 0.000000s 0.000000s 22072 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Receive_ImmediateTimeout_NoData 1.003191s 0.000000s 0.000000s 6700 Succeeded
+test_ccnx_Portal/Global/ccnxPortal_Receive_5SecondTimeout 6.005013s 0.000000s 0.000000s 16884 Succeeded
+test_ccnx_Portal/Performance: Ran 3 test cases. 100% (3) succeeded
+test_ccnx_Portal/Performance/ccnxPortalFactory_CreatePortal 4.504010s 0.000000s 0.000000s 4582325 Succeeded
+test_ccnx_Portal/Performance/ccnxPortal_Send 23.504715s 0.000000s 0.000000s 92851121 Succeeded
+test_ccnx_Portal/Performance/ccnxPortal_SendReceive 1.004153s 0.000000s 0.000000s 11961 Succeeded
+Program ended with exit code: 0
+
+
