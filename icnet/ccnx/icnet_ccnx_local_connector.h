@@ -26,8 +26,6 @@ extern "C" {
 #include <ccnx/common/ccnx_Interest.h>
 #include <ccnx/common/ccnx_ContentObject.h>
 #include <parc/security/parc_Security.h>
-#include <ccnx/api/ccnx_Portal/ccnx_Portal.h>
-#include <ccnx/api/ccnx_Portal/ccnx_PortalRTA.h>
 #include <ccnx/common/codec/schema_v1/ccnxCodecSchemaV1_PacketEncoder.h>
 };
 

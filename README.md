@@ -9,6 +9,7 @@ Dependencies
 - libboost-system-dev
 - libparc
 - libccnx-common
+- libccnx-transport-rta
 - long-bow
 
 Build the library
@@ -17,10 +18,15 @@ Build the library
 For building the library, from the root folder of the project:
 
 ```bash
+ $ git clone -b libicnet/master https://gerrit.fd.io/r/cicn libicnet
+ $ cd libicnet
  $ mkdir build && cd build
  $ cmake ..
  $ make
 ```
+
+The library should be compiled with a level of optimization >= 2, in order to achieve better performances. The CMakeFile.txt
+already specifies a level of optimization of 3. To change it (for debugging) just modify the CMakeFile.txt.
 
 If you do not want to build the tools:
 

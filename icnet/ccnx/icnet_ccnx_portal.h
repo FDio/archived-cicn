@@ -26,8 +26,6 @@
 #include <future>
 
 extern "C" {
-#include <ccnx/api/ccnx_Portal/ccnx_Portal.h>
-#include <ccnx/api/ccnx_Portal/ccnx_PortalRTA.h>
 #include <ccnx/api/control/cpi_Acks.h>
 #include <ccnx/common/ccnx_ContentObject.h>
 #include <parc/security/parc_Security.h>

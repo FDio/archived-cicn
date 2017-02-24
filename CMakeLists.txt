@@ -74,7 +74,7 @@ find_package(Boost 1.54.0 COMPONENTS system REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 set(CMAKE_VERBOSE_MAKEFILE off)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fpermissive")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fpermissive -O3")
 
 set(LIBRARIES
         ${CCNX_PORTAL_LIBRARIES}

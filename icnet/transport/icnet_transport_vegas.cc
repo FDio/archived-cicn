@@ -208,8 +208,7 @@ void VegasTransportProtocol::decreaseWindow() {
 void VegasTransportProtocol::increaseWindow() {
   double max_window_size = -1;
   socket_->getSocketOption(MAX_WINDOW_SIZE, max_window_size);
-  if (current_window_size_ < max_window_size) // don't expand window above max level
-  {
+  if (current_window_size_ < max_window_size) {
     current_window_size_++;
     socket_->setSocketOption(CURRENT_WINDOW_SIZE, current_window_size_);
   }
