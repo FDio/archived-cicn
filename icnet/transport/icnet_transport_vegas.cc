@@ -325,7 +325,7 @@ void VegasTransportProtocol::onTimeout(const Interest &interest) {
   afterDataUnsatisfied(segment);
 
   int max_retransmissions;
-  socket_->getSocketOption(ConsumerCallbacksOptions::INTEREST_RETRANSMISSION, max_retransmissions);
+  socket_->getSocketOption(GeneralTransportOptions::MAX_INTEREST_RETX, max_retransmissions);
 
   if (interest_retransmissions_[segment % default_values::default_buffer_size] < max_retransmissions) {
 
