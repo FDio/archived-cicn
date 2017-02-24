@@ -1,0 +1,6 @@
+networkx==1.11
+pylxd==2.2.2
+ws4py==0.3.4
+
+pyparsing
+lockfile

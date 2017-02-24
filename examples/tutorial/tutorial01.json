@@ -1,0 +1,130 @@
+{
+    "resources": [
+        {
+            "type": "Physical",
+            "name": "server",
+            "hostname": "hostname"
+        },
+        {
+            "type": "NetDevice",
+            "device_name": "eth0",
+            "node": "server",
+            "managed": false
+        },
+        {
+            "type": "LxcImage",
+            "name": "ubuntu1604-cicnsuite-rc1",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "prod1",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "prod2",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "core2",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "core1",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "cons1",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "name": "cons2",
+            "node": "server",
+            "image": "ubuntu1604-cicnsuite-rc1"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "prod1"
+        },
+        {
+            "type": "WebServer",
+            "node": "prod1",
+            "prefixes": [
+                "/webserver"
+            ]
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "prod2"
+        },
+        {
+            "type": "WebServer",
+            "node": "prod2",
+            "prefixes": [
+                "/webserver"
+            ]
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "core2"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "core1"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "cons1"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "cons2"
+        },
+        {
+            "type": "Link",
+            "src_node": "cons1",
+            "dst_node": "core1"
+        },
+        {
+            "type": "Link",
+            "src_node": "cons2",
+            "dst_node": "core1"
+        },
+        {
+            "type": "Link",
+            "src_node": "core1",
+            "dst_node": "core2"
+        },
+        {
+            "type": "Link",
+            "src_node": "core2",
+            "dst_node": "prod1"
+        },
+        {
+            "type": "Link",
+            "src_node": "core2",
+            "dst_node": "prod2"
+        },
+        {
+            "type": "CentralIP",
+            "ip_routing_strategy": "spt"
+        },
+        {
+            "type": "CentralICN",
+            "face_protocol": "udp4"
+        }
+    ],
+    "settings": {
+        "network": "192.168.29.0/24"
+    }
+}
