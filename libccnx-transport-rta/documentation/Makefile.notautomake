@@ -1,0 +1,76 @@
+DOXYGEN=/Applications/Doxygen.app/Contents/Resources/doxygen
+INSTALLDIR=.
+
+# This needs to be the same filename that is in gh-pages branch, ./Makefile
+GHPAGES=/tmp/Libccnx-gh-pages.tgz
+
+all: doc 
+
+score: all
+	(cd Jekyll/Libccnx/libccnx/latex ; make) | grep "Output.*pages" | tail -1 > libccnx.score
+	(echo Jekyll/Libccnx/libccnx/*.html | wc -w) >> libccnx.score
+	(cd Jekyll/Libccnx/libccnx_api_control-api/latex ; make) | grep "Output.*pages" | tail -1 > libccnx_api_control-api.score
+	(echo Jekyll/Libccnx/libccnx_api_control-api/*.html | wc -w) >> libccnx_api_control-api.score
+	(cd Jekyll/Libccnx/libccnx_api_notify-api/latex ; make) | grep "Output.*pages" | tail -1 > libccnx_api_notify-api.score
+	(echo Jekyll/Libccnx/libccnx_api_notify-api/*.html  | wc -w ) >> libccnx_api_notify-api.score
+	(cd Jekyll/Libccnx/libccnx_api_portal/latex ; make) | grep "Output.*pages" | tail -1 > libccnx_api_portal.score
+	(echo Jekyll/Libccnx/libccnx_api_portal/*.html  | wc -w) >> libccnx_api_portal.score
+	(cd Jekyll/Libccnx/librta/latex ; make) | grep "Output.*pages" | tail -1 > librta.score
+	(echo Jekyll/Libccnx/librta/*.html | wc -w) >> librta.score
+
+clean:
+	make -C Jekyll clean
+	rm -rf Jekyll/Libccnx/libccnx_api_control-api/
+	rm -rf Jekyll/Libccnx/libccnx_api_notify-api/
+	rm -rf Jekyll/Libccnx/libccnx_api_socket-api/
+	rm -rf Jekyll/Libccnx/libccnx_api_keyvalue-api/
+	rm -rf Jekyll/Libccnx/libccnx_api_mqueue-api/
+	rm -rf Jekyll/Libccnx/libccnx/
+	rm -rf Jekyll/Libccnx/librta/
+	${RM} libccnx_api_mqueue.log libccnx_api_keyvalue.log libccnx_api_control.log libccnx_api_notify.log libccnx_api_socket.log libccnx.log librta.log *.score
+	${RM} *.doctags
+
+help:
+	@echo "make doc      Make the documentation"
+	@echo "make install  Make a tar file containing the documentation suitable for a gh-page site."
+	@echo "make jekyll   Make the Jekyll website (implicit when making 'doc')"
+	@echo "make all      The same as make doc"
+
+doc: site libccnx libccnx_api_control libccnx_api_notify librta libccnx_api_mqueue libccnx_api_keyvalue libccnx_api_portal
+
+libccnx_api_mqueue:
+	${DOXYGEN} doxygen-libccnx_api_mqueue.conf >& libccnx_api_mqueue.log
+
+libccnx_api_keyvalue:
+	${DOXYGEN} doxygen-libccnx_api_keyvalue.conf >& libccnx_api_keyvalue.log
+
+libccnx_api_portal:
+	${DOXYGEN} doxygen-libccnx_api_portal.conf >& libccnx_api_portal.log
+
+libccnx_api_control:
+	${DOXYGEN} doxygen-libccnx_api_control.conf >& libccnx_api_control.log
+
+libccnx_api_notify:
+	${DOXYGEN} doxygen-libccnx_api_notify.conf >& libccnx_api_notify.log
+
+libccnx_api_socket:
+	${DOXYGEN} doxygen-libccnx_api_socket.conf  >& libccnx_api_socket.log
+
+libccnx:
+	${DOXYGEN} doxygen-libccnx.conf  >& libccnx.log
+
+librta:
+	${DOXYGEN} doxygen-librta.conf  >& librta.log
+
+install: doc
+	make -C Jekyll clean build
+	(cd Jekyll/Libccnx/_site; tar czf ${GHPAGES} . )
+	@echo Now git checkout gh-pages and type make install
+
+site:
+	$(MAKE) -C Jekyll
+
+serve:
+	$(MAKE) -C Jekyll serve
+
+clobber: clean

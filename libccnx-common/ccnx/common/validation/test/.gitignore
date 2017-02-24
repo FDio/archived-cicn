@@ -1,0 +1,4 @@
+test_ccnxValidation_CRC32C
+test_ccnxValidation_EcSecp256K1
+test_ccnxValidation_HmacSha256
+test_ccnxValidation_RsaSha256

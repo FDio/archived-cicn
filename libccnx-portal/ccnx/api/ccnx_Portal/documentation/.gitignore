@@ -1,0 +1,6 @@
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.texpadtmp
+CCNTransportStackPortal.pdf

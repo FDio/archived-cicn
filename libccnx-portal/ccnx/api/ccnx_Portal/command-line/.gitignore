@@ -1,0 +1,5 @@
+ccnx-portal-read
+ccnx-portal-write
+*.o
+ccnx_server
+ccnx_client
