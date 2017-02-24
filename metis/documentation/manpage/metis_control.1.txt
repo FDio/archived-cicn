@@ -1,0 +1,87 @@
+          mmeettiiss__ccoonnttrrooll  (1)General Commands Manual         mmeettiiss__ccoonnttrrooll  (1)
+
+
+
+NNAAMMEE
+       mmeettiiss__ccoonnttrrooll    -- Metis is the CCNx 1.0 forwarder, which runs on each
+       end system  and  as  a  software  forwarder  on  intermediate  systems.
+       mmeettiiss__ccoonnttrrooll is the program to configure the forwarder, mmeettiiss__ddaaeemmoonn.
+
+
+SSYYNNOOPPSSIISS
+       mmeettiiss__ccoonnttrrooll  [----kkeeyyssttoorree  _k_e_y_s_t_o_r_e]  [----ppaasssswwoorrdd _p_a_s_s_w_o_r_d]  [command-
+       line]
+
+DDEESSCCRRIIPPTTIIOONN
+       mmeettiiss__ccoonnttrrooll  is the program used to  configure  a  running  forwarder
+       mmeettiiss__ddaaeemmoonn.   It  will connect to the forwarder over a local listener
+       (e.g. TCP to localhost or a unix  domain  socket).   If  a  _c_o_m_m_a_n_d_l_i_n_e
+       option  is  specified,  mmeettiiss__ccoonnttrrooll     will send that one command to
+       Metis and then exit.  If no _c_o_m_m_a_n_d_l_i_n_e    is specified,  mmeettiiss__ccoommmmaanndd
+       will enter interacitve mode where the user can issue multiple commands.
+
+
+       mmeettiiss__ccoonnttrrooll  requires  a  signing keystore for communicating over the
+       network.  The _k_e_y_s_t_o_r_e file is a standard PKCS12 keystore, and  may  be
+       created   using   ppaarrcc__ppuubblliicckkeeyy((11)).   If  no  _k_e_y_s_t_o_r_e  is  specified,
+       mmeettiiss__ccoonnttrrooll     will look in  the  standard  path  ~/.ccnx/.ccnx_key-
+       store.p12.   The  keystore  password  is specified in _p_a_s_s_w_o_r_d.  If not
+       specified, no password is used.  If the keystore  does  not  open,  the
+       user will be prompted for a password.
+
+
+       See mmeettiiss..ccffgg((55)) for a specification of the available _c_o_m_m_a_n_d_l_i_n_e.
+
+
+       The  environment  variable  METIS_PORT  may be used to specify what TCP
+       port to use to connect to the local Metis.   The  environment  variable
+       METIS_LOCALPATH  may be used to specific the UNIX domain socket to con-
+       nect to the local Metis and takes priority over METIS_PORT.
+
+
+OOPPTTIIOONNSS
+       --keystore _k_e_y_s_t_o_r_e
+                 mmeettiiss__ccoonnttrrooll requires a signing keystore  for  communicating
+                 over  the  network.   The  _k_e_y_s_t_o_r_e file is a standard PKCS12
+                 keystore, and may be created using ppaarrcc__ppuubblliicckkeeyy((11)).  If  no
+                 _k_e_y_s_t_o_r_e  is  specified,  mmeettiiss__ccoonnttrrooll                  will
+                 look in the standard path ~/.ccnx/.ccnx_keystore.p12.
+
+
+       --password _p_a_s_s_w_o_r_d
+                 The keystore password is specified in _p_a_s_s_w_o_r_d.  If not spec-
+                 ified,  no  password is used.  If the keystore does not open,
+                 the user will be prompted for a password.
+
+
+       commandline
+                 The remainder of the arguments are the commandline to send to
+                 Metis.  See USAGE.
+
+
+UUSSAAGGEE
+       mmeettiiss__ccoonnttrrooll --keystore keystore.p12
+
+
+       mmeettiiss__ccoonnttrrooll --keystore keystore.p12 list interfaces
+
+
+SSEEEE AALLSSOO
+       See ppaarrcc__ppuubblliicckkeeyy((11)) for a utility to create a PKCS keystore.
+
+
+       For  a list of all configuration lines that may be used with mmeettiiss__ccoonn--
+       ttrrooll and by _-_-_c_o_n_f_i_g configuration file, see mmeettiiss..ccffgg((55)).
+
+
+       The default keystore is ~/.ccnx/.ccnx_keystore.p12.
+
+
+CCAAVVEEAATTSS
+BBUUGGSS
+AAUUTTHHOORR
+       Marc Mosko Palo Alto Research Center
+
+
+
+                                                            mmeettiiss__ccoonnttrrooll  (1)

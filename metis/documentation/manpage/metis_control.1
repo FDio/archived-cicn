@@ -1,0 +1,79 @@
+.TH "		\fBmetis_control\fP 	" "1" 
+.SH "NAME" 
+\fBmetis_control\fP 	 \(em Metis is the CCNx 1.0 forwarder, which runs on each end system and as a software forwarder 
+on intermediate systems.  \fBmetis_control\fR is the program to configure the forwarder,  
+\fBmetis_daemon\fR. 
+ 
+.SH "SYNOPSIS" 
+.PP 
+\fBmetis_control\fR [\fB\-\-keystore\fP \fIkeystore\fR]  [\fB\-\-password\fP \fIpassword\fR]  [commandline]  
+.SH "DESCRIPTION" 
+.PP 
+\fBmetis_control\fR 	is the program used to configure a running forwarder \fBmetis_daemon\fR.  It will connect to 
+the forwarder over a local listener (e.g. TCP to localhost or a unix domain socket).  If a  
+\fIcommandline\fR option is specified, \fBmetis_control\fR 	will send that one command to Metis and then exit.  If no \fIcommandline\fR 	is specified, \fBmetis_command\fR will enter interacitve mode where the user can issue 
+multiple commands. 
+ 
+.PP 
+\fBmetis_control\fR requires a signing keystore for communicating over the network.  The 
+\fIkeystore\fR file is a standard PKCS12 keystore, and may be 
+created using 
+\fBparc_publickey\fP\fB(1)\fP. 
+If no \fIkeystore\fR is specified, \fBmetis_control\fR 	will look in the standard path ~/.ccnx/.ccnx_keystore.p12. 
+The keystore password is specified in \fIpassword\fR.  If not specified, 
+no password is used.  If the keystore does not open, the user will be prompted for a password. 
+ 
+.PP 
+See \fBmetis.cfg\fP\fB(5)\fP for 
+a specification of the available \fIcommandline\fR. 
+ 
+.PP 
+The environment variable METIS_PORT may be used to specify what TCP port to use to connect to the local Metis. 
+The environment variable METIS_LOCALPATH may be used to specific the UNIX domain socket to connect to the local Metis 
+and takes priority over METIS_PORT. 
+ 
+.SH "OPTIONS" 
+.IP "\-\-keystore \fIkeystore\fR" 10 
+\fBmetis_control\fR requires a signing keystore for communicating over the network.  The 
+\fIkeystore\fR file is a standard PKCS12 keystore, and may be 
+created using 
+\fBparc_publickey\fP\fB(1)\fP. 
+If no \fIkeystore\fR is specified, \fBmetis_control\fR 				will look in the standard path ~/.ccnx/.ccnx_keystore.p12. 
+ 
+.IP "\-\-password \fIpassword\fR" 10 
+The keystore password is specified in \fIpassword\fR.  If not specified, 
+no password is used.  If the keystore does not open, the user will be prompted for a password. 
+ 
+.IP "commandline" 10 
+The remainder of the arguments are the commandline to send to Metis.  See USAGE. 
+ 
+.SH "USAGE" 
+.PP 
+\fBmetis_control\fR \-\-keystore keystore.p12 
+ 
+.PP 
+\fBmetis_control\fR \-\-keystore keystore.p12 list interfaces 
+ 
+.SH "SEE ALSO" 
+.PP 
+See \fBparc_publickey\fP\fB(1)\fP for a utility 
+to create a PKCS keystore. 
+ 
+.PP 
+For a list of all configuration lines that may be used with 
+\fBmetis_control\fR and by \fI\-\-config\fR configuration file, 
+see \fBmetis.cfg\fP\fB(5)\fP. 
+ 
+.PP 
+The default keystore is ~/.ccnx/.ccnx_keystore.p12. 
+ 
+.SH "CAVEATS" 
+.PP 
+ 
+.SH "BUGS" 
+.PP 
+ 
+.SH "AUTHOR" 
+.PP 
+Marc Mosko Palo Alto Research Center  	 
+.\" created by instant / docbook-to-man, Tue 26 May 2015, 01:54 

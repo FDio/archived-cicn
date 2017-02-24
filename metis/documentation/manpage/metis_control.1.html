@@ -1,0 +1,280 @@
+<!-- Creator     : groff version 1.22.2 -->
+<!-- CreationDate: Tue May 26 01:54:12 2015 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta name="generator" content="groff -Thtml, see www.gnu.org">
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="Content-Style" content="text/css">
+<style type="text/css">
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<title>metis_control</title>
+
+</head>
+<body>
+
+<h1 align="center">metis_control</h1>
+
+<a href="#NAME">NAME</a><br>
+<a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="#DESCRIPTION">DESCRIPTION</a><br>
+<a href="#OPTIONS">OPTIONS</a><br>
+<a href="#USAGE">USAGE</a><br>
+<a href="#SEE ALSO">SEE ALSO</a><br>
+<a href="#CAVEATS">CAVEATS</a><br>
+<a href="#BUGS">BUGS</a><br>
+<a href="#AUTHOR">AUTHOR</a><br>
+
+<hr>
+
+
+<h2>NAME
+<a name="NAME"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%">
+
+
+<p><b>metis_control</b></p></td>
+<td width="15%"></td>
+<td width="8%"></td>
+<td width="69%">
+
+
+<p>&mdash; Metis is the CCNx 1.0 forwarder, which runs on
+each end system and as a software forwarder on intermediate
+systems. <b>metis_control</b> is the program to configure
+the forwarder, <b>metis_daemon</b>.</p></td></tr>
+</table>
+
+<h2>SYNOPSIS
+<a name="SYNOPSIS"></a>
+</h2>
+
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>metis_control</b>
+[<b>&minus;&minus;keystore</b> <i>keystore</i>]
+[<b>&minus;&minus;password</b> <i>password</i>]
+[commandline]</p>
+
+<h2>DESCRIPTION
+<a name="DESCRIPTION"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%">
+
+
+<p><b>metis_control</b></p></td>
+<td width="15%"></td>
+<td width="8%">
+
+
+<p>is the program used to configure a running forwarder
+<b>metis_daemon</b>. It will connect to the forwarder over a
+local listener (e.g. TCP to localhost or a unix domain
+socket). If a <i>commandline</i> option is specified,
+<b>metis_control</b></p> </td>
+<td width="54%"></td>
+<td width="7%"></td>
+<td width="8%">
+
+
+<p>will send that one command to Metis and then exit. If no
+<i>commandline</i></p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%"></td>
+<td width="15%"></td>
+<td width="8%"></td>
+<td width="54%"></td>
+<td width="7%"></td>
+<td width="8%">
+
+
+<p>is specified, <b>metis_command</b> will enter
+interacitve mode where the user can issue multiple
+commands.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%">
+
+
+<p><b>metis_control</b> requires a signing keystore for
+communicating over the network. The <i>keystore</i> file is
+a standard PKCS12 keystore, and may be created using
+<b>parc_publickey(1)</b>. If no <i>keystore</i> is
+specified, <b>metis_control</b></p></td>
+<td width="15%"></td>
+<td width="8%"></td>
+<td width="54%"></td>
+<td width="7%"></td>
+<td width="8%">
+
+
+<p>will look in the standard path
+~/.ccnx/.ccnx_keystore.p12. The keystore password is
+specified in <i>password</i>. If not specified, no password
+is used. If the keystore does not open, the user will be
+prompted for a password.</p></td></tr>
+</table>
+
+<p style="margin-left:11%; margin-top: 1em">See
+<b>metis.cfg(5)</b> for a specification of the available
+<i>commandline</i>.</p>
+
+<p style="margin-left:11%; margin-top: 1em">The environment
+variable METIS_PORT may be used to specify what TCP port to
+use to connect to the local Metis. The environment variable
+METIS_LOCALPATH may be used to specific the UNIX domain
+socket to connect to the local Metis and takes priority over
+METIS_PORT.</p>
+
+<h2>OPTIONS
+<a name="OPTIONS"></a>
+</h2>
+
+
+
+<p style="margin-left:11%; margin-top: 1em">&minus;&minus;keystore
+<i>keystore</i></p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="-18%">
+
+
+<p><b>metis_control</b> requires a signing keystore for
+communicating over the network. The <i>keystore</i> file is
+a standard PKCS12 keystore, and may be created using
+<b>parc_publickey(1)</b>. If no <i>keystore</i> is
+specified, <b>metis_control</b></p></td>
+<td width="61%"></td>
+<td width="8%"></td>
+<td width="8%"></td>
+<td width="7%"></td>
+<td width="8%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="-18%"></td>
+<td width="61%"></td>
+<td width="8%"></td>
+<td width="8%"></td>
+<td width="7%"></td>
+<td width="8%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="-18%"></td>
+<td width="61%"></td>
+<td width="8%"></td>
+<td width="8%"></td>
+<td width="7%"></td>
+<td width="8%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="26%"></td>
+<td width="-18%"></td>
+<td width="61%"></td>
+<td width="8%"></td>
+<td width="8%"></td>
+<td width="7%"></td>
+<td width="8%">
+
+
+<p>will look in the standard path
+~/.ccnx/.ccnx_keystore.p12.</p> </td></tr>
+</table>
+
+<p style="margin-left:11%;">&minus;&minus;password
+<i>password</i></p>
+
+<p style="margin-left:26%;">The keystore password is
+specified in <i>password</i>. If not specified, no password
+is used. If the keystore does not open, the user will be
+prompted for a password.</p>
+
+<p style="margin-left:11%;">commandline</p>
+
+<p style="margin-left:26%;">The remainder of the arguments
+are the commandline to send to Metis. See USAGE.</p>
+
+<h2>USAGE
+<a name="USAGE"></a>
+</h2>
+
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>metis_control</b>
+&minus;&minus;keystore keystore.p12</p>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>metis_control</b>
+&minus;&minus;keystore keystore.p12 list interfaces</p>
+
+<h2>SEE ALSO
+<a name="SEE ALSO"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">See
+<b>parc_publickey(1)</b> for a utility to create a PKCS
+keystore.</p>
+
+<p style="margin-left:11%; margin-top: 1em">For a list of
+all configuration lines that may be used with
+<b>metis_control</b> and by <i>&minus;&minus;config</i>
+configuration file, see <b>metis.cfg(5)</b>.</p>
+
+<p style="margin-left:11%; margin-top: 1em">The default
+keystore is ~/.ccnx/.ccnx_keystore.p12.</p>
+
+<h2>CAVEATS
+<a name="CAVEATS"></a>
+</h2>
+
+
+<h2>BUGS
+<a name="BUGS"></a>
+</h2>
+
+
+<h2>AUTHOR
+<a name="AUTHOR"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="-3%">
+
+
+<p>Marc Mosko Palo Alto Research Center</p></td>
+<td width="54%"></td>
+<td width="7%"></td>
+<td width="31%">
+</td></tr>
+ </table>
+<hr>
+</body>
+</html>

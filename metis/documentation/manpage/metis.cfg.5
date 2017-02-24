@@ -1,0 +1,202 @@
+.TH "		\fBmetis.cfg\fP 	" "5" 
+.SH "NAME" 
+\fBmetis.cfg\fP 	 \(em \fBmetis.cfg\fP is an example of a configuation file usable with 
+\fBmetis_daemon\fP\fB(1)\fP, 
+though there is nothing special about the actual filename.  Each line of the configuration file is also usable with  
+\fBmetis_control\fP\fB(1)\fP.  This 
+document specifies all available command lines used to configure and query Metis. 
+ 
+All commands have a 'help', so typing 'help command' will display on-line help.  
+ 
+In a configuration file, lines beginning with '#' are comments. 
+ 
+.SH "ADD COMMANDS" 
+.IP "add connection ether \fIsymbolic\fR \fIdmac\fR \fIinterface\fR" 10 
+Adds an Ethernet connection on \fIinterface\fR  to the given destination MAC address. 
+The \fIsymbolic\fR name is a symbolic name for the connection, which may be used in 
+later commands, such as \fBadd route\fR. 
+There must be an Ethernet Listener on the specified interface (see \fBadd listener\fR), and the connection  
+will use the same EtherType as the Listener. The \fIdmac\fR destination MAC address 
+is in hexidecimal with optional "\-" or ":" separators. 
+ 
+.IP "" 10 
+A connection is a target for a later route assignment or for use as an ingress identifier in the PIT.  When using a broadcast 
+or group address for a connection, an Interest routed over that connection will be broadcast.  Many receivers may respond. 
+When Metis receives a broadcast Interest it uses the unicast source MAC for the reverse route \-\- it will automatically create 
+a new connection for the source node and put that in the PIT entry, so a Content Object answering the broadcast Interest will 
+only be unicast to the previous hop. 
+ 
+.IP "" 10 
+add connection ether conn7 e8-06-88-cd-28-de em3 
+ 
+.IP "" 10 
+add connection ether bcast0 FFFFFFFFFFFF eth0 
+ 
+.IP "add connection (tcp|udp) \fIsymbolic\fR \fIremote_ip\fR \fIremote_port\fR \fIlocal_ip\fR \fIlocal_port\fR" 10 
+Opens a connection to the specific \fIremote_ip\fR (which may be a hostname, though you do not have control over IPv4 or IPv6 in this case) on \fIremote_port\fR.  The local endpoint is given by \fIlocal_ip\fR \fIlocal_port\fR.  While the \fIlocal_ip\fR \fIlocal_port\fR are technically optional parameters, the system's choice of local address may not be what one expects or may be a different protocols (4 or 6).  The default port is 9695. 
+ 
+.IP "" 10 
+A TCP connection will go through a TCP connection establishment and will not register as UP until the remote side accepts.  If one side goes down, the TCP connection will not auto-restart if it becomes availble again. 
+ 
+.IP "" 10 
+A UDP connection will start in the UP state and will not go DOWN unless there is a serious network error. 
+ 
+.RS 
+.IP "Opens a connection to 1.1.1.1 on port 1200 from the local address 2.2.2.2 port 1300" 10 
+add connection tcp conn0 1.1.1.1 1200 2.2.2.2 1300 
+ 
+.IP "opens connection to IPv6 address on port 1300" 10 
+add connection udp barney2 fe80::aa20:66ff:fe00:314a 1300 
+ 
+.RE 
+.IP "add listener (tcp|udp) \fIsymbolic\fR \fIip_address\fR \fIport\fR" 10 
+.IP "add listener ether \fIsymbolic\fR \fIinterfaceName\fR \fIethertype\fR" 10 
+.IP "add listener local \fIsymbolic\fR \fIpath\fR" 10 
+Adds a protocol listener to accept packets of a given protocol (TCP or UDP or Ethernet). 
+The \fIsymbolic\fR name represents the listener and will be used in future commands 
+such as access list restrictions.  If using a configuration file on \fBmetis_daemon\fR, you must include 
+a listener on localhost for local applications to use. 
+ 
+.IP "" 10 
+The \fIip_address\fR is the IPv4 or IPv6 local address to bind to. 
+The \fIport\fR is the TCP or UDP port to bind to. 
+ 
+.IP "" 10 
+The \fIinterfaceName\fR is the interface to open a raw socket on (e.g. "eth0"). 
+The \fIethertype\fR is the EtherType to use, represented as a 0x hex number (e.g. 0x0801) 
+or an integer (e.g. 2049). 
+ 
+.IP "" 10 
+The \fIpath\fR parameter specifies the file path to a unix domain socket.  Metis  
+will create this file and remove it when it exits. 
+ 
+.RS 
+.IP "Listens to 192.168.1.7 on tcp port 9695 with a symbolic name 'homenet'" 10 
+add listener tcp homenet 192.168.1.7 9695 
+ 
+.IP "Listens to IPv6 localhost on udp port 9695" 10 
+add listener udp localhost6 ::1 9695 
+ 
+.IP "Listens to interface 'en0' on ethertype 0x0801" 10 
+add listener ether nic0 en0 0x0801 
+ 
+.RE 
+.IP "add route \fIsymbolic\fR \fIprefix\fR \fIprefix\fR" 10 
+Adds a static route to a given \fIprefix\fR to the FIB for longest match. 
+ 
+.IP "" 10 
+Currently, the \fIsymbolic\fR and \fIcost\fR are not used. 
+ 
+.SH "LIST COMMANDS" 
+.IP "list connections" 10 
+Enumerates the current connections to Metis.  These include all TCP, UDP, Unix Domain, and Ethernet peers. 
+Each connection has an connection ID (connid) and a state (UP or DOWN) followed by the local (to metis) and remote 
+addresses. 
+ 
+.IP "list interfaces" 10 
+Enumerates the system interfaces available to Metis.  Each interface has an Interface ID, a 'name' (e.g. 'eth0'), 
+an MTU as reported by the system, and one or more addresses.  
+ 
+.IP "list routes" 10 
+Enumerates the routes installed in the FIB.  
+The \fIiface\fR is the out-bound connection.   
+The \fIprotocol\fR is the the routing protocol that injected the route. 
+'STATIC' means it was manually entered via \fBmetis_control\fR. 
+\fIroute\fR is the route type.  'LONGEST' means longest matching prefix 
+and 'EXACT' means exact match.  Only 'LONGEST' is supported. 
+\fIcost\fR is the cost of the route.  It is not used. 
+\fInext\fR is the nexthop on a multiple access interface.  it is not used 
+because the current implementation uses one connection (iface)  per neighbor. 
+\fIprefix\fR is the CCNx name prefix for the route. 
+ 
+.IP "Examples" 10 
+.PP 
+.nf 
+> list connections 
+23   UP inet4://127.0.0.1:9695 inet4://127.0.0.1:64260 TCP 
+ 
+> list interfaces 
+int       name lm      MTU  
+24        lo0 lm    16384 inet6://[::1%0]:0 
+inet4://127.0.0.1:0 
+inet6://[fe80::1%1]:0 
+25        en0  m     1500 link://3c-15-c2-e7-c5-ca 
+inet6://[fe80::3e15:c2ff:fee7:c5ca%4]:0 
+inet4://13.1.110.60:0 
+inet6://[2620::2e80:a015:3e15:c2ff:fee7:c5ca%0]:0 
+inet6://[2620::2e80:a015:a4b2:7e10:61d1:8d97%0]:0 
+26        en1  m     1500 link://72-00-04-43-4e-50 
+inet4://192.168.1.1:0 
+27        en2  m     1500 link://72-00-04-43-4e-51 
+28    bridge0  m     1500 link://3e-15-c2-7e-96-00 
+29       p2p0  m     2304 link://0e-15-c2-e7-c5-ca 
+ 
+> list routes 
+iface  protocol   route     cost                 next prefix 
+23    STATIC LONGEST        1 \-\--.\-\--.\-\--.\-\--/.... lci:/foo/bar 
+Done 
+ 
+.fi 
+.PP 
+.SH "REMOVE COMMANDS" 
+.IP "remove connection" 10 
+Not implemented. 
+ 
+.IP "remove route" 10 
+Not implemented. 
+ 
+.SH "MISC COMMANDS" 
+.IP "quit" 10 
+In interactive mode of \fBmetis_control\fR, it cause the program to exit. 
+ 
+.IP "set debug" 10 
+Turns on the debugging flag in \fBmetis_control\fR to display information about its connection to Metis. 
+ 
+.IP "unset debug" 10 
+Turns off the debugging flag in \fBmetis_control\fR to display information about its connection to Metis. 
+ 
+.SH "USAGE" 
+.PP 
+\fBExample Linux metis.cfg configuration file\fR 
+.PP 
+.nf 
+#local listeners for applications 
+add listener tcp local0 127.0.0.1 9695 
+add listener udp local1 127.0.0.1 9695 
+add listener local unix0 /tmp/metis.sock 
+ 
+# add ethernet listener and connection 
+add listener ether nic0 eth0 0x0801 
+add connection ether conn0 ff:ff:ff:ff:ff:ff eth0 
+add route conn0 lci:/ 1 
+ 
+# add UDP tunnel to remote system 
+add connection udp conn1 ccnx.example.com 9695 
+add route conn1 lci:/eample.com 1 
+ 
+.fi 
+.PP 
+.PP 
+\fBExample one-shot metis_control commands\fR 
+.PP 
+.nf 
+\fBmetis_control\fR list routes 
+\fBmetis_control\fR add listener local unix0 /tmp/metis.sock 
+ 
+.fi 
+.SH "SEE ALSO" 
+.PP 
+\fBmetis_control\fP\fB(1)\fP  
+\fBmetis_daemon\fP\fB(1)\fP 	 
+.SH "CAVEATS" 
+.PP 
+ 
+.SH "BUGS" 
+.IP "   \(bu" 6 
+The output of 'list interfaces' is difficult to read because multiple addresses 
+do not align. 
+ 
+.SH "AUTHOR" 
+.PP 
+Marc Mosko Palo Alto Research Center  	 
+.\" created by instant / docbook-to-man, Tue 26 May 2015, 01:54 

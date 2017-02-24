@@ -1,0 +1,188 @@
+#
+# Copyright (c) 2017 Cisco and/or its affiliates.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+==================================
+HOWTO-ForwarderConfig
+==================================
+
+Version 1.0 5/23/14 Marc
+Version 1.1 4/6/15 Marc - updated for symbolic names
+
+------------
+Abstract
+------------
+This document describes how to configure the forwarder using the
+command-line utility.
+
+------------
+Starting
+------------
+From the Distillery directory execute the "metis_control" program
+
+Distillery> build/bin/metis_control
+
+This will begin an interactive shell to configure the forwarder.  Use
+the "help" command to see available options.
+
+Alternatively, you can use one of the many command-line options to
+execute a specific command without using the interactive mode.
+
+All configuration lines may be placed in a configuration file and used
+with the "--config file" command-line option to metis_daemon.
+
+------------
+Options
+------------
+
+Executing "metis_control help" will display this message:
+
+	Command-line execution:
+	   metis_control [--keystore <keystorepath>] [--password <password>] command
+
+	Interactive execution:
+	   metis_control [--keystore <keystorepath>] [--password <password>]
+
+	If the keystore is not specified, the default path is used. Keystore must exist prior to running program.
+	If the password is not specified, the user will be prompted.
+
+	Available commands:
+	   help add
+	   help list
+	   help quit
+	   help remove
+	   help set
+	   help unset
+
+===== Listeners
+
+> help add listener
+commands:
+   add listener <symbolic> <protocol> <localAddress> <PortOrEtherType>
+
+   symbolic:        User defined name for listener, must start with alpha and be alphanum
+   protocol:        tcp | udp | ether
+   localAddress:    IPv4 or IPv6 or hostname or interface name (see examples)
+   PortOrEtherType: TCP/UDP port or EtherType (base 10 or use 0x for base 16)
+
+Notes:
+   The local address must be on the system (see 'help list interfaces' command).
+   For Ethernet, the broadcast and CCNx group address will also be added.
+   The symblic name must be unique or the forwarder will reject it.
+
+Examples:
+   Listens to 192.168.1.7 on tcp port 9695
+      add listener homenet  tcp 192.168.1.7 9695
+
+   Listens to IPv6 localhost on udp port 9695
+      add listener localhost6 udp ::1 9695
+
+   Listens to interface 'en0' on ethertype 0x0801
+      add listener nic0 ether en0 0x0801
+
+===== Connections
+
+> help add connection udp
+add connection udp <symbolic> <remote_ip|hostname> <remote_port> [<local_ip|hostname> [<local_port>]]
+  <symbolic>              : symbolic name, e.g. 'conn1' (must be unique, start with alpha)
+  <remote_ip | hostname>  : the IPv4 or IPv6 or hostname of the remote system
+  <remote_port>           : the remote TCP port
+  <local_ip>              : optional local IP address to bind to
+  <local_port>            : optional local TCP port, random if not specified
+
+Examples:
+   add connection udp conn1 1.1.1.1 1200
+      opens a connection to IP address 1.1.1.1 port 1200 using the best local
+      interface and random local port.
+   add connection udp barney2 fe80::aa20:66ff:fe00:314a 1300
+     opens connection to IPv6 address on port 1300.
+
+   add connection udp conn0 1.1.1.1 1200 2.2.2.2 1300
+     opens a connection to 1.1.1.1 on port 1200 from the local address 2.2.2.2 port 1300
+
+   add connection udp conn3 ccn.parc.com 9695
+     opens a connection to the host 'ccn.parc.com' on port 9695.
+     Maybe an IPv4 or IPv6 connection as the name is resolved and connectivity permits.
+
+A UDP connection will be usable immediately, even if the remote side has not accepted.
+
+> help add connection tcp
+add connection tcp <symbolic> <remote_ip|hostname> <remote_port> [<local_ip|hostname> [<local_port>]]
+  <symbolic>              : symbolic name, e.g. 'conn1' (must be unique, start with alpha)
+  <remote_ip | hostname>  : the IPv4 or IPv6 or hostname of the remote system
+  <remote_port>           : the remote TCP port
+  <local_ip>              : optional local IP address to bind to
+  <local_port>            : optional local TCP port, random if not specified
+
+Examples:
+   add connection tcp conn1 1.1.1.1 1200
+      opens a connection to IP address 1.1.1.1 port 1200 using the best local
+      interface and random local port.
+   add connection tcp barney2 fe80::aa20:66ff:fe00:314a 1300
+     opens connection to IPv6 address on port 1300.
+
+   add connection tcp conn0 1.1.1.1 1200 2.2.2.2 1300
+     opens a connection to 1.1.1.1 on port 1200 from the local address 2.2.2.2 port 1300
+
+   add connection tcp conn3 ccn.parc.com 9695
+     opens a connection to the host 'ccn.parc.com' on port 9695.
+     Maybe an IPv4 or IPv6 connection as the name is resolved and connectivity permits.
+
+A TCP connection will not be usable until the remote peer accepts the connection.
+
+> help add connection ether
+add connection ether <symbolic> <destination_mac> <local_interface>
+  <symbolic>         : symbolic name, e.g. 'conn1' (must be unique, start with alpha)
+  <destination_mac>  : destination MAC address in hex (optional ":" or "-" separators)
+  <local_interface>  : the name of the local interface (e.g. "en0")
+
+Examples:
+   add connection ether conn7 e8-06-88-cd-28-de em3
+      Creates a connection to e8-06-88-cd-28-de on interface em3, ethertype = 0x0801
+
+   add connection ether hal2 00:1c:42:00:00:08 eth0
+     Creates a connection to 00:1c:42:00:00:08 on interface eth0, ethertype = 0x0801
+
+   add connection ether bcast0 FFFFFFFFFFFF eth0
+     Creates a broadcast connection on eth0 with ethertype = 0x0801
+
+===== Routes
+
+> help add route
+commands:
+   add route <symbolic | connid> <prefix> <cost>
+
+   symbolic:  The symbolic name for an exgress
+   connid:    The egress connection id (see 'help list connections')
+   prefix:    The CCNx name as a URI (e.g. lci:/foo/bar)
+   cost:      positive integer representing cost
+   nexthop:   Optional network endpoint on the connection
+   seconds:   Create a route that will expire if not refresed within the lifetime
+
+Examples:
+   add route 7 lci:/foo/bar 1
+      adds route to prefix '/foo/bar' on egress connection 7 with cost 1
+   add route tun3 lci:/foo/bar 1
+      adds route to prefix '/foo/bar' on egress connection 'tun3' with cost 1
+
+------------
+Related
+------------
+
+build/bin/parc_publickey is used to generate a keystore.  See HOWTO-Keystore.
+
+------------
+Caveats
+------------
+1) There is no fragmentation for Ethernet, so all messages must fit in an MTU
+
