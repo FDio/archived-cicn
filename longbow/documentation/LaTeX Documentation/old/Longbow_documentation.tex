@@ -1,0 +1,769 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Simple Sectioned Essay Template
+% LaTeX Template
+%
+% This template has been downloaded from:
+% http://www.latextemplates.com
+%
+% Note:
+% The \lipsum[#] commands throughout this template generate dummy text
+% to fill the template out. These commands should all be removed when 
+% writing essay content.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt]{article} % Default font size is 12pt, it can be changed here
+
+\usepackage{graphicx} % Required for including pictures
+
+\usepackage{float} % Allows putting an [H] in \begin{figure} to specify the exact location of the figure
+\usepackage{wrapfig} % Allows in-line images such as the example fish picture
+
+\usepackage{lipsum} % Required to insert dummy text
+\usepackage{hyperref}
+
+\usepackage{wrapfig}
+\usepackage[toc]{appendix}
+\usepackage{url}
+\usepackage{mdframed}
+\usepackage{listings}
+\lstset{ %
+basicstyle=\tt\footnotesize,
+breakatwhitespace=false,          
+ breaklines=true.
+ tabsize=4
+}
+
+\usepackage{float}
+\restylefloat{table}
+
+
+\linespread{1.2} % Line spacing
+
+%\setlength\parindent{0pt} % Uncomment to remove all indentation from paragraphs
+
+\graphicspath{{Pictures/}} % Specifies the directory where pictures are stored
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+
+
+\HRule \\[0.4cm]
+{ \huge \bfseries Longbow Documentation}\\[0.4cm] % Title of your document
+\HRule \\[1.5cm]
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Glenn \textsc{Scott} % Your name
+\end{flushleft}
+\end{minipage}
+~
+
+{\large \today}\\[3cm] % Date, change the \today to a set date if you want to be precise
+
+%\includegraphics{Logo}\\[1cm] % Include a department/university logo - this will require the graphicx package
+
+\vfill % Fill the rest of the page with whitespace
+
+\end{titlepage}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+\tableofcontents % Include a table of contents
+\newpage
+\section{Overview} % The \section{} command stops section numbering
+
+LongBow is software to help you write better C programs. It provides: 
+\begin{itemize}
+\item a  run-time assertion facility to establish strict rules on the state of your program.
+\item a testing facility based on the xUnit testing model.
+\item compile-time assistance for writing code meant to be compiled by compilers with different features. 
+\end{itemize}
+
+LongBow can help you  find and manage problems early, establish and maintain confidence in the correctness of your code, make collaboration easier, facilitate future change, and improve overall design.
+
+LongBow allows you to take control and establish invariant pre- and post-conditions that detect inconsistencies and unexpected results in your programs in order to find bugs and design deficiencies in the code during development rather than waiting for others to find your bugs for you.
+
+\section{Set up and installation} 
+How to install, configure, link, and run LongBow.
+\subsection {Installation}
+Get the tar file from xxx.
+untar and do a make install.
+The resulting LongBow directory will contain the C header files, C source files, and runtime libraries needed.
+
+\subsection {Configuration}
+
+\subsubsection{LongBow with LLDB}
+The {\tt lldb} debugger is aware when C files are included. This induces a problem where the breakpoints in the included files are not set. But you can configure lldb to set them: In ~/.lldbinit settings set target.inline-breakpoint-strategy always
+
+ 
+\hfill \texttt{settings set target.inline-breakpoint-strategy always}  \hfill \break
+
+\subsubsection{LongBow with GDB}
+LongBow uses signals to interrupt program flow when an assertion fails. When using gdb this will cause gdb to stop running of the test. This probably isn?t what you want and would rather prefer that gdb just ignore the signal and let the LongBow unit test signal handler take care of the signal. To do this, you must configure gdb to ignore the signal and to allow it to pass to the program being executed.
+
+ 
+\hfill \texttt{handle 6 nostop pass} \hfill \break
+ 
+\subsubsection{Linking and Libraries}
+There are two LongBow libraries that must be linked with the application: the primary LongBow library, (\url{liblongbow.a}) and one of the LongBow reporter libraries. The reporter libraries enable the reporting mechanism for Longbow.   Currently two reporter libraries have been implemented:  \url{liblongbow-plaintext.a} which displays output as simple text; and  \url{liblongbow-ansiterm.a} which displays output as an ANSI colorized output. Both display to standard output.
+
+\subsubsection{Running and Runtime Behavior}
+You can "run" Longbow in one of two ways: you can run your application with assertions turned on in order to test expected invariance during runtime; or you can run your tests using Longbow's Test Runner.  Turning off assertions for runtime is not currently supported.
+ 
+\section{Programming with Assertions} 
+
+ Longbow's  Assertions offer a way to check runtime invariance throughout your program.  Traps are a subset of Assertions that are executed at runtime even if Assertions have been turned off during deployment. They should be used when program failure is the correct response to assertion failure.
+ 
+The assertion framework is based on the following design principles:
+\begin{itemize}
+\item  It is intentionally simple and can be extended.
+\item  You don't have to change your program design to accommodate assertions.
+\item  It is designed specifically for C programs.
+\item  It is based on programming with invariance.
+\item  Assertions may be used only during development as a debugging aid, or in deployment as well to offer more descriptive errors to users.
+\end{itemize}
+
+
+\subsection{Designing with Assertions }
+Assertions can be used to debug code and give better information about errors to users. They should not be used for error handling.  Assertions should be used to explicitly test for conditions that must be true in order for an operation to work. Examples include testing for NULL pointers, out-of-bounds array indices, and incorrect dependent relationships. Ultimately your code should work every time under all input conditions without ever triggering an assertion although passing tests don't guarantee proper design. You should aim for 100\% code coverage.
+
+Be strategic about where the assertions are located and what they test for.
+A failed assertion should be considered a bug should be treated as such. For example a failure to open a file is likely not a bug in your program, per se, but indicative of some other problem and programmatic error handling would probably be the best approach to handling the missing file.
+
+Assertions can be included or excluded at compile-time. In many cases, it is reasonable to keep the assertions in production releases as an aid to future bug reporting.
+  
+\subsection{Using the Assertion Libraries }  
+
+LongBow provides a basic set of assertions that test a condition and trigger the assertion if the condition fails to be true. When an assertion triggers the following occurs:
+\begin{itemize}
+\item An Event is created which records the kind of assertion that failed and the location of the assertion's failure.
+\item The formatted message of the failed assertion is reported via the LongBow report library.
+\item The running program is sent a SIGABRT signal.
+\end{itemize}
+
+The following four assertions are currently supported:
+\begin{itemize}
+\item  assertTrue
+\item  assertFalse 
+\item  assertNull 
+\item  assertNotNull
+\end{itemize}
+
+The function signatures are:
+
+\hfill \texttt{void assertX(condition, "\_\_\_",...);} \hfill \break
+where "\_\_\_" is the printf null-terminated C-String that will be displayed when the assertion triggers.  The ... represents the arguments that might be used to create the string.
+
+There are two basic C header files that are needed:
+\begin{itemize}
+\item \textbf{LongBow/runtime.h} is the basic header file needed for assertions and testing.
+\item \textbf{LongBow/compiling.h} is used when you have code that needs to work across multiple compilers.
+\end{itemize} 
+
+\subsection {Using Traps}
+LongBow traps are subsets of assertions and are intended for simple error reporting. There is no functional difference between a trap and an assertion, however, Traps cannot be shut off during runtime so they are good to use for deployment if you plan to turn assertions off and the program should terminate when the assertion is not met.
+
+Traps take as arguments a condition and a printf(3) format string of explanatory text along with any required values. A typical trap is called with:
+
+{\tt trap (condition, ...) }
+
+where {\tt ...} is the printf format string and values.
+
+\noindent Currently supported traps are defined in \texttt{traps.h} and include:
+\begin{itemize}
+\item  \textbf{trapIllegalValue:} Used for capturing failed parameter validation, for example.
+\item  \textbf{trapIllegalValueIf:} Used to trap an illegal value if a condition is met.
+\item  \textbf{trapNotImplemented:} Used to report and abort an unimplemented capability.
+\item  \textbf{trapOutOfBounds:}  Used to trap an out-of-bounds condition on an index.
+\item  \textbf{trapOutOfBoundsIf:} Used to trap an out-of-bounds condition for a specific value.
+\item  \textbf{trapOutOfMemory:} Used to signal that no more memory can be allocated.
+\item  \textbf{trapUnexpectedState:} Used to signal that an unexpected or inconsistent state was encountered.
+\item  \textbf{trapUnexpectedStateIf:} If the given condition is true, used to signal that an unexpected state was encountered.
+\item  \textbf{trapUnrecoverableState:} Used to report an unrecoverable state in program execution.
+\end{itemize}
+
+
+
+
+\subsection{Examples }  
+
+\paragraph {assertNotNull example}
+\paragraph {assertNotNull example}
+
+\begin{lstlisting}
+#include <LongBow/assertions>
+#include <unistd.h>
+#include <string.h>
+
+void
+function(char *pointer)
+{
+    assertNotNull(pointer, "The pointer cannot be NULL.");
+
+    write(1, pointer, strlen(pointer));
+}
+
+int
+main(int argc, char *argv[])
+{
+    function(0);
+}
+\end{lstlisting}
+
+
+In this case the assertNotNull will trigger and the program will immediately terminate with the following output:
+
+\begin{lstlisting}
+Assert pointer.c:8 function() pointer != NULL The pointer cannot be NULL.
+0   pointer                 0x0000000107840d4c function + 188
+1   pointer                 0x0000000107840dd1 main + 33
+2   libdyld.dylib          0x00007fff887595fd start + 1
+
+\end{lstlisting}
+
+\paragraph {assertTrue example}
+  \paragraph {assertTrue example}
+
+ \begin{lstlisting}
+ LONGBOW_TEST_CASE(Global, myTest)
+{
+    struct timeval timeval;
+    timeval.tv_sec = 0;
+    timeval.tv_usec = 1000;
+    
+    char *expected = "0.001000";
+    char *actual = parcTime\_FormatTimeval(timeval);
+    assertTrue(strcmp(expected, actual) == 0, "Expected \%s, actual \%s", expected, actual);
+    parc_free(actual);
+}
+ \end{lstlisting}
+ 
+\paragraph {Example using assertNull, assertNotNull, and assertTrue}
+ \paragraph {Example using assertNull, assertNotNull, and assertTrue}
+ 
+ \begin{lstlisting}
+ static void
+parcDeque_AssertInvariants(const PARCDeque *deque)
+{
+    assertNotNull(deque, "Parameter cannot be null.");
+    if (deque->head != NULL) {
+        assertTrue(deque->size != 0, "PARCDeque head is not-null, but size is zero.");
+        assertNotNull(deque->tail, "PARCDeque head is not-null, but tail is null.");
+        parcDequeNode_AssertInvariants(deque->head);
+        parcDequeNode_AssertInvariants(deque->tail);
+    } else {
+        assertNull(deque->tail, "PARCDeque head is null, but tail is not null.");
+        assertTrue(deque->size == 0, "PARCDeque head is null, but size is not zero.");
+    }
+}
+
+\end{lstlisting}
+
+\paragraph {assertFalse example}
+\paragraph {assertFalse example}
+ \begin{lstlisting}
+RtaCommand *
+rtaCommand_Read(int fd)
+{
+    ssize_t readlen;
+    uint32_t netbyteorder;
+    size_t len;
+    char *p;
+    RtaCommand *command;
+
+    readlen = read(fd, &netbyteorder, 4);
+    assertFalse(readlen < 0, "socket read error: %s\n", strerror(errno));
+    assertTrue(readlen == 4, "Partial read on command length");
+
+    len = ntohl(netbyteorder);
+    p = parc_malloc(len);
+    readlen = read(fd, p, len);
+    assertTrue(readlen == len, "Partial read on command");
+
+    command = rtaCommand_Parse(p);
+    parc_free(p);
+    return command;
+}
+\end{lstlisting}
+
+
+\section{Unit testing}  
+Longbow provides an xUnit-style unit testing framework. The framework is a mechanism for organizing and running trees of test code. It is organized hierarchically into three components: a Test Runner, Test Fixtures, and Test Cases.
+
+A Test Runner file is associated 1:1 with a C source file, with the word "test\_" prepended on the C source file name.  For example, the Test Runner file for parc\_Buffer.c would be test\_parc\_Buffer.c. This file contains all of the Test Fixtures and Test Cases needed to test the associated C source file.
+
+ Each Test Runner will run a set of Test Fixtures.  Test Fixtures are an organizational unit that allows you to group your Test Cases.  The grouping may be done by functionality, by static vs non static functions, or by any other organizing principle that you choose. 
+ 
+ A Test Fixture runs a set of Test Cases each of which is responsible for testing some aspect of the C module. 
+
+Tests are run in the order they are defined.  The Test Runner will start with Test Fixture1 and all of its Test Cases, move on to Test Fixture2 and its Test Cases etc. Tests should be idempotent, however, and not assume any particular order or be dependent on each other. They should not leave state such that the next Test Case inherits that state. 
+
+\subsection{Designing tests }  
+\textcolor{red}{Put something here}
+
+\subsection{Writing tests with the Test Runner module }  
+\subsubsection{Test Runners}
+A Test Runner is the top-level executable unit in a test. It is responsible for establishing the necessary state for the set of tests it contains, executing the tests via Test Fixtures and Test Cases, and tearing down state when the tests have completed. 
+
+A Test Runner requires the  following header files:
+\begin{itemize}
+\item \textbf{LongBow/runtime.h} is the basic header file needed for assertions and testing.
+\item \textbf{LongBow/unit-test.h} is the basic header file needed for testing.
+\item \textbf{LongBow/compiling.h} is used when you have code that needs to work across multiple compilers - it contains the matrix of compiler and / you are using.
+\end{itemize} 
+
+\noindent The source code of a Test Runner has the following basic structure:
+
+\begin{lstlisting}
+#include <LongBow/testing.h>
+
+LONGBOW_TEST_RUNNER(myRunner)
+{
+}
+
+LONGBOW_TEST_RUNNER_SETUP(myRunner)
+{
+    // Code to set up required state
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_RUNNER_TEARDOWN(myRunner)
+{
+    //Code to clean up state
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+\end{lstlisting}
+
+
+Each of these functions has a local variable - {\tt LongBowRunner *testRunner} - which may be used to manipulate the clipboard (as an example).  The Text Fixtures and Test Cases launched by the Test Runner will have access to this variable as well as their own local variable.  Thus a Test Fixture will have access to the {\tt  testRunner} that is passed to it as well as its own {\tt LongBowFixture *testFixture} and a Test Case will have access to {\tt testRunner, testFixture} and its own {\tt LongBowCase *testCase}.
+
+\subsubsection{Test Fixtures}
+
+
+A Test Fixture is a subcomponent which has the same structure as a Test Runner. The following code adds Test Fixture to a Test Runner:
+
+\begin{lstlisting}
+LONGBOW_TEST_RUNNER(myRunner)
+{
+    LONGBOW_RUN_TEST_FIXTURE(Global);
+    LONGBOW_RUN_TEST_FIXTURE(Local);
+}
+\end{lstlisting}
+
+
+Like the Test Runner, it is responsible for setting up and tearing down state needed by the Test Cases.   
+
+\begin{lstlisting}
+ 
+LONGBOW_TEST_FIXTURE(Global)
+{
+    LONGBOW_RUN_TEST_CASE(Global, myTest);
+}
+
+LONGBOW_TEST_FIXTURE_SETUP(Global)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE_TEARDOWN(Global)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+\end{lstlisting}
+
+\subsubsection{Test Cases}
+Test Cases are the leaf nodes of the testing tree.  Each Test Case tests one aspect of the C module.
+
+\paragraph {Handling Test Case state safely}
+
+Every Test Case has access to a private \"clipboard\" that contains data shared between the Test Case and the set up and teardown functions of its encapsulating Test Fixture. This shared state is used to provide specific environment or initialized variables for the test and for the test to communicate specialized information to the teardown function.
+
+For example, a Test Case which is expected to fail as the result of testing a failure condition might exit without releasing resources which are left in an unsafe state. As multiple tests may be run in one process, it is important to clean these up before launching the next test.
+
+The following example demonstrates the clipboard mechanism: 
+\begin{itemize}
+\item{The Test Fixture setup function allocates the necessary resources and puts references to them into the clipboard.}
+\item{The Test Case gets these references, uses them, and fails.} 
+\item{The Test Fixture tear-down function obtains the resources from the clipboard and deallocates them.}
+\end{itemize}
+
+\subsubsection {Test Runner Example}
+\noindent  The following is an example of a test file :
+
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+
+#include <LongBow/testing.h>
+#include <LongBow/debugging.h>
+
+LONGBOW_TEST_RUNNER(testClipboard)
+{
+    LONGBOW_RUN_TEST_FIXTURE(Global);
+}
+
+LONGBOW_TEST_RUNNER_SETUP(testClipboard)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_RUNNER_TEARDOWN(testClipboard)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE(Global)
+{
+    LONGBOW_RUN_TEST_CASE(Global, testClipboard);
+}
+
+LONGBOW_TEST_FIXTURE_SETUP(Global)
+{
+    char *testData = strdup("Hello World");
+    longBowTest Case_SetClipBoardData(testCase, testData, free);
+    
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE_TEARDOWN(Global)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_CASE(Global, testClipboard)
+{
+    char *testData = longBowTest Case_GetClipBoardData(testCase);
+    printf("Shared state '%s'\n", testData);
+}
+
+int
+main(int argc, char *argv[])
+{
+    LongBowRunner *testRunner = LONGBOW_TEST_RUNNER_CREATE(testClipboard);
+    int exitStatus = LONGBOW_TEST_MAIN(argc, argv, testRunner);
+    longBowTest Runner_Destroy(&testRunner);
+    exit(exitStatus);
+}
+\end{lstlisting}
+
+\subsubsection {Testing for Successful Failure}
+Testing for success is straightforward but we also may have to test that something fails when it is supposed to. 
+This section describes how to test for an expected non-success result.
+
+To compose a Test Case that expects a result other than success, use the {\tt LONGBOW\_TEST\_CASE\_EXPECTS} function which takes the expected event as a parameter and completes.  The example below shows the capture of a successful segmentation fault.
+  
+
+\begin{lstlisting}
+#include <stdio.h>
+#include <sys/types.h>
+#include <signal.h>
+
+#include <LongBow/unit-test.h>
+
+LONGBOW_TEST_RUNNER(LongBow)
+{
+	LONGBOW_RUN_TEST_FIXTURE(MyFixture);
+}
+
+LONGBOW_TEST_RUNNER_SETUP(LongBow)
+{
+	return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_RUNNER_TEARDOWN(LongBow)
+{
+	return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE(MyFixture)
+{
+	LONGBOW_RUN_TEST_CASE(MyFixture, alwaysSEGV);
+}
+
+LONGBOW_TEST_FIXTURE_SETUP(MyFixture)
+{
+	return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE_TEARDOWN(MyFixture)
+{
+	return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_CASE_EXPECTS(MyFixture, alwaysSEGV, .event = &LongBowEventSIGSEGV)
+{
+	int *p = 0;
+	int i = *p;
+}
+
+int
+main(int argc, char *argv[])
+{
+	LongBowRunner *testRunner = LONGBOW_TEST_RUNNER_CREATE(LongBow);
+	int status = LONGBOW_TEST_MAIN(argc, argv, testRunner, NULL);
+	longBowTest Runner_Destroy(&testRunner);
+
+	exit(status);
+}
+
+\end{lstlisting}
+
+\subsection{Running tests}  
+
+The overall process for writing and running your tests:
+\begin{itemize}
+\item  Write a Test Runner file for every .c file that completely tests all of the code container in the .c file. This filename should be "test\_" prepended to the name of the file you are testing.
+\item  Compile the Test Runner file with one of:
+\begin {itemize}
+\item  -llongbow -llongbow-ansiterm
+\item  -llongbow -llongbow-textplain
+\end{itemize}
+\item  Execute the Test Runner.
+\end{itemize}
+
+
+\subsection{Examples }  
+
+Here is an example of a C source file and its associated Test file.  Tutorial.c is a small C program which simply  provides an uninteresting but useful exemplar of the test framework.
+
+
+\noindent \textbf{Tutorial.c}
+
+\begin{lstlisting}
+#include <unistd.h>
+#include <stdbool.h>
+#include <signal.h>
+
+static bool
+_privateFunction()
+{
+    return true;
+}
+
+bool
+alwaysSucceed()
+{
+	return _privateFunction();
+}
+
+bool
+alwaysFail()
+{
+	return false;
+}
+
+bool
+blowUp()
+{
+    char *p = 0;
+    *p = 0;
+    
+    return true;
+}
+
+\end{lstlisting}
+
+The following code is the test file for the Tutorial.c.  Note that the file name is simply the C source file name with "test\_" prepended. In this example, the Test Runner divides the Test Cases into two Test Fixtures: one to focus on the Static functions and one to focus on the Global functions.
+
+\noindent \textbf{test\_Tutorial.c}
+\begin{lstlisting}
+
+#include "tutorial.c"
+
+#include <LongBow/unit-test.h>
+
+
+LONGBOW_TEST_RUNNER(myTutorialTest)
+{
+    LONGBOW_RUN_TEST_FIXTURE(Static);
+    LONGBOW_RUN_TEST_FIXTURE(Global);
+}
+
+LONGBOW_TEST_RUNNER_SETUP(myTutorialTest)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_RUNNER_TEARDOWN(myTutorialTest)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE(Global)
+{
+    LONGBOW_RUN_TEST_CASE(Global, alwaysSucceed);
+    LONGBOW_RUN_TEST_CASE(Global, alwaysFail);
+    LONGBOW_RUN_TEST_CASE(Global, blowUp);
+    
+}
+
+LONGBOW_TEST_FIXTURE_SETUP(Global)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE_TEARDOWN(Global)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_CASE(Global, alwaysSucceed)
+{
+    bool result = alwaysSucceed();
+    
+	assertTrue(result, "This test must always succeed.");
+}
+
+LONGBOW_TEST_CASE(Global, alwaysFail)
+{
+    bool result = alwaysFail();
+    
+	assertTrue(result, "This test will fail.");
+}
+
+LONGBOW_TEST_CASE_EXPECTS(Global, blowUp, .event = &LongBowEventSIGSEGV)
+{
+    blowUp();
+
+    assertTrue(false, "This will not be executed");
+}
+
+
+LONGBOW_TEST_FIXTURE(Static)
+{
+    LONGBOW_RUN_TEST_CASE(Static, _privateFunction);
+}
+
+LONGBOW_TEST_FIXTURE_SETUP(Static)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_FIXTURE_TEARDOWN(Static)
+{
+    return LONGBOW_STATUS_SUCCEEDED;
+}
+
+LONGBOW_TEST_CASE(Static, _privateFunction)
+{
+    bool result = _privateFunction();
+    
+	assertTrue(result, "This test must always succeed.");
+}
+
+int
+main(int argc, char *argv[argc])
+{
+    LongBowRunner *testRunner = LONGBOW_TEST_RUNNER_CREATE(myTutorialTest);
+    int status = LONGBOW_TEST_MAIN(argc, argv, testRunner);
+    
+    longBowTest Runner_Destroy(&testRunner);
+    exit(status);
+}
+
+\end{lstlisting}
+
+\section {Compiling and Compiler Support}
+LongBow consolidates a variety of compile-time options that you include in your code.
+
+For example, the C99 standard defines the pragma operator and various compilers support this in various ways.
+
+\section{The LongBow Reporter}  
+The Longbow reporter offers a more user-friendly option for viewing the output of the running tests. In addition to linking with the primary LongBow library ({\tt liblongbow.a}), you also need to link with one of the following reporting libraries to control presentation of the test output.
+\begin{itemize}
+\item {\bf liblongbow-ansiterm.a} This option produces output that is color coded to indicate the degree of success: green for a successful test; yellow for warnings; and red for failure.
+\item {\bf liblongbow-plaintext.a} This option produces plain text output.
+\item {\bf liblongbow-json.a} This option is in development and will produce output in JSON format.
+\end{itemize}
+
+
+
+\section {Appendices}
+\subsection {Function Documentation}
+The following modules are included in LongBow:
+\begin {itemize}
+\item \textbf{Runtime:}	LongBow functions and macros for runtime.
+\item \textbf{Testing:}	 LongBow functions and macros for writing tests.
+\item \textbf{Internals:} LongBow functions and macros used internally.
+\item \textbf{Reporting:}	LongBow functions and definitions for writing report libraries.
+\item \textbf{Performance testing:} LongBow functions and definitions for writing performance tests.
+\end{itemize}
+
+\paragraph {Runtime}
+LongBow runtime support consists primarily of assertions and traps. Developers insert assertions to insist that certain conditions are true before permitting the program to continue. If the assertion fails, the program is abnormally terminated. It uses the following files:
+
+\begin{itemize}
+\item {\bf assertions.h:} 	Runtime and Test Assertions.
+ \item {\bf longBow\_EventType.h:} LongBow Events and Support. 
+ \item {\bf longBow\_Runtime.h:} The LongBow Runtime support. 
+ \item {\bf runtime.h:} LongBow Runtime Support. 
+ \item {\bf traps.h:} Runtime and Test Traps. 
+\end{itemize}
+
+
+\paragraph {Testing}
+LongBow testing support consists of macros and ancillary functions to implement an xUnit style of writing and running tests. Test writers create a LONGBOW\_TEST\_RUNNER function which invokes one or more LONGBOW\_TEST\_FIXTURE functions, each of which invoke a specific LONGBOW\_TEST\_CASE. It uses the following files:
+
+\begin{itemize}
+\item {\bf longBow\_EventType.h:} 	LongBow Events and Support. 
+ \item {\bf longBow\_Main.h:} A main() function to run one or more LongBow Test Runners. 
+ \item {\bf longBow\_OpenFile.h:} LongBow support for files and file descriptors. 
+ \item {\bf longBow\_Runner.h:} LongBow Test Runner Support. 
+ \item {\bf longBow\_Status.h} A simple status representation for a LongBow Test Case. 
+  \item {\bf longBow\_Test CaseClipBoard.h:} LongBow Clipboard shared between the setup, test case, and teardown. 
+ \item {\bf longBow\_UnitTesting.h} Unit Testing Support. . 
+ \item {\bf testing.h:} LongBow testing functionality. 
+ \item {\bf unit-test.h} LongBow Unit Test Support. 
+\end{itemize}
+
+\paragraph {Internals}
+LongBow functions and macros used internally.
+It uses the following files:
+
+\begin{itemize}
+ \item {\bf longBow\_ArrayList.h} A simple, list implementation using a dynamic array.  
+ \item {\bf longBow\_Backtrace.h} Support for Stack Traces. 
+ \item {\bf longBow\_Configuration.h} Support for LongBow Configuration. 
+ \item {\bf longBow\_Debugging.h} Support for LongBow and Application Debugging. 
+ \item {\bf longBow\_Event.h} LongBow Event Support. 
+ \item {\bf longBow\_EventType.h} LongBow Events and Support. 
+ \item {\bf longBow\_Fixture.h} Manage the execution of Test Cases. 
+ \item {\bf longBow\_Location.h} LongBow Source File Location. 
+ \item {\bf longBow\_Test Case.h} The interface and supporting functionality of a LongBow Test Case. 
+ \item {\bf longBow\_Test CaseResult.h} LongBow Test Case Results. 
+\end{itemize}
+ 
+ 
+ \paragraph {Reporting}
+LongBow functions and definitions for writing report libraries.  
+It uses the following header files:
+
+\begin{itemize}
+ \item {\bf longBow\_ReportANSITerminal\_Runtime.h} ANSI Terminal Reporting.  
+\item {\bf longBow\_Report\_Runtime.h} The LongBow Runtime Report Generator.  
+\item {\bf longBow\_Report\_Testing.h} The LongBow Test Report Generator. 
+\end{itemize}
+
+ 	
+ \paragraph {Performance Testing}
+Using LongBow for performance tests.
+
+
+\end{document}

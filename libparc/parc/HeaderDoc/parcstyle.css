@@ -1,0 +1,12 @@
+/* begin PARC style */
+.showInXcodeSC{
+	display: none;
+}
+
+body {
+	margin: 0;
+	background-color: #d5d5d5;
+	color: black;
+	font: medium 'Lucida Grande',Geneva,Verdana,Arial,Helvetica,sans-serif;
+}
+/* end PARC style */

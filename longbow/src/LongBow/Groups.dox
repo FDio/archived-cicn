@@ -1,0 +1,47 @@
+/**
+\mainpage LongBow
+
+Software testing, validation, and measurable quality metics are an important
+element in modern software development.  LongBow is a software framework and
+facility for writing software using invariants, runtime validation,
+unit testing, and code analysis for the C programming language.
+
+LongBow is software to help you write better C programs. It provides:
+
+* A run-time assertion facility to establish strict rules on the state of your program.
+* A testing facility based on the xUnit testing model.
+* Compile-time assistance for writing code meant to be compiled by compilers with different features.
+
+LongBow can help you find and manage problems early, establish and maintain
+ confidence in the correctness of your code, make collaboration easier,
+facilitate future change, and improve overall design.
+
+LongBow allows you to take control and establish invariant pre- and
+post-conditions that detect inconsistencies and unexpected results in your
+programs in order to find bugs and design deficiencies in the code during
+development rather than waiting for your users and customers to find your bugs for you.
+
+    
+@defgroup runtime Runtime
+@brief LongBow functions and macros for runtime, consisting primarily of assertions and traps.
+
+@defgroup testing Testing
+@brief LongBow functions and macros for writing tests.
+
+LongBow testing Macros and ancillary functions to implement an xUnit style of writing and running tests.
+Test writers create a `LONGBOW_TEST_RUNNER` function which, in turn,
+invokes one or more `LONGBOW_TEST_FIXTURE` functions,
+each of which invoke a specific `LONGBOW_TEST_CASE`.
+
+@defgroup internals Internals
+@brief LongBow functions and macros used internally.
+
+@defgroup reporting Reporting
+@brief LongBow functions and definitions for writing report libraries.
+
+@defgroup performance Performance testing
+@brief LongBow functions and definitions for writing performance tests.
+
+@example testAssertion.c
+*/
+

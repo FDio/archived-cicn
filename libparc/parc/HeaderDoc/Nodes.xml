@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!--
+Nodes.xml are used to create directory structure in XCode - Organizer - Documentation
+-->
+ 
+<DocSetNodes version="1.0">
+<TOC>
+  <Node>
+    <Name>PARC Library</Name>
+ 
+    <Subnodes>
+      <!-- Services Documents -->
+      <Node>
+        <Name>Algorithms</Name>
+        <Subnodes>
+          <Node type="folder">
+            <Name>PARC Algol</Name>
+            <Path>Resources/Documents/</Path>
+            <File>masterTOC.html</File>
+          </Node>
+ 
+          <!-- add more services here -->
+        </Subnodes>
+      </Node>
+    <!-- END Service Documents -->
+    </Subnodes>
+  </Node>
+</TOC>
+</DocSetNodes>
+
