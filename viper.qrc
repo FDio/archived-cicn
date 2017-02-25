@@ -1,0 +1,35 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Viper/main.qml</file>
+        <file>qml/Viper/Button.qml</file>
+        <file>qml/Viper/ProgressBar.qml</file>
+        <file>qml/Viper/Slider.qml</file>
+        <file>qml/Viper/utils.js</file>
+        <file>qml/Viper/ControlPanel.qml</file>
+        <file>qml/Viper/VideoCodec.qml</file>
+        <file>qml/Viper/DelegateItem.qml</file>
+        <file>qml/images/qt-logo.png</file>
+        <file>qml/images/Slider_bar.png</file>
+        <file>qml/images/Slider_handle.png</file>
+        <file>qml/Viper/GraphPanel.qml</file>
+        <file>qml/images/fullscreen.svg</file>
+        <file>qml/images/pause.svg</file>
+        <file>qml/images/play.svg</file>
+        <file>qml/images/stop.svg</file>
+        <file>qml/images/repeat.png</file>
+        <file>qml/images/repeat-selected.png</file>
+        <file>qml/images/fullscreen.png</file>
+        <file>qml/images/fullscreen-selected.png</file>
+        <file>qml/images/open-selected.png</file>
+        <file>qml/images/open.png</file>
+        <file>qml/Viper/OpenMpd.qml</file>
+        <file>qml/Viper/Options.qml</file>
+        <file>qml/images/options-selected.png</file>
+        <file>qml/images/options.png</file>
+        <file>qml/images/graph-selected.png</file>
+        <file>qml/images/graph.png</file>
+        <file>qml/Viper/OptionConnections.qml</file>
+        <file>qml/images/option-connections-selected.png</file>
+        <file>qml/images/option-connections.png</file>
+    </qresource>
+</RCC>
