@@ -22,7 +22,7 @@
 #include <parc/security/parc_IdentityFile.h>
 
 const size_t ccnxPing_DefaultReceiveTimeoutInUs = 1000000; // 1 second
-const size_t ccnxPing_DefaultPayloadSize = 4096;
+const size_t ccnxPing_DefaultPayloadSize = 1400;
 const size_t mediumNumberOfPings = 100;
 const size_t smallNumberOfPings = 10;
 

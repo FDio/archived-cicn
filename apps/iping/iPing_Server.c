@@ -101,7 +101,7 @@ static void _ccnxPingServer_Run(CCNxPingServer *server) {
 
   size_t yearInSeconds = 60 * 60 * 24 * 365;
 
-  size_t sizeIndex = ccnxName_GetSegmentCount(server->prefix) + 1;
+  size_t sizeIndex;
 
   if (ccnxPortal_Listen(server->portal, server->prefix, yearInSeconds, CCNxStackTimeout_Never)) {
     while (true) {
@@ -117,6 +117,7 @@ static void _ccnxPingServer_Run(CCNxPingServer *server) {
         CCNxName *interestName = ccnxInterest_GetName(interest);
 
         // Extract the size of the payload response from the client
+        sizeIndex = ccnxName_GetSegmentCount(interestName) - 2;
         CCNxNameSegment *sizeSegment = ccnxName_GetSegment(interestName, sizeIndex);
         char *segmentString = ccnxNameSegment_ToString(sizeSegment);
         int size = atoi(segmentString);
@@ -152,13 +153,13 @@ static void _displayUsage(char *progName) {
   printf("       %s -h\n", progName);
   printf("\n");
   printf("Example:\n");
-  printf("    ccnxPing_Server -l ccnx:/some/prefix -s 4096\n");
+  printf("    ccnxPing_Server -l ccnx:/some/prefix -s 1400\n");
   printf("\n");
   printf("Options:\n");
   printf("     -h (--help) Show this help message\n");
   printf("     -l (--locator) Set the locator for this server. The default is 'ccnx:/locator'. \n");
   printf(
-      "     -s (--size) Set the payload size (less than 64000 - see `ccnxPing_MaxPayloadSize` in ccnxPing_Common.h)\n");
+      "     -s (--size) Set the payload size (less than 1400 - see `ccnxPing_MaxPayloadSize` in ccnxPing_Common.h)\n");
 }
 
 /**

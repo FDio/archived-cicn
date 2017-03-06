@@ -37,9 +37,10 @@ extern const size_t ccnxPing_DefaultPayloadSize;
 
 /**
  * The maximum size of a content object payload.
- * 64KB is the limit imposed by the packet structure
+ * 64KB is the limit imposed by the packet structure.
+ * Here we limit the max Payload Size to 1400 bytes.
  */
-#define ccnxPing_MaxPayloadSize 64000
+#define ccnxPing_MaxPayloadSize 1400
 
 /**
  * A default "medium" number of messages to send.
