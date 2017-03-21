@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 
 #include "icnet_ccnx_portal.h"
 
@@ -135,9 +138,17 @@ void Portal::processControlMessage(CCNxMetaMessage *response) {
   CCNxControl *control_message = ccnxMetaMessage_GetControl(response);
 
   if (ccnxControl_IsACK(control_message)) {
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Route set correctly!\n");
+#else
     std::cout << "Route set correctly!" << std::endl;
+#endif
   } else {
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Failed to set the route.\n");
+#else
     std::cout << "Failed to set the route." << std::endl;
+#endif
   }
 }
 

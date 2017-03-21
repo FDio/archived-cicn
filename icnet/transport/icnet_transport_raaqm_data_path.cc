@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 
 #include "icnet_transport_raaqm_data_path.h"
 
@@ -56,11 +59,23 @@ RaaqmDataPath &RaaqmDataPath::pathReporter() {
 
   delta_t = getMicroSeconds(now) - getMicroSeconds(previous_call_of_path_reporter_);
   rate = (m_packets_bytes_received_ - last_packets_bytes_received_) * 8 / delta_t; // MB/s
+#ifdef __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "RaaqmDataPath status report: at time %ld . %ld \n", now.tv_sec,  now.tv_usec);
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "path\n");
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Packets Received: %lld\n", (packets_received_ - last_packets_received_));
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "delta_t %f [us]\n", delta_t);
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "rate %f [Mbps]\n", rate);
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Last RTT %llu [us]\n", rtt_);
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Max RTT %llu [us]\n", rtt_max_);
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Min RTT %llu [us]\n", rtt_min_);
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Prop delay %llu [us]\n", prop_delay_);
+#else
   std::cout << "RaaqmDataPath status report: " << "at time " << (long) now.tv_sec << "." << (unsigned) now.tv_usec
             << " sec:\n" << (void *) this << " path\n" << "Packets Received: "
             << (packets_received_ - last_packets_received_) << "\n" << "delta_t " << delta_t << " [us]\n" << "rate "
             << rate << " [Mbps]\n" << "Last RTT " << rtt_ << " [us]\n" << "Max RTT " << rtt_max_ << " [us]\n"
             << "Min RTT " << rtt_min_ << " [us]\n" << "Prop delay " << prop_delay_ << " [us]\n";
+#endif
   last_packets_received_ = packets_received_;
   last_packets_bytes_received_ = m_packets_bytes_received_;
   gettimeofday(&previous_call_of_path_reporter_, 0);

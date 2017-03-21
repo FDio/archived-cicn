@@ -13,7 +13,12 @@
  * limitations under the License.
  */
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 #include "icnet_ccnx_local_connector.h"
+
 
 namespace icnet {
 
@@ -131,7 +136,11 @@ void LocalConnector::doReadHeader() {
 
 void LocalConnector::tryReconnect() {
   if (!is_connecting_) {
+#ifdef __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Connection lost. Trying to reconnect...\n");
+#else
     std::cerr << "Connection lost. Trying to reconnect..." << std::endl;
+#endif
     is_connecting_ = true;
     is_reconnection_ = true;
     io_service_.post([this]() {
@@ -158,7 +167,11 @@ void LocalConnector::doConnect() {
 
                                  if (is_reconnection_) {
                                    is_reconnection_ = false;
-                                   std::cout << "Connection recovered!" << std::endl;
+#ifdef __ANDROID__
+                                     __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Connection recovered!\n");
+#else
+                                     std::cout << "Connection recovered!" << std::endl;
+#endif
                                    for (auto &name : served_name_list_) {
                                      bind(name);
                                    }
@@ -184,7 +197,11 @@ void LocalConnector::handleDeadline(const boost::system::error_code &ec) {
   if (!ec) {
     io_service_.post([this]() {
       socket_.close();
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Error connecting. Is the forwarder running?\n");
+#else
       std::cerr << "Error connecting. Is the forwarder running?" << std::endl;
+#endif
       io_service_.stop();
     });
   }

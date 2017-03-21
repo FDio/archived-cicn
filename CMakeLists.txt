@@ -74,7 +74,19 @@ find_package(Boost 1.54.0 COMPONENTS system REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 set(CMAKE_VERBOSE_MAKEFILE off)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fpermissive -O3")
+
+
+if(ANDROID_API)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
+  set(Boost_LIBRARIES $ENV{CCNX_DEPENDENCIES}/lib/libboost_regex.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_system.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_thread.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_filesystem.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_date_time.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_chrono.a)
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -std=c++11 -Wall -fpermissive -O3")
+else ()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fpermissive -O3")
+  if (BUILD_APPS)
+    set(SUBFOLDERS ${APPS})
+  endif (BUILD_APPS)
+endif (ANDROID_API)
 
 set(LIBRARIES
         ${CCNX_PORTAL_LIBRARIES}
@@ -84,10 +96,6 @@ set(LIBRARIES
         ${Boost_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
         ${LONGBOW_LIBRARIES})
-
-if (BUILD_APPS)
-    set(SUBFOLDERS ${APPS})
-endif (BUILD_APPS)
 
 set(SUBFOLDERS ${SUBFOLDERS} icnet)
 

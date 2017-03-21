@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 #include "icnet_transport_raaqm.h"
 
 namespace icnet {
@@ -50,11 +54,19 @@ void RaaqmTransportProtocol::init() {
   avg_rtt_ = 0.0;
 
   if (!is) {
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "WARNING: RAAQM parameters not found, set default values\n");
+#else
     std::cout << "WARNING: RAAQM parameters not found, set default values" << std::endl;
+#endif
     return;
   }
 
+#ifdef __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Setting RAAQM parameters:\n");
+#else
   std::cout << "Setting RAAQM parameters:" << std::endl;
+#endif
   while (getline(is, line)) {
     std::string command;
     std::istringstream line_s(line);
@@ -74,7 +86,11 @@ void RaaqmTransportProtocol::init() {
       } else {
         raaqm_autotune_ = false;
       }
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  autotune = %s",raaqm_autotune_ == 1 ? "true" : "false");
+#else
       std::cout << "params:  autotune = " << raaqm_autotune_ << std::endl;
+#endif
       continue;
     }
 
@@ -82,7 +98,11 @@ void RaaqmTransportProtocol::init() {
       std::string tmp;
       int lifetime;
       line_s >> tmp >> lifetime;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  lifetime = %d\n", lifetime);
+#else
       std::cout << "params:  lifetime = " << lifetime << std::endl;
+#endif
       socket_->setSocketOption(GeneralTransportOptions::INTEREST_LIFETIME, lifetime);
       continue;
     }
@@ -91,7 +111,11 @@ void RaaqmTransportProtocol::init() {
       std::string tmp;
       int rtx;
       line_s >> tmp >> rtx;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  retransmissions = %d\n", rtx);
+#else
       std::cout << "params:  retransmissions = " << rtx << std::endl;
+#endif
       socket_->setSocketOption(ConsumerCallbacksOptions::INTEREST_RETRANSMISSION, rtx);
       continue;
     }
@@ -99,7 +123,11 @@ void RaaqmTransportProtocol::init() {
     if (command == "beta") {
       std::string tmp;
       line_s >> tmp >> default_beta_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  beta = %f\n", default_beta_);
+#else
       std::cout << "params:  beta = " << default_beta_ << std::endl;
+#endif
       socket_->setSocketOption(RaaqmTransportOptions::BETA_VALUE, default_beta_);
       continue;
     }
@@ -107,7 +135,11 @@ void RaaqmTransportProtocol::init() {
     if (command == "drop") {
       std::string tmp;
       line_s >> tmp >> default_drop_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  drop = %f\n", default_drop_);
+#else
       std::cout << "params:  drop = " << default_drop_ << std::endl;
+#endif
       socket_->setSocketOption(RaaqmTransportOptions::DROP_FACTOR, default_drop_);
       continue;
     }
@@ -115,42 +147,66 @@ void RaaqmTransportProtocol::init() {
     if (command == "beta_wifi_") {
       std::string tmp;
       line_s >> tmp >> beta_wifi_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  beta_wifi_ = %f\n", beta_wifi_);
+#else
       std::cout << "params:  beta_wifi_ = " << beta_wifi_ << std::endl;
+#endif
       continue;
     }
 
     if (command == "drop_wifi_") {
       std::string tmp;
       line_s >> tmp >> drop_wifi_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  drop_wifi_ = %f\n", drop_wifi_);
+#else
       std::cout << "params:  drop_wifi_ = " << drop_wifi_ << std::endl;
+#endif
       continue;
     }
 
     if (command == "beta_lte_") {
       std::string tmp;
       line_s >> tmp >> beta_lte_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  beta_lte_ = %f\n", beta_lte_);
+#else
       std::cout << "params:  beta_lte_ = " << beta_lte_ << std::endl;
+#endif
       continue;
     }
 
     if (command == "drop_lte_") {
       std::string tmp;
       line_s >> tmp >> drop_lte_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  drop_lte_ = %f\n", drop_lte_);
+#else
       std::cout << "params:  drop_lte_ = " << drop_lte_ << std::endl;
+#endif
       continue;
     }
 
     if (command == "wifi_delay_") {
       std::string tmp;
       line_s >> tmp >> wifi_delay_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  wifi_delay_ = %u\n", wifi_delay_);
+#else
       std::cout << "params:  wifi_delay_ = " << wifi_delay_ << std::endl;
+#endif
       continue;
     }
 
     if (command == "lte_delay_") {
       std::string tmp;
       line_s >> tmp >> lte_delay_;
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  lte_delay_ = %u\n", lte_delay_);
+#else
       std::cout << "params:  lte_delay_ = " << lte_delay_ << std::endl;
+#endif
       continue;
     }
     if (command == "alpha") {
@@ -158,7 +214,11 @@ void RaaqmTransportProtocol::init() {
       double rate_alpha = 0.0;
       line_s >> tmp >> rate_alpha;
       socket_->setSocketOption(RateEstimationOptions::RATE_ESTIMATION_ALPHA, rate_alpha);
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  alpha = %f\n", rate_alpha);
+#else
       std::cout << "params:  alpha = " << rate_alpha << std::endl;
+#endif
       continue;
     }
 
@@ -167,7 +227,11 @@ void RaaqmTransportProtocol::init() {
       int batching_param = 0;
       line_s >> tmp >> batching_param;
       socket_->setSocketOption(RateEstimationOptions::RATE_ESTIMATION_BATCH_PARAMETER, batching_param);
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params:  batching = %d\n", batching_param);
+#else
       std::cout << "params:  batching = " << batching_param << std::endl;
+#endif
       continue;
     }
 
@@ -176,12 +240,20 @@ void RaaqmTransportProtocol::init() {
       int choice_param = 0;
       line_s >> tmp >> choice_param;
       socket_->setSocketOption(RateEstimationOptions::RATE_ESTIMATION_CHOICE, choice_param);
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "params: choice = %d\n", choice_param);
+#else
       std::cout << "params: choice = " << choice_param << std::endl;
+#endif
       continue;
     }
   }
   is.close();
+#ifdef __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "init done\n");
+#else
   std::cout << "init done" << std::endl;
+#endif
 }
 
 void RaaqmTransportProtocol::reset() {
@@ -216,12 +288,19 @@ void RaaqmTransportProtocol::start() {
     socket_->getSocketOption(SAMPLE_NUMBER, sample_number);
     socket_->getSocketOption(INTEREST_LIFETIME, interest_lifetime);
     socket_->getSocketOption(BETA_VALUE, beta);
-
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "Drop Factor: %f\n", drop_factor);
+    __android_log_print(ANDROID_LOG_DEBUG, "Minimum drop prob: %f\n", minimum_drop_probability);
+    __android_log_print(ANDROID_LOG_DEBUG, "Sample number: %d\n", sample_number);
+    __android_log_print(ANDROID_LOG_DEBUG, "lifetime: %d\n", interest_lifetime);
+    __android_log_print(ANDROID_LOG_DEBUG, "beta: %f\n", beta);
+#else
     std::cout << "Drop Factor: " << drop_factor << std::endl;
     std::cout << "Minimum drop prob: " << minimum_drop_probability << std::endl;
     std::cout << "Sample number: " << sample_number << std::endl;
     std::cout << "lifetime: " << interest_lifetime << std::endl;
     std::cout << "beta: " << beta << std::endl;
+#endif
 
     double alpha = 0.0;
     int batching_param = 0;
@@ -259,7 +338,11 @@ void RaaqmTransportProtocol::updatePathTable(const ContentObject &content_object
     if (cur_path_) {
       // Create a new path with some default param
       if (path_table_.empty()) {
+#ifdef __ANDROID__
+        __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "No path initialized for path table, error could be in default path initialization.\n");
+#else
         std::cerr << "No path initialized for path table, error could be in default path initialization." << std::endl;
+#endif
         exit(EXIT_FAILURE);
       } else {
         // Initiate the new path default param
@@ -269,7 +352,11 @@ void RaaqmTransportProtocol::updatePathTable(const ContentObject &content_object
         path_table_[path_id] = new_path;
       }
     } else {
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "UNEXPECTED ERROR: when running,current path not found.\n");
+#else
       std::cerr << "UNEXPECTED ERROR: when running,current path not found." << std::endl;
+#endif
       exit(EXIT_FAILURE);
     }
   }
@@ -344,10 +431,12 @@ void RaaqmTransportProtocol::check_drop_probability() {
   if (drop_prob == old_drop_prob && beta == old_beta) {
     return;
   }
-
+#ifdef __ANDROID__
+  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "*************[RAAQM TUNING] new beta = %f new drop = %f max pd = %u\n", beta, drop_prob, max_pd);
+#else
   std::cout << "*************[RAAQM TUNING] new beta = " << beta << " new drop = " << drop_prob << " max pd = "
             << max_pd << std::endl;
-
+#endif
   socket_->setSocketOption(BETA_VALUE, beta);
   socket_->setSocketOption(DROP_FACTOR, drop_prob);
 
@@ -413,7 +502,11 @@ void RaaqmTransportProtocol::decreaseWindow() {
 
 void RaaqmTransportProtocol::RAAQM() {
   if (!cur_path_) {
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "ERROR: no current path found, exit\n");
+#else
     std::cerr << "ERROR: no current path found, exit" << std::endl;
+#endif
     exit(EXIT_FAILURE);
   } else {
     // Change drop probability according to RTT statistics
@@ -453,8 +546,12 @@ RaaqmTransportProtocol::onInterest(const Interest &interest)
     uint64_t segment = name[-1].toSegment();
     timeval now;
     gettimeofday(&now, 0);
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "%ld.%u RAAQM: M-Interest %ld %s\n", (long) now.tv_sec, (unsigned) now.tv_usec, segment, interest.getName());
+#else
     std::cout << (long) now.tv_sec << "." << (unsigned) now.tv_usec << " RAAQM: M-Interest " <<
     segment << " " << interest.getName() << std::endl;
+#endif
     NackSet::iterator it = m_nackSet.find(segment);
     if(it == m_nackSet.end()){
       m_nackSet.insert(segment);
