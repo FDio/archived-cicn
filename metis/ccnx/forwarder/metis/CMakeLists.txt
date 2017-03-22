@@ -345,7 +345,7 @@ else ()
 	install(FILES ${METIS_PROCESSOR_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ccnx/forwarder/metis/processor)
 	install(FILES ${METIS_STRATEGIES_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ccnx/forwarder/metis/strategies)
 	install(FILES ${METIS_TLV_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ccnx/forwarder/metis/tlv)
-	install(FILES ${CMAKE_INSTALL_PREFIX}/../build/Metis/ccnx/forwarder/metis/config.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+	install(FILES ${CMAKE_INSTALL_PREFIX}/../build/sb-forwarder/Metis/ccnx/forwarder/metis/config.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
 endif()
 
