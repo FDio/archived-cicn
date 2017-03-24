@@ -289,11 +289,11 @@ void RaaqmTransportProtocol::start() {
     socket_->getSocketOption(INTEREST_LIFETIME, interest_lifetime);
     socket_->getSocketOption(BETA_VALUE, beta);
 #ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_DEBUG, "Drop Factor: %f\n", drop_factor);
-    __android_log_print(ANDROID_LOG_DEBUG, "Minimum drop prob: %f\n", minimum_drop_probability);
-    __android_log_print(ANDROID_LOG_DEBUG, "Sample number: %d\n", sample_number);
-    __android_log_print(ANDROID_LOG_DEBUG, "lifetime: %d\n", interest_lifetime);
-    __android_log_print(ANDROID_LOG_DEBUG, "beta: %f\n", beta);
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Drop Factor: %f\n", drop_factor);
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Minimum drop prob: %f\n", minimum_drop_probability);
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Sample number: %d\n", sample_number);
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "lifetime: %d\n", interest_lifetime);
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "beta: %f\n", beta);
 #else
     std::cout << "Drop Factor: " << drop_factor << std::endl;
     std::cout << "Minimum drop prob: " << minimum_drop_probability << std::endl;
