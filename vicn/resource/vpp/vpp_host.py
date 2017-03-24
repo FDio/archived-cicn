@@ -75,7 +75,7 @@ class VPPHost(LinuxApplication):
             description = 'Dpdk devices on the node',
             multiplicity = Multiplicity.OneToMany)
 
-    __package_names__ = ['dpdk', 'vpp', 'vpp-dpdk-dkms']
+    __package_names__ = ['dpdk', 'vpp-dpdk-dkms']
 
     #--------------------------------------------------------------------------
     # Constructor and Accessors
@@ -120,8 +120,8 @@ class VPPHost(LinuxApplication):
         # container, vpp cannot create those devices, therefore we need to
         # create them in the host and then mount them on each container running
         # vpp (and using a physical nic)
-        stop_vpp = BashTask(self.node, CMD_VPP_STOP_SERVICE) 
-        disable_vpp = BashTask(self.node, CMD_VPP_DISABLE) 
+        stop_vpp = BashTask(self.node, CMD_VPP_STOP_SERVICE + " || true")
+        disable_vpp = BashTask(self.node, CMD_VPP_DISABLE + " || true")
         disable_vpp = stop_vpp > disable_vpp
 
         create_uio = EmptyTask()
