@@ -24,7 +24,7 @@ import sys
 PATH=os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir)
 sys.path.insert(0, os.path.abspath(PATH))
 
-from netmodel.network.interfaces
+import netmodel.network.interfaces
 from netmodel.network.router      import Router
 from netmodel.model.query         import Query, ACTION_SELECT, ACTION_SUBSCRIBE
 from netmodel.util.daemon         import Daemon

@@ -16,8 +16,9 @@
 # limitations under the License.
 #
 
-import networkx as nx
 import logging
+import networkx as nx
+import os
 
 from netmodel.model.type                import String
 from netmodel.util.misc                 import pairwise
@@ -54,7 +55,7 @@ CMD_NAT = '\n'.join([
 # For containers
 CMD_IP_FORWARD = 'echo 1 > /proc/sys/net/ipv4/ip_forward'
 
-HOST_FILE_PATH = "/etc/hosts.vicn"
+HOST_FILE = "hosts.vicn"
 
 #------------------------------------------------------------------------------
 # Routing strategies
@@ -162,29 +163,29 @@ def _get_l2_graph(manager, with_managed = False):
                 if G.has_edge(src.node._state.uuid, dst.node._state.uuid):
                     continue
 
-                map_node_interface = { src.node._state.uuid : src._state.uuid, 
+                map_node_interface = { src.node._state.uuid : src._state.uuid,
                     dst.node._state.uuid: dst._state.uuid}
-                G.add_edge(src.node._state.uuid, dst.node._state.uuid, 
+                G.add_edge(src.node._state.uuid, dst.node._state.uuid,
                         map_node_interface = map_node_interface)
         else:
             # This is for a normal Channel
             for src_it in range(0,len(channel.interfaces)):
                 src = channel.interfaces[src_it]
 
-                # Iterate over the remaining interface to create all the 
+                # Iterate over the remaining interface to create all the
                 # possible combination
                 for dst_it in range(src_it+1,len(channel.interfaces)):
                     dst = channel.interfaces[dst_it]
-            
-                    if not with_managed and (not src.managed or 
+
+                    if not with_managed and (not src.managed or
                             not dst.managed):
                         continue
                     if G.has_edge(src.node._state.uuid, dst.node._state.uuid):
                         continue
-                    map_node_interface = { 
-                        src.node._state.uuid : src._state.uuid, 
+                    map_node_interface = {
+                        src.node._state.uuid : src._state.uuid,
                         dst.node._state.uuid: dst._state.uuid}
-                    G.add_edge(src.node._state.uuid, dst.node._state.uuid, 
+                    G.add_edge(src.node._state.uuid, dst.node._state.uuid,
                             map_node_interface = map_node_interface)
     return G
 
@@ -198,9 +199,9 @@ def _get_icn_graph(manager):
             other_node = other_face.node
             if G.has_edge(node._state.uuid, other_node._state.uuid):
                 continue
-            map_node_face = { node._state.uuid: face._state.uuid, 
+            map_node_face = { node._state.uuid: face._state.uuid,
                 other_node._state.uuid: other_face._state.uuid }
-            G.add_edge(node._state.uuid, other_node._state.uuid, 
+            G.add_edge(node._state.uuid, other_node._state.uuid,
                     map_node_face = map_node_face)
 
     return G
@@ -224,7 +225,9 @@ class IPAssignment(Resource):
         raise ResourceNotFound
 
     def __subresources__(self):
-        self.host_file = TextFile(node = None, filename = HOST_FILE_PATH,
+        basedir = os.path.dirname(self._state.manager._base)
+        self.host_file = TextFile(node = None,
+                filename = os.path.join(basedir, HOST_FILE),
                 overwrite = True)
         return self.host_file
 
@@ -241,13 +244,13 @@ class IPAssignment(Resource):
         # We sort nodes by names for IP assignment. This code ensures that
         # interfaces on the same channel get consecutive IP addresses. That
         # way, we can assign /31 on p2p channels.
-        channels = sorted(self._state.manager.by_type(Channel), 
+        channels = sorted(self._state.manager.by_type(Channel),
                 key = lambda x : x.get_sortable_name())
-        channels.extend(sorted(self._state.manager.by_type(Node), 
+        channels.extend(sorted(self._state.manager.by_type(Node),
                     key = lambda node : node.name))
 
         host_file_content = ""
-       
+
         # Dummy code to start IP addressing on an even number for /31
         ip = AddressManager().get_ip(None)
         if int(ip[-1]) % 2 == 0:
@@ -256,7 +259,7 @@ class IPAssignment(Resource):
         for channel in channels:
             # Sort interfaces in a deterministic order to ensure consistent
             # addressing across restarts of the tool
-            interfaces = sorted(channel.interfaces, 
+            interfaces = sorted(channel.interfaces,
                     key = lambda x : x.device_name)
 
             for interface in interfaces:
@@ -279,7 +282,7 @@ class IPAssignment(Resource):
                     host_file_content += '# {} {} {}\n'.format(
                             interface.node.name, interface.device_name, ip)
                     if interface == interface.node.host_interface:
-                        host_file_content += '{} {}\n'.format(ip, 
+                        host_file_content += '{} {}\n'.format(ip,
                                 interface.node.name)
         self.host_file.content = host_file_content
 
@@ -339,7 +342,7 @@ class IPRoutes(Resource):
 
         G = _get_l2_graph(self._state.manager)
         origins = self._get_ip_origins()
-        
+
         # node -> list(origins for which we have routes)
         ip_routes = dict()
 
@@ -347,7 +350,7 @@ class IPRoutes(Resource):
         routes = list()
         for src, prefix, dst in strategy(G, origins):
             data = G.get_edge_data(src, dst)
-	    
+
             map_ = data['map_node_interface']
             next_hop_interface = map_[src]
 
@@ -356,7 +359,7 @@ class IPRoutes(Resource):
             src_node = self._state.manager.by_uuid(src)
 
             mac_addr = None
-            if ((hasattr(next_hop_ingress, 'vpp') and 
+            if ((hasattr(next_hop_ingress, 'vpp') and
                         next_hop_ingress.vpp is not None) or
                     (hasattr(src_node, 'vpp') and src_node.vpp is not None)):
                 mac_addr = next_hop_ingress.mac_address
@@ -366,15 +369,15 @@ class IPRoutes(Resource):
                 ip_routes[src_node] = list()
             if prefix in ip_routes[src_node]:
                 continue
-            
+
             if prefix == next_hop_ingress.ip_address:
                 # Direct route on src_node.name :
                 # route add [prefix] dev [next_hop_interface_.device_name]
-                route = IPRoute(node     = src_node, 
+                route = IPRoute(node     = src_node,
                                 managed    = False,
                                 owner      = self,
                                 ip_address = prefix,
-                                mac_address = mac_addr, 
+                                mac_address = mac_addr,
                                 interface  = next_hop_interface)
             else:
                 # We need to be sure we have a route to the gw from the node
@@ -387,11 +390,11 @@ class IPRoutes(Resource):
                                     interface  = next_hop_interface)
                     ip_routes[src_node].append(next_hop_ingress.ip_address)
                     pre_routes.append(pre_route)
-                    
-                # Route on src_node.name: 
+
+                # Route on src_node.name:
                 # route add [prefix] dev [next_hop_interface_.device_name]
                 #    via [next_hop_ingress.ip_address]
-                route = IPRoute(node     = src_node, 
+                route = IPRoute(node     = src_node,
                                 managed    = False,
                                 owner      = self,
                                 ip_address = prefix,
@@ -407,7 +410,7 @@ class IPRoutes(Resource):
         IP routing strategy : direct routes only
         """
         routes = list()
-        G = _get_l2_graph(self._state.manager) 
+        G = _get_l2_graph(self._state.manager)
         for src_node_uuid, dst_node_uuid, data in G.edges_iter(data = True):
             src_node = self._state.manager.by_uuid(src_node_uuid)
             dst_node = self._state.manager.by_uuid(dst_node_uuid)
@@ -423,7 +426,7 @@ class IPRoutes(Resource):
                         dst_node.name, dst.device_name, dst.ip_address,
                         src_node.name, src.device_name, src.ip_address))
 
-            route = IPRoute(node        = src_node, 
+            route = IPRoute(node        = src_node,
                             managed     = False,
                             owner       = self,
                             ip_address  = dst.ip_address,
@@ -431,7 +434,7 @@ class IPRoutes(Resource):
                             interface   = src)
             routes.append(route)
 
-            route = IPRoute(node       = dst_node, 
+            route = IPRoute(node       = dst_node,
                             managed    = False,
                             owner      = self,
                             ip_address = src.ip_address,
@@ -498,14 +501,14 @@ class ICNFaces(Resource):
                                   owner      = self,
                                   protocol    = protocol,
                                   src_nic     = src,
-                                  dst_mac     = dst.mac_address) 
+                                  dst_mac     = dst.mac_address)
                 dst_face = L2Face(node        = dst_node,
                                   owner      = self,
                                   protocol    = protocol,
                                   src_nic     = dst,
                                   dst_mac     = src.mac_address)
 
-            elif protocol in (FaceProtocol.tcp4, FaceProtocol.tcp6, 
+            elif protocol in (FaceProtocol.tcp4, FaceProtocol.tcp6,
                     FaceProtocol.udp4, FaceProtocol.udp6):
                 src_face = L4Face(node        = src_node,
                                   owner      = self,
@@ -513,14 +516,14 @@ class ICNFaces(Resource):
                                   src_ip      = src.ip_address,
                                   dst_ip      = dst.ip_address,
                                   src_port    = TMP_DEFAULT_PORT,
-                                  dst_port    = TMP_DEFAULT_PORT) 
+                                  dst_port    = TMP_DEFAULT_PORT)
                 dst_face = L4Face(node        = dst_node,
                                   owner      = self,
                                   protocol    = protocol,
                                   src_ip      = dst.ip_address,
                                   dst_ip      = src.ip_address,
                                   src_port    = TMP_DEFAULT_PORT,
-                                  dst_port    = TMP_DEFAULT_PORT) 
+                                  dst_port    = TMP_DEFAULT_PORT)
             else:
                 raise NotImplementedError
 
@@ -583,7 +586,7 @@ class ICNRoutes(Resource):
         routes = list()
         for src, prefix, dst in strategy(G, origins):
             data = G.get_edge_data(src, dst)
-	    
+
             map_ = data['map_node_face']
             next_hop_face = map_[src]
 
@@ -675,9 +678,9 @@ class ContainerSetup(Resource):
         route_gw.node.routing_table.routes << route_gw
 
         # c) dns
-        dns_server_entry = DnsServerEntry(node = self.container, 
+        dns_server_entry = DnsServerEntry(node = self.container,
                 owner      = self,
-                ip_address = self.container.node.bridge.ip_address, 
+                ip_address = self.container.node.bridge.ip_address,
                 interface_name = self.container.host_interface.device_name)
 
         return dns_server_entry
@@ -710,7 +713,7 @@ class ContainersSetup(Resource):
         if len(containers) == 0:
             return None
 
-        container_resources = [ContainerSetup(owner = self, container = c) 
+        container_resources = [ContainerSetup(owner = self, container = c)
             for c in containers]
 
         return Resource.__concurrent__(*container_resources)
@@ -737,7 +740,7 @@ class CentralIP(Resource):
     def __subresources__(self):
         ip_assign = IPAssignment(owner=self)
         containers_setup = ContainersSetup(owner=self)
-        ip_routes = IPRoutes(owner = self, 
+        ip_routes = IPRoutes(owner = self,
                 routing_strategy = self.ip_routing_strategy)
 
         return ip_assign > (ip_routes | containers_setup)
@@ -758,10 +761,10 @@ class CentralICN(Resource):
     """
 
     # Choices: spt, max_flow
-    icn_routing_strategy = Attribute(String, 
+    icn_routing_strategy = Attribute(String,
             description = 'ICN routing strategy',
-            default = 'spt') 
-    face_protocol = Attribute(String, 
+            default = 'spt')
+    face_protocol = Attribute(String,
             description = 'Protocol used to create faces',
             default = 'ether')
 
@@ -777,8 +780,8 @@ class CentralICN(Resource):
         return ('CentralIP',)
 
     def __subresources__(self):
-        icn_faces = ICNFaces(owner = self, protocol_name = self.face_protocol) 
-        icn_routes = ICNRoutes(owner = self, 
+        icn_faces = ICNFaces(owner = self, protocol_name = self.face_protocol)
+        icn_routes = ICNRoutes(owner = self,
                 routing_strategy = self.icn_routing_strategy)
         return icn_faces > icn_routes
 

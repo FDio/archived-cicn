@@ -61,7 +61,7 @@ class EmulatedLteChannel(EmulatedChannel):
         # ... and each station
         if not station.managed:
             sta_if = None
-        else: 
+        else:
             if isinstance(station, LxcContainer):
                 host = NetDevice(node = station.node,
                     device_name='vhh-' + station.name + '-' + self.name,
@@ -103,8 +103,8 @@ class EmulatedLteChannel(EmulatedChannel):
 
             task = self.node.bridge._remove_interface(bridged_sta)
             await run_task(task, self._state.manager)
-            
-            task = self.node.bridge._add_interface(bridged_sta, 
+
+            task = self.node.bridge._add_interface(bridged_sta,
                     vlan = vlan)
             await run_task(task, self._state.manager)
 
@@ -178,8 +178,8 @@ class EmulatedLteChannel(EmulatedChannel):
             # Coma-separated list of stations' IP/netmask len
             'sta-ips'       : ','.join(sta_ips),
             # Base station IP/netmask len
-            'bs-ip'         : AddressManager().get_ip(self._ap_if) +
-                DEFAULT_NETMASK,
+            'bs-ip'         : AddressManager().get_ip(self._ap_if) + '/' +
+                str(DEFAULT_NETMASK),
             'txBuffer'      : '800000',
             'isFading'      : 'true' if DEFAULT_FADING_ENABLED else 'false',
         }

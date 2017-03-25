@@ -27,10 +27,10 @@ from vicn.core.resource                 import Resource
 log = logging.getLogger(__name__)
 
 DEFAULT_USERNAME = 'root'
-DEFAULT_SSH_PRIVATE_KEY = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'config', 'ssh_client_cert', 'ssh_client_key')
-DEFAULT_SSH_PUBLIC_KEY = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'config', 'ssh_client_cert', 'ssh_client_key.pub')
+DEFAULT_SSH_PRIVATE_KEY = os.path.expanduser(os.path.join(
+        '~', '.vicn', 'ssh_client_cert', 'ssh_client_key'))
+DEFAULT_SSH_PUBLIC_KEY = os.path.expanduser(os.path.join(
+        '~', '.vicn', 'ssh_client_cert', 'ssh_client_key.pub'))
 
 class Node(Resource):
     """

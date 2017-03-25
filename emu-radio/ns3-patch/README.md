@@ -19,4 +19,3 @@ minstrel rate adaptation, RSSI based wifi handover(missing), block ack agreement
 you just need to replace the original files in ns3/src/wifi with the ones that are patched, to do so:
 * cd ns3-patch
 * cp -r wifi/ path/to/ns3/src/wifi
-

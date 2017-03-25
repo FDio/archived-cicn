@@ -46,6 +46,7 @@ class ResourceState:
     PENDING_UPDATE      = 'PENDING_UPDATE'
     PENDING_DELETE      = 'PENDING_DELETE'
     DELETED             = 'DELETED'
+    ERROR               = 'ERROR'
 
 class AttributeState:
     UNINITIALIZED       = 'UNINITIALIZED'
@@ -54,6 +55,7 @@ class AttributeState:
     PENDING_INIT        = 'PENDING_INIT'
     PENDING_UPDATE      = 'PENDING_UPDATE'
     CLEAN               = 'CLEAN'
+    ERROR               = 'ERROR'
 
 class Operations:
     SET = 'set'

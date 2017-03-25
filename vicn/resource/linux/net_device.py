@@ -464,6 +464,9 @@ class NonTapBaseNetDevice(BaseNetDevice):
     # Attributes
     #--------------------------------------------------------------------------
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def _get_offload(self):
         return BashTask(self.node, CMD_GET_OFFLOAD, {'netdevice': self}, 
                 parse = lambda rv : rv.stdout.strip() == 'on')

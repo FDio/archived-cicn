@@ -26,52 +26,46 @@ from vicn.core.task             import task, inline_task, BashTask
 from vicn.resource.linux.file   import File
 from vicn.resource.node         import Node
 
-DEFAULT_RSA_LENGTH = '4096'
-DEFAULT_SUBJECT = '/CN=www.cisco.com/L=Paris/O=Cisco/C=FR'
+CMD_CREATE='''
+mkdir -p {dirname}
+ssh-keygen -t rsa -N "" -f {self.key}
+'''
 
-CMD_CREATE='\n'.join([
-    '# Generate a new certificate',
-    'mkdir -p $(dirname {self.key})',
-    'mkdir -p $(dirname {self.cert})',
-    'openssl req -x509 -newkey rsa:' + DEFAULT_RSA_LENGTH  +
-    ' -keyout {self.key} -out {self.cert} -subj ' + DEFAULT_SUBJECT + ' -nodes'
-])
-
-class Certificate(Resource):
+class Keypair(Resource):
     """
-    Resource: Certificate
+    Resource: Keypair
 
-    Implements a SSL certificate.
+    Implements a SSH keypair
     """
     node = Attribute(Node, 
             description = 'Node on which the certificate is created',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne)
-    cert = Attribute(String, description = 'Certificate path',
-            mandatory = True) 
     key = Attribute(String, description = 'Key path',
             mandatory = True)
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
-
+    
     @inline_task
     def __initialize__(self):
-        self._cert_file = File(node = Reference(self, 'node'),
-                filename = Reference(self, 'cert'),
+        self._pubkey_file = File(node = Reference(self, 'node'),
+                filename = self.key + '.pub',
                 managed = False)
-        self._key_file = File(node = Reference(self, 'node'),
-                filename = Reference(self, 'key'),
+        self._key_file = File(node = Reference(self, 'node'), 
+                filename = self.key, 
                 managed = False)
 
     def __get__(self):
-        return self._cert_file.__get__() | self._key_file.__get__()
+        return self._pubkey_file.__get__() | self._key_file.__get__()
 
     def __create__(self):
-        return BashTask(None, CMD_CREATE, {'self': self})
+        return BashTask(None, CMD_CREATE, {
+                'dirname': os.path.dirname(self.key),
+                'self': self})
     
     def __delete__(self):
-        return self._cert_file.__delete__() | self._key_file.__delete__()
+        return self._pubkey_file.__delete__() | self._key_file.__delete__()
 
 

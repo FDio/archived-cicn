@@ -1,0 +1,318 @@
+{
+  "resources": [
+    {
+      "type": "Physical",
+      "name": "server",
+      "hostname": "localhost",
+      "managed": true
+    },
+    {
+      "type": "NetDevice",
+      "device_name": "enp0s3",
+      "node": "server",
+      "ip_address": "10.0.2.15",
+      "managed": false
+    },
+    {
+      "type": "LxcImage",
+      "name": "ubuntu1604-cicnsuite-rc1",	
+      "node": "server",
+      "managed": false
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "name": "bridge1",
+      "image": "ubuntu1604-cicnsuite-rc1"
+    },
+    {
+      "type": "VPP",
+      "node": "bridge1",
+      "name": "bridge1-vpp1"
+    },
+    {
+      "type": "DpdkDevice",
+      "node": "bridge1",
+      "device_name": "GigabitEthernet0/8/0",
+      "pci_address" : "0000:00:08.0",
+      "ip_address" : "172.17.1.20",
+      "mac_address": "08:00:27:b8:f3:a3",
+      "name": "bridge1-dpdk1"
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "name": "core1",
+      "image": "ubuntu1604-cicnsuite-rc1"
+    },
+    {
+      "type": "VPP",
+      "node": "core1",
+      "name": "core1-vpp"
+    },
+    {
+      "type": "DpdkDevice",
+      "node": "core1",
+      "device_name": "GigabitEthernet0/9/0",
+      "pci_address": "0000:00:09.0",
+      "ip_address" : "172.17.1.21",
+      "mac_address": "08:00:27:d1:b5:d1",
+      "name": "core1-dpdk1"
+    },
+    {
+      "type": "VPPInterface",
+      "name": "core1-vppdpdk1",
+      "vpp": "core1-vpp",
+      "node": "core1",
+      "ip_address": "172.17.1.21",
+      "parent": "core1-dpdk1"
+    },
+    {
+      "type": "DpdkDevice",
+      "node": "core1",
+      "device_name": "GigabitEthernet0/a/0",
+      "pci_address": "0000:00:0a.0",
+      "ip_address" : "172.17.2.21",
+      "mac_address": "08:00:27:d1:b5:c1",
+      "name": "core1-dpdk2"
+    },
+    {
+      "type": "VPPInterface",
+      "name": "core1-vppdpdk2",
+      "vpp": "core1-vpp",
+      "node": "core1",
+      "ip_address": "172.17.2.21",
+      "parent": "core1-dpdk2"
+    },
+    {
+      "type": "CICNForwarder",
+      "node": "core1",
+      "name": "core1-fwd"
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "name": "core2",
+      "image": "ubuntu1604-cicnsuite-rc1"
+    },
+    {
+      "type": "VPP",
+      "node": "core2",
+      "name": "core2-vpp"
+    },
+    {
+      "type": "DpdkDevice",
+      "node": "core2",
+      "device_name": "GigabitEthernet0/10/0",
+      "pci_address": "0000:00:10.0",
+      "ip_address" : "172.17.2.22",
+      "mac_address": "08:00:27:96:e1:dc",
+      "name": "core2-dpdk1"
+    },
+    {
+      "type": "VPPInterface",
+      "name": "core2-vppdpdk1",
+      "vpp": "core2-vpp",
+      "node": "core2",
+      "ip_address": "172.17.2.22",
+      "parent": "core2-dpdk1"
+    },
+    {
+      "type": "DpdkDevice",
+      "node": "core2",
+      "device_name": "GigabitEthernet0/11/0",
+      "pci_address": "0000:00:11.0",
+      "ip_address" : "172.17.3.22",
+      "mac_address": "08:00:27:d3:9e:d6",
+      "name": "core2-dpdk2"
+    },
+    {
+      "type": "VPPInterface",
+      "name": "core2-vppdpdk2",
+      "vpp": "core2-vpp",
+      "node": "core2",
+      "ip_address": "172.17.3.22",
+      "parent": "core2-dpdk2"
+    },
+    {
+      "type": "CICNForwarder",
+      "node": "core2",
+      "name": "core2-fwd"
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "name": "bridge2",
+      "image": "ubuntu1604-cicnsuite-rc1"
+    },
+    {
+      "type": "VPP",
+      "node": "bridge2",
+      "name": "bridge2-vpp1"
+    },
+    {
+      "type": "DpdkDevice",
+      "node": "bridge2",
+      "device_name": "GigabitEthernet0/12/0",
+      "pci_address" : "0000:00:12.0",
+      "ip_address" : "172.17.3.23",
+      "mac_address": "08:00:27:f2:a8:d9",
+      "name": "bridge2-dpdk1"
+    },      
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "cons1"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "cons1",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "cons2"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "cons2",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "cons3"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "cons3",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "cons4"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "cons4",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "cons5"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "cons5",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "prod1"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "prod1",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "prod2"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "prod2",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "prod3"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "prod3",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "prod4"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "prod4",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "LxcContainer",
+      "node": "server",
+      "image": "ubuntu1604-cicnsuite-rc1",
+      "name": "prod5"
+    },
+    {
+      "type": "MetisForwarder",
+      "node": "prod5",
+      "log_file": "/root/log.txt",
+      "cache_size": 0
+    },
+    {
+      "type": "VPPBridge",
+      "connected_nodes": ["cons1","cons2","cons3","cons4","cons5"],
+      "interfaces": ["core1-dpdk1"],
+      "node": "bridge1"
+    },
+    {
+      "type": "PhyLink",
+      "src": "core1-dpdk2",
+      "dst": "core2-dpdk1"
+    },
+    {
+      "type": "VPPBridge",
+      "connected_nodes": ["prod1","prod2","prod3","prod4","prod5"],
+      "interfaces": ["core2-dpdk2"],
+      "node": "bridge2"
+    },
+    {
+      "type": "CcnxSimpleTrafficGenerator",
+      "prefix": "/ccnx1",
+      "consumers": ["cons1"],
+      "producers": ["prod1"]
+    },
+    {
+      "type": "CentralIP",
+      "ip_routing_strategy" : "spt"
+    },
+    {
+      "type" : "CentralICN",
+      "face_protocol": "udp4"
+    }
+  ],
+   "settings": {
+        "network": "192.168.133.0/24",
+        "ulimit-n": 10000
+    }
+}

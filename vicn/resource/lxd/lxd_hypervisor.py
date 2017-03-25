@@ -44,11 +44,10 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 
-# FIXME use system-wide files
-DEFAULT_CERT_PATH = os.path.join(os.path.dirname(__file__),
-        '..', '..', '..', 'config', 'lxd_client_cert', 'client_cert.pem')
-DEFAULT_KEY_PATH = os.path.join(os.path.dirname(__file__),
-        '..', '..', '..', 'config', 'lxd_client_cert', 'client_key.pem')
+DEFAULT_CERT_PATH = os.path.expanduser(os.path.join(
+        '~', '.vicn', 'lxd_client_cert', 'client_cert.pem'))
+DEFAULT_KEY_PATH = os.path.expanduser(os.path.join(
+        '~', '.vicn', 'lxd_client_cert', 'client_key.pem'))
 
 # FIXME hardcoded password for LXD server
 DEFAULT_TRUST_PASSWORD = 'vicn'
@@ -191,8 +190,7 @@ class LxdHypervisor(Service):
                 cert = DEFAULT_CERT_PATH,
                 key = DEFAULT_KEY_PATH, 
                 owner = self)
-        lxd_cert_install = LxdInstallCert(node = Reference(self, 'node'),
-                certificate = lxd_local_cert,
+        lxd_cert_install = LxdInstallCert(certificate = lxd_local_cert,
                 owner = self)
 
         return (lxd_init | lxd_local_cert) > lxd_cert_install

@@ -1,0 +1,117 @@
+{
+    "resources": [
+        {
+            "type": "Physical",
+            "name": "server",
+            "hostname": "MY-SERVER"
+        },
+        {
+            "type": "NetDevice",
+            "device_name": "br0",
+            "node": "server",
+            "managed": false
+        },
+        {
+            "type": "LxcImage",
+            "name": "ubuntu1604-cicnsuite-rc1",
+            "node": "server"
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "cons",
+            "node": "server",
+            "category": "tablet",
+            "x": 1,
+            "y": 2
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "wifi",
+            "node": "server",
+            "category": "wifi",
+            "x": 2,
+            "y": 1
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "lte",
+            "node": "server",
+            "category": "lte",
+            "x": 2,
+            "y": 3
+        },
+        {
+            "type": "LxcContainer",
+            "image": "ubuntu1604-cicnsuite-rc1",
+            "name": "prod",
+            "node": "server",
+            "category": "video-server",
+            "x": 3,
+            "y": 2
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "cons"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "wifi"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "lte"
+        },
+        {
+            "type": "MetisForwarder",
+            "node": "prod"
+        },
+        {
+            "type": "WebServer",
+            "node": "prod",
+            "prefixes": [
+                "/webserver"
+            ]
+        },
+        {
+            "type": "Link",
+            "src_node": "wifi",
+            "dst_node": "prod"
+        },
+        {
+            "type": "Link",
+            "src_node": "lte",
+            "dst_node": "prod"
+        },
+        {
+          "type": "EmulatedWiFiChannel",
+          "name": "wch",
+          "node": "server",
+          "ap": "wifi",
+          "stations": ["cons"],
+          "control_port": 30001
+        },
+        {
+          "type": "EmulatedLteChannel",
+          "name": "lch",
+          "node": "server",
+          "ap": "lte",
+          "stations": ["cons"],
+          "control_port": 30002
+        },
+        {
+            "type": "CentralIP",
+            "ip_routing_strategy": "spt"
+        },
+        {
+            "type": "CentralICN",
+            "icnip_routing_strategy": "spt",
+            "face_protocol": "udp4"
+        }
+    ],
+    "settings": {
+        "network": "192.168.2.0/24"
+    }
+}

@@ -42,8 +42,8 @@ CMD_DELETE_IF_EXISTS='ip link show {interface.device_name} && ' \
 CMD_CREATE='''
 # Create veth pair in the host node
 ip link add name {tmp_src} type veth peer name {tmp_dst}
-ip link set dev {tmp_src} netns {pid[0]} name {interface.src.device_name}
-ip link set dev {tmp_dst} netns {pid[1]} name {interface.dst.device_name}
+ip link set dev {tmp_src} netns {pid[0]} name {interface._src.device_name}
+ip link set dev {tmp_dst} netns {pid[1]} name {interface._dst.device_name}
 '''
 CMD_UP='''
 ip link set dev {interface.device_name} up
@@ -61,9 +61,6 @@ class Link(Channel):
     the current implementation.
     """
 
-    src = Attribute(Interface, description = 'Source interface')
-    dst = Attribute(Interface, description = 'Destination interface')
-
     capacity = Attribute(Integer, description = 'Link capacity (Mb/s)')
     delay = Attribute(String, description = 'Link propagation delay')
 
@@ -73,29 +70,29 @@ class Link(Channel):
             mandatory = True)
 
     def __init__(self, *args, **kwargs):
-        assert 'src' not in kwargs and 'dst' not in kwargs
         assert 'src_node' in kwargs and 'dst_node' in kwargs
+        self._src = None
+        self._dst = None
         super().__init__(*args, **kwargs)
 
     @inline_task
     def __initialize__(self):
-    
         # We create two managed net devices that are pre-setup
         # but the resource manager has to take over for IP addresses etc.
         # Being done in initialize, those attributes won't be considered as
         # dependencies and will thus not block the resource state machine.
-        self.src = NonTapBaseNetDevice(node = self.src_node, 
+        self._src = NonTapBaseNetDevice(node = self.src_node, 
                 device_name = self.dst_node.name,
                 channel = self,
                 capacity = self.capacity,
-                owner = self.owner)
-        self.dst = NonTapBaseNetDevice(node = self.dst_node, 
+                owner = self)
+        self._dst = NonTapBaseNetDevice(node = self.dst_node, 
                 device_name = self.src_node.name,
                 channel = self,
                 capacity = self.capacity,
-                owner = self.owner)
-        self.dst.remote = self.src 
-        self.src.remote = self.dst
+                owner = self)
+        self._dst.remote = self._src 
+        self._src.remote = self._dst
 
     #--------------------------------------------------------------------------
     # Internal methods
@@ -104,21 +101,8 @@ class Link(Channel):
     async def _commit(self):
         manager = self._state.manager
 
-        # We mark the src and dst interfaces created because we are pre-setting
-        # them up in __create__ using a VethPair
-        # We go through both INITIALIZED and CREATED stats to raise the proper
-        # events and satisfy any eventual wait_* command.
-        await manager._set_resource_state(self.src, ResourceState.INITIALIZED)
-        await manager._set_resource_state(self.dst, ResourceState.INITIALIZED)
-        await manager._set_resource_state(self.src, ResourceState.CREATED)
-        await manager._set_resource_state(self.dst, ResourceState.CREATED)
-
-        # We mark the attribute clean so that it is not updated
-        await manager._set_attribute_state(self, 'src', AttributeState.CLEAN)
-        await manager._set_attribute_state(self, 'dst', AttributeState.CLEAN)
-
-        manager.commit_resource(self.src)
-        manager.commit_resource(self.dst)
+        manager.commit_resource(self._src)
+        manager.commit_resource(self._dst)
 
         # Disable rp_filtering
         # self.src.rp_filter = False
@@ -143,36 +127,23 @@ class Link(Channel):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
-    @async_task
-    async def __get__(self):
-        manager = self._state.manager
+    def __get__(self):
+        return (self._src.__get__() | self._dst.__get__()) > async_task(self._commit)()
 
-        try:
-            await run_task(self.src.__get__(), manager)
-            await run_task(self.dst.__get__(), manager)
-        except ResourceNotFound:
-            # This is raised if any of the two side of the VethPair is missing
-            raise ResourceNotFound
-
-        # We always need to commit the two endpoints so that their attributes
-        # are correctly updated
-        await self._commit()
-            
     def __create__(self):
         assert self.src_node.get_type() == 'lxccontainer'
         assert self.dst_node.get_type() == 'lxccontainer'
 
         src_host = self.src_node.node
         dst_host = self.dst_node.node
-
         assert src_host == dst_host
         host = src_host
 
         # Sometimes a down interface persists on one side
         delif_src = BashTask(self.src_node, CMD_DELETE_IF_EXISTS, 
-                {'interface': self.src})
+                {'interface': self._src})
         delif_dst = BashTask(self.dst_node, CMD_DELETE_IF_EXISTS, 
-                {'interface': self.dst})
+                {'interface': self._dst})
 
         pid_src = get_attributes_task(self.src_node, ['pid'])
         pid_dst = get_attributes_task(self.dst_node, ['pid'])
@@ -185,17 +156,13 @@ class Link(Channel):
         create = BashTask(host, CMD_CREATE, {'interface': self,
                 'tmp_src': tmp_src, 'tmp_dst': tmp_dst})
 
-        up_src = BashTask(self.src_node, CMD_UP, {'interface': self.src})
-        up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self.dst})
-
-        @async_task
-        async def set_state():
-            # We always need to commit the two endpoints so that their attributes
-            # are correctly updated
-            await self._commit()
+        up_src = BashTask(self.src_node, CMD_UP, {'interface': self._src})
+        up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self._dst})
 
         delif = delif_src | delif_dst
         up    = up_src | up_dst
         pid   = pid_src | pid_dst
-        return ((delif > (pid @ create)) > up) > set_state()
+        return ((delif > (pid @ create)) > up) > async_task(self._commit)()
 
+    def __delete__(self):
+        return self._src.__delete__() | self._dst.__delete__()

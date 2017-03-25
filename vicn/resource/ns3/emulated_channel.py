@@ -69,7 +69,7 @@ class EmulatedChannel(Channel, Application):
     ap = Attribute(Node, description = 'AP', key = True)
     stations = Attribute(Node, description = 'List of stations',
             multiplicity = Multiplicity.OneToMany, key = True)
-    control_port = Attribute(Integer, 
+    control_port = Attribute(Integer,
             description = 'Control port for the simulation')
 
     # Overloaded attributes
@@ -141,7 +141,7 @@ class EmulatedChannel(Channel, Application):
                 managed = False)
             self._ap_if = VethPair(node = self.ap,
                     name          = 'vh-' + ap.name + '-' + self.name,
-                    device_name   = 'vh-' + ap.name + '-' + self.name, 
+                    device_name   = 'vh-' + ap.name + '-' + self.name,
                     host          = host,
                     owner = self)
             self._ap_bridged = self._ap_if.host
@@ -152,7 +152,7 @@ class EmulatedChannel(Channel, Application):
         interfaces.append(self._ap_if)
 
         # Add a tap interface for the AP...
-        self._ap_tap = TapDevice(node = self.node, 
+        self._ap_tap = TapDevice(node = self.node,
                 owner = self,
                 device_name = 'tap-' + ap.name + '-' + self.name,
                 up = True,
@@ -165,11 +165,11 @@ class EmulatedChannel(Channel, Application):
         await wait_resources(interfaces)
 
         # NOTE: only set channel after the resource is created or it might
-        # create loops which, at this time, are not handled 
+        # create loops which, at this time, are not handled
         self._ap_if.set('channel', self)
 
         # Add interfaces to bridge
-        vlan = AddressManager().get('vlan', self, tag='ap') 
+        vlan = AddressManager().get('vlan', self, tag='ap')
 
         # AS the container has created the VethPair already without Vlan, we
         # need to delete and recreate it
@@ -180,8 +180,6 @@ class EmulatedChannel(Channel, Application):
 
         task = self.node.bridge._add_interface(self._ap_tap, vlan = vlan)
         await run_task(task, self._state.manager)
-
-        print('/!\ pass information to the running simulation')
 
     @inline_task
     def _get_ap(self):

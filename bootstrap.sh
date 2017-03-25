@@ -1,4 +1,3 @@
 #!/bin/bash
 
-ssh-keygen -t rsa -N "" -f config/ssh_client_cert/ssh_client_key
-
+mkdir -p ~/.vicn/ssh_client_cert/ && ssh-keygen -t rsa -N "" -f ~/.vicn/ssh_client_cert/ssh_client_key

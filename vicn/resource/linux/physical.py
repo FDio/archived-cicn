@@ -22,16 +22,17 @@ import logging
 import subprocess
 import shlex
 
-from netmodel.model.type    import String, Integer
-from netmodel.util.misc     import is_local_host
-from netmodel.util.socket   import check_port
-from vicn.core.attribute    import Attribute
-from vicn.core.commands     import Command, ReturnValue
-from vicn.core.exception    import ResourceNotFound
-from vicn.core.task         import Task, task
-from vicn.resource.node     import Node, DEFAULT_USERNAME
-from vicn.resource.node     import DEFAULT_SSH_PUBLIC_KEY
-from vicn.resource.node     import DEFAULT_SSH_PRIVATE_KEY
+from netmodel.model.type            import String, Integer
+from netmodel.util.misc             import is_local_host
+from netmodel.util.socket           import check_port
+from vicn.core.attribute            import Attribute
+from vicn.core.commands             import Command, ReturnValue
+from vicn.core.exception            import ResourceNotFound, VICNException
+from vicn.core.task                 import Task, task
+from vicn.resource.linux.keypair    import Keypair
+from vicn.resource.node             import Node, DEFAULT_USERNAME
+from vicn.resource.node             import DEFAULT_SSH_PUBLIC_KEY
+from vicn.resource.node             import DEFAULT_SSH_PRIVATE_KEY
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +42,9 @@ CMD_SSH = 'ssh {ssh_options} -i {private_key} -p {port} ' \
           '{user}@{host} {command}' 
 CMD_SSH_NF = 'ssh -n -f {ssh_options} -i {private_key} -p {port} ' \
              '{user}@{host} {command}'
+
+FN_KEY = os.path.expanduser(os.path.join(
+            '~', '.vicn', 'ssh_client_cert', 'ssh_client_key'))
 
 class Physical(Node):
     """
@@ -67,12 +71,20 @@ class Physical(Node):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
-    @task
-    def __get__(self, attributes=None):
-        if not check_port(self.hostname, self.ssh_port):
-            raise ResourceNotFound
+    def __subresources__(self):
+        """
+        Require a SSH keypair to be present for authentication on nodes
+        """
+        return Keypair(node = None, key = FN_KEY)
 
-    def __create__(self):
+    def __initialize__(self):
+        """
+        Initialization require the ssh port to be open on the node, and the ssh
+        public key to be copied on the remote node.
+        """
+        if not check_port(self.hostname, self.ssh_port):
+            raise VICNException
+
         tasks = list()
         modes = (True, False) if DEFAULT_USERNAME != 'root' else (True,) 
         for as_root in modes:
