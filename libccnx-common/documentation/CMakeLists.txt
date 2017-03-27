@@ -6,10 +6,10 @@ if(DOXYGEN_FOUND)
   configure_file(libccnx-stage1.doxygen.in  config.doxygen @ONLY)
   configure_file(libccnx-stage2.doxygen.in  config2.doxygen @ONLY)
 
-  install(DIRECTORY images/            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/images)
-  install(DIRECTORY doxygen-extras/    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/doxygen-extras)
-  install(DIRECTORY examples/          DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples)
-  install(FILES DoxygenLayout.xml      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  install(DIRECTORY images/            DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libccnx-common/images)
+  install(DIRECTORY doxygen-extras/    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libccnx-common/doxygen-extras)
+  install(DIRECTORY examples/          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libccnx-common/examples)
+  install(FILES DoxygenLayout.xml      DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libccnx-common)
 
   set(HTML_PATH  ${CMAKE_CURRENT_BINARY_DIR}/generated-documentation/html)
 

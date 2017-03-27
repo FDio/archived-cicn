@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.2)
 project(Libccnx-portal)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+set(${CMAKE_PROJECT_NAME}_VERSION_MAJOR 1)
+set(${CMAKE_PROJECT_NAME}_VERSION_MINOR 0)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(CMAKE_C_STANDARD 99)
@@ -87,3 +90,49 @@ endif()
 
 add_subdirectory(ccnx/api/ccnx_Portal)
 add_subdirectory(documentation)
+
+# Generate DEB / RPM packages
+
+option(DEB_PACKAGE "Create deb package" OFF)
+option(RPM_PACKAGE "Create deb package" OFF)
+
+SET(VENDOR "Cisco Systems" CACHE STRING "Vendor")
+SET(CONTACT "msardara@cisco.com" CACHE STRING "Contact")
+SET(DISTRIBUTION "xenial" CACHE STRING "Distribution")
+SET(ARCHITECTURE "amd64" CACHE STRING "Architecture")
+SET(PACKAGE_MAINTAINER "Mauro Sardara" CACHE STRING "Maintainer")
+SET(PACKAGE_VERSION "1.0" CACHE STRING "Version")
+SET(BUILD_NUMBER "1" CACHE STRING "Build Number")
+STRING(TOLOWER ${CMAKE_PROJECT_NAME} PACKAGE_NAME)
+
+SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${${CMAKE_PROJECT_NAME}_VERSION_MINOR})
+SET(CPACK_PACKAGE_VENDOR ${VENDOR})
+SET(CPACK_PACKAGE_CONTACT ${CONTACT})
+
+if(DEB_PACKAGE)
+    SET(TYPE "DEBIAN")
+    SET(GENERATOR "DEB")
+    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}~${DISTRIBUTION}_${ARCHITECTURE}")
+    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "longbow >= 1.0, libevent-2.0-5, libssl1.0.0, libparc >= 1.0, libccnx-common >= 1.0, libccnx-transport-rta >= 1.0")
+elseif(RPM_PACKAGE)
+    SET(TYPE "RPM")
+    SET(GENERATOR "RPM")
+    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}.${DISTRIBUTION}.${ARCHITECTURE}")
+    SET(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
+    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "longbow >= 1.0, libevent >= 2.0, openssl >= 1.0, libparc >= 1.0, libccnx-common >= 1.0, libccnx-transport-rta >= 1.0")
+else()
+    RETURN()
+endif()
+
+SET(CPACK_GENERATOR ${GENERATOR})
+SET(CPACK_${TYPE}_PACKAGE_MAINTAINER ${PACKAGE_MAINTAINER})
+SET(CPACK_${TYPE}_PACKAGE_NAME ${PACKAGE_NAME})
+SET(CPACK_${TYPE}_PACKAGE_VERSION ${PACKAGE_VERSION})
+SET(CPACK_${TYPE}_PACKAGE_ARCHITECTURE ${ARCHITECTURE})
+SET(CPACK_${TYPE}_PACKAGE_RELEASE 1)
+SET(CPACK_${TYPE}_PACKAGE_VENDOR ${VENDOR})
+SET(CPACK_${TYPE}_PACKAGE_DESCRIPTION "The CCNx Portal API is a simple API to communicate via Interests and Content Objects. It connects to a transport stack like Transport RTA (libccnx-transport-rta).")
+
+INCLUDE(CPack)
