@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.2)
 
 set(CONSUMER_SOURCE_FILES icnet_consumer_test.cc)
 set(IGET_SOURCE_FILES icnet_iget.cc)

@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.2)
 file(GLOB HEADER_FILES "ccnx/*.h")
 file(GLOB SOURCE_FILES "ccnx/*.cc")
 
-set(CP_API_HEADER_FILES
+set(ICNET_HEADER_FILES
         ${CMAKE_BINARY_DIR}/config.hpp
         transport/icnet_rate_estimation.h
         transport/icnet_download_observer.h
@@ -33,7 +33,7 @@ set(CP_API_HEADER_FILES
         transport/icnet_transport_vegas_rto_estimator.h
         transport/icnet_transport_raaqm_data_path.h)
 
-set(CP_API_SOURCE_FILES
+set(ICNET_SOURCE_FILES
         transport/icnet_socket_producer.cc
         transport/icnet_socket_consumer.cc
         transport/icnet_transport_vegas.cc
@@ -44,17 +44,29 @@ set(CP_API_SOURCE_FILES
         transport/icnet_rate_estimation.cc
         transport/icnet_transport_raaqm_data_path.cc)
 
-set(CP_API_CONFIG
+set(ICNET_CONFIG
         transport/consumer.conf)
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-add_library(icnet SHARED ${SOURCE_FILES} ${CP_API_SOURCE_FILES})
+add_library(icnet STATIC ${SOURCE_FILES} ${ICNET_SOURCE_FILES} ${HEADER_FILES} ${ICNET_HEADER_FILES})
+add_library(icnet.shared SHARED ${SOURCE_FILES} ${ICNET_SOURCE_FILES})
+target_link_libraries(icnet.shared ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 target_link_libraries(icnet ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
-install(TARGETS icnet DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+set_target_properties(icnet.shared PROPERTIES
+                      SOVERSION 1
+                      VERSION 1.0
+                      OUTPUT_NAME icnet)
 
-install(FILES ${COMMON_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/icnet)
+set(libicnet_libraries
+    icnet
+    icnet.shared)
+
+foreach(lib ${libicnet_libraries})
+    install(TARGETS ${lib} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+endforeach()
+
 install(FILES ${HEADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/icnet)
-install(FILES ${CP_API_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/icnet)
-install(FILES ${CP_API_CONFIG} DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/)
+install(FILES ${ICNET_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/icnet)
+install(FILES ${ICNET_CONFIG} DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/)
