@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="10dp"
+    android:paddingTop="3dp"
+    >
+
+    <TextView
+        android:id="@+id/tvLinkName"
+        android:text="foo bar bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorPrimaryDark"
+        />
+
+
+    <TextView
+        android:id="@+id/tvLinkLocalOrRemote"
+        android:text="local"
+        android:layout_below="@id/tvLinkName"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="5dp"
+        />
+
+    <TextView
+        android:id="@+id/tvLinkListener"
+        android:text="listener"
+        android:layout_toRightOf="@id/tvLinkLocalOrRemote"
+        android:layout_below="@id/tvLinkName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="5dp"
+        />
+
+    <TextView
+        android:id="@+id/tvLinkIPAddress"
+        android:layout_below="@id/tvLinkName"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="5dp"
+        android:layout_toRightOf="@id/tvLinkListener"
+        />
+
+</RelativeLayout>

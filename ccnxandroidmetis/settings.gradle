@@ -1,0 +1,3 @@
+include ':MetisControl', ':ccnxsupportlibrary'
+//project(':ccnxsupportlibrary').projectDir = new File(settingsDir, "ccnxsupportlibrary")
+

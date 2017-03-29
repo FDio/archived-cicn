@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+  <LinearLayout
+      style="@style/default_linear_layout_padding"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      >
+
+    <TextView
+        style="?android:listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pref_category_title_general"
+        />
+
+    <TextView
+        android:text="Download Path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/downloadPathTextView" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="http://webserver/sintel/mpd"
+        android:ems="10"
+        android:id="@+id/downloadPathEditText" />
+
+    <TextView
+        android:text="Destination Path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/destinationPathTextView" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="/sdcard/IGet"
+        android:ems="10"
+        android:id="@+id/destinationPathEditText" />
+
+
+
+    <Button
+        android:id="@+id/start_iget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start IGet" />
+  </LinearLayout>
+</ScrollView>
