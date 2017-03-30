@@ -13,40 +13,49 @@
 
 cmake_minimum_required(VERSION 3.2)
 project(cicn_plugin)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+set(${CMAKE_PROJECT_NAME}_VERSION_MAJOR 1)
+set(${CMAKE_PROJECT_NAME}_VERSION_MINOR 0)
+
+# Dependencies
+
+find_package(Vpp REQUIRED)
+find_package(VppDpdk REQUIRED)
 
 set(CICN_PLUGIN_SOURCE_FILES
-        cicn/cicn.c
-        cicn/cicn_face.c
-        cicn/cicn_fib.c
-        cicn/cicn_hashtb.c
-        cicn/cicn_hello.c
-        cicn/cicn_mgmt.c
-        cicn/cicn_parser.c
-        cicn/cicn_pcs.c
-        cicn/cicn_pg.c
-        cicn/node.c)
+    cicn/cicn.c
+    cicn/cicn_face.c
+    cicn/cicn_fib.c
+    cicn/cicn_hashtb.c
+    cicn/cicn_hello.c
+    cicn/cicn_mgmt.c
+    cicn/cicn_parser.c
+    cicn/cicn_pcs.c
+    cicn/cicn_pg.c
+    cicn/node.c)
 
 set(CICN_PLUGIN_HEADER_FILES
-        cicn/cicn_all_api_h.h
-        cicn/cicn_api_handler.h
-        cicn/cicn_fib.h
-        cicn/cicn_hashtb.h
-        cicn/cicn_hello_inlines.h
-        cicn/cicn_mgmt.h
-        cicn/cicn_params.h
-        cicn/cicn_pcs.h
-        cicn/cicn_rte_mbuf_inlines.h
-        cicn/cicn_std.h
-        cicn/cicn_api.h
-        cicn/cicn_face.h
-        cicn/cicn.h
-        cicn/cicn_hello.h
-        cicn/cicn_infra.h
-        cicn/cicn_msg_enum.h
-        cicn/cicn_parser.h
-        cicn/cicn_rte_mbuf.h
-        cicn/cicn_siphash.h
-        cicn/cicn_types.h)
+    cicn/cicn_all_api_h.h
+    cicn/cicn_api_handler.h
+    cicn/cicn_fib.h
+    cicn/cicn_hashtb.h
+    cicn/cicn_hello_inlines.h
+    cicn/cicn_mgmt.h
+    cicn/cicn_params.h
+    cicn/cicn_pcs.h
+    cicn/cicn_rte_mbuf_inlines.h
+    cicn/cicn_std.h
+    cicn/cicn_api.h
+    cicn/cicn_face.h
+    cicn/cicn.h
+    cicn/cicn_hello.h
+    cicn/cicn_infra.h
+    cicn/cicn_msg_enum.h
+    cicn/cicn_parser.h
+    cicn/cicn_rte_mbuf.h
+    cicn/cicn_siphash.h
+    cicn/cicn_types.h)
 
 if(NOT NO_UNIT_TEST)
     list(APPEND CICN_PLUGIN_SOURCE_FILES
@@ -72,10 +81,11 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cicn/cicn.api.h
         --show-name ${CMAKE_CURRENT_BINARY_DIR}/cicn/cicn.api.h
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cicn/cicn.api)
 
+include_directories(SYSTEM)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(./)
 include_directories(cicn/test)
-include_directories(/usr/include/vpp-dpdk)
+include_directories(${VPP_DPDK_INCLUDE_DIRS})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -march=native -O3")
 add_library(cicn_api_test_plugin SHARED
@@ -99,8 +109,8 @@ set_target_properties(cicn_api_test_plugin
 target_link_libraries(cicn_plugin)
 target_link_libraries(cicn_api_test_plugin)
 
-set(VPP_INSTALL_PLUGIN /usr/lib/vpp_plugins)
-set(VPP_INSTALL_API_TEST_PLUGIN /usr/lib/vpp_api_test_plugins)
+set(VPP_INSTALL_PLUGIN ${CMAKE_INSTALL_PREFIX}/lib/vpp_plugins)
+set(VPP_INSTALL_API_TEST_PLUGIN ${CMAKE_INSTALL_PREFIX}/lib/vpp_api_test_plugins)
 
 install(DIRECTORY DESTINATION ${VPP_INSTALL_PLUGIN})
 install(TARGETS cicn_plugin
@@ -111,3 +121,49 @@ install(DIRECTORY DESTINATION ${VPP_INSTALL_API_TEST_PLUGIN})
 install(TARGETS cicn_api_test_plugin
         DESTINATION
         ${VPP_INSTALL_API_TEST_PLUGIN})
+
+# Generate DEB / RPM packages
+
+option(DEB_PACKAGE "Create deb package" OFF)
+option(RPM_PACKAGE "Create deb package" OFF)
+
+SET(VENDOR "Cisco Systems" CACHE STRING "Vendor")
+SET(CONTACT "msardara@cisco.com" CACHE STRING "Contact")
+SET(DISTRIBUTION "xenial" CACHE STRING "Distribution")
+SET(ARCHITECTURE "amd64" CACHE STRING "Architecture")
+SET(PACKAGE_MAINTAINER "Mauro Sardara" CACHE STRING "Maintainer")
+SET(PACKAGE_VERSION "1.0" CACHE STRING "Version")
+SET(BUILD_NUMBER "1" CACHE STRING "Build Number")
+STRING(TOLOWER ${CMAKE_PROJECT_NAME} PACKAGE_NAME)
+
+SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${${CMAKE_PROJECT_NAME}_VERSION_MINOR})
+SET(CPACK_PACKAGE_VENDOR ${VENDOR})
+SET(CPACK_PACKAGE_CONTACT ${CONTACT})
+
+if (DEB_PACKAGE)
+    SET(TYPE "DEBIAN")
+    SET(GENERATOR "DEB")
+    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}~${DISTRIBUTION}_${ARCHITECTURE}")
+    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "vpp-dev >= 17.01, vpp-dpdk-dev >= 17.01")
+elseif (RPM_PACKAGE)
+    SET(TYPE "RPM")
+    SET(GENERATOR "RPM")
+    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}.${DISTRIBUTION}.${ARCHITECTURE}")
+    SET(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
+    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "vpp-devel >= 17.01, vpp-dpdk-devel >= 17.01")
+else ()
+    RETURN()
+endif ()
+
+SET(CPACK_GENERATOR ${GENERATOR})
+SET(CPACK_${TYPE}_PACKAGE_MAINTAINER ${PACKAGE_MAINTAINER})
+SET(CPACK_${TYPE}_PACKAGE_NAME ${PACKAGE_NAME})
+SET(CPACK_${TYPE}_PACKAGE_VERSION ${PACKAGE_VERSION})
+SET(CPACK_${TYPE}_PACKAGE_ARCHITECTURE ${ARCHITECTURE})
+SET(CPACK_${TYPE}_PACKAGE_RELEASE 1)
+SET(CPACK_${TYPE}_PACKAGE_VENDOR ${VENDOR})
+SET(CPACK_${TYPE}_PACKAGE_DESCRIPTION "High-performance CCNx ICN forwarder as a plugin to VPP.")
+
+INCLUDE(CPack)
