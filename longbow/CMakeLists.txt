@@ -28,7 +28,6 @@ add_definitions("-DRELEASE_VERSION=\"${RELEASE_VERSION}\"")
 
 #set(CMAKE_C_FLAGS_NOPANTS "${CMAKE_C_FLAGS_NOPANTS} -O3 -DNDEBUG -DLongBow_DISABLE_ASSERTIONS")
 
-
 find_package( Doxygen )
 find_package( Uncrustify )
 find_package( PythonInterp )
