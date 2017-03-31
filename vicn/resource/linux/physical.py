@@ -28,7 +28,7 @@ from netmodel.util.socket           import check_port
 from vicn.core.attribute            import Attribute
 from vicn.core.commands             import Command, ReturnValue
 from vicn.core.exception            import ResourceNotFound, VICNException
-from vicn.core.task                 import Task, task
+from vicn.core.task                 import Task, task, EmptyTask
 from vicn.resource.linux.keypair    import Keypair
 from vicn.resource.node             import Node, DEFAULT_USERNAME
 from vicn.resource.node             import DEFAULT_SSH_PUBLIC_KEY
@@ -39,7 +39,7 @@ log = logging.getLogger(__name__)
 CMD_SSH_COPY_ID = 'ssh-copy-id {ssh_options} -i {public_key} -p {port} ' \
                   '{user}@{host}'
 CMD_SSH = 'ssh {ssh_options} -i {private_key} -p {port} ' \
-          '{user}@{host} {command}' 
+          '{user}@{host} {command}'
 CMD_SSH_NF = 'ssh -n -f {ssh_options} -i {private_key} -p {port} ' \
              '{user}@{host} {command}'
 
@@ -78,18 +78,21 @@ class Physical(Node):
         return Keypair(node = None, key = FN_KEY)
 
     def __initialize__(self):
-        """
-        Initialization require the ssh port to be open on the node, and the ssh
-        public key to be copied on the remote node.
-        """
-        if not check_port(self.hostname, self.ssh_port):
-            raise VICNException
+        if not is_local_host(self.hostname):
+            """
+            Initialization require the ssh port to be open on the node, and the ssh
+            public key to be copied on the remote node.
+            """
+            if not check_port(self.hostname, self.ssh_port):
+                raise VICNException
 
-        tasks = list()
-        modes = (True, False) if DEFAULT_USERNAME != 'root' else (True,) 
-        for as_root in modes:
-            tasks.append(self._setup_ssh_key(as_root))
-        return Task.__concurrent__(*tasks)
+            tasks = list()
+            modes = (True, False) if DEFAULT_USERNAME != 'root' else (True,)
+            for as_root in modes:
+                tasks.append(self._setup_ssh_key(as_root))
+            return Task.__concurrent__(*tasks)
+        else:
+            return EmptyTask()
 
     __delete__ = None
 
@@ -103,12 +106,12 @@ class Physical(Node):
         os.chmod(DEFAULT_SSH_PRIVATE_KEY, stat.S_IRUSR | stat.S_IWUSR)
         cmd_params = {
             'public_key'    : DEFAULT_SSH_PUBLIC_KEY,
-            'ssh_options'   : '', 
+            'ssh_options'   : '',
             'port'          : self.ssh_port,
             'user'          : 'root' if as_root else DEFAULT_USERNAME,
             'host'          : self.hostname,
         }
-        
+
         c = Command(CMD_SSH_COPY_ID, parameters = cmd_params)
 
         return self._do_execute_process(c.full_commandline, output=False)
@@ -126,18 +129,18 @@ class Physical(Node):
         p.wait()
         return ReturnValue(p.returncode)
 
-    def _do_execute_ssh(self, command, output=False, as_root=False, 
+    def _do_execute_ssh(self, command, output=False, as_root=False,
             ssh_options=None):
         if not ssh_options:
             ssh_options = dict()
         cmd_params = {
             'private_key'   : DEFAULT_SSH_PRIVATE_KEY,
-            'ssh_options'   : ' '.join(['-o {}={}'.format(k, v) 
+            'ssh_options'   : ' '.join(['-o {}={}'.format(k, v)
                     for k, v in ssh_options.items()]),
             'port'          : self.ssh_port,
             'user'          : 'root' if as_root else DEFAULT_USERNAME,
             'host'          : self.hostname,
-            'command'       : shlex.quote(command), 
+            'command'       : shlex.quote(command),
         }
 
         if (command[-1] != '&'):
@@ -151,6 +154,6 @@ class Physical(Node):
         if is_local_host(self.hostname):
             rv = self._do_execute_process(command, output = output)
         else:
-            rv = self._do_execute_ssh(command, output = output, 
+            rv = self._do_execute_ssh(command, output = output,
                     as_root = as_root)
         return rv

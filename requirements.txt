@@ -4,3 +4,4 @@ ws4py==0.3.4
 
 pyparsing
 lockfile
+autobahn
