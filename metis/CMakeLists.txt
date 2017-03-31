@@ -12,6 +12,13 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+option(BUILD_WLDR "build with WLDR" ON)
+message("-- Building with WLDR: " ${BUILD_WLDR})
+
+if( BUILD_WLDR )
+    set(WLDR ON CACHE BOOL, "-- Compiling with WLDR")
+endif( BUILD_WLDR )
+
 if( UNIX )
   link_libraries(m)
 endif( UNIX )
@@ -102,7 +109,7 @@ SET(ARCHITECTURE "amd64" CACHE STRING "Architecture")
 SET(PACKAGE_MAINTAINER "Mauro Sardara" CACHE STRING "Maintainer")
 SET(PACKAGE_VERSION "1.0" CACHE STRING "Version")
 SET(BUILD_NUMBER "1" CACHE STRING "Build Number")
-STRING(TOLOWER ${CMAKE_PROJECT_NAME} PACKAGE_NAME)
+STRING(TOLOWER ${CMAKE_PROJECT_NAME}-forwarder PACKAGE_NAME)
 
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR})
@@ -119,11 +126,18 @@ elseif(RPM_PACKAGE)
     SET(TYPE "RPM")
     SET(GENERATOR "RPM")
     SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}.${DISTRIBUTION}.${ARCHITECTURE}")
-    SET(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
+    SET(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages" "/lib/systemd/system" "/lib" "/lib/systemd")
     SET(CPACK_${TYPE}_PACKAGE_REQUIRES "longbow >= 1.0, libevent >= 2.0, openssl >= 1.0, libparc >= 1.0, libccnx-common >= 1.0")
 else()
     RETURN()
 endif()
+
+# Install also configuration files
+set (METIS_CONFIG ${PROJECT_SOURCE_DIR}/config/ccnx_metis.conf)
+set (METIS_SERVICE ${PROJECT_SOURCE_DIR}/config/metis-forwarder.service)
+
+install(FILES ${METIS_CONFIG} DESTINATION /etc/ccnx)
+install(FILES ${METIS_SERVICE} DESTINATION /lib/systemd/system)
 
 SET(CPACK_GENERATOR ${GENERATOR})
 SET(CPACK_${TYPE}_PACKAGE_MAINTAINER ${PACKAGE_MAINTAINER})
