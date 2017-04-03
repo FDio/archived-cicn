@@ -12,13 +12,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(BUILD_WLDR "build with WLDR" ON)
-message("-- Building with WLDR: " ${BUILD_WLDR})
-
-if( BUILD_WLDR )
-    set(WLDR ON CACHE BOOL, "-- Compiling with WLDR")
-endif( BUILD_WLDR )
-
 if( UNIX )
   link_libraries(m)
 endif( UNIX )
