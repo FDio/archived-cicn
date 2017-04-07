@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -92,21 +92,14 @@ JNIEXPORT void JNICALL Java_com_metis_ccnx_ccnxsupportlibrary_Metis_start
         metisConfiguration_SetObjectStoreSize(configuration, 0);
         metisConfiguration_StartCLI(configuration, 2001);
         if (path != NULL) {
-        __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap","qui");
             const char *configFileName = (*env)->GetStringUTFChars(env, path, 0);
-            __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap", "configuration file %s", configFileName);
             metisForwarder_SetupFromConfigFile(metis, configFileName);
-            __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap","config from file");
         } else {
-         __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap","qua");
             metisForwarder_SetupAllListeners(metis, PORT_NUMBER, NULL);
         }
         MetisDispatcher *dispatcher = metisForwarder_GetDispatcher(metis);
-        __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap","dispatcher");
         _isRunning = true;
-        __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap","true");
         metisDispatcher_Run(dispatcher);
-        __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap","run");
     }
 
  }
@@ -116,6 +109,9 @@ JNIEXPORT void JNICALL Java_com_metis_ccnx_ccnxsupportlibrary_Metis_stop
 {
     if(_isRunning) {
         __android_log_print(ANDROID_LOG_DEBUG, "Metis Wrap", "%s", "stopping metis...");
+        metisForwarder_Destroy(&metis);
+        metisDispatcher_Stop(metisForwarder_GetDispatcher(metis));
+        sleep(1);
         metisForwarder_Destroy(&metis);
         _isRunning = false;
    }

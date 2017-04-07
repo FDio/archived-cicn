@@ -15,6 +15,8 @@
 
 #!/bin/bash
 
+set -e
+
 ABI=$1
 INSTALLATION_DIR=$2
 OS=`echo $OS | tr '[:upper:]' '[:lower:]'`
@@ -131,7 +133,7 @@ if [ ! -d ${INSTALLATION_DIR}/include/boost ]; then
 fi
 
 echo "Copy libcrystax in workspace"
-cp -fv crystax-ndk-10.3.2/sources/crystax/libs/${ABI}/libcrystax.* ${INSTALLATION_DIR}/lib/
+cp -n crystax-ndk-10.3.2/sources/crystax/libs/${ABI}/libcrystax.* ${INSTALLATION_DIR}/lib/
 
 echo "Create libevent"
 
@@ -178,9 +180,13 @@ if [ ! -d ${INSTALLATION_DIR}/include/libxml ]; then
 		git clone git://git.gnome.org/libxml2
 	fi
 	cd libxml2
-
+	mkdir -p ../libxml2_android/jni/libxml2/include/libxml
 	find . -maxdepth 1 -name "*.[c|h]" -exec cp {} ../libxml2_android/jni/libxml2/ \;
-	cp -rf include/* ../libxml2_android/jni/libxml2/include/
+	cp -rf include/libxml ../libxml2_android/jni/libxml2/include/
+	cp -rf include/win32config.h ../libxml2_android/jni/libxml2/include/
+	cp -rf include/wsockcompat.h ../libxml2_android/jni/libxml2/include/
+	cp -rf ../libxml2_files/config.h ../libxml2_android/jni/
+	cp -rf ../libxml2_files/xmlversion.h ../libxml2_android/jni/libxml2/include/libxml
 	cd ..
 	echo `pwd`
 	cd libxml2_android

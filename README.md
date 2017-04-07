@@ -18,9 +18,24 @@ Android SDK
 This is the CCNx Distillery software distribution for Android. It is in charge of pulling
 together all the necessary modules to build a full CCNx software suite for Android.
 
+## Dependencies ##
+
+Install tools to build libcurl
+
+If Ubuntu:
+
+```
+sudo apt-get automake libconf libtool
+```
+
+If Max Os X
+
+```
+brew install automake libconf libtool
+```
+
 
 ## Quick Start ##
-
 
 Clone this distro
 
@@ -96,14 +111,32 @@ execute. You will basically want to download all the sources and compile.
 
 Here's a short summary:
 
-- `make init_depend` - Compile the CCNx dependencies each module in sequence
-- `make all` - Compile all the software
-- `make distclean` - Delete build directory (but not built executables)
-- `make clobber` - Delete build directory and install directories. WARNING - If you configure this to install on a system directory this may delete system files!
-- `make android_metis` - Compile the Metis for Android
-- `make android_metis_debug` - Compile the Metis for Android in debug mode
-- `make android_iget` - Compile the Metis for Android
-- `make android_iget_debug` - Compile the Metis for Android in debug mode
+- `make update`         - git pull the different modules to the head of master"
+- `make all`			- Download sdk, ndk and dependencies, configure, compile and install all software in DISTILLERY_INSTALL_DIR"
+- `make init_depend` 	- Download sdk, ndk and dependencies, compile and install all dependencies in DISTILLERY_INSTALL"
+- `make install-all`    - Configure, compile and install all software in DISTILLERY_INSTALL_DIR"
+- `curl-clean`			- Clean curl files and libs"
+- `boost-clean`			- Clean boost files and libs"
+- `openssl-clean`		- Clean opennssl files and libs"
+- `crystax-clean`		- Clean crystax files and libs"
+- `event-clean`			- Clean libevent files and libs"
+- `crystaxndk-clean`	- Clean crystax ndk files"
+- `xml2-clean`			- Clean libxml2 files and libs"
+- `dependencies-clean`	- Clean all dependencies files and libs"
+- `sdk-clean`			- Clean sdk files"
+- `ndk-clean`			- Clean ndk files"
+- `cmake-clean`			- Clean cmake files"
+- `androidsdk-clean`	- Clean sdk, ndk and cmake files"
+- `cframework-clean`	- Clean cframework (libparc and longbow) files and libs"
+- `ccnxlibs-clean`		- Clean ccnxlibs files and libs"
+- `sb-forwarder-clean`	- Clean sb-forwarder (metis) files and libs"
+- `libicnet-clean`		- Clean libicnet files and libs"
+- `libdash-clean`		- Clean libdash files and libs"
+- `all-clean`			- Clean	all files and libs"
+- `android_metis`		- Build metis apk for android"
+- `android_metis_debug` - Build metis apk for android in debug mode"
+- `android_iget`		- Build iGet apk for android apk in debug mode" 
+- `android_iget_debug`  - Build iGet apk for android apk"
 
 
 ## Configuration ##

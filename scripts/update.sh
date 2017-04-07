@@ -14,7 +14,9 @@
  ##############################################################################
 
 #!/bin/bash
-git pull
+set -e
+
+#git pull
 cd src/ccnxlibs
 git pull
 cd ../..

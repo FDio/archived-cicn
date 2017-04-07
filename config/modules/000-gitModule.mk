@@ -73,13 +73,6 @@ $1.sync: ${DISTILLERY_ROOT_DIR}/tools/bin/syncOriginMasterWithCCNXUpstream
 	@echo $1
 	@cd ${$1_SOURCE_DIR}; ${DISTILLERY_ROOT_DIR}/tools/bin/syncOriginMasterWithCCNXUpstream
 
-update: $1.update
-
-$1.update: ${$1_GIT_CONFIG}
-	@echo "-------------------------------------------------------------------"
-	@echo "-  Updating ${$1_SOURCE_DIR}"
-	@cd ${$1_SOURCE_DIR} && git fetch --all && git pull
-	@echo
 
 ${$1_GIT_CONFIG}: tools/bin/gitCloneOneOf tools/bin/gitAddUpstream
 	@tools/bin/gitCloneOneOf $1 ${$1_SOURCE_DIR} ${$1_GIT_REPOSITORY} ${$1_GIT_UPSTREAM_REPOSITORY}

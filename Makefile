@@ -104,22 +104,7 @@ else
     DISTILLERY_LOCAL_MODULES_DIR="[Undefined]"
 endif
 
-
-##############################################################
-# Build variables and rules
-#
-
-# We're going to create lists of targets as convenience
-modules_clean=$(modules:=.clean)
-modules_check=$(modules:=.check)
-modules_step=$(modules:=.step)
-modules_average-coverage=$(modules:=.average-coverage)
-
-# These are the basic build rules. They will call the module specific rules
-install-all: install-directories pre-requisites ${modules}
-
-#distillery-sync: distillery-update ${DISTILLERY_ROOT_DIR}/tools/bin/syncOriginMasterWithCCNXUpstream
-#	@${DISTILLERY_ROOT_DIR}/tools/bin/syncOriginMasterWithCCNXUpstream
+install-all: install-directories ${modules}
 
 init_depend:
 	./scripts/init.sh ${ABI} ${DISTILLERY_INSTALL_DIR};
@@ -132,188 +117,139 @@ android_iget:
 android_iget_debug:
 	./scripts/compile_androidiget.sh DEBUG
 
-clobber: distclean
-	@rm -rf ${CONFIGURE_CACHE_FILE}
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/bin
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/include
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/share
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/etc
-	@rm -rf ${DISTILLERY_XCODE_DIR}
-	@rm -rf .*.stamp
+curl-clean:
+	@rm -rf external/curl
+	@rm -rf external/libcurl_android/obj
+	@rm -rf external/libcurl_android/jni/libcurl/include
+	@rm -rf external/libcurl_android/jni/libcurl/src
+	@rm -rf external/libcurl_android/jni/libcurl/lib
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcurl*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/curl
+	
+boost-clean:
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libboost*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/boost	
+	
+openssl-clean:
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libssl.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcrypto.*	
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/openssl
+	@rm -rf external/openssl-1.0.2k*
+	@rm -rf external/crystax-ndk-10.3.2/sources/openssl/1.0.2k
+	
+crystax-clean:
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libxrystax.*
+	
+event-clean:
+	@rm -rf external/libevent
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libevent*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/event2
+	
+crystaxndk-clean:
+	@rm -rf external/crystax-ndk*
+		
+xml2-clean:
+	@rm -rf external/libxml2
+	@rm -rf external/libxml2_android/obj
+	@rm -rf external/libxml2_android/jni/libxml2/*.c
+	@rm -rf external/libxml2_android/jni/libxml2/*.h
+	@rm -rf external/libxml2_android/jni/libxml2/include
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libxml2*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/libxml
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/win32config.h
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/wsockcompat.h
+	
+dependencies-clean: crystaxndk-clean event-clean crystax-clean openssl-clean boost-clean curl-clean xml2-clean
+	
+sdk-clean:
+	@rm -rf sdk/android-sdk_*
+	@rm -rf sdk/sdk
+	
+ndk-clean:
+	@rm -rf sdk/android-ndk-*
+	@rm -rf sdk/ndk-bundle
+	
+cmake-clean:
+	@rm -rf cmake-*
+	@rm -rf cmake
+	
+androidsdk-clean: sdk-clean ndk-clean cmake-clean
 
-clean: ${modules_clean}
-	@rm -rf report.txt
+cframework-clean:
+	@rm -rf ${DISTILLERY_BUILD_DIR}/cframework
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/liblongbow.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/LongBow
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libparc.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/parc
+	
+ccnxlibs-clean:
+	@rm -rf src/ccnxlibs
+	@rm -rf ${DISTILLERY_BUILD_DIR}/ccnxlibs
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libccnx-*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/common
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/transport
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/api
 
-distclean:
-	@rm -rf ${DISTILLERY_BUILD_DIR}
-	@rm -rf report.txt
+sb-forwarder-clean:
+	@rm -rf src/sb-forwarder
+	@rm -rf ${DISTILLERY_BUILD_DIR}/sb-forwarder
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libmetis*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/forwarder
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/config.h
 
-#distillery-update:
-#	@echo "Fetching Distillery..."
-#	@git fetch --all
-#	@git pull
+libicnet-clean:
+	@rm -rf src/libicnet
+	@rm -rf ${DISTILLERY_BUILD_DIR}/libicnet
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libicnet*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/icnet
 
-distillery-upstream:
-	git remote add ${DISTILLERY_GITHUB_UPSTREAM_NAME} ${DISTILLERY_GITHUB_UPSTREAM_REPO}
+libdash-clean:
+	@rm -rf ${DISTILLERY_BUILD_DIR}/libdash
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libdash.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/libdash
 
-check: ${modules_check}
+all-clean: dependencies-clean cframework-clean ccnxlibs-clean sb-forwarder-clean libicnet-clean
 
-step: ${modules_step}
-
-# From Distillery, 'make coverage' actually runs the summary version of coverage
-# You can also run 'make <module>.coverage' to get the output showing each file and its coverage.
-coverage: ${modules_average-coverage}
-
-dependencies:
-	@${MAKE} -C dependencies
-
-dependencies.clean:
-	@${MAKE} -C dependencies clean
-
-dependencies.clobber:
-	@${MAKE} -C dependencies clobber
-
-pre-requisites:
+update:
+	./scripts/update.sh
 
 help:
-	@echo "Simple instructions: run \"make update step\""
-	@echo
 	@echo "---- Basic build targets ----"
-	@echo "make help      - This help message"
-	@echo "make info      - Show basic information"
-	@echo "make status    - Show status of modules"
-	@echo "make update    - git clone and pull the different modules to the head of master"
-	@echo "make sync      - fetch all remotes, merge upstream master, push to origin master"
-	@echo "make step      - Module by module: configure, compile and install all software"
-	@echo "                  in the install directory (see make info) and run tests"
-	@echo "make all       - Configure, compile and install all software in DISTILLERY_INSTALL_DIR"
-	@echo "make check     - Run all the tests"
-	@echo "make clobber   - Clean the build, remove the install software"
-	@echo
-	@echo "make sanity    - Run simple sanity checks to test that the build is functional"
-	@echo
-	@echo "make coverage          - Show the average coverage of each module."
-	@echo "make <module>.coverage - Show the coverage of each file in the specified module."
-	@echo
-	@echo "---- Advanced targets ----"
-	@echo "make nuke-all-modules - DANGEROUS! Clean all the modules to git checkout (git clean -dfx)"
-	@echo "                      - You will lose all uncommitted changes"
-	@echo "make clean       - Clean the build"
-	@echo "make distclean   - Distclean the build"
-	@echo "make *-debug     - make a target with DEBUG on (e.g. all-debug or check-debug)"
-	@echo "make *-release   - make a target with RELEASE on (optimized)"
-	@echo "make *-nopants   - make a target with NOPANTS on (no validation - use at your own risk)"
-	@echo
-	@echo "---- IDE support targets ----"
-	@echo "make xcode               - Create xcode projects [only works on Mac]"
-	@echo "make MasterIDE.xcode     - Makes an xcode uber-project (based on all-debug) that contains"
-	@echo "                         - the various sub-mdules"
-	@echo "make MasterIDE.xcodeopen - Makes MasterIDE.xcode and the starts xcode"
-	@echo "make MasterIDE.clionopen - Creates an uber CMakeLists.txt and starts CLion with the necessary"
-	@echo "                         - environment for development"
-	@echo
-	@echo "---- Basic module targets ----"
-	@echo "Module Directory  = ${MODULES_DIRECTORY_DEFAULT}"
-	@echo "Modules Loaded    = ${modules}"
-	@echo "GitModules Loaded = ${gitmodules}"
-	@echo "Per-module targets: \"Module\" \"Module.distclean\" \"Module.nuke\" \"Module-debug\""
-
-
+	@echo "make help			- This help message"
+	@echo "make update			- git pull the different modules to the head of master"
+	@echo "make all				- Download sdk, ndk and dependencies, configure, compile and install all software in DISTILLERY_INSTALL_DIR"
+	@echo "make init_depend 	- Download sdk, ndk and dependencies, compile and install all dependencies in DISTILLERY_INSTALL"
+	@echo "make install-all 	- Configure, compile and install all software in DISTILLERY_INSTALL_DIR"
+	@echo "curl-clean			- Clean curl files and libs"
+	@echo "boost-clean			- Clean boost files and libs"
+	@echo "openssl-clean		- Clean opennssl files and libs"
+	@echo "crystax-clean		- Clean crystax files and libs"
+	@echo "event-clean			- Clean libevent files and libs"
+	@echo "crystaxndk-clean		- Clean crystax ndk files"
+	@echo "xml2-clean			- Clean libxml2 files and libs"
+	@echo "dependencies-clean 	- Clean all dependencies files and libs"
+	@echo "sdk-clean			- Clean sdk files"
+	@echo "ndk-clean			- Clean ndk files"
+	@echo "cmake-clean			- Clean cmake files"
+	@echo "androidsdk-clean		- Clean sdk, ndk and cmake files"
+	@echo "cframework-clean		- Clean cframework (libparc and longbow) files and libs"
+	@echo "ccnxlibs-clean		- Clean ccnxlibs files and libs"
+	@echo "sb-forwarder-clean	- Clean sb-forwarder (metis) files and libs"
+	@echo "libicnet-clean		- Clean libicnet files and libs"
+	@echo "libdash-clean		- Clean libdash files and libs"
+	@echo "all-clean			- Clean	all files and libs"
+	@echo "android_metis		- Build metis apk for android"
+	@echo "android_metis_debug	- Build metis apk for android in debug mode"
+	@echo "android_iget			- Build iGet apk for android apk in debug mode" 
+	@echo "android_iget_debug	- Build iGet apk for android apk"
+	
 ${DISTILLERY_STAMP}: ${REBUILD_DEPENDS}
 	touch $@
-
-debug-%: export CMAKE_BUILD_TYPE_FLAG = -DCMAKE_BUILD_TYPE=DEBUG
-debug-%: export DISTILLERY_BUILD_NAME = -debug
-debug-%:
-	@${MAKE} $*
-
-%-debug: debug-% ;
-
-release-%: export CMAKE_BUILD_TYPE_FLAG = "-DCMAKE_BUILD_TYPE=RELEASE"
-release-%: export DISTILLERY_BUILD_NAME = -release
-release-%:
-	@${MAKE} $*
-
-%-release: release-% ;
-
-nopants-%: export CMAKE_BUILD_TYPE_FLAG = "-DCMAKE_BUILD_TYPE=NOPANTS"
-nopants-%: export DISTILLERY_BUILD_NAME = -nopants
-nopants-%:
-	@${MAKE} $*
-
-%-nopants: nopants-% ;
-
-releasedebug-%: export CMAKE_BUILD_TYPE_FLAG = "-DCMAKE_BUILD_TYPE=RELWITHDEBINFO"
-releasedebug-%: export DISTILLERY_BUILD_NAME = -releasedebug
-releasedebug-%:
-	@${MAKE} $*
-
-%-releasedebug: releasedebug-% ;
 
 install-directories:
 	@mkdir -p ${DISTILLERY_INSTALL_DIR}/include
 	@mkdir -p ${DISTILLERY_INSTALL_DIR}/lib
 	@mkdir -p ${DISTILLERY_INSTALL_DIR}/bin
 
-Distillery.report:
-	@echo '###################################'
-	@echo 'Distillery report'
-	@echo "#" `date "+%Y-%m-%d %H:%M:%S"`
-	@echo "#" `uname -sr` "-" `uname -pm`
-	@echo "#" `uname -n`
-	@echo "#" PATH=${PATH}
-
-	@git status
-	@git log -1
-	@git diff -U1
-
-report.txt:
-	$(MAKE) report > report.txt
-	@cat report.txt
-
-distillery.checkout.error:
-	@echo
-	@echo ===========================================================
-	@echo
-	@echo DISTILLERY ERROR: You have not checked out a repository!
-	@echo Please make sure to run \"make update\" at least once
-	@echo
-	@echo Otherwise there is a misconfigured module,
-	@echo please check the module config files at .distillery/modules
-	@echo
-	@echo ===========================================================
-	@echo
-
-
-info:
-	@echo "############ Distillery Info ##################"
-	@${MAKE} env
-
-
-# env produces shell interpretable output. It is read by some scripts.
-# DO NOT ALTER THE FORMAT
-env:
-	@echo DISTILLERY_ROOT_DIR=${DISTILLERY_ROOT_DIR}
-	@echo DISTILLERY_SOURCE_DIR=${DISTILLERY_SOURCE_DIR}
-	@echo DISTILLERY_BUILD_DIR=${DISTILLERY_BUILD_DIR}
-	@echo DISTILLERY_DEFAULT_CONFIG=${DISTILLERY_DEFAULT_CONFIG}
-	@echo DISTILLERY_LOCAL_CONFIG=${DISTILLERY_LOCAL_CONFIG}
-	@echo DISTILLERY_USER_CONFIG=${DISTILLERY_USER_CONFIG}
-	@echo DISTILLERY_MODULES_DIR=${DISTILLERY_MODULES_DIR}
-	@echo DISTILLERY_LOCAL_MODULES_DIR=${DISTILLERY_LOCAL_MODULES_DIR}
-	@echo DISTILLERY_USER_MODULES_DIR=${DISTILLERY_USER_MODULES_DIR}
-	@echo DISTILLERY_INSTALL_DIR=${DISTILLERY_INSTALL_DIR}
-	@echo DISTILLERY_DEPENDENCIES_DIR=${DISTILLERY_DEPENDENCIES_DIR}
-	@echo DISTILLERY_EXTERN_DIR=${DISTILLERY_EXTERN_DIR}
-	@echo DISTILLERY_TOOLS_DIR=${DISTILLERY_TOOLS_DIR}
-	@echo DISTILLERY_GITHUB_URL=${DISTILLERY_GITHUB_URL}
-	@echo DISTILLERY_GITHUB_URL_USER=${DISTILLERY_GITHUB_URL_USER}
-	@echo DISTILLERY_GITHUB_UPSTREAM_URL=${DISTILLERY_GITHUB_UPSTREAM_URL}
-	@echo CCNX_DEPENDENCIES=${CCNX_DEPENDENCIES}
-	@echo LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
-	@echo LD_RUN_PATH=${LD_RUN_PATH}
-	@echo CCNX_HOME=${CCNX_HOME}
-	@echo PATH=${PATH}
 
 .PHONY: dependencies
