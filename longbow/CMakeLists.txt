@@ -24,9 +24,6 @@ execute_process(COMMAND date -u +%Y-%m-%dT%H:%M:%SZ
 MESSAGE( STATUS "Configuring version ${RELEASE_VERSION}" )
 
 add_definitions("-DRELEASE_VERSION=\"${RELEASE_VERSION}\"")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3")
-
-#set(CMAKE_C_FLAGS_NOPANTS "${CMAKE_C_FLAGS_NOPANTS} -O3 -DNDEBUG -DLongBow_DISABLE_ASSERTIONS")
 
 find_package( Doxygen )
 find_package( Uncrustify )
@@ -62,7 +59,7 @@ if(ANDROID_API)
 
   add_subdirectory(src)
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -DNDEBUG -DLongBow_DISABLE_ASSERTIONS -D_GNU_SOURCE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -D_GNU_SOURCE")
   macro(AddTest testFile)
     add_executable(${ARGV0} ${ARGV0}.c)
     target_link_libraries(${ARGV0} ${PARC_BIN_LIBRARIES})
