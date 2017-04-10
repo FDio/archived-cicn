@@ -45,6 +45,14 @@ ip link add name {tmp_src} type veth peer name {tmp_dst}
 ip link set dev {tmp_src} netns {pid[0]} name {interface._src.device_name}
 ip link set dev {tmp_dst} netns {pid[1]} name {interface._dst.device_name}
 '''
+
+#Changing namespace brings interfaces down
+CMD_CREATE_BR_TO_LXC='''
+ip link add name {tmp_src} type veth peer name {tmp_dst}
+ip link set dev {tmp_src} netns {pid} name {interface.device_name}
+ip link set dev {tmp_dst} up
+ovs-vsctl add-port {host.bridge.device_name} {tmp_dst}'''
+
 CMD_UP='''
 ip link set dev {interface.device_name} up
 '''
@@ -64,7 +72,7 @@ class Link(Channel):
     capacity = Attribute(Integer, description = 'Link capacity (Mb/s)')
     delay = Attribute(String, description = 'Link propagation delay')
 
-    src_node = Attribute(Node, description = 'Source node', 
+    src_node = Attribute(Node, description = 'Source node',
             mandatory = True)
     dst_node = Attribute(Node, description = 'Destination node',
             mandatory = True)
@@ -81,17 +89,17 @@ class Link(Channel):
         # but the resource manager has to take over for IP addresses etc.
         # Being done in initialize, those attributes won't be considered as
         # dependencies and will thus not block the resource state machine.
-        self._src = NonTapBaseNetDevice(node = self.src_node, 
+        self._src = NonTapBaseNetDevice(node = self.src_node,
                 device_name = self.dst_node.name,
                 channel = self,
                 capacity = self.capacity,
                 owner = self)
-        self._dst = NonTapBaseNetDevice(node = self.dst_node, 
+        self._dst = NonTapBaseNetDevice(node = self.dst_node,
                 device_name = self.src_node.name,
                 channel = self,
                 capacity = self.capacity,
                 owner = self)
-        self._dst.remote = self._src 
+        self._dst.remote = self._src
         self._src.remote = self._dst
 
     #--------------------------------------------------------------------------
@@ -136,13 +144,12 @@ class Link(Channel):
 
         src_host = self.src_node.node
         dst_host = self.dst_node.node
-        assert src_host == dst_host
-        host = src_host
+        #assert src_host == dst_host
 
         # Sometimes a down interface persists on one side
-        delif_src = BashTask(self.src_node, CMD_DELETE_IF_EXISTS, 
+        delif_src = BashTask(self.src_node, CMD_DELETE_IF_EXISTS,
                 {'interface': self._src})
-        delif_dst = BashTask(self.dst_node, CMD_DELETE_IF_EXISTS, 
+        delif_dst = BashTask(self.dst_node, CMD_DELETE_IF_EXISTS,
                 {'interface': self._dst})
 
         pid_src = get_attributes_task(self.src_node, ['pid'])
@@ -150,19 +157,28 @@ class Link(Channel):
 
         tmp_src = 'tmp-veth-' + ''.join(random.choice(string.ascii_uppercase +
                     string.digits) for _ in range(5))
-        tmp_dst = 'tmp-veth-' + ''.join(random.choice(string.ascii_uppercase + 
+        tmp_dst = 'tmp-veth-' + ''.join(random.choice(string.ascii_uppercase +
                     string.digits) for _ in range(5))
-
-        create = BashTask(host, CMD_CREATE, {'interface': self,
-                'tmp_src': tmp_src, 'tmp_dst': tmp_dst})
-
-        up_src = BashTask(self.src_node, CMD_UP, {'interface': self._src})
-        up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self._dst})
-
-        delif = delif_src | delif_dst
-        up    = up_src | up_dst
         pid   = pid_src | pid_dst
-        return ((delif > (pid @ create)) > up) > async_task(self._commit)()
+
+        if src_host == dst_host:
+            host = src_host
+            create = BashTask(host, CMD_CREATE, {'interface': self,
+                'tmp_src': tmp_src, 'tmp_dst': tmp_dst})
+            up_src = BashTask(self.src_node, CMD_UP, {'interface': self._src})
+            up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self._dst})
+            up    = up_src | up_dst
+            delif = delif_src | delif_dst
+            return ((delif > (pid @ create)) > up) > async_task(self._commit)()
+        else:
+            create = BashTask(src_host, CMD_CREATE_BR_TO_LXC, {'interface': self._src,
+                'tmp_src': tmp_src, 'tmp_dst': tmp_dst, 'host' : src_host})
+            create2 = BashTask(dst_host, CMD_CREATE_BR_TO_LXC, {'interface': self._dst,
+                'tmp_src': tmp_dst, 'tmp_dst': tmp_src, 'host' : dst_host})
+            up_src = BashTask(self.src_node, CMD_UP, {'interface': self._src})
+            up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self._dst})
+            return (((pid_src @ create) | (pid_dst @ create2)) > (up_src | up_dst))  > async_task(self._commit)()
+
 
     def __delete__(self):
         return self._src.__delete__() | self._dst.__delete__()

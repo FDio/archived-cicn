@@ -64,7 +64,7 @@ CMD_SET_UP = 'ip link set {netdevice.device_name} {up_down}'
 CMD_SET_CAPACITY='\n'.join([
     'tc qdisc del dev {netdevice.device_name} root || true',
     'tc qdisc add dev {netdevice.device_name} root handle 1: tbf rate '
-        '{netdevice.capacity}Mbit burst {burst}kb latency 70ms'
+        '{netdevice.capacity}Mbit burst {burst}kb latency 70ms',
     'tc qdisc add dev {netdevice.device_name} parent 1:1 codel',
 ])
 CMD_GET_PCI_ADDRESS='ethtool -i {netdevice.device_name} | ' \
