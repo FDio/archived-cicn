@@ -41,7 +41,9 @@ from vicn.resource.linux.certificate  import Certificate
 
 # Suppress non-important logging messages from requests and urllib3
 logging.getLogger("requests").setLevel(logging.WARNING)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.captureWarnings(True)
+#This one is for urllib, it disables the InsecureRequestWarning
+logging.getLogger("py.warnings").setLevel(logging.ERROR)
 log = logging.getLogger(__name__)
 
 DEFAULT_CERT_PATH = os.path.expanduser(os.path.join(
@@ -72,7 +74,7 @@ class LxdInit(Application):
     __package_names__ = ['lxd', 'zfsutils-linux', 'lsof']
 
     def __get__(self):
-        return BashTask(self.owner.node, CMD_LXD_CHECK_INIT, 
+        return BashTask(self.owner.node, CMD_LXD_CHECK_INIT,
                 {'lxd': self.owner})
 
     def __create__(self):
@@ -93,10 +95,10 @@ class LxdInit(Application):
             if zfs_pool_exists:
                 cmd_params['storage-create-loop'] = self.owner.storage_size
         elif self.owner.storage_backend == 'dir':
-            raise NotImplementedError 
+            raise NotImplementedError
         else:
-            raise NotImplementedError 
-        cmd = CMD_LXD_INIT_BASE + ' '.join('--{}={}'.format(k, v) 
+            raise NotImplementedError
+        cmd = CMD_LXD_INIT_BASE + ' '.join('--{}={}'.format(k, v)
                 for k, v in cmd_params.items())
 
         # error: Failed to create the ZFS pool: The ZFS modules are not loaded.
@@ -122,12 +124,12 @@ class LxdInstallCert(Resource):
         except Exception:
             # Missing certificates raises an exception
             raise ResourceNotFound
-            
+
 
     @task
     def __create__(self):
         """
-        Some operations with containers requires the client to be trusted by 
+        Some operations with containers requires the client to be trusted by
         the server. So at the beginning we have to upload a (self signed)
         client certificate for the LXD daemon.
         """
@@ -146,14 +148,14 @@ class LxdHypervisor(Service):
     """
     __service_name__ = 'lxd'
 
-    lxd_port = Attribute(Integer, description = 'LXD REST API port', 
+    lxd_port = Attribute(Integer, description = 'LXD REST API port',
             default = 8443)
     storage_backend = Attribute(String, description = 'Storage backend',
             default = 'zfs',
             choices = ['zfs'])
     storage_size = Attribute(Integer, description = 'Storage size',
             default = DEFAULT_LXD_STORAGE) # GB
-    zfs_pool = Attribute(String, description = 'ZFS pool', 
+    zfs_pool = Attribute(String, description = 'ZFS pool',
             default='vicn')
 
     # Just overload attribute with a new reverse
@@ -188,7 +190,7 @@ class LxdHypervisor(Service):
         lxd_init = LxdInit(owner=self, node = self.node)
         lxd_local_cert = Certificate(node = Reference(self, 'node'),
                 cert = DEFAULT_CERT_PATH,
-                key = DEFAULT_KEY_PATH, 
+                key = DEFAULT_KEY_PATH,
                 owner = self)
         lxd_cert_install = LxdInstallCert(certificate = lxd_local_cert,
                 owner = self)
@@ -213,7 +215,7 @@ class LxdHypervisor(Service):
         done when creating multiple containers.
         """
         if not self._images:
-            self._images = self.node.lxd_hypervisor.client.images.all() 
+            self._images = self.node.lxd_hypervisor.client.images.all()
         return self._images
 
     @property

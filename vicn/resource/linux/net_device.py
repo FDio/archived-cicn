@@ -64,7 +64,7 @@ CMD_SET_UP = 'ip link set {netdevice.device_name} {up_down}'
 CMD_SET_CAPACITY='\n'.join([
     'tc qdisc del dev {netdevice.device_name} root || true',
     'tc qdisc add dev {netdevice.device_name} root handle 1: tbf rate '
-        '{netdevice.capacity}Mbit burst {burst}kb latency 70ms'
+        '{netdevice.capacity}Mbit burst {burst}kb latency 70ms',
     'tc qdisc add dev {netdevice.device_name} parent 1:1 codel',
 ])
 CMD_GET_PCI_ADDRESS='ethtool -i {netdevice.device_name} | ' \
@@ -251,7 +251,7 @@ def parse_ip_addr(data):
                 addr, _, prefix = words[1].partition("/")
                 if prefix == '':
                     prefix = 128 if addrtype == "ipv6" else 32
-                info["ip-addresses"].append({"ip-address-type": addrtype, 
+                info["ip-addresses"].append({"ip-address-type": addrtype,
                         "ip-address": addr, "prefix": int(prefix)})
         yield info
 
@@ -266,11 +266,11 @@ class BaseNetDevice(Interface, Application):
     device_name = Attribute(String, description = 'Name of the NetDevice',
             default = lambda x : x._default_device_name(),
             max_size = MAX_DEVICE_NAME_SIZE)
-    capacity = Attribute(Integer, 
+    capacity = Attribute(Integer,
             description = 'Capacity for interface shaping (Mb/s)')
     mac_address = Attribute(String, description = 'Mac address of the device')
     ip_address = Attribute(String, description = 'IP address of the device')
-    pci_address = Attribute(String, 
+    pci_address = Attribute(String,
             description = 'PCI bus address of the device',
             ro = True)
     promiscuous = Attribute(Bool, description = 'Promiscuous', default = False)
@@ -316,7 +316,7 @@ class BaseNetDevice(Interface, Application):
         # Merge into parse_ip_link
         def parse(rv):
             assert rv is not None
-            
+
             nds = parse_ip_link(rv.stdout)
             # This will raise an exception is the interface does not exist
             nd = nds[self.device_name]
@@ -351,7 +351,7 @@ class BaseNetDevice(Interface, Application):
             attrs['mac_address'] = nd['hardware-address']
 
             # We assume a single IPv4 address for now...
-            ips = [ip for ip in nd['ip-addresses'] 
+            ips = [ip for ip in nd['ip-addresses']
                     if ip['ip-address-type'] == 'ipv4']
             if len(ips) >= 1:
                 if len(ips) > 1:
@@ -368,9 +368,9 @@ class BaseNetDevice(Interface, Application):
     def _set_ip_address(self):
         if self.ip_address is None:
             # Unset IP
-            return BashTask(self.node, CMD_FLUSH_IP, 
+            return BashTask(self.node, CMD_FLUSH_IP,
                     {'device_name': self.device_name})
-        return BashTask(self.node, CMD_SET_IP_ADDRESS, 
+        return BashTask(self.node, CMD_SET_IP_ADDRESS,
                 {'netdevice': self})
 
     @task
@@ -379,8 +379,8 @@ class BaseNetDevice(Interface, Application):
 
     def _set_promiscuous(self):
         on_off = 'on' if self.promiscuous else 'off'
-        return BashTask(self.node, CMD_SET_PROMISC, 
-                {'netdevice': self, 'on_off' : on_off}) 
+        return BashTask(self.node, CMD_SET_PROMISC,
+                {'netdevice': self, 'on_off' : on_off})
 
     @task
     def _get_up(self):
@@ -402,7 +402,7 @@ class BaseNetDevice(Interface, Application):
 
         # http://unix.stackexchange.com/questions/100785/bucket-size-in-tbf
         MBPS = 1000000
-        KBPS = 1024 
+        KBPS = 1024
         BYTES = 8
         HZ = 250
 
@@ -417,7 +417,7 @@ class BaseNetDevice(Interface, Application):
         def parse(rv):
             lines = rv.stdout.splitlines()
             return (int(lines[0][-1]) + int(lines[1][-1]) > 0)
-        return BashTask(self.node, CMD_GET_RP_FILTER, {'netdevice' :self}, 
+        return BashTask(self.node, CMD_GET_RP_FILTER, {'netdevice' :self},
                 parse = parse)
 
     def _set_rp_filter(self):
@@ -436,7 +436,7 @@ class BaseNetDevice(Interface, Application):
             rnd = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for _ in range(3))
             return 'unk{}'.format(rnd)
-        
+
     def _remote_interface(self):
         if not self.channel:
             return None
@@ -451,8 +451,8 @@ class BaseNetDevice(Interface, Application):
         if remote_node_name:
             return remote_node_name
         else:
-            return AddressManager().get('device_name', self, 
-                    prefix = self.prefix, scope = self.prefix)   
+            return AddressManager().get('device_name', self,
+                    prefix = self.prefix, scope = self.prefix)
 
 #------------------------------------------------------------------------------
 
@@ -468,7 +468,7 @@ class NonTapBaseNetDevice(BaseNetDevice):
         super().__init__(*args, **kwargs)
 
     def _get_offload(self):
-        return BashTask(self.node, CMD_GET_OFFLOAD, {'netdevice': self}, 
+        return BashTask(self.node, CMD_GET_OFFLOAD, {'netdevice': self},
                 parse = lambda rv : rv.stdout.strip() == 'on')
 
     def _set_offload(self):
@@ -506,7 +506,7 @@ class SlaveBaseNetDevice(BaseNetDevice):
         max_len = MAX_DEVICE_NAME_SIZE - len(self.node.name) - 1
         device_name = self.device_name[:max_len]
 
-        return NetDevice(node = host, 
+        return NetDevice(node = host,
                 device_name = '{}-{}'.format(self.node.name, device_name),
                 managed = False)
 

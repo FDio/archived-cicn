@@ -56,6 +56,7 @@ class AttributeState:
     PENDING_UPDATE      = 'PENDING_UPDATE'
     CLEAN               = 'CLEAN'
     ERROR               = 'ERROR'
+    RESET               = 'RESET'
 
 class Operations:
     SET = 'set'
