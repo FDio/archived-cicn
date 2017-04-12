@@ -1,0 +1,203 @@
+{
+    "settings": {
+        "network": "192.168.128.0/24",
+        "ulimit-n": 10000
+    },
+    "resources": [
+        {
+            "type": "Physical",
+            "name": "server",
+            "hostname": "localhost"
+        },
+        {
+            "type": "NetDevice",
+            "device_name": "eth0",
+            "managed": false,
+            "node": "server"
+        },
+        {
+            "type": "LxcImage",
+            "name": "ubuntu1604-cicnsuite-rc2",
+            "node": "server"
+        },
+        {
+            "name": "u1core",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "asr",
+            "type": "LxcContainer",
+            "y": 10,
+            "x": 5,
+            "node": "server"
+        },
+        {
+            "name": "u1srv1",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "meizu",
+            "type": "LxcContainer",
+            "y": 8,
+            "x": 2,
+            "node": "server"
+        },
+        {
+            "name": "u1srv2",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "meizu",
+            "type": "LxcContainer",
+            "y": 12,
+            "x": 2,
+            "node": "server"
+        },
+        {
+            "name": "u2core",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "asr",
+            "type": "LxcContainer",
+            "y": 6,
+            "x": 9,
+            "node": "server"
+        },
+        {
+            "name": "u2srv1",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "meizu",
+            "type": "LxcContainer",
+            "y": 2,
+            "x": 9,
+            "node": "server"
+        },
+        {
+            "name": "u3core",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "asr",
+            "type": "LxcContainer",
+            "y": 12,
+            "x": 13,
+            "node": "server"
+        },
+        {
+            "name": "u3srv1",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "meizu",
+            "type": "LxcContainer",
+            "y": 10,
+            "x": 16,
+            "node": "server"
+        },
+        {
+            "name": "u3srv2",
+            "image": "ubuntu1604-cicnsuite-rc2",
+            "category": "meizu",
+            "type": "LxcContainer",
+            "y": 14,
+            "x": 16,
+            "node": "server"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 2000000,
+            "node": "u1core"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 0,
+            "node": "u1srv1"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 0,
+            "node": "u1srv2"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 2000000,
+            "node": "u2core"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 0,
+            "node": "u2srv1"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 2000000,
+            "node": "u3core"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 0,
+            "node": "u3srv1"
+        },
+        {
+            "type": "WebServer",
+            "prefixes": [
+                "/webserver1"
+            ],
+            "node": "u3srv1"
+        },
+        {
+            "type": "MetisForwarder",
+            "cache_size": 0,
+            "node": "u3srv2"
+        },
+        {
+            "type": "WebServer",
+            "prefixes": [
+                "/webserver2"
+            ],
+            "node": "u3srv2"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u1srv1",
+            "capacity": 100,
+            "src_node": "u1core"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u1srv2",
+            "capacity": 100,
+            "src_node": "u1core"
+        },
+       {
+            "type": "Link",
+            "dst_node": "u2srv1",
+            "capacity": 100,
+            "src_node": "u2core"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u3srv1",
+            "capacity": 100,
+            "src_node": "u3core"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u3srv2",
+            "capacity": 100,
+            "src_node": "u3core"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u2core",
+            "src_node": "u1core"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u3core",
+            "src_node": "u1core"
+        },
+        {
+            "type": "Link",
+            "dst_node": "u2core",
+            "src_node": "u3core"
+        },
+        {
+            "type": "CentralIP",
+            "ip_routing_strategy": "spt"
+        },
+        {
+            "type": "CentralICN",
+            "face_protocol": "udp4"
+        }
+    ]
+}

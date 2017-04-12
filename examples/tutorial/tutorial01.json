@@ -13,36 +13,36 @@
         },
         {
             "type": "LxcImage",
-            "name": "ubuntu1604-cicnsuite-rc1",
+            "name": "ubuntu1604-cicnsuite-rc2",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc1",
+            "image": "ubuntu1604-cicnsuite-rc2",
             "name": "prod1",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc1",
+            "image": "ubuntu1604-cicnsuite-rc2",
             "name": "prod2",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc1",
+            "image": "ubuntu1604-cicnsuite-rc2",
             "name": "core2",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc1",
+            "image": "ubuntu1604-cicnsuite-rc2",
             "name": "core1",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc1",
+            "image": "ubuntu1604-cicnsuite-rc2",
             "name": "cons1",
             "node": "server"
         },
@@ -50,7 +50,7 @@
             "type": "LxcContainer",
             "name": "cons2",
             "node": "server",
-            "image": "ubuntu1604-cicnsuite-rc1"
+            "image": "ubuntu1604-cicnsuite-rc2"
         },
         {
             "type": "MetisForwarder",

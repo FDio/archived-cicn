@@ -802,7 +802,7 @@ class ResourceManager(metaclass=Singleton):
                 if ENABLE_LXD_WORKAROUND and \
                         (isinstance(e, LxdNotFound) or isinstance(e, LXDAPIException)):
                     new_state = AttributeState.RESET
-                    log.error('LXD Fix (not found). Reset attribute')
+                    log.warning('LXD Fix (not found). Reset attribute')
                     resource._state.attr_change_success[attribute.name] = True
                 else:
                     log.error('Attribute error {} for resource {}'.format(
@@ -894,7 +894,7 @@ class ResourceManager(metaclass=Singleton):
                     if ENABLE_LXD_WORKAROUND and \
                             (isinstance(attrs, LxdNotFound) or isinstance(attrs, LXDAPIException)):
                         new_state = AttributeState.RESET
-                        log.error('LXD Fix (not found). Reset attribute')
+                        log.warning('LXD Fix (not found). Reset attribute')
                         resource._state.attr_change_success[attribute.name] = True
                     else:
                         self.attr_log(resource, attribute,
@@ -927,7 +927,7 @@ class ResourceManager(metaclass=Singleton):
                     if ENABLE_LXD_WORKAROUND and \
                             (isinstance(attrs, LxdNotFound) or isinstance(attrs, LXDAPIException)):
                         new_state = AttributeState.RESET
-                        log.error('LXD Fix (not found). Reset attribute')
+                        log.warning('LXD Fix (not found). Reset attribute')
                         resource._state.attr_change_success[attribute.name] = True
                     else:
                         log.error('Attribute error {} for resource {}'.format(
@@ -1373,13 +1373,13 @@ class ResourceManager(metaclass=Singleton):
                         # "not found" is the normal exception when the container
                         # does not exists. anyways the bug should only occur
                         # with container.execute(), not container.get()
-                        log.error('LXD Fix (not found). Reset resource')
+                        log.warning('LXD Fix (not found). Reset resource')
                         new_state = ResourceState.INITIALIZED
                     elif ENABLE_LXD_WORKAROUND and isinstance(e, LXDAPIException):
                         # "not found" is the normal exception when the container
                         # does not exists. anyways the bug should only occur
                         # with container.execute(), not container.get()
-                        log.error('LXD Fix (API error). Reset resource')
+                        log.warning('LXD Fix (API error). Reset resource')
                         new_state = ResourceState.INITIALIZED
                     elif isinstance(e, ResourceNotFound):
                         # The resource does not exist
@@ -1403,7 +1403,7 @@ class ResourceManager(metaclass=Singleton):
                     self.log(resource, 'KEYS failed: {}'.format(e))
 
                     if ENABLE_LXD_WORKAROUND and isinstance(e, LxdNotFound):
-                        log.error('LXD Fix (not found). Reset resource')
+                        log.warning('LXD Fix (not found). Reset resource')
                         new_state = ResourceState.CREATED
                         resource._state.change_success = True
                     else:
@@ -1421,12 +1421,12 @@ class ResourceManager(metaclass=Singleton):
                     e = resource._state.change_value
 
                     if ENABLE_LXD_WORKAROUND and isinstance(e, LxdNotFound):
-                        log.error('LXD Fix (not found). Reset resource')
+                        log.warning('LXD Fix (not found). Reset resource')
                         new_state = ResourceState.INITIALIZED
                         resource._state.change_success = True
                     elif ENABLE_LXD_WORKAROUND and \
                             isinstance(e, LXDAPIException):
-                        log.error('LXD Fix (API error). Reset resource')
+                        log.warning('LXD Fix (API error). Reset resource')
                         new_state = ResourceState.INITIALIZED
                         resource._state.change_success = True
                     elif 'File exists' in str(e):
@@ -1453,7 +1453,7 @@ class ResourceManager(metaclass=Singleton):
                     self.log(resource, 'UPDATE failed: {}'.format(e))
 
                     if ENABLE_LXD_WORKAROUND and isinstance(e, LxdNotFound):
-                        log.error('LXD Fix (not found). Reset resource')
+                        log.warning('LXD Fix (not found). Reset resource')
                         new_state = ResourceState.CREATED
                         resource._state.change_success = True
                         resource._state.write_lock.release()

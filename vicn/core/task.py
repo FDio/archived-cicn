@@ -22,6 +22,7 @@ import functools
 import logging
 import shlex
 import subprocess
+import os
 
 from vicn.core.scheduling_algebra   import SchedulingAlgebra
 from vicn.core.commands             import ReturnValue
@@ -34,7 +35,8 @@ log = logging.getLogger(__name__)
 EXECUTOR=concurrent.futures.ThreadPoolExecutor
 #EXECUTOR=concurrent.futures.ProcessPoolExecutor
 
-MAX_WORKERS = 50 # None
+#Sets the number of task workers to the number of CPU threads+1
+MAX_WORKERS = os.cpu_count()+1
 
 class BaseTask:
     """Base class for all tasks
