@@ -48,7 +48,10 @@ ProducerSocket::ProducerSocket(Name prefix)
 ProducerSocket::~ProducerSocket() {
   processing_thread_stop_ = true;
   portal_->stopEventsLoop();
-  processing_thread_.join();
+
+  if (processing_thread_.joinable()) {
+    processing_thread_.join();
+  }
 
   if (listening_thread_.joinable()) {
     listening_thread_.join();
