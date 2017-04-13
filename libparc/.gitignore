@@ -57,8 +57,6 @@ test_parc_URIPath
 test_parc_URIAuthority
 test_parc_URISegment
 
-VERSION
-
 parc/parcLibrary_About.c
 parc/parcLibrary_About.h
 parc/parc_About.c
