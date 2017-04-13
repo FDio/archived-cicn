@@ -8,7 +8,7 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential cmake"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU="$LIBSSL_LIBEVENT_UBUNTU longbow libparc libccnx-common libccnx-transport-rta libicnet libboost-regex-dev libboost-filesystem-dev "
+DEPS_UBUNTU="$LIBSSL_LIBEVENT_UBUNTU longbow libparc libccnx-common libccnx-transport-rta libicnet libboost-system-dev libboost-regex-dev libboost-filesystem-dev "
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 BUILD_TOOLS_SINGLE_CENTOS="cmake"
