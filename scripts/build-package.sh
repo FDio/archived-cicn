@@ -10,7 +10,7 @@ PACKAGE_NAME="VIPER"
 VIPER_DEPS_UBUNTU="zlib1g-dev git-core build-essential libxml2-dev libcurl4-openssl-dev \
                    qt57base qt57svg qt57charts-no-lgpl qt57multimedia libqtav-dev libicnet \
                    libavcodec-dev libavformat-dev libswscale-dev  libavresample-dev libqml-module-qtav \
-                   qt57quickcontrols qt57quickcontrols2 libxml2-dev"
+                   qt57quickcontrols qt57quickcontrols2 libxml2-dev libboost-system-dev"
 
 BUILD_TOOLS="build-essential cmake"
 
