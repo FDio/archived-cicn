@@ -22,30 +22,30 @@ include_directories(${LIBICNET_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
 
-find_package(Boost 1.53.0 COMPONENTS regex system thread filesystem date_time REQUIRED)
+find_package(Boost 1.53.0 COMPONENTS regex system filesystem REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${LIBICNET_INCLUDE_DIR})
 
 set(SOURCE_FILES
-        main.cc
-        http-server/http_server.cc
-        http-server/http_server.h
-        http-server/response.cc
-        http-server/response.h
-        http-server/common.h
-        http-server/socket_response.cc
-        http-server/socket_response.h
-        http-server/icn_response.cc
-        http-server/icn_response.h
-        http-server/content.cc
-        http-server/content.h
-        http-server/request.cc
-        http-server/request.h
-        http-server/icn_request.cc
-        http-server/icn_request.h
-        http-server/socket_request.cc
-        http-server/socket_request.h
-        http-server/configuration.cc
-        http-server/configuration.h)
+    main.cc
+    http-server/http_server.cc
+    http-server/http_server.h
+    http-server/response.cc
+    http-server/response.h
+    http-server/common.h
+    http-server/socket_response.cc
+    http-server/socket_response.h
+    http-server/icn_response.cc
+    http-server/icn_response.h
+    http-server/content.cc
+    http-server/content.h
+    http-server/request.cc
+    http-server/request.h
+    http-server/icn_request.cc
+    http-server/icn_request.h
+    http-server/socket_request.cc
+    http-server/socket_request.h
+    http-server/configuration.cc
+    http-server/configuration.h)
 
 add_executable(http-server ${SOURCE_FILES})
 target_link_libraries(http-server ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBICNET_LIBRARY})
@@ -62,27 +62,29 @@ SET(CONTACT "msardara@cisco.com" CACHE STRING "Contact")
 SET(DISTRIBUTION "xenial" CACHE STRING "Distribution")
 SET(ARCHITECTURE "amd64" CACHE STRING "Architecture")
 SET(PACKAGE_MAINTAINER "Mauro Sardara (msardara@cisco.com)" CACHE STRING "Maintainer")
-SET(PACKAGE_VERSION "1.0" CACHE STRING "Version")
 SET(BUILD_NUMBER "1" CACHE STRING "Build Number")
 STRING(TOLOWER ${CMAKE_PROJECT_NAME} PACKAGE_NAME)
 
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
-SET(CPACK_PACKAGE_VERSION_MAJOR ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${${CMAKE_PROJECT_NAME}_VERSION_MINOR})
 SET(CPACK_PACKAGE_VENDOR ${VENDOR})
 SET(CPACK_PACKAGE_CONTACT ${CONTACT})
+
+# Get the version
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/scripts/version
+                OUTPUT_VARIABLE PACKAGE_VERSION)
+string(STRIP ${PACKAGE_VERSION} PACKAGE_VERSION)
 
 if (DEB_PACKAGE)
     SET(TYPE "DEBIAN")
     SET(GENERATOR "DEB")
-    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}~${DISTRIBUTION}_${ARCHITECTURE}")
+    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${PACKAGE_VERSION}_${ARCHITECTURE}")
     SET(CPACK_${TYPE}_PACKAGE_DEPENDS "longbow (>= 1.0), libevent-2.0-5, libssl1.0.0, libparc (>= 1.0), libccnx-common (>= 1.0), libboost-system (>= 1.53), libboost-regex (>= 1.53), libboost-filesystem (>= 1.53), libicnet (>= 1.0)")
 elseif (RPM_PACKAGE)
     SET(TYPE "RPM")
     SET(GENERATOR "RPM")
-    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${BUILD_NUMBER}.${DISTRIBUTION}.${ARCHITECTURE}")
+    SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${PACKAGE_VERSION}.${ARCHITECTURE}")
     SET(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
-    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "longbow >= 1.0, libevent >= 2.0, openssl >= 1.0, libparc >= 1.0, libccnx-common >= 1.0, boost-system >= 1.53, boost-regex >= 1.53, boost-filesystem >= 1.53, libicnet (>= 1.0)")
+    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "longbow >= 1.0, libevent >= 2.0, openssl >= 1.0, libparc >= 1.0, libccnx-common >= 1.0, boost-system >= 1.53, boost-regex >= 1.53, boost-filesystem >= 1.53, libicnet >= 1.0")
 else ()
     RETURN()
 endif ()
