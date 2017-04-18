@@ -8,10 +8,12 @@ namespace icnet {
 
 namespace ccnx {
 
-KeyLocator::KeyLocator() : type_(KeyLocatorType::UNKNOWN) {
+KeyLocator::KeyLocator()
+    : type_(KeyLocatorType::UNKNOWN) {
 }
 
-KeyLocator::KeyLocator(KeyLocatorType type, Name &name) : type_(type), name_(name) {
+KeyLocator::KeyLocator(KeyLocatorType type, Name &name)
+    : type_(type), name_(name) {
 }
 
 Name &KeyLocator::getName() {

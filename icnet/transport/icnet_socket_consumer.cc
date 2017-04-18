@@ -24,6 +24,7 @@ ConsumerSocket::ConsumerSocket(Name prefix, int protocol)
       min_window_size_(default_values::min_window_size),
       max_window_size_(default_values::max_window_size),
       current_window_size_(-1),
+      max_retransmissions_(default_values::transport_protocol_max_retransmissions),
     /****** RAAQM Parameters ******/
       minimum_drop_probability_(default_values::minimum_drop_probability),
       sample_number_(default_values::sample_number),

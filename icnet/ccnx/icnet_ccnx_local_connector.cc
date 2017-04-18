@@ -19,7 +19,6 @@
 
 #include "icnet_ccnx_local_connector.h"
 
-
 namespace icnet {
 
 namespace ccnx {
@@ -168,9 +167,9 @@ void LocalConnector::doConnect() {
                                  if (is_reconnection_) {
                                    is_reconnection_ = false;
 #ifdef __ANDROID__
-                                     __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Connection recovered!\n");
+                                   __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Connection recovered!\n");
 #else
-                                     std::cout << "Connection recovered!" << std::endl;
+                                   std::cout << "Connection recovered!" << std::endl;
 #endif
                                    for (auto &name : served_name_list_) {
                                      bind(name);

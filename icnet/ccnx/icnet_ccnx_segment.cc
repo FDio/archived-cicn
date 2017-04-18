@@ -19,17 +19,20 @@ namespace icnet {
 
 namespace ccnx {
 
-Segment::Segment(CCNxNameLabelType type, std::string &segment_value) : name_segment_(
-    ccnxNameSegment_CreateTypeValueArray(type, segment_value.length(), segment_value.c_str())) {
+Segment::Segment(CCNxNameLabelType type, std::string &segment_value)
+    : name_segment_(ccnxNameSegment_CreateTypeValueArray(type, segment_value.length(), segment_value.c_str())) {
 }
 
-Segment::Segment(CCNxNameSegmentStructure *segment) : name_segment_(ccnxNameSegment_Acquire(segment)) {
+Segment::Segment(CCNxNameSegmentStructure *segment)
+    : name_segment_(ccnxNameSegment_Acquire(segment)) {
 }
 
-Segment::Segment(const Segment &segment) : name_segment_(ccnxNameSegment_Copy(segment.name_segment_)) {
+Segment::Segment(const Segment &segment)
+    : name_segment_(ccnxNameSegment_Copy(segment.name_segment_)) {
 }
 
-Segment::Segment(Segment &&otherSegment) : name_segment_(ccnxNameSegment_Acquire(otherSegment.name_segment_)) {
+Segment::Segment(Segment &&otherSegment)
+    : name_segment_(ccnxNameSegment_Acquire(otherSegment.name_segment_)) {
 }
 
 Segment::~Segment() {

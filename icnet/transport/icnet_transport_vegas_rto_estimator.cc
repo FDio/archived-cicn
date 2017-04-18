@@ -18,10 +18,11 @@
 
 namespace icnet {
 
-RtoEstimator::RtoEstimator(Duration min_rto) : smoothed_rtt_(RtoEstimator::getInitialRtt().count()),
-                                               rtt_variation_(0),
-                                               first_measurement_(true),
-                                               last_rto_(min_rto.count()) {
+RtoEstimator::RtoEstimator(Duration min_rto)
+    : smoothed_rtt_(RtoEstimator::getInitialRtt().count()),
+      rtt_variation_(0),
+      first_measurement_(true),
+      last_rto_(min_rto.count()) {
 }
 
 void RtoEstimator::addMeasurement(Duration rtt) {

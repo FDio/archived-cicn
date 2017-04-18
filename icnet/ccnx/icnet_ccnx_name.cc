@@ -23,21 +23,26 @@ Name::Name() {
   name_ = ccnxName_Create();
 }
 
-Name::Name(const char *uri) : name_(ccnxName_CreateFromCString(uri)) {
+Name::Name(const char *uri)
+    : name_(ccnxName_CreateFromCString(uri)) {
   ccnxName_AssertValid(name_);
 }
 
-Name::Name(std::string uri) : Name(uri.c_str()) {
+Name::Name(std::string uri)
+    : Name(uri.c_str()) {
 }
 
-Name::Name(const CCNxNameStructure *name) : name_(ccnxName_Acquire(name)) {
+Name::Name(const CCNxNameStructure *name)
+    : name_(ccnxName_Acquire(name)) {
   ccnxName_AssertValid(name_);
 }
 
-Name::Name(const Name &name) : name_(ccnxName_Copy(name.name_)) {
+Name::Name(const Name &name)
+    : name_(ccnxName_Copy(name.name_)) {
 }
 
-Name::Name(Name &&otherName) : name_(ccnxName_Acquire(otherName.name_)) {
+Name::Name(Name &&otherName)
+    : name_(ccnxName_Acquire(otherName.name_)) {
 }
 
 Name &Name::operator=(const Name &name) {

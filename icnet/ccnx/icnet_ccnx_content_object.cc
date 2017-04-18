@@ -37,13 +37,10 @@ ContentObject::ContentObject(const Name &name, uint8_t *payload, std::size_t siz
   parcBuffer_Release(&buffer);
 }
 
-ContentObject::ContentObject(const CCNxContentObjectStructure *content_object) : name_(ccnxContentObject_GetName(
-    content_object)),
-                                                                                 ccnx_content_object_(
-                                                                                     ccnxContentObject_Acquire(
-                                                                                         content_object)),
-                                                                                 content_type_((PayloadType) ccnxContentObject_GetPayloadType(
-                                                                                     content_object)) {
+ContentObject::ContentObject(const CCNxContentObjectStructure *content_object)
+    : name_(ccnxContentObject_GetName(content_object)),
+      ccnx_content_object_(ccnxContentObject_Acquire(content_object)),
+      content_type_((PayloadType) ccnxContentObject_GetPayloadType(content_object)) {
 }
 
 ContentObject::ContentObject(const Name &name)

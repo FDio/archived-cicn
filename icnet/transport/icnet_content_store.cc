@@ -17,7 +17,8 @@
 
 namespace icnet {
 
-ContentStore::ContentStore(std::size_t max_packets) : max_content_store_size_(max_packets) {
+ContentStore::ContentStore(std::size_t max_packets)
+    : max_content_store_size_(max_packets) {
 }
 
 ContentStore::~ContentStore() {

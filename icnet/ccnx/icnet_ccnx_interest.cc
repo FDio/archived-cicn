@@ -31,9 +31,8 @@ Interest::Interest(CCNxInterestStruct *interest)
     : name_(ccnxInterest_GetName(interest)), interest_(ccnxInterest_Acquire(interest)) {
 }
 
-Interest::Interest(const Interest &other_interest) : name_(other_interest.name_),
-                                                     interest_(ccnxInterest_CreateSimple(other_interest.name_
-                                                                                             .getWrappedStructure())) {
+Interest::Interest(const Interest &other_interest)
+    : name_(other_interest.name_), interest_(ccnxInterest_CreateSimple(other_interest.name_.getWrappedStructure())) {
   PARCBuffer *buffer = nullptr;
 
   // Key Id restriction
@@ -58,8 +57,8 @@ Interest::Interest(const Interest &other_interest) : name_(other_interest.name_)
   ccnxInterest_SetLifetime(interest_, ccnxInterest_GetLifetime(other_interest.interest_));
 }
 
-Interest::Interest(Interest &&other_interest) : name_(std::move(other_interest.name_)),
-                                                interest_(ccnxInterest_Acquire(other_interest.interest_)) {
+Interest::Interest(Interest &&other_interest)
+    : name_(std::move(other_interest.name_)), interest_(ccnxInterest_Acquire(other_interest.interest_)) {
 }
 
 Interest &Interest::operator=(const Interest &other_interest) {

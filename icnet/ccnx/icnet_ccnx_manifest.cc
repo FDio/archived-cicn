@@ -20,7 +20,8 @@ namespace icnet {
 
 namespace ccnx {
 
-Manifest::Manifest(Name &name) : ContentObject(name) {
+Manifest::Manifest(Name &name)
+    : ContentObject(name) {
 }
 
 std::size_t Manifest::estimateManifestSize() {

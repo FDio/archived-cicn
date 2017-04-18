@@ -15,14 +15,18 @@
 
 #include "icnet_socket_producer.h"
 
-#define IDENTITY_NAME "ciao"
+#define IDENTITY_NAME "cisco"
 
 namespace icnet {
 
 class CallbackContainer {
  public:
-  CallbackContainer() : buffer_(1400, 'X') {
+  CallbackContainer(unsigned long download_size = 0)
+      : buffer_(1400, 'X'), final_chunk_number_(0) {
     content_object_.setContent((uint8_t *) buffer_.c_str(), 1400);
+    if (download_size > 0) {
+      final_chunk_number_ = static_cast<uint64_t>(std::ceil(download_size / 1400));
+    }
   }
 
   void processInterest(ProducerSocket &p, const Interest &interest) {
@@ -31,17 +35,21 @@ class CallbackContainer {
 
   void processIncomingInterest(ProducerSocket &p, const Interest &interest) {
     content_object_.setName(Name(interest.getName().getWrappedStructure()));
+    if (final_chunk_number_ > 0) {
+      content_object_.setFinalChunkNumber(final_chunk_number_);
+    }
     p.produce(content_object_);
   }
  private:
-
   ContentObject content_object_;
   std::string buffer_;
+  uint64_t final_chunk_number_;
 };
 
 class Signer {
  public:
-  Signer() : counter_(0), identity_name_(IDENTITY_NAME) {
+  Signer()
+      : counter_(0), identity_name_(IDENTITY_NAME) {
   };
 
   ~Signer() {
@@ -102,14 +110,18 @@ void becomeDaemon() {
 
 int main(int argc, char **argv) {
   std::string name = "ccnx:/ccnxtest";
+  unsigned long download_size = 0;
   bool daemon = false;
 
   int opt;
-  while ((opt = getopt(argc, argv, "D")) != -1) {
+  while ((opt = getopt(argc, argv, "Ds:")) != -1) {
 
     switch (opt) {
       case 'D':
         daemon = true;
+        break;
+      case 's':
+        download_size = std::stoul(optarg);
         break;
       default:
         exit(EXIT_FAILURE);
@@ -126,7 +138,8 @@ int main(int argc, char **argv) {
     becomeDaemon();
   }
 
-  CallbackContainer stubs;
+  CallbackContainer stubs(download_size);
+
   //  Signer signer;
 
   std::cout << "Setting name.. " << name << std::endl;

@@ -17,7 +17,8 @@
 
 namespace icnet {
 
-TransportProtocol::TransportProtocol(Socket *icn_socket) : socket_(icn_socket), is_running_(false) {
+TransportProtocol::TransportProtocol(Socket *icn_socket)
+    : socket_(icn_socket), is_running_(false) {
 }
 
 void TransportProtocol::updatePortal() {

@@ -19,7 +19,8 @@ namespace icnet {
 
 namespace ccnx {
 
-TransportMessage::TransportMessage() : packet_length_(0) {
+TransportMessage::TransportMessage()
+    : packet_length_(0) {
 }
 
 const uint8_t *TransportMessage::data() const {
