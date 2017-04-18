@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Cisco and/or its affiliates.
+ls -la# Copyright (c) 2017 Cisco and/or its affiliates.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at:
@@ -29,7 +29,7 @@ add_custom_target(viper ALL
                   COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/qmake_build/viper_ ./viper
                   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}//qmake_build/viper_)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/viper DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/viper DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Generate DEB / RPM packages
 
