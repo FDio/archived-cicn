@@ -10,7 +10,7 @@ PACKAGE_NAME="VIPER"
 VIPER_DEPS_UBUNTU="zlib1g-dev git-core build-essential libxml2-dev libcurl4-openssl-dev \
                    qt57base qt57svg qt57charts-no-lgpl qt57multimedia libqtav-dev libicnet \
                    libavcodec-dev libavformat-dev libswscale-dev  libavresample-dev libqml-module-qtav \
-                   qt57quickcontrols qt57quickcontrols2 libxml2-dev libboost-system-dev"
+                   qt57quickcontrols qt57quickcontrols2 libboost-system-dev"
 
 BUILD_TOOLS="build-essential cmake"
 
@@ -59,7 +59,7 @@ update_qt_repo() {
     sudo add-apt-repository --yes ppa:beineri/opt-qt571-$DISTRIBUTION_CODENAME
 
     wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
-    sudo sh -c "echo 'deb http://archive.getdeb.net/ubuntu $DISTRIBUTION_CODENAME-getdeb apps' >> /etc/apt/sources.list.d/getdeb.list"
+    sudo sh -c "echo 'deb http://archive.getdeb.net/ubuntu xenial-getdeb apps' >> /etc/apt/sources.list.d/getdeb.list"
 
     sudo ${apt_get} update
 }
@@ -189,6 +189,7 @@ fi
 # Create links
 
 sudo ln -sf /usr/include/x86_64-linux-gnu/qt5/QtAV                                /opt/qt57/include/QtAV
+sudo ln -sf /usr/include/x86_64-linux-gnu/qt5/QtAVWidgets                         /opt/qt57/include/QtAVWidgets
 sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/av.prf                 /opt/qt57/mkspecs/features/av.prf
 sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/avwidgets.prf          /opt/qt57/mkspecs/features/avwidgets.prf
 sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_avwidgets.pri    /opt/qt57/mkspecs/modules/qt_lib_avwidgets.pri
@@ -199,6 +200,7 @@ sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAVWidgets.so                         
 sudo ln -sf /usr/lib/x86_64-linux-gnu/libQt5AV.so                                 /opt/qt57/lib/libQt5AV.so
 sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAV.so                                  /opt/qt57/lib/libQtAV.so
 sudo ln -sf /usr/lib/x86_64-linux-gnu/libQt5AVWidgets.so                          /opt/qt57/lib/libQtAVWidgets.so
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/qml/QtAV                                /opt/qt57/qml/QtAV
 
 # Compile libdash
 

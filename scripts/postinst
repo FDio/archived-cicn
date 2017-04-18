@@ -1,0 +1,42 @@
+#!/bin/bash
+
+echo "Executing post install script."
+
+sudo ln -sf /usr/include/x86_64-linux-gnu/qt5/QtAV                                /opt/qt57/include/QtAV
+echo "sudo ln -sf /usr/include/x86_64-linux-gnu/qt5/QtAV                                /opt/qt57/include/QtAV"
+
+sudo ln -sf /usr/include/x86_64-linux-gnu/qt5/QtAVWidgets                         /opt/qt57/include/QtAVWidgets
+echo "sudo ln -sf /usr/include/x86_64-linux-gnu/qt5/QtAVWidgets                         /opt/qt57/include/QtAVWidgets"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/av.prf                 /opt/qt57/mkspecs/features/av.prf
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/av.prf                 /opt/qt57/mkspecs/features/av.prf"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/avwidgets.prf          /opt/qt57/mkspecs/features/avwidgets.prf
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/avwidgets.prf          /opt/qt57/mkspecs/features/avwidgets.prf"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_avwidgets.pri    /opt/qt57/mkspecs/modules/qt_lib_avwidgets.pri
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_avwidgets.pri    /opt/qt57/mkspecs/modules/qt_lib_avwidgets.pri"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_av.pri           /opt/qt57/mkspecs/modules/qt_lib_av.pri
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_av.pri           /opt/qt57/mkspecs/modules/qt_lib_av.pri"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAV.prl                                 /opt/qt57/lib/libQtAV.prl
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAV.prl                                 /opt/qt57/lib/libQtAV.prl"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAVWidgets.prl                          /opt/qt57/lib/libQtAVWidgets.prl
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAVWidgets.prl                          /opt/qt57/lib/libQtAVWidgets.prl"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAVWidgets.so                           /opt/qt57/lib/libQt5AVWidgets.so
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAVWidgets.so                           /opt/qt57/lib/libQt5AVWidgets.so"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libQt5AV.so                                 /opt/qt57/lib/libQt5AV.so
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/libQt5AV.so                                 /opt/qt57/lib/libQt5AV.so"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAV.so                                  /opt/qt57/lib/libQtAV.so
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/libQtAV.so                                  /opt/qt57/lib/libQtAV.so"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libQt5AVWidgets.so                          /opt/qt57/lib/libQtAVWidgets.so
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/libQt5AVWidgets.so                          /opt/qt57/lib/libQtAVWidgets.so"
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/qml/QtAV                                /opt/qt57/qml/QtAV
+echo "sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/qml/QtAV                                /opt/qt57/qml/QtAV"
