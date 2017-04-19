@@ -3,6 +3,7 @@
 set -euxo pipefail
 IFS=$'\n\t'
 
+SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
@@ -213,7 +214,7 @@ build() {
 }
 
 # Build libdash
-pushd ../libdash
+pushd $SCRIPT_PATH/../libdash
 build
 make package
 sudo make install
@@ -221,7 +222,7 @@ find . -not -name '*.deb' -not -name '*.rpm' -print0 | xargs -0 rm -rf -- || tru
 popd
 
 # Build viper
-pushd ..
+pushd $SCRIPT_PATH/..
 build
 make package
 find . -not -name '*.deb' -not -name '*.rpm' -print0 | xargs -0 rm -rf -- || true
