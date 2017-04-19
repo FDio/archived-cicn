@@ -32,7 +32,7 @@
         {
             "name": "u1srv1",
             "image": "ubuntu1604-cicnsuite-rc2",
-            "category": "meizu",
+            "category": "user",
             "type": "LxcContainer",
             "y": 8,
             "x": 2,
@@ -41,7 +41,7 @@
         {
             "name": "u1srv2",
             "image": "ubuntu1604-cicnsuite-rc2",
-            "category": "meizu",
+            "category": "user",
             "type": "LxcContainer",
             "y": 12,
             "x": 2,
@@ -59,7 +59,7 @@
         {
             "name": "u2srv1",
             "image": "ubuntu1604-cicnsuite-rc2",
-            "category": "meizu",
+            "category": "user",
             "type": "LxcContainer",
             "y": 2,
             "x": 9,
@@ -77,7 +77,7 @@
         {
             "name": "u3srv1",
             "image": "ubuntu1604-cicnsuite-rc2",
-            "category": "meizu",
+            "category": "serverDemo",
             "type": "LxcContainer",
             "y": 10,
             "x": 16,
@@ -86,7 +86,7 @@
         {
             "name": "u3srv2",
             "image": "ubuntu1604-cicnsuite-rc2",
-            "category": "meizu",
+            "category": "serverDemo",
             "type": "LxcContainer",
             "y": 14,
             "x": 16,
@@ -130,7 +130,7 @@
         {
             "type": "WebServer",
             "prefixes": [
-                "/webserver1"
+                "/u3srv1"
             ],
             "node": "u3srv1"
         },
@@ -142,26 +142,26 @@
         {
             "type": "WebServer",
             "prefixes": [
-                "/webserver2"
+                "/u3srv2"
             ],
             "node": "u3srv2"
         },
         {
             "type": "Link",
             "dst_node": "u1srv1",
-            "capacity": 100,
+            "capacity": 200,
             "src_node": "u1core"
         },
         {
             "type": "Link",
             "dst_node": "u1srv2",
-            "capacity": 100,
+            "capacity": 200,
             "src_node": "u1core"
         },
        {
             "type": "Link",
             "dst_node": "u2srv1",
-            "capacity": 100,
+            "capacity": 200,
             "src_node": "u2core"
         },
         {
@@ -178,16 +178,19 @@
         },
         {
             "type": "Link",
+            "capacity": 200,
             "dst_node": "u2core",
             "src_node": "u1core"
         },
         {
             "type": "Link",
+            "capacity": 200,
             "dst_node": "u3core",
             "src_node": "u1core"
         },
         {
             "type": "Link",
+            "capacity": 200,
             "dst_node": "u2core",
             "src_node": "u3core"
         },
