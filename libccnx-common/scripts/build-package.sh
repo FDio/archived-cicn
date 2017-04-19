@@ -3,6 +3,7 @@
 set -euxo pipefail
 IFS=$'\n\t'
 
+SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
@@ -196,7 +197,7 @@ build_package() {
     hostname
 
     # Make the package
-    mkdir -p build && pushd build
+    mkdir -p $SCRIPT_PATH/../build && pushd $SCRIPT_PATH/../build
 
     rm -rf *
     cmake -DCMAKE_INSTALL_PREFIX=/usr -DRPM_PACKAGE=$RPM -DDEB_PACKAGE=$DEB -DDISTRIBUTION=$DISTRIB_CODENAME -DARCHITECTURE=$ARCHITECTURE ..
@@ -214,6 +215,6 @@ build_package() {
 }
 
 PACKAGE_NAME="LIBCCNX_COMMON"
-pushd ..
+pushd $SCRIPT_PATH/..
 build_package $PACKAGE_NAME
 popd
