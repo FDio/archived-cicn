@@ -1,5 +1,5 @@
 #!/bin/bash
-# basic build script example
+
 set -euxo pipefail
 IFS=$'\n\t'
 
