@@ -30,7 +30,15 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-	    signingConfig signingConfigs.release
+            applicationVariants.all { variant ->
+            	variant.outputs.each { output ->
+                	project.ext { appName = 'iget' }
+                	def newName = output.outputFile.name
+                	newName = newName.replace("app", "$project.ext.appName-$System.env.ABI")
+                	output.outputFile = new File(output.outputFile.parent, newName)
+            	}
+        	}
+	    	signingConfig signingConfigs.release
         }
         debug {
             debuggable true
@@ -56,6 +64,8 @@ android {
         abi {
             enable true // enable ABI split feature to create one APK per ABI
             universalApk false // don't generate an additional APK that targets all the ABIs
+            reset()
+            include 'armeabi-v7a'
         }
     }
 
