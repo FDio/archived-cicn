@@ -27,7 +27,7 @@ public class ViperActivity extends QtActivity
 {
     private final static String TAG = "ViperPlayer";
     private static String m_request_url;
-    private static QMLPlayerActivity m_instance;
+    private static ViperActivity m_instance;
     public ViperActivity() {
         m_instance = this;
     }

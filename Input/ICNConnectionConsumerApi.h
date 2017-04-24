@@ -16,7 +16,6 @@
 #ifndef QTPLAYER_INPUT_ICNCONNECTIONCONSUMERAPI_H_
 #define QTPLAYER_INPUT_ICNCONNECTIONCONSUMERAPI_H_
 
-#include <QMessageLogger>
 #include "../Portable/Networking.h"
 #include "IICNConnection.h"
 #include "../debug.h"

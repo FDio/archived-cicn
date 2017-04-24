@@ -18,8 +18,7 @@ android {
   QT += androidextras
 }
 
-CONFIG -= release
-CONFIG += debug
+CONFIG += release
 CONFIG += c++11
 
 
@@ -280,10 +279,11 @@ unix:!macx:!android {
 }
 
 macx:!ios {
+
 #SOURCE is ok
     INCLUDEPATH += /usr/local/include
     INCLUDEPATH += /usr/local/include/libdash
-    LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -licnet -lssl -lcrypto
+    LIBS +=  -framework CoreServices -L"/usr/local/lib"  -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -licnet -lssl -lcrypto
 }
 SOURCES *= main.cpp
 android {
@@ -298,8 +298,9 @@ android {
     android/gradlew.bat
 
   ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-
-    LIBS +=  -lconsumer-producer -ldash  -lavcodec -lavutil -lavformat   -lboost_system # -lccnx_api_control -lccnx_api_notify -lccnx_api_portal -lccnx_common -lccnx_transport_rta #-lparc -lcrypto  #-llongbow-textplain -llongbow-ansiterm -llongbow
+    INCLUDEPATH += $$(QT_HOME)/Qt/5.7/android_armv7/include
+    INCLUDEPATH += $$(QT_HOME)/Qt/5.7/android_armv7/include/libdash
+    LIBS += -lstdc++  -licnet -lgnustl_shared -ldash  -lavcodec -lavutil -lavformat   -lboost_system # -lccnx_api_control -lccnx_api_notify -lccnx_api_portal -lccnx_common -lccnx_transport_rta #-lparc -lcrypto  #-llongbow-textplain -llongbow-ansiterm -llongbow
 #user can put fonts in android/assets/fonts
 }
 

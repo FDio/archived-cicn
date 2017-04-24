@@ -68,7 +68,6 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
     }
     if(!configFile)
     {
-        qDebug("beta %f, drop %f", this->beta, this->drop);
         this->myConsumer->setSocketOption(RaaqmTransportOptions::BETA_VALUE, this->beta);
         this->myConsumer->setSocketOption(RaaqmTransportOptions::DROP_FACTOR, this->drop);
     }
@@ -111,8 +110,6 @@ void ICNConnectionConsumerApi::Init(IChunk *chunk) {
         memset(this->deezData, 0, this->deezDataSize);
     }
 
-    qDebug("ICN_Connection:\tINTIATED_to_name %s\n", m_name.c_str());
-    qDebug("ICN_Connection:\tSTARTING DOWNLOAD %s\n", m_name.c_str());
 }
 
 void ICNConnectionConsumerApi::InitForMPD(const std::string& url)

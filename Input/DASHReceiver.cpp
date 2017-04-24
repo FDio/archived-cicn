@@ -133,7 +133,7 @@ MediaObject*	DASHReceiver::GetNextSegment	()
 
     if(this->segmentNumber >= this->representationStream->getSize())
     {
-        qDebug("looping? : %s\n", this->isLooping ? "YES" : "NO");
+        //qDebug("looping? : %s\n", this->isLooping ? "YES" : "NO");
         if(this->isLooping)
         {
             this->segmentNumber = 0;

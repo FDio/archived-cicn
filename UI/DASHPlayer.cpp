@@ -371,7 +371,7 @@ void DASHPlayer::onStopped()
                 }
 
             } else {
-                qDebug("wrong position");
+                //qDebug("wrong position");
             }
         }
         else
@@ -915,7 +915,7 @@ void DASHPlayer::setRateEstimator(int rateEstimator)
 
 void DASHPlayer::error(const QtAV::AVError &e)
 {
-    qDebug("error in the player!");
+    //qDebug("error in the player!");
     seekVideo(0);
 }
 

@@ -13,7 +13,6 @@
 #define LIBDASH_FRAMEWORK_MPD_ADAPTATIONSETHELPER_H_
 
 #include "IMPD.h"
-#include <QMessageLogger>
 
 namespace libdash
 {
