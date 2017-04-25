@@ -46,7 +46,6 @@ For building the player, from the root folder of the project:
 ``` 
 
 
-
 Build the player
 -----------------
 
