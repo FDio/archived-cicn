@@ -89,6 +89,10 @@ if [ ! -d libicnet ]; then
 	echo "libicnet not found"
 	git clone -b libicnet/master https://gerrit.fd.io/r/cicn libicnet
 fi
+if [ ! -d viper ]; then
+	echo "viper not found"
+	git clone -b viper/master https://gerrit.fd.io/r/cicn viper
+fi
 
 cd ../
 
@@ -133,7 +137,7 @@ if [ ! -d ${INSTALLATION_DIR}/include/boost ]; then
 fi
 
 echo "Copy libcrystax in workspace"
-cp -n crystax-ndk-10.3.2/sources/crystax/libs/${ABI}/libcrystax.* ${INSTALLATION_DIR}/lib/
+cp crystax-ndk-10.3.2/sources/crystax/libs/${ABI}/libcrystax.* ${INSTALLATION_DIR}/lib/
 
 echo "Create libevent"
 
@@ -196,3 +200,5 @@ if [ ! -d ${INSTALLATION_DIR}/include/libxml ]; then
 	cp -f obj/local/${ABI}/libxml2.a ${INSTALLATION_DIR}/lib/
 	cd ..
 fi
+
+cd ..

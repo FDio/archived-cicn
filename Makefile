@@ -17,7 +17,7 @@ DISTILLERY_VERSION=2.0
 
 default.target: help
 
-all: init_depend install-all
+all: init_depend install-all init_qt
 
 ##############################################################
 # Variables
@@ -108,6 +108,8 @@ install-all: install-directories ${modules}
 
 init_depend:
 	./scripts/init.sh ${ABI} ${DISTILLERY_INSTALL_DIR};
+init_qt:
+	./scripts/init_qt.sh
 android_metis:
 	./scripts/compile_androidmetis.sh
 android_metis_debug:
@@ -116,6 +118,10 @@ android_iget:
 	./scripts/compile_androidiget.sh
 android_iget_debug:
 	./scripts/compile_androidiget.sh DEBUG
+android_viper:
+	./scripts/compile_androidviper.sh
+android_iget_debug:
+	./scripts/compile_androidviper.sh DEBUG
 
 curl-clean:
 	@rm -rf external/curl
@@ -125,29 +131,29 @@ curl-clean:
 	@rm -rf external/libcurl_android/jni/libcurl/lib
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcurl*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/curl
-	
+
 boost-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libboost*
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/boost	
-	
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/boost
+
 openssl-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libssl.*
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcrypto.*	
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcrypto.*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/openssl
 	@rm -rf external/openssl-1.0.2k*
 	@rm -rf external/crystax-ndk-10.3.2/sources/openssl/1.0.2k
-	
+
 crystax-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libxrystax.*
-	
+
 event-clean:
 	@rm -rf external/libevent
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libevent*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/event2
-	
+
 crystaxndk-clean:
 	@rm -rf external/crystax-ndk*
-		
+
 xml2-clean:
 	@rm -rf external/libxml2
 	@rm -rf external/libxml2_android/obj
@@ -208,7 +214,11 @@ libdash-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libdash.*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/libdash
 
-all-clean: dependencies-clean cframework-clean ccnxlibs-clean sb-forwarder-clean libicnet-clean
+qt-clean:
+	@rm -rf qt/*
+	@rm -rf ${DISTILLERY_BUILD_DIR}/qtav
+
+all-clean: dependencies-clean cframework-clean ccnxlibs-clean sb-forwarder-clean libicnet-clean qt-clean
 
 update:
 	./scripts/update.sh
@@ -240,9 +250,9 @@ help:
 	@echo "all-clean			- Clean	all files and libs"
 	@echo "android_metis		- Build metis apk for android"
 	@echo "android_metis_debug	- Build metis apk for android in debug mode"
-	@echo "android_iget			- Build iGet apk for android apk in debug mode" 
+	@echo "android_iget			- Build iGet apk for android apk in debug mode"
 	@echo "android_iget_debug	- Build iGet apk for android apk"
-	
+
 ${DISTILLERY_STAMP}: ${REBUILD_DEPENDS}
 	touch $@
 

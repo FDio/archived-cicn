@@ -7,7 +7,7 @@ SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
-BUILD_TOOLS="build-essential automake libconfig9 libtool lib32stdc++6 lib32z1 unzip default-jdk cmake"
+BUILD_TOOLS="p7zip-full build-essential automake libconfig9 libtool lib32stdc++6 lib32z1 unzip default-jdk libx11-xcb-dev libfontconfig1 libgl1-mesa-dev cmake"
 
 # Parameters:
 # $1 = Distribution [Trusty / CentOS]
@@ -172,4 +172,8 @@ make android_metis
 # Compile iget
 make android_iget
 
+# Compile viper
+make android_viper
+
+mv build/viper/viper-armv7//build/outputs/apk/viper-armv7-release-signed.apk iget_android/app/build/outputs/apk/
 popd

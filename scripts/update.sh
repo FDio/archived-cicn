@@ -28,5 +28,7 @@ git pull
 cd ../..
 cd src/libicnet
 git pull
-cd ../..	
-
+cd ../..
+cd src/viper
+git pull
+cd ../..
