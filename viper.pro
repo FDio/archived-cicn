@@ -296,10 +296,9 @@ android {
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew \
     android/gradlew.bat
-
-  ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-    INCLUDEPATH += $$(QT_HOME)/Qt/5.7/android_armv7/include
-    INCLUDEPATH += $$(QT_HOME)/Qt/5.7/android_armv7/include/libdash
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+    INCLUDEPATH += $$(QT_HOME)/5.7/android_armv7/include
+    INCLUDEPATH += $$(QT_HOME)/5.7/android_armv7/include/libdash
     LIBS += -lstdc++  -licnet -lgnustl_shared -ldash  -lavcodec -lavutil -lavformat   -lboost_system # -lccnx_api_control -lccnx_api_notify -lccnx_api_portal -lccnx_common -lccnx_transport_rta #-lparc -lcrypto  #-llongbow-textplain -llongbow-ansiterm -llongbow
 #user can put fonts in android/assets/fonts
 }
