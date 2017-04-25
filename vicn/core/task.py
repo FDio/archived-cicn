@@ -68,7 +68,7 @@ class ConcurrentMixin:
         try:
             for t in self._elements:
                 await t.execute()
-            rets = await asyncio.gather(*[t.get_future() 
+            rets = await asyncio.gather(*[t.get_future()
                     for t in self._elements])
 
             # The result value is the "union" of all result values
@@ -116,7 +116,7 @@ class CompositionMixin:
             print('we need to cancel tasks not executed...')
             self.get_future().set_exception(e)
 
-Task, EmptyTask = SchedulingAlgebra(BaseTask, ConcurrentMixin, 
+Task, EmptyTask = SchedulingAlgebra(BaseTask, ConcurrentMixin,
         CompositionMixin, SequentialMixin)
 
 def task(fn):
@@ -287,7 +287,7 @@ class BashTask(Task):
         try:
             rv = fut.result()
             if self._parse is None and rv.return_value != 0:
-                raise Exception('Bash command failed', self.get_full_cmd(), rv)
+                raise Exception('Bash command failed on node {}'.format(self._node.name), self.get_full_cmd(), rv)
             if self._post:
                 self._post()
             if self._parse:

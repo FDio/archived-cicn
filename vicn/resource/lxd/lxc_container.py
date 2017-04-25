@@ -33,7 +33,7 @@ from vicn.core.commands             import ReturnValue
 from vicn.core.exception            import ResourceNotFound
 from vicn.core.requirement          import Requirement
 from vicn.core.resource_mgr         import wait_resource_task
-from vicn.core.task                 import task, inline_task, BashTask
+from vicn.core.task                 import task, inline_task, BashTask, EmptyTask
 from vicn.resource.linux.net_device import NetDevice
 from vicn.resource.node             import Node
 from vicn.resource.vpp.scripts      import APPARMOR_VPP_PROFILE
@@ -140,7 +140,9 @@ class LxcContainer(Node):
         """
         Make sure vpp_host is instanciated before starting the container.
         """
-        wait_vpp_host = wait_resource_task(self.node.vpp_host)
+        wait_vpp_host = EmptyTask()
+        if 'vpp' in self.profiles:
+            wait_vpp_host = wait_resource_task(self.node.vpp_host)
         create = self._create_container()
         start = self.__method_start__()
         return wait_vpp_host > (create > start)

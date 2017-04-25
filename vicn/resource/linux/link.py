@@ -118,17 +118,17 @@ class Link(Channel):
 
         #XXX VPP
         if hasattr(self.src_node, 'vpp') and not self.src_node.vpp is None:
-            vpp_src = VPPInterface(parent = self.src,
+            vpp_src = VPPInterface(parent = self._src,
                     vpp = self.src_node.vpp,
-                    ip_address = Reference(self.src, 'ip_address'),
-                    device_name = 'vpp' + self.src.device_name)
+                    ip_address = Reference(self._src, 'ip_address'),
+                    device_name = 'vpp' + self._src.device_name)
             manager.commit_resource(vpp_src)
 
         if hasattr(self.dst_node, 'vpp') and not self.dst_node.vpp is None:
-            vpp_dst = VPPInterface(parent = self.dst,
+            vpp_dst = VPPInterface(parent = self._dst,
                     vpp = self.dst_node.vpp,
-                    ip_address = Reference(self.dst, 'ip_address'),
-                    device_name = 'vpp' + self.dst.device_name)
+                    ip_address = Reference(self._dst, 'ip_address'),
+                    device_name = 'vpp' + self._dst.device_name)
             manager.commit_resource(vpp_dst)
 
     #--------------------------------------------------------------------------
