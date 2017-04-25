@@ -56,38 +56,38 @@ common_CFLAGS := -Wpointer-arith -Wwrite-strings -Wunused -Winline -Wnested-exte
 #########################
 # Build the libcurl library
 
-#include $(CLEAR_VARS)
-#include $(LOCAL_PATH)/lib/Makefile.inc
-#CURL_HEADERS := \
-#	curlbuild.h \
-#	curl.h \
-#	curlrules.h \
-#	curlver.h \
-#	easy.h \
-#	mprintf.h \
-#	multi.h \
-#	stdcheaders.h \
-#	typecheck-gcc.h
+include $(CLEAR_VARS)
+include $(LOCAL_PATH)/lib/Makefile.inc
+CURL_HEADERS := \
+	curlbuild.h \
+	curl.h \
+	curlrules.h \
+	curlver.h \
+	easy.h \
+	mprintf.h \
+	multi.h \
+	stdcheaders.h \
+	typecheck-gcc.h
 
-#LOCAL_SRC_FILES := $(addprefix lib/,$(CSOURCES))
-#LOCAL_C_INCLUDES += $(LOCAL_PATH)/include/ $(LOCAL_PATH)/lib
-#LOCAL_CFLAGS += $(common_CFLAGS)
+LOCAL_SRC_FILES := $(addprefix lib/,$(CSOURCES))
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/include/ $(LOCAL_PATH)/lib
+LOCAL_CFLAGS += $(common_CFLAGS)
 
-#LOCAL_COPY_HEADERS_TO := libcurl/curl
-#LOCAL_COPY_HEADERS := $(addprefix include/curl/,$(CURL_HEADERS))
+LOCAL_COPY_HEADERS_TO := libcurl/curl
+LOCAL_COPY_HEADERS := $(addprefix include/curl/,$(CURL_HEADERS))
 
-#LOCAL_MODULE:= curl-library
-#LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE:= curl-library
+LOCAL_MODULE_TAGS := optional
 
 # Copy the licence to a place where Android will find it.
 # Actually, this doesn't quite work because the build system searches
 # for NOTICE files before it gets to this point, so it will only be seen
 # on subsequent builds.
-#ALL_PREBUILT += $(LOCAL_PATH)/NOTICE
-#$(LOCAL_PATH)/NOTICE: $(LOCAL_PATH)/COPYING | $(ACP)
-#	$(copy-file-to-target)
+ALL_PREBUILT += $(LOCAL_PATH)/NOTICE
+$(LOCAL_PATH)/NOTICE: $(LOCAL_PATH)/COPYING | $(ACP)
+	$(copy-file-to-target)
 
-#include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
 
 #########################
@@ -110,4 +110,5 @@ LOCAL_CFLAGS += $(common_CFLAGS)
 
 #include $(BUILD_EXECUTABLE)
 include $(BUILD_STATIC_LIBRARY)
+
 

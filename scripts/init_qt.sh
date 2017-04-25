@@ -42,11 +42,18 @@ if [ ! -d ${QT_HOME} ]; then
 	fi
 fi
 
-cp -f $DISTILLERY_INSTALL_DIR/lib/lib* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
+cp -f $DISTILLERY_INSTALL_DIR/lib/libicnet.so ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
+cp -f $DISTILLERY_INSTALL_DIR/lib/libcrystax.so ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
+cp -f $DISTILLERY_INSTALL_DIR/lib/libdash.so ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
+cp -f $DISTILLERY_INSTALL_DIR/lib/libboost_system.so ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
+
 if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/boost ]; then
-	for folder in $(ls -d $DISTILLERY_INSTALL_DIR/include/*/); do
-		ln -s $folder ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
-	done
+	ln -s $DISTILLERY_INSTALL_DIR/include/ccnx  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+	ln -s $DISTILLERY_INSTALL_DIR/include/boost  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+	ln -s $DISTILLERY_INSTALL_DIR/include/parc  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+	ln -s $DISTILLERY_INSTALL_DIR/include/LongBow  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+	ln -s $DISTILLERY_INSTALL_DIR/include/icnet  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+	ln -s $DISTILLERY_INSTALL_DIR/include/libdash  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
 fi
 
 if [ ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavcodec.so -o ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavfilter.so -o ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavformat.so -o ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavutil.so -o ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libswresample.so -o ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libswscale.so ]; then

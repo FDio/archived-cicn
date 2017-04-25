@@ -14,7 +14,7 @@
  ##############################################################################
 
 #!/bin/bash
-
+set -e
 export ANDROID_HOME=${SDK}
 export ANDROID_NDK_HOST=${OS}-${ARCH}
 export ANDROID_NDK_PLATFORM=android-23

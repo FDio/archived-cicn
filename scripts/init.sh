@@ -158,24 +158,11 @@ fi
 echo "Create libdash dependencies"
 
 if [ ! -d ${INSTALLATION_DIR}/include/curl ]; then
-	if [ ! -d curl ]; then
-		git clone https://github.com/curl/curl.git
-		cd curl
-		export SYSROOT=$NDK/platforms/android-23/arch-arm
-		export CC="$NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/${OS}-${ARCH}/bin/arm-linux-androideabi-gcc --sysroot=$SYSROOT"
-		./buildconf
-		./configure --with-sysroot=$SYSROOT --host=arm
-		mv src/tool_hugehelp.c.cvs src/tool_hugehelp.c
-		cd ..
-	fi
-	cp -r curl/lib libcurl_android/jni/libcurl/
-	cp -r curl/src libcurl_android/jni/libcurl/
-	cp -r curl/include libcurl_android/jni/libcurl/
 	cd libcurl_android
 	${NDK}/ndk-build
 	echo "Copy libcurl in workspace"
 	cp -rf jni/libcurl/include/curl ${INSTALLATION_DIR}/include/
-	cp -f obj/local/${ABI}/libcurl.a ${INSTALLATION_DIR}/lib/
+	cp -f obj/local/${ABI}/libcurl*.a ${INSTALLATION_DIR}/lib/
 	cd ..
 fi
 
