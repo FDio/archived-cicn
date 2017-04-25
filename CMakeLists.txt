@@ -70,8 +70,14 @@ set(CMAKE_VERBOSE_MAKEFILE off)
 if(ANDROID_API)
   include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
   include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
+  set(CCNX_PORTAL_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_api_portal.a" )
+  set(CCNX_TRANSPORT_RTA_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_api_notify.a" "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_api_control.a" "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_transport_rta.a")
+  set(CCNX_COMMON_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_common.a")
+  set(LIBPARC_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libparc.a")
+  set(LONGBOW_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/liblongbow.a" "$ENV{CCNX_DEPENDENCIES}/lib/liblongbow-ansiterm.a" "$ENV{CCNX_DEPENDENCIES}/lib/liblongbow-textplain.a" "$ENV{CCNX_DEPENDENCIES}/lib/libcrypto.a" "$ENV{CCNX_DEPENDENCIES}/lib/libssl.a")
   set(Boost_LIBRARIES $ENV{CCNX_DEPENDENCIES}/lib/libboost_regex.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_system.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_thread.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_filesystem.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_date_time.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_chrono.a)
- set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -std=c++11 -Wall -fpermissive -O3")
+  set(ANDROID_LIBRARIES "${ANDROID_NDK}/platforms/android-23/arch-arm/usr/lib/libz.a" "${ANDROID_NDK}/platforms/android-23/arch-arm/usr/lib/liblog.so" "$ENV{NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ENV{ABI}/libgnustl_shared.so" "$ENV{CCNX_DEPENDENCIES}/lib/libcrystax.a" "$ENV{CCNX_DEPENDENCIES}/lib/libevent.a")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -std=c++11 -Wall -fpermissive -O3")
 else ()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fpermissive -O3")
   find_package(Boost 1.53.0 COMPONENTS system REQUIRED)
@@ -88,7 +94,8 @@ set(LIBRARIES
         ${LIBPARC_LIBRARIES}
         ${Boost_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
-        ${LONGBOW_LIBRARIES})
+        ${LONGBOW_LIBRARIES}
+        ${ANDROID_LIBRARIES})
 
 set(SUBFOLDERS ${SUBFOLDERS} icnet)
 

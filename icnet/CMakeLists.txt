@@ -51,8 +51,13 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 add_library(icnet STATIC ${SOURCE_FILES} ${ICNET_SOURCE_FILES} ${HEADER_FILES} ${ICNET_HEADER_FILES})
 add_library(icnet.shared SHARED ${SOURCE_FILES} ${ICNET_SOURCE_FILES})
-target_link_libraries(icnet.shared ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-target_link_libraries(icnet ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+if(ANDROID_API)
+  target_link_libraries(icnet.shared ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} ${CCNX_COMMON_LIBRARIES} ${CCNX_TRANSPORT_RTA_LIBRARIES} ${CCNX_PORTAL_LIBRARIES} ${LIBPARC_LIBRARIES} ${LONGBOW_LIBRARIES})
+  target_link_libraries(icnet ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} ${CCNX_COMMON_LIBRARIES} ${CCNX_TRANSPORT_RTA_LIBRARIES} ${CCNX_PORTAL_LIBRARIES} ${LIBPARC_LIBRARIES} ${LONGBOW_LIBRARIES})
+else ()
+  target_link_libraries(icnet.shared ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+  target_link_libraries(icnet ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+endif (ANDROID_API)
 
 set_target_properties(icnet.shared PROPERTIES
                       SOVERSION 1
