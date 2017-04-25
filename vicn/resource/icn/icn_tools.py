@@ -23,4 +23,4 @@ class ICNTools(ICNApplication):
     Resource: ICNTools
     """
 
-    __package_names__ = ['libconsumer-producer-ccnx']
+    __package_names__ = ['libicnet']

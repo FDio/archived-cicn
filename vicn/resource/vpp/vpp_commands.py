@@ -37,5 +37,5 @@ CMD_VPP_CICN_GET = "timeout 1 vppctl cicn show" #We timeout if vpp is not starte
 CMD_VPP_ADD_ICN_ROUTE = 'vppctl cicn cfg fib add prefix {route.prefix} face {route.face.id}'
 CMD_VPP_ADD_ICN_FACE = 'vppctl cicn cfg face add local {face.src_ip}:{face.src_port} remote {face.dst_ip}:{face.dst_port}'
 
-CMD_VPP_CICN_GET_CACHE_SIZE = 'vppctl cicn show | grep "CS entries" | grep -E "[0-9]+"'
+CMD_VPP_CICN_GET_CACHE_SIZE = 'vppctl cicn show | grep "CS entries" | grep -Eo "[0-9]+"'
 CMD_VPP_CICN_SET_CACHE_SIZE = 'vppctl cicn control param cs size {self.cache_size}'

@@ -54,24 +54,24 @@ class Face(Resource):
             requirements = [
                 Requirement('forwarder')
             ])
-    protocol = Attribute(String, 
-            description = 'Face underlying protocol', 
+    protocol = Attribute(String,
+            description = 'Face underlying protocol',
             mandatory = True)
     id = Attribute(String, description = 'Local face ID',
             ro = True)
 
     # Cisco's extensions
-    wldr = Attribute(Bool, description = 'flag: WLDR enabled', 
+    wldr = Attribute(Bool, description = 'flag: WLDR enabled',
             default = False)
-    x2 = Attribute(Bool, description = 'flag: X2 face', 
+    x2 = Attribute(Bool, description = 'flag: X2 face',
             default = False)
 
     # NFD extensions
-    permanent = Attribute(Bool, description = 'flag: permanent face', 
+    permanent = Attribute(Bool, description = 'flag: permanent face',
             default = True)
     nfd_uri = Attribute(String, description = 'Face uri',
             func = lambda self : self._lambda_nfd_uri())
-    nfdc_flags = Attribute(String, 
+    nfdc_flags = Attribute(String,
             description = 'Flags for face creation with NFDC',
             func = lambda self : self._lambda_nfdc_flags())
 
@@ -83,7 +83,7 @@ class Face(Resource):
             flags += 'wldr '
         if self.x2:
             flags += 'x2 '
-        sibling_face_name = self.data.get('sibling_face', None)
+        sibling_face_name = self._internal_data.get('sibling_face', None)
         sibling_face = self._state.manager.by_name(sibling_face_name) \
                 if sibling_face_name else None
         dst_node = sibling_face.node.name if sibling_face else None
@@ -111,12 +111,12 @@ class Face(Resource):
 
 class L2Face(Face):
 
-    src_nic = Attribute(Interface, 
+    src_nic = Attribute(Interface,
             description = "Name of the network interface linked to the face",
             mandatory=True)
-    dst_mac = Attribute(String, description = "destination MAC address", 
+    dst_mac = Attribute(String, description = "destination MAC address",
             mandatory=True)
-    ether_proto = Attribute(String, 
+    ether_proto = Attribute(String,
             description = "Ethernet protocol number used by the face",
             default=DEFAULT_ETHER_PROTO)
 
@@ -128,12 +128,12 @@ class L2Face(Face):
 class L4Face(Face):
 
     ip_version = Attribute(Integer, description = "IPv4 or IPv6", default = 4)
-    src_ip = Attribute(String, description = "local IP address", 
+    src_ip = Attribute(String, description = "local IP address",
             mandatory = True)
     src_port = Attribute(Integer, description = "local TCP/UDP port")
-    dst_ip = Attribute(String, descrition = "remote IP address", 
+    dst_ip = Attribute(String, descrition = "remote IP address",
             mandatory=True)
-    dst_port = Attribute(Integer, description = "remote TCP/UDP port", 
+    dst_port = Attribute(Integer, description = "remote TCP/UDP port",
             mandatory=True)
 
     def _lambda_nfd_uri(self):

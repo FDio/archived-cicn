@@ -32,17 +32,17 @@ class CcnxConsumerTest(Consumer):
     Test consumer exchanging dummy data.
     """
 
-    __package_names__ = ["libconsumer-producer-ccnx"]
+    __package_names__ = ["libicnet"]
 
-    prefixes = Attribute(String, 
+    prefixes = Attribute(String,
             description = "Name served by the producer server test",
             default = lambda self: self.default_name(),
             mandatory = False,
             multiplicity = Multiplicity.OneToMany)
     node = Attribute(Node,
             requirements=[
-                Requirement("forwarder", 
-                    capabilities = set(['ICN_SUITE_CCNX_1_0']), 
+                Requirement("forwarder",
+                    capabilities = set(['ICN_SUITE_CCNX_1_0']),
                     properties = {"protocol_suites" : ICN_SUITE_CCNX_1_0})
             ])
 
@@ -77,11 +77,11 @@ class CcnxProducerTest(Producer):
     Test producer exchanging dummy data.
     """
 
-    __package_names__ = ["libconsumer-producer-ccnx"]
+    __package_names__ = ["libicnet"]
 
     node = Attribute(Node,
-        requirements = [Requirement("forwarder", 
-            capabilities = set(['ICN_SUITE_CCNX_1_0']), 
+        requirements = [Requirement("forwarder",
+            capabilities = set(['ICN_SUITE_CCNX_1_0']),
             properties = {"protocol_suites" : ICN_SUITE_CCNX_1_0})])
 
     #--------------------------------------------------------------------------
