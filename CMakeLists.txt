@@ -160,7 +160,7 @@ elseif(RPM_PACKAGE)
     set(CPACK_${TYPE}_LIBRARY_PACKAGE_AUTOREQ ON)
 
     set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0, libparc >= 1.0, libccnx-common >= 1.0, libccnx-transport-rta >= 1.0, libccnx-portal >= 1.0, boost-system >= 1.53")
-    set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libicnet >= 1.0, libccnx-common-devel >= 1.0, libccnx-portal-devel >= 1.0, libccnx-transport-rta-devel >=1.0, libparc-devel >= 1.0, longbow-devel >= 1.0, boost-devel >= 1.53")
+    set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libicnet >= 1.0, libccnx-common-devel >= 1.0, libccnx-portal-devel >= 1.0, libccnx-transport-rta-devel >= 1.0, libparc-devel >= 1.0, longbow-devel >= 1.0, boost-devel >= 1.53")
     set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_REQUIRES "")
 
     set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
