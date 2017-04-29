@@ -18,7 +18,6 @@ conf.mk
 *.a
 *.la
 .libs
-conf.mk
 .deps
 config.log
 config.h
@@ -28,13 +27,11 @@ config.status
 .dirstamp
 Makefile
 stamp-h1
-.DS_Store
 
 transport/common/test/test_keyvalue
 transport/transport_rta/test/test_multi_connections
 transport/transport_rta/test/rtatest
 transport/transport_rta/test/test_bent_pipe
-transport/transport_rta/test/test_multi_connections
 transport/transport_rta/test/x
 transport/transport_rta/test/y
 transport/transport_rta/tlv/test/x

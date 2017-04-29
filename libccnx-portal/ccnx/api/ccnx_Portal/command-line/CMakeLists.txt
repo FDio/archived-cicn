@@ -1,11 +1,11 @@
 set(CCNX_CLIENT_SRC
-  ccnx-client.c 
-  ccnxPortalClient_About.c 
+  ccnx-client.c
+  ccnxPortalClient_About.c
   )
 
-set(CCNX_SERVER_SRC 
-  ccnx-server.c 
-  ccnxPortalServer_About.c 
+set(CCNX_SERVER_SRC
+  ccnx-server.c
+  ccnxPortalServer_About.c
   )
 
 
@@ -16,4 +16,4 @@ target_link_libraries(ccnx-client ${CCNX_LINK_LIBRARIES})
 add_executable(ccnx-server ${CCNX_SERVER_SRC})
 target_link_libraries(ccnx-server ${CCNX_LINK_LIBRARIES})
 
-install(TARGETS ccnx-client ccnx-server RUNTIME DESTINATION bin )
+install(TARGETS ccnx-client ccnx-server COMPONENT library RUNTIME DESTINATION bin )
