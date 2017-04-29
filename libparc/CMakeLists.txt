@@ -130,7 +130,7 @@ elseif(RPM_PACKAGE)
     set(CPACK_${TYPE}_LIBRARY_PACKAGE_AUTOREQ ON)
 
     set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0")
-    set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libparc >= 1.0, longbow-dev >= 1.0")
+    set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libparc >= 1.0, longbow-devel >= 1.0")
     set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_REQUIRES "")
 
     set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
