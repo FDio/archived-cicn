@@ -43,8 +43,8 @@ link_directories(${CCNX_HOME}/lib)
 
 add_executable(iPing_Client ${CCNX_PING_CLIENT_SOURCE_FILES})
 target_link_libraries(iPing_Client ${CCNX_LIBRARIES})
-install(TARGETS iPing_Client RUNTIME DESTINATION bin)
+install(TARGETS iPing_Client RUNTIME DESTINATION bin COMPONENT library)
 
 add_executable(iPing_Server ${CCNX_PING_SERVER_SOURCE_FILES})
 target_link_libraries(iPing_Server ${CCNX_LIBRARIES})
-install(TARGETS iPing_Server RUNTIME DESTINATION bin)
+install(TARGETS iPing_Server RUNTIME DESTINATION bin COMPONENT library)

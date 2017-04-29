@@ -25,6 +25,6 @@ target_link_libraries(consumer-test icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBR
 target_link_libraries(iget icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 target_link_libraries(consumer-dash icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
-install(TARGETS consumer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(TARGETS iget DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(TARGETS consumer-dash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS consumer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
+install(TARGETS iget DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
+install(TARGETS consumer-dash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)

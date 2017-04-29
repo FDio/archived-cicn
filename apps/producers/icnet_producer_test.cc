@@ -25,7 +25,7 @@ class CallbackContainer {
       : buffer_(1400, 'X'), final_chunk_number_(0) {
     content_object_.setContent((uint8_t *) buffer_.c_str(), 1400);
     if (download_size > 0) {
-      final_chunk_number_ = static_cast<uint64_t>(std::ceil(download_size / 1400));
+      final_chunk_number_ = static_cast<uint64_t>(std::ceil(download_size / 1400.0));
     }
   }
 

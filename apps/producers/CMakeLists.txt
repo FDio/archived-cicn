@@ -19,4 +19,4 @@ set(PRODUCER_SOURCE_FILES
 
 add_executable(producer-test ${PRODUCER_SOURCE_FILES})
 target_link_libraries(producer-test icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-install(TARGETS producer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS producer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
