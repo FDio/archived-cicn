@@ -157,11 +157,11 @@ set(longbowLibraries
   )
 
 foreach(lib ${longbowLibraries})
-  install(TARGETS ${lib} LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+  install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 endforeach()
 
-install(FILES ${LIBLONGBOW_HEADER_FILES}     DESTINATION include/LongBow )
-install(FILES ${LONGBOW_REPORT_HEADER_FILES} DESTINATION include/LongBow/Reporting )
+install(FILES ${LIBLONGBOW_HEADER_FILES}     DESTINATION include/LongBow COMPONENT headers)
+install(FILES ${LONGBOW_REPORT_HEADER_FILES} DESTINATION include/LongBow/Reporting COMPONENT headers)
 
 if(ANDROID_API)
   message("############ Detected cross compile for ${CMAKE_SYSTEM_NAME}")

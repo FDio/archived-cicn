@@ -1,10 +1,10 @@
-add_subdirectory(site-packages) 
+add_subdirectory(site-packages)
 
 install( FILES parc_uncrustify.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/etc )
 
 macro(AddLongBowPythonScript scriptFile)
   configure_file(${ARGV0}.py ${ARGV0} @ONLY)
-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${ARGV0} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${ARGV0} COMPONENT library DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endmacro(AddLongBowPythonScript)
 
 set(ScriptList
