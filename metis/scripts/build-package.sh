@@ -1,5 +1,4 @@
 #!/bin/bash
-# basic build script example
 set -euxo pipefail
 IFS=$'\n\t'
 
@@ -9,12 +8,12 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential cmake"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU="$LIBSSL_LIBEVENT_UBUNTU longbow libparc libccnx-common libccnx-transport-rta libccnx-portal    "
+DEPS_UBUNTU="$LIBSSL_LIBEVENT_UBUNTU longbow-dev libparc-dev libccnx-common-dev libccnx-transport-rta-dev libccnx-portal-dev"
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 BUILD_TOOLS_SINGLE_CENTOS="cmake"
 LIBSSL_LIBEVENT_CENTOS="libevent-devel openssl-devel"
-DEPS_CENTOS="$LIBSSL_LIBEVENT_CENTOS longbow libparc libccnx-common libccnx-transport-rta libccnx-portal"
+DEPS_CENTOS="$LIBSSL_LIBEVENT_CENTOS longbow-devel libparc-devel libccnx-common-devel libccnx-transport-rta-devel libccnx-portal-devel"
 
 # Parameters:
 # $1 = Distribution [Trusty / CentOS]
