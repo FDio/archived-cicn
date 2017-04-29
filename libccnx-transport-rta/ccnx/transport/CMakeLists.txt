@@ -196,16 +196,16 @@ set(libccnx_transport_rta_libraries
   )
 
 foreach(lib ${libccnx_transport_rta_libraries})
-  install(TARGETS ${lib} LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+  install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
   set_property(TARGET ${lib} PROPERTY C_STANDARD 99)
 endforeach()
 
-install(FILES ${BASE_HDRS} DESTINATION include/ccnx/transport )
-install(FILES ${COMMON_HDRS} DESTINATION include/ccnx/transport/common )
-install(FILES ${TEST_TOOLS_HDRS} DESTINATION include/ccnx/transport/test_tools )
-install(FILES ${RTA_CORE_HDRS} DESTINATION include/ccnx/transport/transport_rta )
-install(FILES ${RTA_CONFIG_HDRS} DESTINATION include/ccnx/transport/transport_rta/config )
-install(FILES ${RTA_COMMANDS_HDRS} DESTINATION include/ccnx/transport/transport_rta/commands )
+install(FILES ${BASE_HDRS} DESTINATION include/ccnx/transport COMPONENT headers)
+install(FILES ${COMMON_HDRS} DESTINATION include/ccnx/transport/common COMPONENT headers)
+install(FILES ${TEST_TOOLS_HDRS} DESTINATION include/ccnx/transport/test_tools COMPONENT headers)
+install(FILES ${RTA_CORE_HDRS} DESTINATION include/ccnx/transport/transport_rta COMPONENT headers)
+install(FILES ${RTA_CONFIG_HDRS} DESTINATION include/ccnx/transport/transport_rta/config COMPONENT headers)
+install(FILES ${RTA_COMMANDS_HDRS} DESTINATION include/ccnx/transport/transport_rta/commands COMPONENT headers)
 
 add_subdirectory(common/test)
 add_subdirectory(transport_rta/test)
