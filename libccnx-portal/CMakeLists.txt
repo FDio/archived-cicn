@@ -128,7 +128,7 @@ if(DEB_PACKAGE)
 
     set(CPACK_DEBIAN_LIBRARY_PACKAGE_SHLIBDEPS ON)
 
-    set(CPACK_${TYPE}_LIBRARY_PACKAGE_DEPENDS "longbow (>= 1.0), libevent-2.0-5, libssl1.0.0, libparc (>= 1.0), libccnx-common (>= 1.0), libccnx-transport-rta (>= 1.0)")
+    set(CPACK_${TYPE}_LIBRARY_PACKAGE_DEPENDS "longbow (>= 1.0), libparc (>= 1.0), libccnx-common (>= 1.0), libccnx-transport-rta (>= 1.0)")
     set(CPACK_${TYPE}_HEADERS_PACKAGE_DEPENDS "libccnx-portal (>= 1.0), libccnx-transport-rta-dev (>= 1.0), libccnx-common-dev (>= 1.0), libparc-dev (>= 1.0), longbow-dev (>= 1.0)")
     set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_DEPENDS "")
 elseif(RPM_PACKAGE)
@@ -145,7 +145,7 @@ elseif(RPM_PACKAGE)
 
     set(CPACK_${TYPE}_LIBRARY_PACKAGE_AUTOREQ ON)
 
-    set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0, libevent-2.0-5, libssl1.0.0, libparc >= 1.0, libccnx-common >= 1.0, libccnx-transport-rta >= 1.0")
+    set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0, libparc >= 1.0, libccnx-common >= 1.0, libccnx-transport-rta >= 1.0")
     set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libccnx-portal >= 1.0, libccnx-transport-rta-devel >= 1.0, libccnx-common-devel >= 1.0, libparc-devel >= 1.0, longbow-devel >= 1.0")
     set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_REQUIRES "")
 
