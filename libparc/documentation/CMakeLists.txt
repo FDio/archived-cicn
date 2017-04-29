@@ -5,10 +5,10 @@ if(DOXYGEN_FOUND)
   set(GITHUB_REMOTE http://github.com/PARC/Libparc)
   configure_file(libparc.doxygen.in config.doxygen @ONLY)
 
-  install(DIRECTORY images/            DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/images)
-  install(DIRECTORY doxygen-extras/    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/doxygen-extras)
-  install(DIRECTORY examples/          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/examples)
-  install(FILES DoxygenLayout.xml      DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/)
+  install(DIRECTORY images/            DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/images COMPONENT documentation)
+  install(DIRECTORY doxygen-extras/    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/doxygen-extras COMPONENT documentation)
+  install(DIRECTORY examples/          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/examples COMPONENT documentation)
+  install(FILES DoxygenLayout.xml      DESTINATION ${CMAKE_INSTALL_PREFIX}/share/libparc/ COMPONENT documentation)
 
   set(HTML_PATH  ${CMAKE_CURRENT_BINARY_DIR}/generated-documentation/html)
 

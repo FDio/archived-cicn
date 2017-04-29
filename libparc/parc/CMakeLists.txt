@@ -6,7 +6,6 @@ set(LIBPARC_BASE_HEADER_FILES
 	libparc_About.h
 	)
 
-
 set(LIBPARC_ALGOL_HEADER_FILES
     algol/parc_ArrayList.h
     algol/parc_AtomicInteger.h
@@ -374,19 +373,19 @@ set(libparcLibraries
   )
 
 foreach(lib ${libparcLibraries})
-  install(TARGETS ${lib} LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+  install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
   set_property(TARGET ${lib} PROPERTY C_STANDARD 99)
 endforeach()
 
-install(FILES ${LIBPARC_ALGOL_HEADER_FILES}      DESTINATION include/parc/algol )
-install(FILES ${LIBPARC_SECURITY_HEADER_FILES}   DESTINATION include/parc/security )
-install(FILES ${LIBPARC_LOGGING_HEADER_FILES}    DESTINATION include/parc/logging )
-install(FILES ${LIBPARC_TESTING_HEADER_FILES}    DESTINATION include/parc/testing )
-install(FILES ${LIBPARC_CONCURRENT_HEADER_FILES} DESTINATION include/parc/concurrent )
-install(FILES ${LIBPARC_DEVELOPER_HEADER_FILES}  DESTINATION include/parc/developer )
-install(FILES ${LIBPARC_BASE_HEADER_FILES}       DESTINATION include/parc )
-install(FILES ${LIBPARC_STATISTICS_HEADER_FILES} DESTINATION include/parc/statistics )
-install(FILES ${LIBPARC_MEMORY_HEADER_FILES}     DESTINATION include/parc/memory )
+install(FILES ${LIBPARC_ALGOL_HEADER_FILES}      DESTINATION include/parc/algol COMPONENT headers)
+install(FILES ${LIBPARC_SECURITY_HEADER_FILES}   DESTINATION include/parc/security COMPONENT headers)
+install(FILES ${LIBPARC_LOGGING_HEADER_FILES}    DESTINATION include/parc/logging COMPONENT headers)
+install(FILES ${LIBPARC_TESTING_HEADER_FILES}    DESTINATION include/parc/testing COMPONENT headers)
+install(FILES ${LIBPARC_CONCURRENT_HEADER_FILES} DESTINATION include/parc/concurrent COMPONENT headers)
+install(FILES ${LIBPARC_DEVELOPER_HEADER_FILES}  DESTINATION include/parc/developer COMPONENT headers)
+install(FILES ${LIBPARC_BASE_HEADER_FILES}       DESTINATION include/parc COMPONENT headers)
+install(FILES ${LIBPARC_STATISTICS_HEADER_FILES} DESTINATION include/parc/statistics COMPONENT headers)
+install(FILES ${LIBPARC_MEMORY_HEADER_FILES}     DESTINATION include/parc/memory COMPONENT headers)
 
 add_subdirectory(security/command-line)
 add_subdirectory(algol/test)
