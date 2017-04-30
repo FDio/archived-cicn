@@ -13,36 +13,24 @@ VIPER_DEPS_UBUNTU="zlib1g-dev git-core build-essential libxml2-dev libcurl4-open
                    libavcodec-dev libavformat-dev libswscale-dev  libavresample-dev libqml-module-qtav \
                    qt57quickcontrols qt57quickcontrols2 libboost-system-dev"
 
-BUILD_TOOLS="build-essential cmake"
+BUILD_TOOLS="build-essential doxygen"
 
 # Parameters:
 # $1 = Distribution [Trusty / CentOS]
 #
 update_cmake_repo() {
 
-    DISTRIBUTION=$1
+    cat /etc/resolv.conf
+    echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+    cat /etc/resolv.conf
 
-    if [ "$DISTRIBUTION" == "trusty" ]; then
-        sudo ${apt_get} install -y --allow-unauthenticated software-properties-common
-        sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
-    elif [ "$DISTRIBUTION" == "CentOS" ]; then
-        sudo cat << EOF > cmake.repo
-[cmake-repo]
-name=Repo for cmake3
-baseurl=http://mirror.ghettoforge.org/distributions/gf/el/7/plus/x86_64/
-enabled=1
-gpgcheck=0
-EOF
-        sudo cat << EOF > jsoncpp.repo
-[jsoncp-repo]
-name=Repo for jsoncpp
-baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
-enabled=1
-gpgcheck=0
-EOF
-        sudo mv cmake.repo /etc/yum.repos.d/cmake.repo
-        sudo mv jsoncpp.repo /etc/yum.repos.d/jsoncpp.repo
-    fi
+    CMAKE_INSTALL_SCRIPT_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh"
+    CMAKE_INSTALL_SCRIPT="/tmp/install_cmake.sh"
+    curl ${CMAKE_INSTALL_SCRIPT_URL} > ${CMAKE_INSTALL_SCRIPT}
+
+    sudo mkdir -p /opt/cmake
+    sudo bash ${CMAKE_INSTALL_SCRIPT} --skip-license --prefix=/opt/cmake
+    export PATH=/opt/cmake/bin:$PATH
 }
 
 # Parameters:
@@ -126,18 +114,11 @@ setup() {
     DISTRIB_ID=$1
     DISTRIB_CODENAME=$2
 
+    update_cmake_repo
+    update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
+
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
-        if [ "$DISTRIB_CODENAME" == "trusty" ]; then
-            update_cmake_repo $DISTRIB_CODENAME
-        fi
-
-        update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
-
         sudo ${apt_get} update || true
-
-    elif [ "$DISTRIB_ID" == "CentOS" ]; then
-        update_cmake_repo $DISTRIB_ID
-        update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
     fi
 }
 
