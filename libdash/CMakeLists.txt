@@ -190,7 +190,7 @@ set(CPACK_PACKAGE_CONTACT ${CONTACT})
 set(CPACK_COMPONENTS_ALL library headers documentation)
 
 # Get the version
-execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/scripts/version
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/../scripts/version
         OUTPUT_VARIABLE PACKAGE_VERSION)
 
 if (PACKAGE_VERSION)
