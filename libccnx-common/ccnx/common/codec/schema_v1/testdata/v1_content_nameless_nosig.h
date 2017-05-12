@@ -52,11 +52,11 @@ __attribute__((unused))
 static TruthTableEntry
 TRUTHTABLENAME(v1_content_nameless_nosig)[] =
 {
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_CONTENTOBJECT, .bodyManifest = true, .extent = { 12, 37 } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOADTYPE,   .bodyManifest = true, .extent = { 17, 1  } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_EXPIRY_TIME,   .bodyManifest = true, .extent = { 22, 8  } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_ENDSEGMENT,    .bodyManifest = true, .extent = { 30, 4  } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOAD,       .bodyManifest = true, .extent = { 41, 8  } },
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_CONTENTOBJECT, .bodyManifest = true, .extent = { 12, 37 } }, //12 //17
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOADTYPE,   .bodyManifest = true, .extent = { 17, 1  } }, //17 //22
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_EXPIRY_TIME,   .bodyManifest = true, .extent = { 22, 8  } }, //22 //27
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_ENDSEGMENT,    .bodyManifest = true, .extent = { 30, 4  } }, //30 //35
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOAD,       .bodyManifest = true, .extent = { 41, 8  } }, //41 //46
     { .wellKnownType = false, .indexOrKey = T_INVALID,                     .extent       = { 0,  0 } },
 };
 

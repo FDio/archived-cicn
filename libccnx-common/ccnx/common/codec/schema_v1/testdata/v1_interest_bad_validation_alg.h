@@ -36,7 +36,7 @@ static uint8_t v1_interest_bad_validation_alg[] = {
     0x01, 0x00, 0x00, 65,       // ver = 1, type = interest, length = 65
     0x20, 0x00, 0x00, 24,       // HopLimit = 32, reserved = 0, header length = 24
     // ------------------------
-    0x00, 0x03, 0x00, 12,       // Interest Fragment
+    0x00, 0x04, 0x00, 12,       // Interest Fragment
     0x01, 0x02, 0x03, 0x04,
     0x05, 0x06, 0x07, 0x08,     // fragment 0x0102030405060708
     0x05, 0xDC, 0x00, 0x00,     // MTU 1500, fragcnt 0, fragnum 0

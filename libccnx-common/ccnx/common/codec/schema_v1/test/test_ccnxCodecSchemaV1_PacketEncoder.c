@@ -256,7 +256,7 @@ LONGBOW_TEST_CASE(ContentObject, no_cryptosuite)
     assertNotNull(encoded, "got null output buffer");
 
     // it should be 33 bytes without a signature
-    assertTrue(parcBuffer_Remaining(encoded) == 33, "Wrong length exepcted 33 got %zu", parcBuffer_Remaining(encoded));
+    assertTrue(parcBuffer_Remaining(encoded) == 38, "Wrong length exepcted 38 got %zu", parcBuffer_Remaining(encoded));
 
     parcBuffer_Release(&encoded);
     ccnxCodecTlvEncoder_Destroy(&encoder);

@@ -265,8 +265,8 @@ install(FILES ${TESTDATA_HDRS}           DESTINATION ${CMAKE_INSTALL_PREFIX}/inc
 install(FILES ${SCHEMAV1_HDRS}           DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ccnx/common/codec/schema_v1 COMPONENT headers)
 install(FILES ${SCHEMAV1_TESTDATA_HDRS}  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ccnx/common/codec/schema_v1/testdata COMPONENT headers)
 
-#add_subdirectory(test)
-#add_subdirectory(validation/test)
-#add_subdirectory(codec/test)
-#add_subdirectory(internal/test)
-#add_subdirectory(codec/schema_v1/test)
+add_subdirectory(test)
+add_subdirectory(validation/test)
+add_subdirectory(codec/test)
+add_subdirectory(internal/test)
+add_subdirectory(codec/schema_v1/test)

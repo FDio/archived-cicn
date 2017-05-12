@@ -84,15 +84,18 @@
 
 __attribute__((unused))
 static uint8_t v1_content_nameA_keyid1_rsasha256[] = {
-    0x01, 0x01, 0x01, 0xB4,// ver = 1, type = content object, length = 436
-    0x00, 0x00, 0x00, 32,  // HopLimit = 0, reserved = 0, header length = 32
+    0x01, 0x01, 0x01, 0xB9,// ver = 1, type = content object, length = 441
+    0x00, 0x00, 0x00, 37,  // HopLimit = 0, reserved = 0, header length = 37
     // ------------------------
-    0x00, 0x04, 0x00, 20,  // ContentObject Fragment, length = 20
+    0x00, 0x05, 0x00, 20,  // ContentObject Fragment, length = 20
     0x12, 0x23, 0x34, 0x45,
     0x56, 0x67, 0x78, 0x89,// fragid 0x1223344556677889
     0x05, 0xDC, 0x01, 0x00,// MTU 1500, fragcnt 1, fragnum 0
     0x01, 0x02, 0x03, 0x04,
     0x05, 0x06, 0x07, 0x08,// interest fragment 0x0102030405060708
+    //-----------------------
+    0x00, 0x03, 0x00, 1, //path label, lenght = 1     //36 bytes
+    0x00,
     // ------------------------
     0x00, 0x02, 0x00, 58,  // type = content object, length = 58
     // ------------------------
@@ -101,17 +104,17 @@ static uint8_t v1_content_nameA_keyid1_rsasha256[] = {
     'h',  'e',  'l',  'l', // "hello"
     'o',
     0xF0, 0x00, 0x00, 0x04,// type = app, length = 4
-    'o',  'u',  'c',  'h', // "ouch"
+    'o',  'u',  'c',  'h', // "ouch"                //62 bytes
     // ------------------------
     0x00, 0x05, 0x00, 1,   // PayloadType
     1,    // type 1 = key
-    0x00, 0x06, 0x00, 0x08,// expiry time in msec
+    0x00, 0x06, 0x00, 0x08,// expiry time in msec  //71 bytes
     0x00, 0x00, 0x01, 0x43,// 1,388,534,400,000 msec
     0x4B, 0x19, 0x84, 0x00,
     0x00, 0x19, 0x00, 4,   // end chunk number
-    0x06, 0x05, 0x04, 0x03,
+    0x06, 0x05, 0x04, 0x03,                         //87 bytes
     // ------------------------
-    0x00, 0x01, 0x00, 8,   // payload, length = 8
+    0x00, 0x01, 0x00, 8,   // payload, length = 8   //91
     0x73, 0x75, 0x72, 0x70,
     0x72, 0x69, 0x73, 0x65,
     // ------------------------
@@ -161,16 +164,16 @@ static TruthTableEntry
 TRUTHTABLENAME(v1_content_nameA_keyid1_rsasha256)[] =
 {
     { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_E2EFRAG,       .bodyManifest = false, .extent = { 12,  20  } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_CONTENTOBJECT, .bodyManifest = true,  .extent = { 36,  58  } },
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_CONTENTOBJECT, .bodyManifest = true,  .extent = { 41,  58  } }, //36 //41
     { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_NAME,          .bodyManifest = true,  .extent = { 40,  17  } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOADTYPE,   .bodyManifest = true,  .extent = { 61,  1   } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_EXPIRY_TIME,   .bodyManifest = true,  .extent = { 66,  8   } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_ENDSEGMENT,    .bodyManifest = true,  .extent = { 78,  4   } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOAD,       .bodyManifest = true,  .extent = { 86,  8   } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_ValidationAlg, .bodyManifest = true,  .extent = { 94,  206 } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_KEYID,         .bodyManifest = true,  .extent = { 106, 32  } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PUBKEY,        .bodyManifest = true,  .extent = { 142, 162 } },
-    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_SIGBITS,       .bodyManifest = true,  .extent = { 308, 128 } },
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOADTYPE,   .bodyManifest = true,  .extent = { 66,  1   } }, //61 //66
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_EXPIRY_TIME,   .bodyManifest = true,  .extent = { 71,  8   } }, //66 //71
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_ENDSEGMENT,    .bodyManifest = true,  .extent = { 83,  4   } }, //78 //83
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PAYLOAD,       .bodyManifest = true,  .extent = { 91,  8   } }, //86 //91
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_ValidationAlg, .bodyManifest = true,  .extent = { 94,  206 } }, //94 //99
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_KEYID,         .bodyManifest = true,  .extent = { 111, 32  } }, //106 //111
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_PUBKEY,        .bodyManifest = true,  .extent = { 147, 162 } }, //142 //147
+    { .wellKnownType = true,  .indexOrKey = V1_MANIFEST_OBJ_SIGBITS,       .bodyManifest = true,  .extent = { 313, 128 } }, //308 //313 
     { .wellKnownType = false, .indexOrKey = T_INVALID,                     .extent       = { 0,   0 } },
 };
 

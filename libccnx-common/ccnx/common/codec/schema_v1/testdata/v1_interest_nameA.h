@@ -38,7 +38,7 @@ static uint8_t v1_interest_nameA[] = {
     0x20, 0x00, 0x00, 36,       // HopLimit = 31, reserved = 0, header length = 36
     // ------------------------
     // ------------------------
-    0x00, 0x03, 0x00, 12,       // Interest Fragment
+    0x00, 0x04, 0x00, 12,       // Interest Fragment
     0x01, 0x02, 0x03, 0x04,
     0x05, 0x06, 0x07, 0x08,     // fragment 0x0102030405060708
     0x05, 0xDC, 0x00, 0x00,     // MTU 1500, fragcnt 0, fragnum 0

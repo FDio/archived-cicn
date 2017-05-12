@@ -381,6 +381,7 @@ testBufferGetter(TestData *data, int truthTableKey, bool containerDecoder(CCNxCo
     PARCBuffer *test = getter(data->dictionary);
 
     // look up the true name buffer from the truth table
+    printf("table key = %d\n", truthTableKey);
     TlvExtent extent = getTruthTableExtent(data->truthTable, truthTableKey);
     PARCBuffer *truth = parcBuffer_Wrap(data->packet, data->packetLength, extent.offset, extent.offset + extent.length);
 

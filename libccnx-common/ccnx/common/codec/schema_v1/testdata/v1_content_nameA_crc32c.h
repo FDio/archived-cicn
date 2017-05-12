@@ -65,7 +65,7 @@ static uint8_t v1_content_nameA_crc32c[] = {
     0x01, 0x01, 0x00, 85,       // ver = 1, type = content object, length = 85
     0x00, 0x00, 0x00, 44,       // HopLimit = 31, reserved = 0, header length = 44
     // ------------------------
-    0x00, 0x04, 0x00, 20,       // ContentObject Fragment, length = 20
+    0x00, 0x05, 0x00, 20,       // ContentObject Fragment, length = 20
     0x12, 0x23, 0x34, 0x45,
     0x56, 0x67, 0x78, 0x89,     // fragid 0x1223344556677889
     0x05, 0xDC, 0x01, 0x00,     // MTU 1500, fragcnt 1, fragnum 0
