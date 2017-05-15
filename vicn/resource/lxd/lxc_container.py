@@ -52,6 +52,10 @@ DEFAULT_SOURCE_PROTOCOL = 'simplestreams'
 # Commands used to interact with LXD (in addition to pylxd bindings)
 CMD_GET_PID='lxc info {container.name} | grep Pid | cut -d " " -f 2'
 
+CMD_UNSET_IP6_FWD = 'sysctl -w net.ipv6.conf.all.forwarding=0'
+CMD_SET_IP6_FWD = 'sysctl -w net.ipv6.conf.all.forwarding=1'
+CMD_GET_IP6_FWD = 'sysctl -n net.ipv6.conf.all.forwarding'
+
 # Type: ContainerName
 ContainerName = String(max_size = 64, ascii = True, 
         forbidden = ('/', ',', ':'))
@@ -94,6 +98,7 @@ class LxcContainer(Node):
     image = Attribute(String, description = 'image', default = None)
     is_image = Attribute(Bool, defaut = False)
     pid = Attribute(Integer, description = 'PID of the container')
+    ip6_forwarding = Attribute(Bool, default=True)
 
     #-------------------------------------------------------------------------- 
     # Constructor / Accessors
@@ -317,3 +322,15 @@ class LxcContainer(Node):
         if output:
             args += (ret.stdout, ret.stderr)
         return ReturnValue(*args)
+
+    def _get_ip6_forwarding(self):
+        def parse(rv):
+            ret = {"ip6_forwarding" : False}
+            if rv.stdout == "1":
+                ret["ip6_forwarding"] = True
+            return ret
+        return BashTask(self, CMD_GET_IP6_FWD, parse=parse)
+
+    def _set_ip6_forwarding(self):
+        cmd = CMD_SET_IP6_FWD if self.ip6_forwarding else CMD_UNSET_IP6_FWD
+        return BashTask(self, cmd)

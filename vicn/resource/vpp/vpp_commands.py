@@ -21,7 +21,7 @@ CMD_VPP_CREATE_IFACE = '''
 vppctl create host-interface name {vpp_interface.parent.device_name} hw-addr {vpp_interface.parent.mac_address}
 vppctl set interface state {vpp_interface.device_name} up
 '''
-CMD_VPP_SET_IP = 'vppctl set int ip address {netdevice.device_name} {netdevice.ip_address}/{netdevice.prefix_len}'
+CMD_VPP_SET_IP = 'vppctl set int ip address {netdevice.device_name} {netdevice.ip4_address}/{netdevice.prefix_len}'
 CMD_VPP_SET_UP = 'vppctl set int state {netdevice.device_name} up'
 
 ##### VPP IP ROUTING #####

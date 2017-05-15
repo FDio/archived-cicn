@@ -25,15 +25,17 @@ from vicn.resource.node             import Node
 from vicn.resource.vpp.vpp_commands import CMD_VPP_ADD_ROUTE
 from vicn.resource.vpp.vpp_commands import CMD_VPP_ADD_ROUTE_GW
 
-CMD_ADD_ROUTE = ('ip route add {route.ip_address} '
+CMD_ADD_ROUTE = ('ip -{route.ip_version} route add {route.ip_address} '
         'dev {route.interface.device_name} || true')
-CMD_ADD_ROUTE_GW = ('ip route add {route.ip_address} '
+CMD_ADD_ROUTE_GW = ('ip -{route.ip_version} route add {route.ip_address} '
         'dev {route.interface.device_name} via {route.gateway} || true')
-CMD_DEL_ROUTE = ('ip route del {route.ip_address} '
+CMD_DEL_ROUTE = ('ip -{route.ip_version} route del {route.ip_address} '
         'dev {route.interface.device_name}')
 CMD_SHOW_ROUTES = 'ip route show'
 
 CMD_ADD_ARP_ENTRY = 'arp -s {route.ip_address} {route.mac_address}'
+CMD_ADD_NDB_ENTRY = ('ip -6 neigh add {route.ip_address} lladr {route.mac_address} '
+        'dev {route.interface.device_name}')
 
 # Populate arp table too. The current configuration with one single bridge
 # connecting every container and vpp nodes seem to create loops that prevent
@@ -93,7 +95,7 @@ class RoutingTable(Resource):
     #--------------------------------------------------------------------------
 
     def __after__(self):
-        return ('CentralIP', 'VPPInterface')
+        return ('CentralIP', 'VPPInterface', 'ContainerSetup')
 
     def __get__(self):
         def cache(rv):
@@ -125,10 +127,10 @@ class RoutingTable(Resource):
             if route.ip_address in done:
                 continue
             done.add(route.ip_address)
-            
+
             # TODO VPP should provide its own implementation of routing table
             # on the node
-            if not route.interface.has_vpp_child: 
+            if not route.interface.has_vpp_child:
                 if route.gateway is None:
                     cmd = CMD_ADD_ROUTE.format(route = route)
                     routes_cmd.append(cmd)
@@ -148,7 +150,7 @@ class RoutingTable(Resource):
                     cmd = CMD_VPP_ADD_ROUTE_GW.format(route = route)
                     routes_via_cmd.append(cmd)
                     routes_via_lock = route.node.vpp.vppctl_lock
-                
+
         # TODO: checks
         clean_routes_task = EmptyTask()
 

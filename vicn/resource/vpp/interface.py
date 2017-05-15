@@ -35,15 +35,16 @@ class VPPInterface(Resource):
     An interface representation in VPP
     """
 
-    vpp = Attribute(VPP, 
+    vpp = Attribute(VPP,
             description = 'Forwarder to which this interface belong to',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne,
             key = True,
-            reverse_name = 'interfaces') 
-    parent = Attribute(Interface, description = 'parent', 
-            mandatory = True, reverse_name = 'vppinterface') 
-    ip_address = Attribute(String)
+            reverse_name = 'interfaces')
+    parent = Attribute(Interface, description = 'parent',
+            mandatory = True, reverse_name = 'vppinterface')
+    ip4_address = Attribute(String)
+    ip6_address = Attribute(String)
     prefix_len = Attribute(Integer, default = 31)
     up = Attribute(Bool, description = 'Interface up/down status')
     monitored = Attribute(Bool, default = True)
@@ -73,7 +74,8 @@ class VPPInterface(Resource):
         # belongs to vpp
         self.parent.has_vpp_child = True
 
-        self.ip_address = self.parent.ip_address
+        self.ip4_address = self.parent.ip4_address
+        self.ip6_address = self.parent.ip6_address
         self.up = True
 
         if isinstance(self.parent,NonTapBaseNetDevice):
@@ -86,7 +88,8 @@ class VPPInterface(Resource):
                     {'vpp_interface': self},
                     lock = self.vpp.vppctl_lock)
 
-            self.parent.set('ip_address', None)
+            self.parent.set('ip4_address', None)
+            self.parent.set('ip6_address', None)
             self.parent.set('offload', False)
             self.parent.remote.set('offload', False)
 
@@ -107,8 +110,8 @@ class VPPInterface(Resource):
     # Attributes
     #--------------------------------------------------------------------------
 
-    def _set_ip_address(self):
-        if self.ip_address: 
+    def _set_ip4_address(self):
+        if self.ip4_address:
             return BashTask(self.vpp.node, CMD_VPP_SET_IP, {'netdevice': self},
                     lock = self.vpp.vppctl_lock)
 
@@ -121,5 +124,9 @@ class VPPInterface(Resource):
         return {'up' : False}
 
     @task
-    def _get_ip_address(self):
-        return {'ip_address' : None}
+    def _get_ip4_address(self):
+        return {'ip4_address' : None}
+
+    @task
+    def _get_ip6_address(self):
+        return {'ip6_address' : None}

@@ -3,7 +3,7 @@
         {
             "type": "Physical",
             "name": "server",
-            "hostname": "hostname"
+            "hostname": "localhost"
         },
         {
             "type": "NetDevice",
@@ -117,14 +117,14 @@
         },
         {
             "type": "CentralIP",
-            "ip_routing_strategy": "spt"
+            "ip_routing_strategy": "spt",
+	    "ip6_data_prefix": "2001::/50",
+	    "ip4_data_prefix": "192.168.128.0/24",
+	    "ip4_control_prefix": "192.168.140.0/24"
         },
         {
             "type": "CentralICN",
             "face_protocol": "udp4"
         }
-    ],
-    "settings": {
-        "network": "192.168.29.0/24"
-    }
+    ]
 }

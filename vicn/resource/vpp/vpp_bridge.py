@@ -40,8 +40,8 @@ class VPPBridge(Channel, LinuxApplication):
     """
     Resource: VPPBridge
 
-    VPPBridge instantiate a vpp resource and set it as a vpp bridge. 
-    
+    VPPBridge instantiate a vpp resource and set it as a vpp bridge.
+
     This resource requires to be run within a LxcContainer which will have VPP.
     Every interface in the lxc_container (i.e., the ones contained in
     self.node.interfaces) will be added to the vpp bridge. To connect other vpp
@@ -64,7 +64,7 @@ class VPPBridge(Channel, LinuxApplication):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._vpp_interfaces = list()
-        
+
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
@@ -72,7 +72,7 @@ class VPPBridge(Channel, LinuxApplication):
     def __subresources__ (self):
         # We don't need any reference to the list of SymVethPair because each
         # side of a veth will be included in the node.interfaces list
-        self._veths = [SymVethPair(node1 = self.node, node2 = node, 
+        self._veths = [SymVethPair(node1 = self.node, node2 = node,
                 owner = self) for node in self.connected_nodes]
 
         return Resource.__concurrent__(*self._veths)
@@ -82,7 +82,7 @@ class VPPBridge(Channel, LinuxApplication):
         # Add the veth side on the connected_nodes to the set of interfaces of
         # the channel
         self.interfaces.extend([veth.side2 for veth in self._veths])
-    
+
     @task
     def __get__(self):
         # Forces creation
@@ -90,10 +90,10 @@ class VPPBridge(Channel, LinuxApplication):
 
     # Nothing to do
     __delete__ = None
-    
+
     def __create__(self):
         manager = self._state.manager
-        
+
         # Create a VPPInterface for each interface in the node. These will be
         # the interfaces we will connect to the vpp bridge process
         vpp_interfaces = list()
@@ -102,9 +102,9 @@ class VPPBridge(Channel, LinuxApplication):
             if interface.device_name == 'eth0':
                 continue
 
-            vpp_interface = VPPInterface(vpp = self.node.vpp, 
-                    parent = interface, 
-                    ip_address = Reference(interface, 'ip_address'), 
+            vpp_interface = VPPInterface(vpp = self.node.vpp,
+                    parent = interface,
+                    ip4_address = Reference(interface, 'ip4_address'),
                     device_name = 'host-' + interface.device_name)
             vpp_interfaces.append(vpp_interface)
             manager.commit_resource(vpp_interface)
@@ -112,17 +112,17 @@ class VPPBridge(Channel, LinuxApplication):
         tasks = EmptyTask()
 
         for vpp_interface in vpp_interfaces:
-            tasks = tasks > (wait_resource_task(vpp_interface) > 
+            tasks = tasks > (wait_resource_task(vpp_interface) >
                     self._add_interface(vpp_interface,0))
 
-        return wait_resource_task(self.node.vpp) > tasks 
+        return wait_resource_task(self.node.vpp) > tasks
 
     #--------------------------------------------------------------------------
     # Internal methods
     #--------------------------------------------------------------------------
 
     def _add_interface(self, interface, br_domain):
-        return BashTask(self.node, CMD_ADD_INTERFACE_TO_BR, 
+        return BashTask(self.node, CMD_ADD_INTERFACE_TO_BR,
                 {'interface': interface, 'br_domain': br_domain})
 
     def _del_interface(self,  interface, br_domain):

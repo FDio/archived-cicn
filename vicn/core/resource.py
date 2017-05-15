@@ -196,8 +196,14 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         if mandatory:
             raise VICNException('Mandatory attributes not set: %r' % (mandatory,))
 
-        # Check requirements
+        # Check requirements and default values
         for attr in self.iter_attributes():
+            if attr.name not in kwargs:
+                default = self.get_default_collection(attr) if attr.is_collection else \
+                        self.get_default(attr)
+                if vars(attr)['default'] != NEVER_SET:
+                    #import pdb; pdb.set_trace()
+                    self.set(attr.name, default, blocking=False)
             if issubclass(attr.type, Resource) and attr.requirements:
                 for req in attr.requirements:
                     instance = self.get(attr.name)

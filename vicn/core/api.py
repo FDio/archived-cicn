@@ -63,7 +63,7 @@ class API(metaclass = Singleton):
 
             # SETTING
             settings = DEFAULT_SETTINGS
-            settings.update(topology.get('settings'))
+            settings.update(topology.get('settings', dict()))
 
             # VICN process-related initializations
             nofile = settings.get('ulimit-n', None)

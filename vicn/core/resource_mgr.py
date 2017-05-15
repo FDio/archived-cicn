@@ -902,8 +902,8 @@ class ResourceManager(metaclass=Singleton):
                         new_state = AttributeState.INITIALIZED
 
             elif pending_state == AttributeState.PENDING_UPDATE:
+                attrs = resource._state.attr_change_value[attribute.name]
                 if resource._state.attr_change_success[attribute.name] == True:
-                    attrs = resource._state.attr_change_value[attribute.name]
                     self.attr_log(resource, attribute,
                             'UPDATE success. Value = {}. Attribute is CLEAN'.format(attrs))
                     if attrs != NEVER_SET:
@@ -934,6 +934,8 @@ class ResourceManager(metaclass=Singleton):
                                 resource.get_uuid(), attribute.name))
                         e = resource._state.attr_change_value[attribute.name]
                         new_state = AttributeState.ERROR
+                        import traceback; traceback.print_tb(e.__traceback__)
+                        import os; os._exit(1)
 
             else:
                 raise RuntimeError
@@ -954,7 +956,7 @@ class ResourceManager(metaclass=Singleton):
         return Query.from_dict(dic)
 
     def _monitor_netmon(self, resource):
-        ip = resource.node.host_interface.ip_address
+        ip = resource.node.host_interface.ip4_address
         if not ip:
             log.error('IP of monitored Node is None')
             import os; os._exit(1)
@@ -1007,7 +1009,7 @@ class ResourceManager(metaclass=Singleton):
 
     def _monitor_emulator(self, resource):
         ns = resource
-        ip = ns.node.bridge.ip_address # host_interface.ip_address
+        ip = ns.node.bridge.ip4_address # host_interface.ip_address
 
         ws_ns = self._router.add_interface('websocketclient', address = ip,
                 port = ns.control_port,
@@ -1356,8 +1358,10 @@ class ResourceManager(metaclass=Singleton):
                     new_state = ResourceState.INITIALIZED
                 else:
                     e = resource._state.change_value
+                    import traceback; traceback.print_tb(e.__traceback__)
                     log.error('Cannot setup resource {} : {}'.format(
                             resource.get_uuid(), e))
+                    import os; os._exit(1)
 
             elif pending_state == ResourceState.PENDING_GET:
                 if resource._state.change_success == True:

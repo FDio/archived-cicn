@@ -36,7 +36,8 @@ class PhyInterface(Interface):
             mandatory = True)
     mac_address = Attribute(String, description = "Device's MAC address",
             mandatory=True)
-    ip_address = Attribute(String, description = "Device's IP address")
+    ip4_address = Attribute(String, description = "Device's IP address")
+    ip6_address = Attribute(String, description = "Device's IP address")
 
     #--------------------------------------------------------------------------
     # Constructor and Accessors

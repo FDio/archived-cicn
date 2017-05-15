@@ -96,9 +96,9 @@ class PackageManager(Resource):
     def __after__(self):
         if self.node.__class__.__name__ == 'Physical':
             # UGLY : This blocking code is currently needed
-            task = self.node.host_interface._get_ip_address()
+            task = self.node.host_interface._get_ip4_address()
             ip_dict = task.execute_blocking()
-            self.node.host_interface.ip_address = ip_dict['ip_address']
+            self.node.host_interface.ip4_address = ip_dict['ip4_address']
             return ('Repository',)
         else:
             return ('Repository', 'CentralIP', 'RoutingTable')
@@ -158,7 +158,7 @@ class PackageManager(Resource):
         return '/etc/apt/sources.list.d/{}.list'.format(repository.repo_name)
 
     def _get_deb_source(self, repository):
-        path = repository.node.host_interface.ip_address + '/'
+        path = repository.node.host_interface.ip4_address + '/'
         if repository.directory:
             path += repository.directory + '/'
         return 'deb http://{} {}/'.format(path, self.node.dist)

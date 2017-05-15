@@ -22,7 +22,6 @@ import os
 
 from netmodel.model.type                import String
 from netmodel.util.misc                 import pairwise
-from vicn.core.address_mgr              import AddressManager
 from vicn.core.attribute                import Attribute
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.resource                 import Resource
@@ -34,9 +33,9 @@ from vicn.resource.icn.forwarder        import Forwarder
 from vicn.resource.icn.face             import L2Face, L4Face, FaceProtocol
 from vicn.resource.icn.producer         import Producer
 from vicn.resource.icn.route            import Route as ICNRoute
-from vicn.resource.linux.file           import TextFile
 from vicn.resource.lxd.lxc_container    import LxcContainer
 from vicn.resource.node                 import Node
+from vicn.resource.ip_assignment        import Ipv4Assignment, Ipv6Assignment
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +46,7 @@ CMD_CONTAINER_SET_DNS = 'echo "nameserver {ip_dns}" | ' \
 
 # For host
 CMD_NAT = '\n'.join([
-    'iptables -t nat -A POSTROUTING -o {bridge_name} -s {network} ' \
+    'iptables -t nat -A POSTROUTING -o {interface_name} -s {network} ' \
     '! -d {network} -j MASQUERADE',
     'echo 1 > /proc/sys/net/ipv4/ip_forward'
 ])
@@ -208,90 +207,6 @@ def _get_icn_graph(manager):
 
 #-------------------------------------------------------------------------------
 
-class IPAssignment(Resource):
-    """
-    Resource: IPAssignment
-    """
-
-    #--------------------------------------------------------------------------
-    # Resource lifecycle
-    #--------------------------------------------------------------------------
-
-    def __after__(self):
-        return ('Interface',)
-
-    @inline_task
-    def __get__(self):
-        raise ResourceNotFound
-
-    def __subresources__(self):
-        basedir = os.path.dirname(self._state.manager._base)
-        self.host_file = TextFile(node = None,
-                filename = os.path.join(basedir, HOST_FILE),
-                overwrite = True)
-        return self.host_file
-
-    def __create__(self):
-        """
-        IP assignment strategy /32: assign /32 IP address to each interface
-
-        We might use different subnets for resources involved in experiment,
-        and supporting resources, and to minimize routing tables.
-        """
-        log.info('Assigment of IP addresses')
-        tasks = EmptyTask()
-
-        # We sort nodes by names for IP assignment. This code ensures that
-        # interfaces on the same channel get consecutive IP addresses. That
-        # way, we can assign /31 on p2p channels.
-        channels = sorted(self._state.manager.by_type(Channel),
-                key = lambda x : x.get_sortable_name())
-        channels.extend(sorted(self._state.manager.by_type(Node),
-                    key = lambda node : node.name))
-
-        host_file_content = ""
-
-        # Dummy code to start IP addressing on an even number for /31
-        ip = AddressManager().get_ip(None)
-        if int(ip[-1]) % 2 == 0:
-            ip = AddressManager().get_ip("dummy object")
-
-        for channel in channels:
-            # Sort interfaces in a deterministic order to ensure consistent
-            # addressing across restarts of the tool
-            interfaces = sorted(channel.interfaces,
-                    key = lambda x : x.device_name)
-
-            for interface in interfaces:
-                if interface.ip_address is None:
-                    ip = AddressManager().get_ip(interface)
-
-                    @async_task
-                    async def set_ip(interface, ip):
-                        await interface.async_set('ip_address', ip)
-
-                    if interface.managed:
-                        tasks = tasks | set_ip(interface, ip)
-                else:
-                    ip = interface.ip_address
-
-                # Note: interface.ip_address should still be None at this stage
-                # since we have not made the assignment yet
-
-                if isinstance(channel, Node):
-                    host_file_content += '# {} {} {}\n'.format(
-                            interface.node.name, interface.device_name, ip)
-                    if interface == interface.node.host_interface:
-                        host_file_content += '{} {}\n'.format(ip,
-                                interface.node.name)
-        self.host_file.content = host_file_content
-
-        return tasks
-
-    __delete__ = None
-
-#-------------------------------------------------------------------------------
-
 class IPRoutes(Resource):
     """
     Resource: IPRoutes
@@ -331,7 +246,9 @@ class IPRoutes(Resource):
             if not node_uuid in origins:
                 origins[node_uuid] = list()
             for interface in node.interfaces:
-                origins[node_uuid].append(interface.ip_address)
+                origins[node_uuid].append(interface.ip4_address)
+                if interface.ip6_address: #Control interfaces have no v6 address
+                    origins[node_uuid].append(interface.ip6_address)
         return origins
 
     def _get_ip_routes(self):
@@ -370,37 +287,44 @@ class IPRoutes(Resource):
             if prefix in ip_routes[src_node]:
                 continue
 
-            if prefix == next_hop_ingress.ip_address:
+            #FIXME: should test for IP format
+            ip_version = 6 if ":" in prefix else 4
+            next_hop_ingress_ip = (next_hop_ingress.ip6_address if ip_version is 6 else
+                    next_hop_ingress.ip4_address)
+            if prefix == next_hop_ingress_ip:
                 # Direct route on src_node.name :
                 # route add [prefix] dev [next_hop_interface_.device_name]
-                route = IPRoute(node     = src_node,
+                route4 = IPRoute(node     = src_node,
                                 managed    = False,
                                 owner      = self,
                                 ip_address = prefix,
                                 mac_address = mac_addr,
+                                ip_version = ip_version,
                                 interface  = next_hop_interface)
             else:
                 # We need to be sure we have a route to the gw from the node
-                if not next_hop_ingress.ip_address in ip_routes[src_node]:
-                    pre_route = IPRoute(node = src_node,
-                                    managed    = False,
-                                    owner      = self,
-                                    ip_address = next_hop_ingress.ip_address,
+                if not next_hop_ingress_ip in ip_routes[src_node]:
+                    pre_route = IPRoute(node    = src_node,
+                                    managed     = False,
+                                    owner       = self,
+                                    ip_address  = next_hop_ingress_ip,
+                                    ip_version  = ip_version,
                                     mac_address = mac_addr,
-                                    interface  = next_hop_interface)
-                    ip_routes[src_node].append(next_hop_ingress.ip_address)
+                                    interface   = next_hop_interface)
+                    ip_routes[src_node].append(next_hop_ingress_ip)
                     pre_routes.append(pre_route)
 
                 # Route on src_node.name:
                 # route add [prefix] dev [next_hop_interface_.device_name]
                 #    via [next_hop_ingress.ip_address]
-                route = IPRoute(node     = src_node,
-                                managed    = False,
-                                owner      = self,
-                                ip_address = prefix,
-                                interface  = next_hop_interface,
+                route = IPRoute(node        = src_node,
+                                managed     = False,
+                                owner       = self,
+                                ip_address  = prefix,
+                                ip_version  = ip_version,
+                                interface   = next_hop_interface,
                                 mac_address = mac_addr,
-                                gateway    = next_hop_ingress.ip_address)
+                                gateway     = next_hop_ingress_ip)
             ip_routes[src_node].append(prefix)
             routes.append(route)
         return pre_routes, routes
@@ -420,16 +344,24 @@ class IPRoutes(Resource):
             dst = self._state.manager.by_uuid(map_[dst_node_uuid])
 
             log.debug('[IP ROUTE] NODES {}/{}/{} -> {}/{}/{}'.format(
-                        src_node.name, src.device_name, src.ip_address,
-                        dst_node.name, dst.device_name, dst.ip_address))
+                        src_node.name, src.device_name, src.ip4_address,
+                        dst_node.name, dst.device_name, dst.ip4_address))
             log.debug('[IP ROUTE] NODES {}/{}/{} -> {}/{}/{}'.format(
-                        dst_node.name, dst.device_name, dst.ip_address,
-                        src_node.name, src.device_name, src.ip_address))
+                        dst_node.name, dst.device_name, dst.ip4_address,
+                        src_node.name, src.device_name, src.ip4_address))
 
             route = IPRoute(node        = src_node,
                             managed     = False,
                             owner       = self,
-                            ip_address  = dst.ip_address,
+                            ip_address  = dst.ip4_address,
+                            mac_address = dst.mac_address,
+                            interface   = src)
+            routes.append(route)
+            route = IPRoute(node        = src_node,
+                            managed     = False,
+                            owner       = self,
+                            ip_address  = dst.ip6_address,
+                            ip_version  = 6,
                             mac_address = dst.mac_address,
                             interface   = src)
             routes.append(route)
@@ -437,7 +369,15 @@ class IPRoutes(Resource):
             route = IPRoute(node       = dst_node,
                             managed    = False,
                             owner      = self,
-                            ip_address = src.ip_address,
+                            ip_address = src.ip4_address,
+                            mac_address = src.mac_address,
+                            interface  = dst)
+            routes.append(route)
+            route = IPRoute(node       = dst_node,
+                            managed    = False,
+                            owner      = self,
+                            ip_address = src.ip6_address,
+                            ip_version = 6,
                             mac_address = src.mac_address,
                             interface  = dst)
             routes.append(route)
@@ -513,15 +453,15 @@ class ICNFaces(Resource):
                 src_face = L4Face(node        = src_node,
                                   owner      = self,
                                   protocol    = protocol,
-                                  src_ip      = src.ip_address,
-                                  dst_ip      = dst.ip_address,
+                                  src_ip      = src.ip4_address,
+                                  dst_ip      = dst.ip4_address,
                                   src_port    = TMP_DEFAULT_PORT,
                                   dst_port    = TMP_DEFAULT_PORT)
                 dst_face = L4Face(node        = dst_node,
                                   owner      = self,
                                   protocol    = protocol,
-                                  src_ip      = dst.ip_address,
-                                  dst_ip      = src.ip_address,
+                                  src_ip      = dst.ip4_address,
+                                  dst_ip      = src.ip4_address,
                                   src_port    = TMP_DEFAULT_PORT,
                                   dst_port    = TMP_DEFAULT_PORT)
             else:
@@ -649,38 +589,9 @@ class ContainerSetup(Resource):
 
     def __subresources__(self):
 
-        # a) routes: host -> container
-        #   . container interfaces
-        #   . container host (main) interface
-        # route add -host {ip_address} dev {bridge_name}
-        route = IPRoute(node       = self.container.node,
-                        managed    = False,
-                        owner      = self,
-                        ip_address = self.container.host_interface.ip_address, 
-                        interface  = self.container.node.bridge)
-        route.node.routing_table.routes << route
-
-        # b) route: container -> host
-        # route add {ip_gateway} dev {interface_name}
-        # route add default gw {ip_gateway} dev {interface_name}
-        route = IPRoute(node       = self.container,
-                        owner      = self,
-                        managed    = False,
-                        ip_address = self.container.node.bridge.ip_address,
-                        interface  = self.container.host_interface)
-        route.node.routing_table.routes << route
-        route_gw = IPRoute(node       = self.container,
-                           managed    = False,
-                           owner      = self,
-                           ip_address = 'default',
-                           interface  = self.container.host_interface,
-                           gateway    = self.container.node.bridge.ip_address)
-        route_gw.node.routing_table.routes << route_gw
-
-        # c) dns
         dns_server_entry = DnsServerEntry(node = self.container,
                 owner      = self,
-                ip_address = self.container.node.bridge.ip_address,
+                ip_address = self.container.node.bridge.ip4_address,
                 interface_name = self.container.host_interface.device_name)
 
         return dns_server_entry
@@ -690,6 +601,44 @@ class ContainerSetup(Resource):
         raise ResourceNotFound
 
     def __create__(self):
+        #If no IP has been given on the host interface (e.g., through DHCP)
+        #We need to assign one
+        if not self.container.host_interface.ip4_address:
+            # a) get the IP
+            assign=self._state.manager.by_type(Ipv4Assignment)[0]
+            ip4_addr = assign.get_control_address(self.container.host_interface)
+            self.container.host_interface.ip4_address = ip4_addr
+
+
+            # a) routes: host -> container
+            #   . container interfaces
+            #   . container host (main) interface
+            # route add -host {ip_address} dev {bridge_name}
+            route = IPRoute(node       = self.container.node,
+                            managed    = False,
+                            owner      = self,
+                            ip_address = ip4_addr,
+                            interface  = self.container.node.bridge)
+            route.node.routing_table.routes << route
+
+            # b) route: container -> host
+            # route add {ip_gateway} dev {interface_name}
+            # route add default gw {ip_gateway} dev {interface_name}
+            route = IPRoute(node       = self.container,
+                            owner      = self,
+                            managed    = False,
+                            ip_address = self.container.node.bridge.ip4_address,
+                            interface  = self.container.host_interface)
+            route.node.routing_table.routes << route
+            route_gw = IPRoute(node       = self.container,
+                               managed    = False,
+                               owner      = self,
+                               ip_address = 'default',
+                               interface  = self.container.host_interface,
+                               gateway    = self.container.node.bridge.ip4_address)
+            route_gw.node.routing_table.routes << route_gw
+
+
         return BashTask(self.container.node, CMD_IP_FORWARD)
 
 #------------------------------------------------------------------------------
@@ -729,21 +678,26 @@ class CentralIP(Resource):
 
     ip_routing_strategy = Attribute(String, description = 'IP routing strategy',
             default = 'pair') # spt, pair
+    ip6_data_prefix = Attribute(String, description="Prefix for IPv6 forwarding", mandatory=True)
+    ip4_data_prefix = Attribute(String, description="Prefix for IPv4 forwarding", mandatory=True)
+    ip4_control_prefix = Attribute(String, description="Prefix for IPv4 control", mandatory=True)
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
-    def __after_init__(self):
-        return ('Node', 'Channel', 'Interface')
+    #def __after_init__(self):
+    #    return ('Node', 'Channel', 'Interface')
 
     def __subresources__(self):
-        ip_assign = IPAssignment(owner=self)
+        ip4_assign = Ipv4Assignment(prefix=self.ip4_data_prefix,
+                control_prefix=self.ip4_control_prefix)
+        ip6_assign = Ipv6Assignment(prefix=self.ip6_data_prefix)
         containers_setup = ContainersSetup(owner=self)
         ip_routes = IPRoutes(owner = self,
                 routing_strategy = self.ip_routing_strategy)
 
-        return ip_assign > (ip_routes | containers_setup)
+        return (ip4_assign | ip6_assign) > (ip_routes | containers_setup)
 
     @inline_task
     def __get__(self):

@@ -38,7 +38,10 @@ LXD_FIX = lambda cmd: 'sleep 1 && {}'.format(cmd)
 
 MAX_DEVICE_NAME_SIZE = 15
 
-CMD_FLUSH_IP         = 'ip addr flush dev {device_name}'
+IPV4=4
+IPV6=6
+
+CMD_FLUSH_IP         = 'ip -{ip_version} addr flush dev {device_name}'
 
 CMD_INTERFACE_LIST = 'ip link show | grep -A 1 @{}'
 RX_INTERFACE_LIST  = '.*?(?P<ifname>[^ ]*)@{}:'
@@ -57,8 +60,10 @@ CMD_DELETE = 'ip link delete {netdevice.device_name}'
 CMD_SET_MAC_ADDRESS = 'ip link set dev {netdevice.device_name} ' \
                       'address {netdevice.mac_address}'
 CMD_GET_IP_ADDRESS = 'ip addr show {netdevice.device_name}'
-CMD_SET_IP_ADDRESS = 'ip addr add dev {netdevice.device_name} ' \
-                     '{netdevice.ip_address} brd + || true'
+CMD_SET_IP4_ADDRESS = 'ip addr add dev {netdevice.device_name} ' \
+                     '{netdevice.ip4_address} brd + || true'
+CMD_SET_IP6_ADDRESS = 'ip addr add dev {netdevice.device_name} ' \
+                     '{netdevice.ip6_address}/{netdevice.ip6_prefix} || true'
 CMD_SET_PROMISC = 'ip link set dev {netdevice.device_name} promisc {on_off}'
 CMD_SET_UP = 'ip link set {netdevice.device_name} {up_down}'
 CMD_SET_CAPACITY='\n'.join([
@@ -84,6 +89,11 @@ CMD_GET_RP_FILTER = '''
 sysctl net.ipv4.conf.all.rp_filter
 sysctl net.ipv4.conf.{netdevice.device_name}.rp_filter
 '''
+
+CMD_UNSET_IP6_FWD = 'sysctl -w net.ipv6.conf.{netdevice.device_name}.forwarding=0'
+CMD_SET_IP6_FWD = 'sysctl -w net.ipv6.conf.{netdevice.device_name}.forwarding=1'
+CMD_GET_IP6_FWD = 'sysctl -n net.ipv6.conf.{netdevice.device_name}.forwarding'
+
 
 #-------------------------------------------------------------------------------
 
@@ -269,7 +279,10 @@ class BaseNetDevice(Interface, Application):
     capacity = Attribute(Integer,
             description = 'Capacity for interface shaping (Mb/s)')
     mac_address = Attribute(String, description = 'Mac address of the device')
-    ip_address = Attribute(String, description = 'IP address of the device')
+    ip4_address = Attribute(String, description = 'IP address of the device')
+    ip6_address = Attribute(String, description = 'IPv6 address of the device')
+    ip6_prefix = Attribute(Integer, description = 'Prefix for the IPv6 link', default=64)
+    ip6_forwarding = Attribute(Bool, description = 'IPv6 forwarding', default = True)
     pci_address = Attribute(String,
             description = 'PCI bus address of the device',
             ro = True)
@@ -329,7 +342,7 @@ class BaseNetDevice(Interface, Application):
     def _set_mac_address(self):
         return BashTask(self.node, CMD_SET_MAC_ADDRESS, {'netdevice': self})
 
-    def _get_ip_address(self):
+    def _get_ip4_address(self):
         """
         NOTE: Incidently, this will also give the MAC address, as well as other
         attributes...
@@ -357,21 +370,79 @@ class BaseNetDevice(Interface, Application):
                 if len(ips) > 1:
                     log.warning('Keeping only first of many IP addresses...')
                 ip = ips[0]
-                attrs['ip_address'] = ip['ip-address']
+                attrs['ip4_address'] = ip['ip-address']
             else:
-                attrs['ip_address'] = None
+                attrs['ip4_address'] = None
             return attrs
 
         return BashTask(self.node, CMD_GET_IP_ADDRESS,
                 {'netdevice': self}, parse=parse)
 
-    def _set_ip_address(self):
-        if self.ip_address is None:
+    def _set_ip4_address(self):
+        if self.ip4_address is None:
             # Unset IP
             return BashTask(self.node, CMD_FLUSH_IP,
-                    {'device_name': self.device_name})
-        return BashTask(self.node, CMD_SET_IP_ADDRESS,
-                {'netdevice': self})
+                    {'device_name': self.device_name, 'ip_version': IPV4})
+        return BashTask(self.node, CMD_SET_IP4_ADDRESS, {'netdevice': self})
+
+    def _get_ip6_address(self):
+        """
+        NOTE: Incidently, this will also give the MAC address, as well as other
+        attributes...
+        """
+        def parse(rv):
+            attrs = dict()
+
+            assert rv is not None
+
+            nds = list(parse_ip_addr(rv.stdout))
+
+            assert nds
+            assert len(nds) <= 1
+
+            nd = nds[0]
+
+            assert nd['name'] == self.device_name
+
+            attrs['mac_address'] = nd['hardware-address']
+
+            # We assume a single IPv4 address for now...
+            ips = [ip for ip in nd['ip-addresses']
+                    #We remove the link-local address that starts with fe80
+                    if ip['ip-address-type'] == 'ipv6' and ip['ip-address'][:4] != 'fe80']
+            if len(ips) >= 1:
+                if len(ips) > 1:
+                    log.warning('Keeping only first of many IPv6 addresses...')
+                ip = ips[0]
+                attrs['ip6_address'] = ip['ip-address']
+                attrs['ip6_prefix']  = ip['prefix']
+            else:
+                attrs['ip6_address'] = None
+            return attrs
+
+        return BashTask(self.node, CMD_GET_IP_ADDRESS,
+                {'netdevice': self}, parse=parse)
+
+    _get_ip6_prefix = _get_ip6_address
+
+    def _set_ip6_address(self):
+        if self.ip6_address is None:
+            # Unset IP
+            return BashTask(self.node, CMD_FLUSH_IP,
+                    {'device_name': self.device_name, 'ip_version': IPV6})
+        return BashTask(self.node, CMD_SET_IP6_ADDRESS, {'netdevice': self})
+
+    def _get_ip6_forwarding(self):
+        def parse(rv):
+            ret = {"ip6_forwarding" : False}
+            if rv.stdout == "1":
+                ret["ip6_forwarding"] = True
+            return ret
+        return BashTask(self.node, CMD_GET_IP6_FWD, {'netdevice': self}, parse=parse)
+
+    def _set_ip6_forwarding(self):
+        cmd = CMD_SET_IP6_FWD if self.ip6_forwarding else CMD_UNSET_IP6_FWD
+        return BashTask(self.node, cmd, {'netdevice': self})
 
     @task
     def _get_promiscuous(self):

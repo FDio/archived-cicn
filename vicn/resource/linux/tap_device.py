@@ -19,11 +19,10 @@
 from netmodel.model.type            import String
 from vicn.core.attribute            import Attribute
 from vicn.core.task                 import BashTask
-from vicn.resource.linux.net_device import BaseNetDevice
+from vicn.resource.linux.net_device import BaseNetDevice, IPV4, IPV6, CMD_FLUSH_IP
 
 CMD_CREATE='ip tuntap add name {netdevice.device_name} mode tap'
-CMD_FLUSH_IP='ip addr flush dev {device_name}'
-CMD_SET_IP_ADDRESS='ip addr add dev {netdevice.device_name} 0.0.0.0'
+#CMD_SET_IP_ADDRESS='ip -{version} addr add dev {netdevice.device_name} 0.0.0.0'
 
 class TapDevice(BaseNetDevice):
 
@@ -35,13 +34,22 @@ class TapDevice(BaseNetDevice):
     def __create__(self):
         return BashTask(self.node, CMD_CREATE, {'netdevice': self})
 
-    def _set_ip_address(self):
-        if self.ip_address is None:
-            # Unset IP
-            return BashTask(self.node, CMD_FLUSH_IP, 
-                    {'device_name': self.device_name})
-        return BashTask(self.node, CMD_SET_IP_ADDRESS, 
-                {'netdevice': self})
+##mengueha: do we actually need that?
+#    def _set_ip4_address(self):
+#        if self.ip4_address is None:
+#            # Unset IP
+#            return BashTask(self.node, CMD_FLUSH_IP, 
+#                    {'device_name': self.device_name})
+#        return BashTask(self.node, CMD_SET_IP_ADDRESS, 
+#                {'netdevice': self})
+#
+#    def _set_ip6_address(self):
+#        if self.ip6_address is None:
+#            # Unset IP
+#            return BashTask(self.node, CMD_FLUSH_IP, 
+#                    {'ip_version': IPV6, 'device_name': self.device_name})
+#        return BashTask(self.node, CMD_SET_IP_ADDRESS, 
+#                {'netdevice': self})
 
 class TapChannel(TapDevice):
     station_name = Attribute(String)
