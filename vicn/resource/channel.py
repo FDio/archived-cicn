@@ -22,8 +22,6 @@ from vicn.core.attribute    import Attribute
 from vicn.core.task         import EmptyTask
 from vicn.resource.ip_assignment    import Ipv6Assignment, Ipv4Assignment
 
-from math import log, ceil
-
 class Channel(Resource):
     """
     Resource: Channel
@@ -49,26 +47,3 @@ class Channel(Resource):
         ret = "{:03}".format(len(self.interfaces))
         ret = ret + ''.join(sorted(map(lambda x : x.node.name, self.interfaces)))
         return ret
-
-    def __create__(self):
-        interfaces = sorted(self.interfaces, key = lambda x : x.device_name)
-        if interfaces:
-            #IPv6
-            central6 = self._state.manager.by_type(Ipv6Assignment)[0]
-            prefix6_size = min(64, 128 - ceil(log(len(self.interfaces), 2)))
-            prefix6 = iter(central6.get_prefix(self, prefix6_size))
-
-            #IPv4
-            central4 = self._state.manager.by_type(Ipv4Assignment)[0]
-            prefix4_size = 32 - ceil(log(len(self.interfaces), 2))
-            prefix4 = iter(central4.get_prefix(self, prefix4_size))
-
-            for interface in interfaces:
-                try:
-                    interface.ip4_address = next(prefix4)
-                except StopIteration as e:
-                    import pdb; pdb.set_trace()
-                interface.ip6_address = next(prefix6)
-                interface.ip6_prefix = prefix6_size
-
-        return EmptyTask()

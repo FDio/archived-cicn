@@ -42,7 +42,6 @@ TPL_CONF='''
 
 interface=$interface
 dhcp-range=$dhcp_range
-dhcp-host=00:0e:c6:81:79:01,192.168.128.200,12h
 
 #server=$server
 $flags
@@ -60,12 +59,12 @@ class DnsMasq(Service, DnsServer):
     __package_names__ = ['dnsmasq']
     __service_name__ = 'dnsmasq'
 
-    interface = Attribute(Interface, 
+    interface = Attribute(Interface,
             description = 'Interface on which to listen')
     lease_interval = Attribute(String,
             default = '12h')
     server = Attribute(String)
-    dhcp_authoritative = Attribute(Bool, 
+    dhcp_authoritative = Attribute(Bool,
             description = 'Flag: DHCP authoritative',
             default = True)
     log_queries = Attribute(Bool, description = 'Flag: log DNS queries',
@@ -80,10 +79,7 @@ class DnsMasq(Service, DnsServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.interface:
-            if self.node.bridge:
-                self.interface = self.node.bridge
-            else:
-                self.interface = self.node.host_interface
+            raise Exception("Cannot initialize bridge without interface")
 
     def __subresources__(self):
         # Overwrite configuration file

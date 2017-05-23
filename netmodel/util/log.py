@@ -21,6 +21,17 @@ import logging.config
 import os
 import sys
 
+from netmodel.util.file import ensure_writable_directory
+
+# Monkey-patch logging.FileHandler to support expanduser()
+oldFileHandler = logging.FileHandler
+class vICNFileHandler(oldFileHandler):
+    def __init__(self, filename, mode='a', encoding=None, delay=False):
+        filename = os.path.expanduser(filename)
+        ensure_writable_directory(os.path.dirname(filename))
+        super().__init__(filename, mode, encoding, delay)
+logging.FileHandler = vICNFileHandler
+
 colors = {
     'white':        "\033[1;37m",
     'yellow':       "\033[1;33m",
@@ -106,6 +117,7 @@ def initialize_logging():
             os.path.pardir, os.path.pardir, 'config', 'logging.conf')
     if os.path.exists(config_path):
         logging.config.fileConfig(config_path, disable_existing_loggers=False)
+
 
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)

@@ -46,7 +46,7 @@ class Bridge(Channel, BaseNetDevice):
                 Requirement('bridge_manager')
             ])
     device_name = Attribute(
-            default = DEFAULT_BRIDGE_NAME,
+            default = lambda self: self._state.manager.get('bridge_name'),
             mandatory = False)
 
     #--------------------------------------------------------------------------

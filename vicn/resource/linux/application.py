@@ -21,7 +21,6 @@ from vicn.core.resource                     import Resource, EmptyResource
 from vicn.resource.application              import Application
 from vicn.resource.linux.package_manager    import Packages
 
-
 class LinuxApplication(Application):
     """
     Resource: Linux Application

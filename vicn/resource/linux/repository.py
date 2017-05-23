@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-from netmodel.model.type        import String
+from netmodel.model.type        import String, Bool
 from vicn.core.attribute        import Attribute, Multiplicity
 from vicn.resource.application  import Application
 
@@ -35,7 +35,12 @@ class Repository(Application):
             default = 'vicn')
     directory = Attribute(String, description = 'Directory holding packages', 
             default = '')
+    sections = Attribute(String, description = 'Sections',
+            multiplicity = Multiplicity.OneToMany,
+            default = [])
     distributions = Attribute(String, 
             description = 'List of distributions served by this repository',
             multiplicity = Multiplicity.ManyToMany,
             default = ['sid', 'trusty', 'xenial'])
+    ssl = Attribute(Bool, description = 'Use SSL (https) for repository',
+            default = True)

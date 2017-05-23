@@ -27,6 +27,10 @@ import traceback
 import types
 
 from abc                            import ABC, ABCMeta
+from threading                      import Event as ThreadEvent
+
+# LXD workaround
+from pylxd.exceptions import NotFound as LXDAPIException
 
 from netmodel.model.mapper          import ObjectSpecification
 from netmodel.model.type            import String, Bool, Integer, Dict
@@ -35,12 +39,13 @@ from netmodel.util.deprecated       import deprecated
 from netmodel.util.singleton        import Singleton
 from vicn.core.attribute            import Attribute, Multiplicity, Reference
 from vicn.core.attribute            import NEVER_SET
+from vicn.core.collection           import Collection
 from vicn.core.commands             import ReturnValue
 from vicn.core.event                import Event, AttributeChangedEvent
 from vicn.core.exception            import VICNException, ResourceNotFound
+from vicn.core.exception            import VICNWouldBlock
 from vicn.core.resource_factory     import ResourceFactory
 from vicn.core.requirement          import Requirement, Property
-from vicn.core.sa_collections       import InstrumentedList, _list_decorators
 from vicn.core.scheduling_algebra   import SchedulingAlgebra
 from vicn.core.state                import ResourceState, UUID
 from vicn.core.state                import Operations, InstanceState
@@ -95,12 +100,24 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
     The base Resource class implements all the logic related to resource
     instances.
-    
-    See also : 
+
+    See also :
      * ResourceManager : logic related to class instanciation
      * Resource metaclass : logic related to class construction
      * ResourceFactory : logic related to available classes and mapping from
         name to type
+
+    Internal attributes:
+
+     -  _reverse_attributes: a dict mapping attribute objects with the class
+        that declared the reverse attribute.
+
+        For instance, a Group declares a collection of Resource objects through
+        its resources attributes. It also mentions a reverse attribute named
+        'groups'. This means every Resource class will be equipped with a
+        groups attribute, being a collection of Group objects.
+
+        Resource._reverse_attributes = { <Attribute: groups> : Resource }
     """
 
     __type__ = TopLevelResource
@@ -139,7 +156,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
         # Cache dependencies
         self._deps = None
-        
+
         # Internal data tag for resources
         self._internal_data = dict()
 
@@ -168,7 +185,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                         else:
                             resource = x
                         if not resource:
-                            raise VICNException(E_UNK_RES_NAME.format(key, 
+                            raise VICNException(E_UNK_RES_NAME.format(key,
                                         self.name, self.__class__.__name__, x))
                         element = resource if isinstance(resource, Reference) \
                                 else resource._state.uuid
@@ -176,13 +193,13 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                     value = new_value
                 else:
                     if isinstance(value, str):
-                        resource = ResourceManager().by_name(value) 
+                        resource = ResourceManager().by_name(value)
                     elif isinstance(value, UUID):
-                        resource = ResourceManager().by_uuid(value) 
+                        resource = ResourceManager().by_uuid(value)
                     else:
                         resource = value
                     if not resource:
-                        raise VICNException(E_UNK_RES_NAME.format(key, 
+                        raise VICNException(E_UNK_RES_NAME.format(key,
                                     self.name, self.__class__.__name__, value))
                     value = value if isinstance(resource, Reference) \
                             else resource._state.uuid
@@ -202,7 +219,6 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                 default = self.get_default_collection(attr) if attr.is_collection else \
                         self.get_default(attr)
                 if vars(attr)['default'] != NEVER_SET:
-                    #import pdb; pdb.set_trace()
                     self.set(attr.name, default, blocking=False)
             if issubclass(attr.type, Resource) and attr.requirements:
                 for req in attr.requirements:
@@ -218,7 +234,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
     def __after_init__(self):
         return tuple()
- 
+
     def __subresources__(self):
         return None
 
@@ -248,8 +264,8 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
         attribute = self.get_attribute(attribute_name)
 
-        # Handling Lambda attributes
         if hasattr(attribute, 'func') and attribute.func:
+            # Handling Lambda attributes
             value = attribute.func(self)
         else:
             if self.is_local_attribute(attribute.name):
@@ -266,25 +282,44 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
         if value is NEVER_SET:
             if not allow_never_set:
-                log.error(E_GET_NON_LOCAL.format(attribute_name, 
+                log.error(E_GET_NON_LOCAL.format(attribute_name,
                             self._state.uuid))
                 raise NotImplementedError
 
-            if attribute.is_collection:
-                value = self.get_default_collection(attribute)
-            else:
-                if attribute.auto:
-                    # Automatic instanciation
-                    if attribute.requirements:
-                        log.warning('Ignored requirements {}'.format(
-                                    attribute.requirements))
-                    value = self.auto_instanciate(attribute)
+            # node.routing_table is local and auto, so this needs to be tested first...
+            if attribute.auto:
+                # Automatic instanciation
+                #
+                # Used for instance in route.node.routing_table.routes
+                if attribute.requirements:
+                    log.warning('Ignored requirements {}'.format(
+                                attribute.requirements))
+                value = self.auto_instanciate(attribute)
 
-                if value is NEVER_SET:
-                    value = self.get_default(attribute)
-
-            if self.is_local_attribute(attribute.name):
-                self.set(attribute.name, value)
+            if value is NEVER_SET:
+                if self.is_local_attribute(attribute.name):
+                    if attribute.is_collection:
+                        value = self.get_default_collection(attribute)
+                    else:
+                        value = self.get_default(attribute)
+                    self.set(attribute.name, value)
+                else:
+                    log.info("Fetching remote value for {}.{}".format(self,attribute.name))
+                    task = getattr(self, "_get_{}".format(attribute.name))()
+                    #XXX This is ugly but it prevents the LxdNotFound exception
+                    while True:
+                        try:
+                            rv = task.execute_blocking()
+                            break
+                        except LxdAPIException:
+                            log.warning("LxdAPIException, retrying to fetch value")
+                            continue
+                        except Exception as e:
+                            import traceback; traceback.print_tb(e.__traceback__)
+                            log.error("Failed to retrieve remote value for {} on {}".format(attribute.name, self))
+                            import os; os._exit(1)
+                    value = rv[attribute.name]
+                    vars(self)[attribute.name] = value
 
         if unref and isinstance(value, UUID):
             value = self.from_uuid(value)
@@ -297,6 +332,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
         return value
 
+    # XXX async_get should not be blocking
     async def async_get(self, attribute_name, default=NEVER_SET, unref=True,
             resolve=True, allow_never_set=False, blocking=True):
         attribute = self.get_attribute(attribute_name)
@@ -318,14 +354,14 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                     # exists
                     value = vars(self).get(attribute.name, NEVER_SET)
                     if value is NEVER_SET:
-                        await self._state.manager.attribute_get(self, 
+                        await self._state.manager.attribute_get(self,
                                 attribute_name, value)
                         value = vars(self).get(attribute.name, NEVER_SET)
 
         # Handling NEVER_SET
         if value is NEVER_SET:
             if not allow_never_set:
-                log.error(E_GET_NON_LOCAL.format(attribute_name, 
+                log.error(E_GET_NON_LOCAL.format(attribute_name,
                             self._state.uuid))
                 raise NotImplementedError
 
@@ -366,27 +402,19 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         """
         attribute = self.get_attribute(attribute_name)
 
-        if set_reverse and attribute.reverse_name: 
+        # Let's transform value if not in the proper format
+        if attribute.is_collection and not isinstance(value, Collection):
+            value = Collection.from_list(value, self, attribute)
+        else:
+            if isinstance(value, UUID):
+                value = self.from_uuid(value)
+
+        if set_reverse and attribute.reverse_name:
             for base in self.__class__.mro():
                 if not hasattr(base, '_reverse_attributes'):
                     continue
 
                 for ra in base._reverse_attributes.get(attribute, list()):
-                    # Value information : we need resources, not uuids
-                    if attribute.is_collection:
-                        lst = list()
-                        if value:
-                            for x in value:
-                                if isinstance(x, UUID):
-                                    x = self.from_uuid(x)
-                                lst.append(x)
-                        value = InstrumentedList(lst)
-                        value._attribute = attribute
-                        value._instance = self
-                    else:
-                        if isinstance(value, UUID):
-                            value = self.from_uuid(value)
-
                     if ra.multiplicity == Multiplicity.OneToOne:
                         if value is not None:
                             value.set(ra.name, self, set_reverse = False)
@@ -400,30 +428,23 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                         else:
                             value is None
                     elif ra.multiplicity == Multiplicity.ManyToMany:
-                        collection = value.get(ra.name)
-                        value.extend(self)
+                        # Example:
+                        # _set(self, attribute_name)
+                        # self = Resource()
+                        # attribute_name = <Attribute groups>
+                        # value = <Collection 140052309461896 [<Group: topology resources=[], name=topology, owner=None, managed=True>]>
+                        # element = <Group: ...>
 
-        # Handling value : we need uuids, not resources
-        if attribute.is_collection:
-            if not isinstance(value, InstrumentedList):
-                lst = list()
-                if value:
-                    for x in value:
-                        if isinstance(x, Resource):
-                            x = x.get_uuid()
-                        lst.append(x)
+                        # We add each element of the collection to the remote
+                        # attribute which is also a collection
+                        for element in value:
+                            collection = element.get(ra.name)
+                            # XXX duplicates ?
+                            collection.append(self)
 
-                    value = InstrumentedList(lst)
-                else: 
-                    value = InstrumentedList([])
-                value._attribute = attribute
-                value._instance = self
-        else:
-            if isinstance(value, Resource):
-                value = value.get_uuid()
         return value
 
-    def set(self, attribute_name, value, current=False, set_reverse=True, 
+    def set(self, attribute_name, value, current=False, set_reverse=True,
             blocking = True):
         value = self._set(attribute_name, value, current=current,
                 set_reverse=set_reverse)
@@ -479,14 +500,11 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
             if attribute.default._resource is Self:
                 default = getattr(self, attribute.default._attribute)
             else:
-                default = getattr(attribute.default._resource, 
+                default = getattr(attribute.default._resource,
                         attribute.default._attribute)
         else:
             default = attribute.default
-        value = InstrumentedList(default)
-        value._attribute = attribute
-        value._instance = self
-        return value
+        return Collection.from_list(default, self, attribute)
 
     def get_default(self, attribute):
         if isinstance(attribute.default, types.FunctionType):
@@ -495,7 +513,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
             if attribute.default._resource is Self:
                 value = getattr(self, attribute.default._attribute)
             else:
-                value = getattr(attribute.default._resource, 
+                value = getattr(attribute.default._resource,
                         attribute.default._attribute)
         else:
             value = copy.deepcopy(attribute.default)
@@ -525,17 +543,22 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
     @classmethod
     def _sanitize(cls):
-        """Sanitize the object model to accomodate for multiple declaration
-            styles
+        """
+        This methods performs sanitization of the object declaration.
 
-        In particular, this method:
-          - set names to all attributes
+        More specifically:
+         - it goes over all attributes and sets their name based on the python
+           object attribute name.
+         - it establishes mutual object relationships through reverse attributes.
+
         """
         cls._reverse_attributes = dict()
         cur_reverse_attributes = dict()
         for name, obj in vars(cls).items():
             if not isinstance(obj, ObjectSpecification):
                 continue
+
+            # XXX it seems obj should always be an attribute, confirm !
             if isinstance(obj, Attribute):
                 obj.name = name
 
@@ -555,23 +578,62 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
             #
             # NOTE: we need to do this after merging to be sure we get all
             #   properties inherited from parent (eg. multiplicity)
+            #
+            # See "Reverse attributes" section in BaseResource docstring.
+            #
+            # Continueing with the same example, let's detail how it is handled:
+            #
+            # Original declaration:
+            # >>>
+            # class Group(Resource):
+            #     resources = Attribute(Resource, description = 'Resources belonging to the group',
+            # 	    multiplicity = Multiplicity.ManyToMany,
+            #             default = [],
+            #             reverse_name = 'groups',
+            #             reverse_description = 'Groups to which the resource belongs')
+            # <<<
+            #
+            # Local variables:
+            #   cls = <class 'vicn.resource.group.Group'>
+            #   obj = <Attribute resources>
+            #   obj.type = <class 'vicn.core.Resource'>
+            #   reverse_attribute = <Attribute groups>
+            #
+            # Result:
+            #    1) Group._reverse_attributes =
+            #       { <Attribute resources> : [<Attribute groups>, ...], ...}
+            #    2) Add attribute <Attribute groups> to class Resource
+            #    3) Resource._reverse_attributes =
+            #       { <Attribute groups> : [<Attribute resources], ...], ...}
+            #
             if has_reverse:
                 a = {
-                    'name'          : obj.reverse_name,
-                    'description'   : obj.reverse_description,
-                    'multiplicity'  : Multiplicity.reverse(obj.multiplicity),
-                    'auto'          : obj.reverse_auto,
+                    'name'                  : obj.reverse_name,
+                    'description'           : obj.reverse_description,
+                    'multiplicity'          : Multiplicity.reverse(obj.multiplicity),
+                    'reverse_name'          : obj.name,
+                    'reverse_description'   : obj.description,
+                    'auto'                  : obj.reverse_auto,
                 }
                 reverse_attribute = Attribute(cls,  **a)
                 reverse_attribute.is_aggregate = True
 
+                # 1) Store the reverse attributes to be later inserted in the
+                # remote class, at the end of the function
+                # TODO : clarify the reasons to perform this in two steps
                 cur_reverse_attributes[obj.type] = reverse_attribute
 
-                #print('*** class backref ***', cls, obj, reverse_attribute)
+                # 2)
                 if not obj in cls._reverse_attributes:
                     cls._reverse_attributes[obj] = list()
                 cls._reverse_attributes[obj].append(reverse_attribute)
 
+                # 3)
+                if not reverse_attribute in obj.type._reverse_attributes:
+                    obj.type._reverse_attributes[reverse_attribute] = list()
+                obj.type._reverse_attributes[reverse_attribute].append(obj)
+
+        # Insert newly created reverse attributes in the remote class
         for kls, a in cur_reverse_attributes.items():
             setattr(kls, a.name, a)
 
@@ -583,7 +645,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                 continue
             if attribute.is_aggregate and not aggregates:
                 continue
-                
+
             yield attribute
 
     def iter_keys(self):
@@ -617,7 +679,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         for req in reqs:
             if req._type != attribute.name:
                 continue
-                
+
             for attr_name, prop in req.properties.items():
                 value = next(iter(prop.value))
             capabilities |= req._capabilities
@@ -626,7 +688,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         cls = self._state.manager.get_resource_with_capabilities(
                 attribute.type, capabilities)
 
-        # Before creating a new instance of a class, let's check 
+        # Before creating a new instance of a class, let's check
         resource = cls(**cstr_attributes)
 
         self._state.manager.commit_resource(resource)
@@ -636,10 +698,10 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         return list(self.iter_attributes(aggregates = aggregates))
 
     def get_attribute_names(self, aggregates = False):
-        return set(a.name 
+        return set(a.name
                 for a in self.iter_attributes(aggregates = aggregates))
 
-    def get_attribute_dict(self, field_names = None, aggregates = False, 
+    def get_attribute_dict(self, field_names = None, aggregates = False,
             uuid = True):
         assert not field_names or field_names.is_star()
         attributes = self.get_attributes(aggregates = aggregates)
@@ -653,11 +715,11 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                 ret[a.name] = list()
                 for x in value:
                     if uuid and isinstance(x, Resource):
-                        x = x._state.uuid._uuid 
+                        x = x._state.uuid._uuid
                     ret[a.name].append(x)
             else:
                 if uuid and isinstance(value, Resource):
-                    value = value._state.uuid._uuid 
+                    value = value._state.uuid._uuid
                 ret[a.name] = value
         return ret
 
@@ -673,7 +735,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         self._state.state = state
 
     def get_types(self):
-        return [cls.__name__.lower() for cls in self.__class__.mro() 
+        return [cls.__name__.lower() for cls in self.__class__.mro()
                 if cls.__name__ not in ('ABC', 'BaseType', 'object')]
 
     def get_type(self):
@@ -686,11 +748,19 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         # Showing aggregate attributes can cause infinite loops
         name = self._state.uuid if self.name in (None, NEVER_SET) else self.name
         return '<{}: {} {}>'.format(self.__class__.__name__, name,
-                ', '.join('{}={}'.format(k,v) 
-                    for k, v in self.get_attribute_dict().items())) 
+                ', '.join('{}={}'.format(k,v)
+                    for k, v in self.get_attribute_dict().items()))
 
     def __str__(self):
         return self.__repr__()
+
+    def to_dict(self):
+        dic = self.get_attribute_dict(aggregates = True)
+        dic['id']    = self._state.uuid._uuid
+        dic['type']  = self.get_types()
+        dic['state'] = self._state.state
+        dic['log']   = self._state.log
+        return dic
 
     #---------------------------------------------------------------------------
     # Resource helpers
@@ -709,7 +779,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                 if not value:
                     continue
 
-                if a.multiplicity in (Multiplicity.OneToOne, 
+                if a.multiplicity in (Multiplicity.OneToOne,
                         Multiplicity.ManyToOne):
                     resource = value
                     if not resource:
@@ -742,13 +812,12 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         l.extend(list(args))
         if id:
             N = 3
-            uuid = ''.join(random.choice(string.ascii_uppercase + 
+            uuid = ''.join(random.choice(string.ascii_uppercase +
                         string.digits) for _ in range(N))
             l.append(uuid)
         name = NAME_SEP.join(str(x) for x in l)
         return name
 
-    
     def check_requirements(self):
         for attr in self.iter_attributes():
             if issubclass(attr.type, Resource) and attr.requirements:
@@ -762,7 +831,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
     @deprecated
     def trigger(self, action, attribute_name, *args, **kwargs):
-        self._state.manager.trigger(self, action, attribute_name, 
+        self._state.manager.trigger(self, action, attribute_name,
                 *args, **kwargs)
 
     #--------------------------------------------------------------------------
@@ -816,7 +885,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         return hasattr(self, '_{}_{}'.format(action, attribute.name))
 
     def is_setup(self):
-        return self.state in (ResourceState.SETUP_PENDING, 
+        return self.state in (ResourceState.SETUP_PENDING,
                 ResourceState.SETUP, ResourceState.DIRTY)
 
     __get__ = None
@@ -851,7 +920,7 @@ class CompositionMixin:
             await element._state.clean.wait()
         self._state.clean.set()
 
-_Resource, EmptyResource = SchedulingAlgebra(BaseResource, ConcurrentMixin, 
+_Resource, EmptyResource = SchedulingAlgebra(BaseResource, ConcurrentMixin,
         CompositionMixin, SequentialMixin)
 
 class ManagedResource(_Resource):

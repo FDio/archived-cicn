@@ -33,6 +33,7 @@ from vicn.resource.node         import Node
 
 DEFAULT_SETTINGS = {
     'network': '192.168.0.0/16',
+    'bridge_name': 'br0',
     'mac_address_base': '0x00163e000000',
     'websocket_port': 9999
 }
@@ -48,48 +49,25 @@ class Event_ts(asyncio.Event):
 class API(metaclass = Singleton):
 
     def terminate(self):
+        # XXX not valid if nothing has been initialized
         ResourceManager().terminate()
 
-    def parse_topology_file(self, topology_fn):
-        log.debug("Parsing topology file %(topology_fn)s" % locals())
+    def parse_topology_file(self, topology_fn, resources, settings):
+        log.info("Parsing topology file %(topology_fn)s" % locals())
         try:
             topology_fd = open(topology_fn, 'r')
         except IOError:
-            self.error("Topology file '%(topology_fn)s not found" % locals())
-            return None
+            log.error("Topology file '%(topology_fn)s not found" % locals())
+            sys.exit(1)
 
         try:
             topology = json.loads(topology_fd.read())
 
             # SETTING
-            settings = DEFAULT_SETTINGS
             settings.update(topology.get('settings', dict()))
 
-            # VICN process-related initializations
-            nofile = settings.get('ulimit-n', None)
-            if nofile is not None and nofile > 0:
-                if nofile < 1024:
-                    log.error('Too few allowed open files for the process')
-                    import os; os._exit(1)
-
-                log.info('Setting open file descriptor limit to {}'.format(
-                            nofile))
-                ulimit.setrlimit(
-                        ulimit.RLIMIT_NOFILE,
-                        (nofile, nofile))
-
-            ResourceManager(base=topology_fn, settings=settings)
-
             # NODES
-            resources = topology.get('resources', list())
-            for resource in resources:
-                try:
-                    ResourceManager().create_from_dict(**resource)
-                except Exception as e:
-                    log.warning("Could not create resource '%r': %r" % \
-                            (resource, e,))
-                    import traceback; traceback.print_exc()
-                    continue
+            resources.extend(topology.get('resources', list()))
 
         except SyntaxError:
             log.error("Error reading topology file '%s'" % (topology_fn,))
@@ -97,16 +75,42 @@ class API(metaclass = Singleton):
 
         log.debug("Done parsing topology file %(topology_fn)s" % locals())
 
-    def configure(self, name, setup=False):
+    def configure(self, scenario_list):
         log.info("Parsing configuration file", extra={'category': 'blue'})
-        self.parse_topology_file(name)
-        self._configured = True
-        ResourceManager().setup(commit=setup)
+        resources = list()
+        settings = DEFAULT_SETTINGS
+        for scenario in scenario_list:
+            self.parse_topology_file(scenario, resources, settings)
 
-    def setup(self):
+        # VICN process-related initializations
+        nofile = settings.get('ulimit-n', None)
+        if nofile is not None and nofile > 0:
+            if nofile < 1024:
+                log.error('Too few allowed open files for the process')
+                import os; os._exit(1)
+
+            log.info('Setting open file descriptor limit to {}'.format(
+                        nofile))
+            ulimit.setrlimit(
+                    ulimit.RLIMIT_NOFILE,
+                    (nofile, nofile))
+
+        ResourceManager(base=scenario[-1], settings=settings)
+
+        for resource in resources:
+            try:
+                ResourceManager().create_from_dict(**resource)
+            except Exception as e:
+                log.error("Could not create resource '%r': %r" % \
+                        (resource, e,))
+                import os; os._exit(1)
+
+        self._configured = True
+
+    def setup(self, commit = False):
         if not self._configured:
             raise NotConfigured
-        ResourceManager().setup()
+        ResourceManager().setup(commit)
 
     def teardown(self):
         ResourceManager().teardown()

@@ -288,6 +288,7 @@ class ResourceManager(metaclass=Singleton):
 
     def create_from_dict(self, **resource):
         resource_type = resource.pop('type', None)
+
         assert resource_type
 
         return self.create(resource_type.lower(), **resource)
@@ -353,6 +354,21 @@ class ResourceManager(metaclass=Singleton):
         self._auto_commit = commit
         if commit:
             self.commit()
+
+    def teardown(self):
+        asyncio.ensure_future(self._teardown())
+
+    async def _teardown(self):
+        task = EmptyTask()
+        # XXX we should never have to autoinstanciate
+        # XXX why keeping this code
+        for resource in self.get_resources():
+            if resource.get_type() == 'lxccontainer':
+                task = task | resource.__delete__()
+                print("RESOURCE", resource.name)
+        self.schedule(task)
+        ret = await wait_task(task)
+        return ret
 
     def get_resource_with_capabilities(self, cls, capabilities):
         if '__type__' in cls.__dict__ and cls.__type__ == FactoryResource:
@@ -806,7 +822,10 @@ class ResourceManager(metaclass=Singleton):
                     resource._state.attr_change_success[attribute.name] = True
                 else:
                     log.error('Attribute error {} for resource {}'.format(
-                            resource.get_uuid(), attribute.name))
+                        attribute.name, resource.get_uuid()))
+                    print("task1=", task)
+                    sys.stdout.flush()
+
                     import traceback; traceback.print_tb(e.__traceback__)
                     log.error('Failed with exception: {}'.format(e))
                     import os; os._exit(1)
@@ -931,10 +950,13 @@ class ResourceManager(metaclass=Singleton):
                         resource._state.attr_change_success[attribute.name] = True
                     else:
                         log.error('Attribute error {} for resource {}'.format(
-                                resource.get_uuid(), attribute.name))
+                            attribute.name, resource.get_uuid()))
+                        # XXX need better logging
+                        print("task2=", task._node.name, task.get_full_cmd())
+                        sys.stdout.flush()
                         e = resource._state.attr_change_value[attribute.name]
-                        new_state = AttributeState.ERROR
                         import traceback; traceback.print_tb(e.__traceback__)
+                        new_state = AttributeState.ERROR
                         import os; os._exit(1)
 
             else:
@@ -956,9 +978,10 @@ class ResourceManager(metaclass=Singleton):
         return Query.from_dict(dic)
 
     def _monitor_netmon(self, resource):
-        ip = resource.node.host_interface.ip4_address
+        ip = resource.node.management_interface.ip4_address
         if not ip:
-            log.error('IP of monitored Node is None')
+            log.error('IP of monitored Node {} is None'.format(resource.node))
+            #return # XXX
             import os; os._exit(1)
 
         ws = self._router.add_interface('websocketclient', address=ip,
@@ -1009,7 +1032,7 @@ class ResourceManager(metaclass=Singleton):
 
     def _monitor_emulator(self, resource):
         ns = resource
-        ip = ns.node.bridge.ip4_address # host_interface.ip_address
+        ip = ns.node.bridge.ip4_address # management_interface.ip_address
 
         ws_ns = self._router.add_interface('websocketclient', address = ip,
                 port = ns.control_port,
@@ -1252,7 +1275,13 @@ class ResourceManager(metaclass=Singleton):
                 state = resource._state.state
                 self.log(resource, 'Current state is {}'.format(state))
 
-                if state == ResourceState.UNINITIALIZED:
+                if state == ResourceState.ERROR:
+                    e = resource._state.change_value
+                    print("------")
+                    import traceback; traceback.print_tb(e.__traceback__)
+                    log.error('Resource: {} - Exception: {}'.format(pfx, e))
+                    import os; os._exit(1)
+                elif state == ResourceState.UNINITIALIZED:
                     pending_state = ResourceState.PENDING_DEPS
                 elif state == ResourceState.DEPS_OK:
                     pending_state = ResourceState.PENDING_INIT
@@ -1379,24 +1408,26 @@ class ResourceManager(metaclass=Singleton):
                         # with container.execute(), not container.get()
                         log.warning('LXD Fix (not found). Reset resource')
                         new_state = ResourceState.INITIALIZED
+                        resource._state.change_success = True
                     elif ENABLE_LXD_WORKAROUND and isinstance(e, LXDAPIException):
                         # "not found" is the normal exception when the container
                         # does not exists. anyways the bug should only occur
                         # with container.execute(), not container.get()
                         log.warning('LXD Fix (API error). Reset resource')
                         new_state = ResourceState.INITIALIZED
+                        resource._state.change_success = True
                     elif isinstance(e, ResourceNotFound):
                         # The resource does not exist
                         self.log(resource, S_GET_DONE.format(
                                     resource._state.change_value))
                         new_state = ResourceState.GET_DONE
                         resource._state.change_value = None
+                        resource._state.change_success = True
                     else:
                         e = resource._state.change_value
                         log.error('Cannot get resource state {} : {}'.format(
                                     resource.get_uuid(), e))
                         new_state = ResourceState.ERROR
-                    resource._state.change_success = True
 
             elif pending_state == ResourceState.PENDING_KEYS:
                 if resource._state.change_success == True:
@@ -1442,10 +1473,7 @@ class ResourceManager(metaclass=Singleton):
                         resource._state.change_success = True
                     else:
                         self.log(resource, 'CREATE failed: {}'.format(e))
-                        e = resource._state.change_value
-                        import traceback; traceback.print_tb(e.__traceback__)
-                        log.error('Failed with exception {}'.format(e))
-                        import os; os._exit(1)
+                        new_state = ResourceState.ERROR
 
             elif pending_state == ResourceState.PENDING_UPDATE:
                 if resource._state.change_success == True:
@@ -1462,11 +1490,8 @@ class ResourceManager(metaclass=Singleton):
                         resource._state.change_success = True
                         resource._state.write_lock.release()
                     else:
-                        e = resource._state.change_value
                         resource._state.write_lock.release()
-                        import traceback; traceback.print_tb(e.__traceback__)
-                        log.error('Failed with exception {}'.format(e))
-                        import os; os._exit(1)
+                        new_state = ResourceState.ERROR
 
             elif pending_state == ResourceState.PENDING_DELETE:
                 raise NotImplementedError
@@ -1475,4 +1500,3 @@ class ResourceManager(metaclass=Singleton):
                 raise RuntimeError
 
             await self._set_resource_state(resource, new_state)
-

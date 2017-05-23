@@ -22,13 +22,14 @@ import os
 
 from netmodel.model.type                import String
 from netmodel.util.misc                 import pairwise
-from vicn.core.attribute                import Attribute
+from vicn.core.attribute                import Attribute, Reference
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.resource                 import Resource
 from vicn.core.task                     import async_task, inline_task
 from vicn.core.task                     import EmptyTask, BashTask
 from vicn.resource.channel              import Channel
 from vicn.resource.ip.route             import IPRoute
+from vicn.resource.group                import Group
 from vicn.resource.icn.forwarder        import Forwarder
 from vicn.resource.icn.face             import L2Face, L4Face, FaceProtocol
 from vicn.resource.icn.producer         import Producer
@@ -148,60 +149,63 @@ MAP_ROUTING_STRATEGY = {
 # L2 and L4/ICN graphs
 #------------------------------------------------------------------------------
 
-def _get_l2_graph(manager, with_managed = False):
+def _get_l2_graph(groups, with_managed = False):
     G = nx.Graph()
-    for node in manager.by_type(Node):
-        G.add_node(node._state.uuid)
+#    for node in manager.by_type(Node):
+#        G.add_node(node._state.uuid)
 
-    for channel in manager.by_type(Channel):
-        if channel.has_type('emulatedchannel'):
-            src = channel._ap_if
-            for dst in channel._sta_ifs.values():
-                if not with_managed and (not src.managed or not dst.managed):
-                    continue
-                if G.has_edge(src.node._state.uuid, dst.node._state.uuid):
-                    continue
-
-                map_node_interface = { src.node._state.uuid : src._state.uuid,
-                    dst.node._state.uuid: dst._state.uuid}
-                G.add_edge(src.node._state.uuid, dst.node._state.uuid,
-                        map_node_interface = map_node_interface)
-        else:
-            # This is for a normal Channel
-            for src_it in range(0,len(channel.interfaces)):
-                src = channel.interfaces[src_it]
-
-                # Iterate over the remaining interface to create all the
-                # possible combination
-                for dst_it in range(src_it+1,len(channel.interfaces)):
-                    dst = channel.interfaces[dst_it]
-
-                    if not with_managed and (not src.managed or
-                            not dst.managed):
+    for group in groups:
+        for channel in group.iter_by_type_str('channel'):
+            if channel.has_type('emulatedchannel'):
+                src = channel._ap_if
+                for dst in channel._sta_ifs.values():
+                    if not with_managed and (not src.managed or not dst.managed):
                         continue
                     if G.has_edge(src.node._state.uuid, dst.node._state.uuid):
                         continue
-                    map_node_interface = {
-                        src.node._state.uuid : src._state.uuid,
+
+                    map_node_interface = { src.node._state.uuid : src._state.uuid,
                         dst.node._state.uuid: dst._state.uuid}
                     G.add_edge(src.node._state.uuid, dst.node._state.uuid,
                             map_node_interface = map_node_interface)
+            else:
+                # This is for a normal Channel
+                for src_it in range(0, len(channel.interfaces)):
+                    src = channel.interfaces[src_it]
+
+                    # Iterate over the remaining interface to create all the
+                    # possible combination
+                    for dst_it in range(src_it+1,len(channel.interfaces)):
+                        dst = channel.interfaces[dst_it]
+
+                        if not with_managed and (not src.managed or
+                                not dst.managed):
+                            continue
+                        if G.has_edge(src.node._state.uuid, dst.node._state.uuid):
+                            continue
+                        map_node_interface = {
+                            src.node._state.uuid : src._state.uuid,
+                            dst.node._state.uuid: dst._state.uuid}
+                        G.add_edge(src.node._state.uuid, dst.node._state.uuid,
+                                map_node_interface = map_node_interface)
     return G
 
-def _get_icn_graph(manager):
+def _get_icn_graph(manager, groups):
     G = nx.Graph()
-    for forwarder in manager.by_type(Forwarder):
-        node = forwarder.node
-        G.add_node(node._state.uuid)
-        for face in forwarder.faces:
-            other_face = manager.by_uuid(face._internal_data['sibling_face'])
-            other_node = other_face.node
-            if G.has_edge(node._state.uuid, other_node._state.uuid):
-                continue
-            map_node_face = { node._state.uuid: face._state.uuid,
-                other_node._state.uuid: other_face._state.uuid }
-            G.add_edge(node._state.uuid, other_node._state.uuid,
-                    map_node_face = map_node_face)
+    for group in groups:
+        # It's safer to iterate on node which we know are in the right groups,
+        # while it might not be the case for the forwarders...
+        for node in group.iter_by_type_str('node'):
+            G.add_node(node._state.uuid)
+            for face in node.forwarder.faces:
+                other_face = manager.by_uuid(face._internal_data['sibling_face'])
+                other_node = other_face.node
+                if G.has_edge(node._state.uuid, other_node._state.uuid):
+                    continue
+                map_node_face = { node._state.uuid: face._state.uuid,
+                    other_node._state.uuid: other_face._state.uuid }
+                G.add_edge(node._state.uuid, other_node._state.uuid,
+                        map_node_face = map_node_face)
 
     return G
 
@@ -241,14 +245,18 @@ class IPRoutes(Resource):
 
     def _get_ip_origins(self):
         origins = dict()
-        for node in self._state.manager.by_type(Node):
-            node_uuid = node._state.uuid
-            if not node_uuid in origins:
-                origins[node_uuid] = list()
-            for interface in node.interfaces:
-                origins[node_uuid].append(interface.ip4_address)
-                if interface.ip6_address: #Control interfaces have no v6 address
-                    origins[node_uuid].append(interface.ip6_address)
+        for group in self.groups:
+            for node in group.iter_by_type_str('node'):
+                node_uuid = node._state.uuid
+                if not node_uuid in origins:
+                    origins[node_uuid] = list()
+                for interface in node.interfaces:
+                    # XXX temp fix (WouldBlock)
+                    try:
+                        origins[node_uuid].append(interface.ip4_address)
+                        if interface.ip6_address: #Control interfaces have no v6 address
+                            origins[node_uuid].append(interface.ip6_address)
+                    except: pass
         return origins
 
     def _get_ip_routes(self):
@@ -257,7 +265,7 @@ class IPRoutes(Resource):
 
         strategy = MAP_ROUTING_STRATEGY.get(self.routing_strategy)
 
-        G = _get_l2_graph(self._state.manager)
+        G = _get_l2_graph(self.groups)
         origins = self._get_ip_origins()
 
         # node -> list(origins for which we have routes)
@@ -294,7 +302,7 @@ class IPRoutes(Resource):
             if prefix == next_hop_ingress_ip:
                 # Direct route on src_node.name :
                 # route add [prefix] dev [next_hop_interface_.device_name]
-                route4 = IPRoute(node     = src_node,
+                route = IPRoute(node     = src_node,
                                 managed    = False,
                                 owner      = self,
                                 ip_address = prefix,
@@ -334,7 +342,7 @@ class IPRoutes(Resource):
         IP routing strategy : direct routes only
         """
         routes = list()
-        G = _get_l2_graph(self._state.manager)
+        G = _get_l2_graph(self.groups)
         for src_node_uuid, dst_node_uuid, data in G.edges_iter(data = True):
             src_node = self._state.manager.by_uuid(src_node_uuid)
             dst_node = self._state.manager.by_uuid(dst_node_uuid)
@@ -424,7 +432,7 @@ class ICNFaces(Resource):
         protocol = FaceProtocol.from_string(self.protocol_name)
 
         faces = list()
-        G = _get_l2_graph(self._state.manager)
+        G = _get_l2_graph(self.groups)
         for src_node_uuid, dst_node_uuid, data in G.edges_iter(data = True):
             src_node = self._state.manager.by_uuid(src_node_uuid)
             dst_node = self._state.manager.by_uuid(dst_node_uuid)
@@ -436,14 +444,16 @@ class ICNFaces(Resource):
             log.debug('{} -> {} ({} -> {})'.format(src_node_uuid,
                         dst_node_uuid, src.device_name, dst.device_name))
 
+            # XXX This should be moved to the various faces, that register to a
+            # factory
             if protocol == FaceProtocol.ether:
                 src_face = L2Face(node        = src_node,
-                                  owner      = self,
+                                  owner       = self,
                                   protocol    = protocol,
                                   src_nic     = src,
                                   dst_mac     = dst.mac_address)
                 dst_face = L2Face(node        = dst_node,
-                                  owner      = self,
+                                  owner       = self,
                                   protocol    = protocol,
                                   src_nic     = dst,
                                   dst_mac     = src.mac_address)
@@ -451,14 +461,14 @@ class ICNFaces(Resource):
             elif protocol in (FaceProtocol.tcp4, FaceProtocol.tcp6,
                     FaceProtocol.udp4, FaceProtocol.udp6):
                 src_face = L4Face(node        = src_node,
-                                  owner      = self,
+                                  owner       = self,
                                   protocol    = protocol,
                                   src_ip      = src.ip4_address,
                                   dst_ip      = dst.ip4_address,
                                   src_port    = TMP_DEFAULT_PORT,
                                   dst_port    = TMP_DEFAULT_PORT)
                 dst_face = L4Face(node        = dst_node,
-                                  owner      = self,
+                                  owner       = self,
                                   protocol    = protocol,
                                   src_ip      = dst.ip4_address,
                                   dst_ip      = src.ip4_address,
@@ -510,17 +520,18 @@ class ICNRoutes(Resource):
 
     def _get_prefix_origins(self):
         origins = dict()
-        for producer in self._state.manager.by_type(Producer):
-            node_uuid = producer.node._state.uuid
-            if not node_uuid in origins:
-                origins[node_uuid] = list()
-            origins[node_uuid].extend(producer.prefixes)
+        for group in self.groups:
+            for producer in group.iter_by_type_str('producer'):
+                node_uuid = producer.node._state.uuid
+                if not node_uuid in origins:
+                    origins[node_uuid] = list()
+                origins[node_uuid].extend(producer.prefixes)
         return origins
 
     def _get_icn_routes(self):
         strategy = MAP_ROUTING_STRATEGY.get(self.routing_strategy)
 
-        G = _get_icn_graph(self._state.manager)
+        G = _get_icn_graph(self._state.manager, self.groups)
         origins = self._get_prefix_origins()
 
         routes = list()
@@ -571,104 +582,6 @@ class DnsServerEntry(Resource):
 
 #------------------------------------------------------------------------------
 
-class ContainerSetup(Resource):
-    """
-    Resource: ContainerSetup
-
-    Setup of container networking
-
-    Todo:
-      - This should be merged into the LxcContainer resource
-    """
-
-    container = Attribute(LxcContainer)
-
-    #--------------------------------------------------------------------------
-    # Resource lifecycle
-    #--------------------------------------------------------------------------
-
-    def __subresources__(self):
-
-        dns_server_entry = DnsServerEntry(node = self.container,
-                owner      = self,
-                ip_address = self.container.node.bridge.ip4_address,
-                interface_name = self.container.host_interface.device_name)
-
-        return dns_server_entry
-
-    @inline_task
-    def __get__(self):
-        raise ResourceNotFound
-
-    def __create__(self):
-        #If no IP has been given on the host interface (e.g., through DHCP)
-        #We need to assign one
-        if not self.container.host_interface.ip4_address:
-            # a) get the IP
-            assign=self._state.manager.by_type(Ipv4Assignment)[0]
-            ip4_addr = assign.get_control_address(self.container.host_interface)
-            self.container.host_interface.ip4_address = ip4_addr
-
-
-            # a) routes: host -> container
-            #   . container interfaces
-            #   . container host (main) interface
-            # route add -host {ip_address} dev {bridge_name}
-            route = IPRoute(node       = self.container.node,
-                            managed    = False,
-                            owner      = self,
-                            ip_address = ip4_addr,
-                            interface  = self.container.node.bridge)
-            route.node.routing_table.routes << route
-
-            # b) route: container -> host
-            # route add {ip_gateway} dev {interface_name}
-            # route add default gw {ip_gateway} dev {interface_name}
-            route = IPRoute(node       = self.container,
-                            owner      = self,
-                            managed    = False,
-                            ip_address = self.container.node.bridge.ip4_address,
-                            interface  = self.container.host_interface)
-            route.node.routing_table.routes << route
-            route_gw = IPRoute(node       = self.container,
-                               managed    = False,
-                               owner      = self,
-                               ip_address = 'default',
-                               interface  = self.container.host_interface,
-                               gateway    = self.container.node.bridge.ip4_address)
-            route_gw.node.routing_table.routes << route_gw
-
-
-        return BashTask(self.container.node, CMD_IP_FORWARD)
-
-#------------------------------------------------------------------------------
-
-class ContainersSetup(Resource):
-    """
-    Resource: ContainersSetup
-
-    Setup of LxcContainers (main resource)
-
-    Todo:
-      - This should be merged into the LxcContainer resource
-    """
-
-    #--------------------------------------------------------------------------
-    # Resource lifecycle
-    #--------------------------------------------------------------------------
-
-    def __subresources__(self):
-        containers  = self._state.manager.by_type(LxcContainer)
-        if len(containers) == 0:
-            return None
-
-        container_resources = [ContainerSetup(owner = self, container = c)
-            for c in containers]
-
-        return Resource.__concurrent__(*container_resources)
-
-#------------------------------------------------------------------------------
-
 class CentralIP(Resource):
     """
     Resource: CentralIP
@@ -678,32 +591,31 @@ class CentralIP(Resource):
 
     ip_routing_strategy = Attribute(String, description = 'IP routing strategy',
             default = 'pair') # spt, pair
-    ip6_data_prefix = Attribute(String, description="Prefix for IPv6 forwarding", mandatory=True)
-    ip4_data_prefix = Attribute(String, description="Prefix for IPv4 forwarding", mandatory=True)
-    ip4_control_prefix = Attribute(String, description="Prefix for IPv4 control", mandatory=True)
+    ip6_data_prefix = Attribute(String, description="Prefix for IPv6 forwarding",
+            mandatory = True)
+    ip4_data_prefix = Attribute(String, description="Prefix for IPv4 forwarding",
+            mandatory = True)
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
-    #def __after_init__(self):
-    #    return ('Node', 'Channel', 'Interface')
+    def __after_init__(self):
+        return ('Node', 'Channel', 'Interface')
+
+    def __after__(self):
+        return ('EmulatedChannel')
 
     def __subresources__(self):
-        ip4_assign = Ipv4Assignment(prefix=self.ip4_data_prefix,
-                control_prefix=self.ip4_control_prefix)
-        ip6_assign = Ipv6Assignment(prefix=self.ip6_data_prefix)
-        containers_setup = ContainersSetup(owner=self)
+        ip4_assign = Ipv4Assignment(prefix = self.ip4_data_prefix,
+                groups = Reference(self, 'groups'))
+        ip6_assign = Ipv6Assignment(prefix = self.ip6_data_prefix,
+                groups = Reference(self, 'groups'))
         ip_routes = IPRoutes(owner = self,
+                groups = Reference(self, 'groups'),
                 routing_strategy = self.ip_routing_strategy)
 
-        return (ip4_assign | ip6_assign) > (ip_routes | containers_setup)
-
-    @inline_task
-    def __get__(self):
-        raise ResourceNotFound
-
-    __delete__ = None
+        return (ip4_assign | ip6_assign) > ip_routes
 
 #------------------------------------------------------------------------------
 
@@ -734,9 +646,11 @@ class CentralICN(Resource):
         return ('CentralIP',)
 
     def __subresources__(self):
-        icn_faces = ICNFaces(owner = self, protocol_name = self.face_protocol)
+        icn_faces = ICNFaces(owner = self, protocol_name = self.face_protocol,
+                groups = Reference(self, 'groups'))
         icn_routes = ICNRoutes(owner = self,
-                routing_strategy = self.icn_routing_strategy)
+                routing_strategy = self.icn_routing_strategy,
+                groups = Reference(self, 'groups'))
         return icn_faces > icn_routes
 
     @inline_task

@@ -12,8 +12,9 @@
 
 import logging
 
-from vicn.core.sa_compat    import py2k
 from vicn.core.exception    import VICNListException
+from vicn.core.sa_compat    import py2k
+from vicn.core.state        import UUID
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def _list_decorators():
             try:
                 item = self._attribute.do_list_add(self._instance, item)
                 fn(self, item)
-            except VICNListException as e: 
+            except VICNListException as e:
                 pass
         _tidy(append)
         return append
@@ -121,7 +122,7 @@ def _list_decorators():
                     try:
                         self._attribute.do_list_remove(self._instance, item)
                     except : has_except = True
-                if not has_except: 
+                if not has_except:
                     fn(self, index)
         _tidy(__delitem__)
         return __delitem__
@@ -180,7 +181,7 @@ def _list_decorators():
                 self._attribute.do_list_remove(self._instance, item)
                 item = fn(self, index)
                 return item
-            except : return None 
+            except : return None
         _tidy(pop)
         return pop
 
@@ -230,12 +231,26 @@ def _instrument_list(cls):
     # inspired by sqlalchemy
     for method, decorator in _list_decorators().items():
         fn = getattr(cls, method, None)
-        if fn:	
+        if fn:
             #if (fn and method not in methods and
             #        not hasattr(fn, '_sa_instrumented')):
             setattr(cls, method, decorator(fn))
 
 class InstrumentedList(list):
+
+    @classmethod
+    def from_list(cls, value, instance, attribute):
+        lst = list()
+        if value:
+            for x in value:
+                if isinstance(x, UUID):
+                    x = instance.from_uuid(x)
+                lst.append(x)
+        # Having a class method is important for inheritance
+        value = cls(lst)
+        value._attribute = attribute
+        value._instance = instance
+        return value
 
     def __contains__(self, key):
         from vicn.core.resource import Resource

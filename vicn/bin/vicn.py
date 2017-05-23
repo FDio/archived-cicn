@@ -46,36 +46,34 @@ class VICNDaemon(Daemon):
         n_times = 1
         background = False
         setup = False
-        scenario = None
-        node_list, net, ndn, mob, cluster = None, None, None, None, None
 
         parser = ArgumentParser(description=textcolor('green', "Batch usage of VICN."))
-        parser.add_argument('-s', metavar='configuration_file_path',
-                            help="JSON file containing the topology")
-        parser.add_argument('-n', metavar='n_times', type=int,  help='Execute the test multiple times')
-        parser.add_argument('-x', action='store_false', help='No automatic execution')
+        parser.add_argument('-s', '--scenario', metavar='configuration_file_path',
+                action='append',
+                help="JSON file containing the topology")
+        parser.add_argument('-z', '--identifier', metavar='identifier', type=str, help='Experiment identifier')
+        parser.add_argument('-x', '--no-execute', action='store_false', help='Configure only, no automatic execution')
+        parser.add_argument('-c', '--clean', action='store_true', help='Clean deployment before setup')
+        parser.add_argument('-C', '--clean-only', action='store_true', help='Clean only')
 
         arguments = parser.parse_args()
-        args = vars(arguments)
 
+        scenario = arguments.scenario
+        if not scenario:
+            log.error('No scenario specified')
+            sys.exit(-1)
 
-        for option in args.keys():
-            if args[option] is not None:
-                if option == "s":
-                    print(" * Loading the configuration file at {0}".format(args[option]))
-                    scenario = args[option]
-                elif option == "t" and args[option] is True:
-                    background = True
-                elif option == "x" and args[option] is True:
-                    setup = True
-                elif option == "n":
-                    n_times = args[option]
+        identifier = arguments.identifier or "default"
+        clean = arguments.clean or arguments.clean_only
+        execute = not arguments.clean_only or arguments.no_execute
 
         self._api = API()
-        self._api.configure(scenario, setup)
+        self._api.configure(scenario)
 
-        if node_list is not None:
-            ResourceManager().set(node_list)
+        if clean:
+            self._api.teardown()
+        if execute:
+            self._api.setup(commit = True)
 
     def main(self):
         """

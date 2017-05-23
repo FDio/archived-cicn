@@ -18,16 +18,14 @@
 
 import logging
 import shlex
-import time
 
-# Suppress logging from pylxd dependency on ws4py 
+# Suppress logging from pylxd dependency on ws4py
 # (this needs to be included before pylxd)
 from ws4py import configure_logger
 configure_logger(level=logging.ERROR)
 import pylxd
 
 from netmodel.model.type            import String, Integer, Bool, Self
-from vicn.core.address_mgr          import AddressManager
 from vicn.core.attribute            import Attribute, Reference, Multiplicity
 from vicn.core.commands             import ReturnValue
 from vicn.core.exception            import ResourceNotFound
@@ -37,11 +35,9 @@ from vicn.core.task                 import task, inline_task, BashTask, EmptyTas
 from vicn.resource.linux.net_device import NetDevice
 from vicn.resource.node             import Node
 from vicn.resource.vpp.scripts      import APPARMOR_VPP_PROFILE
+from vicn.resource.lxd.lxd_profile  import LXD_PROFILE_DEFAULT_IFNAME
 
 log = logging.getLogger(__name__)
-
-# Default name of VICN management/monitoring interface
-DEFAULT_LXC_NETDEVICE = 'eth0'
 
 # Default remote server (pull mode only)
 DEFAULT_SOURCE_URL      = 'https://cloud-images.ubuntu.com/releases/'
@@ -56,8 +52,10 @@ CMD_UNSET_IP6_FWD = 'sysctl -w net.ipv6.conf.all.forwarding=0'
 CMD_SET_IP6_FWD = 'sysctl -w net.ipv6.conf.all.forwarding=1'
 CMD_GET_IP6_FWD = 'sysctl -n net.ipv6.conf.all.forwarding'
 
+CMD_NETWORK_DHCP='dhclient {container.management_interface.device_name}'
+
 # Type: ContainerName
-ContainerName = String(max_size = 64, ascii = True, 
+ContainerName = String(max_size = 64, ascii = True,
         forbidden = ('/', ',', ':'))
 
 class LxcContainer(Node):
@@ -74,12 +72,12 @@ class LxcContainer(Node):
 
     architecture = Attribute(String, description = 'Architecture',
             default = 'x86_64')
-    container_name = Attribute(ContainerName, 
+    container_name = Attribute(ContainerName,
             description = 'Name of the container',
             default = Reference(Self, 'name'))
     ephemeral = Attribute(Bool, description = 'Ephemeral container flag',
             default = False)
-    node = Attribute(Node, 
+    node = Attribute(Node,
             description = 'Node on which the container is running',
             mandatory = True,
             requirements = [
@@ -91,26 +89,26 @@ class LxcContainer(Node):
                 Requirement('bridge'),
                 # A DNS server is required to provide internet connectivity to
                 # the containers
-                Requirement('dns_server'),
+                # Requirement('dns_server'),
             ])
-    profiles = Attribute(String, multiplicity = Multiplicity.OneToMany, 
-            default = ['default'])
+    profiles = Attribute(String, multiplicity = Multiplicity.OneToMany,
+            default = ['vicn'])
     image = Attribute(String, description = 'image', default = None)
     is_image = Attribute(Bool, defaut = False)
     pid = Attribute(Integer, description = 'PID of the container')
     ip6_forwarding = Attribute(Bool, default=True)
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
     # Constructor / Accessors
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._container = None
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
     # Resource lifecycle
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     @inline_task
     def __initialize__(self):
@@ -120,11 +118,11 @@ class LxcContainer(Node):
         self.node_with_kernel = Reference(self, 'node')
 
         # We automatically add the management/monitoring interface
-        self._host_interface = NetDevice(node = self, 
+        self._management_interface = NetDevice(node = self,
                 owner = self,
                 monitored = False,
-                device_name = DEFAULT_LXC_NETDEVICE)
-        self._state.manager.commit_resource(self._host_interface)
+                device_name = LXD_PROFILE_DEFAULT_IFNAME)
+        self._state.manager.commit_resource(self._management_interface)
 
         for iface in self.interfaces:
             if iface.get_type() == "dpdkdevice":
@@ -150,7 +148,9 @@ class LxcContainer(Node):
             wait_vpp_host = wait_resource_task(self.node.vpp_host)
         create = self._create_container()
         start = self.__method_start__()
-        return wait_vpp_host > (create > start)
+        #XXX Should be an option on the netdevice
+        dhcp_interface = BashTask(self, CMD_NETWORK_DHCP, {'container':self})
+        return (wait_vpp_host > (create > start)) > dhcp_interface
 
     @task
     def _create_container(self):
@@ -158,54 +158,52 @@ class LxcContainer(Node):
         log.debug('Container description: {}'.format(container))
         client = self.node.lxd_hypervisor.client
         self._container = client.containers.create(container, wait=True)
-        self._container.start(wait = True)
+        #self._container.start(wait = True)
 
     def _get_container_description(self):
         # Base configuration
         container = {
-            'name'          : self.container_name, 
+            'name'          : self.container_name,
             'architecture'  : self.architecture,
-            'ephemeral'     : self.ephemeral,  
-            'profiles'      : ['default'],
+            'ephemeral'     : self.ephemeral,
+            'profiles'      : self.profiles,
             'config'        : {},
             'devices'       : {},
         }
 
         # DEVICES
 
-        devices = {}
         # FIXME Container profile support is provided by setting changes into
         # configuration (currently only vpp profile is supported)
         for profile in self.profiles:
             if profile == 'vpp':
                 # Set the new apparmor profile. This will be created in VPP
-                # application 
+                # application
                 # Mount hugetlbfs in the container.
                 container['config']['raw.lxc'] = APPARMOR_VPP_PROFILE
                 container['config']['security.privileged'] = 'true'
 
                 for device in self.node.vpp_host.uio_devices:
                     container['devices'][device] = {
-                        'path' : '/dev/{}'.format(device), 
+                        'path' : '/dev/{}'.format(device),
                         'type' : 'unix-char' }
 
-        # NETWORK (not for images) 
-
-        if not self.is_image:
-            container['config']['user.network_mode'] = 'link-local'
-            device = {
-                'type'      : 'nic',
-                'name'      : self.host_interface.device_name,
-                'nictype'   : 'bridged',
-                'parent'    : self.node.bridge.device_name,
-            }
-            device['hwaddr'] = AddressManager().get_mac(self)
-            prefix = 'veth-{}'.format(self.container_name)
-            device['host_name'] = AddressManager().get('device_name', self, 
-                    prefix = prefix, scope = prefix)
-
-            container['devices'][device['name']] = device
-            
+#        # NETWORK (not for images)
+#
+#        if not self.is_image:
+#            container['config']['user.network_mode'] = 'link-local'
+#            device = {
+#                'type'      : 'nic',
+#                'name'      : self.host_interface.device_name,
+#                'nictype'   : 'bridged',
+#                'parent'    : self.node.bridge.device_name,
+#            }
+#            device['hwaddr'] = AddressManager().get_mac(self)
+#            prefix = 'veth-{}'.format(self.container_name)
+#            device['host_name'] = AddressManager().get('device_name', self,
+#                    prefix = prefix, scope = prefix)
+#
+#            container['devices'][device['name']] = device
 
         # SOURCE
 
@@ -233,6 +231,7 @@ class LxcContainer(Node):
     @task
     def __delete__(self):
         log.info("Delete container {}".format(self.container_name))
+        import pdb; pdb.set_trace()
         self.node.lxd_hypervisor.client.containers.remove(self.name)
 
     #--------------------------------------------------------------------------
@@ -243,7 +242,7 @@ class LxcContainer(Node):
         """
         Attribute: pid (getter)
         """
-        return BashTask(self.node, CMD_GET_PID, {'container': self}, 
+        return BashTask(self.node, CMD_GET_PID, {'container': self},
                 parse = lambda rv: {'pid': rv.stdout.strip()})
 
     #--------------------------------------------------------------------------

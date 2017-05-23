@@ -61,33 +61,17 @@ class Node(Resource):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._host_interface = None
+        self._management_interface = None
 
     #---------------------------------------------------------------------------
     # Public API
     #---------------------------------------------------------------------------
 
     @property
-    def host_interface(self):
-        """
-        We assume that any unmanaged interface associated to the host is the
-        main host interface. It should thus be declared in the JSON topology.
-        We might later perform some kind of auto discovery.
-
-        This unmanaged interface is only required to get the device_name:
-          - to create Veth (need a parent)
-          - to ssh a node, get its ip address (eg for the repo)
-          - to avoid loops in type specification
-
-        It is used for all nodes to provide network connectivity.
-        """
-
-        for interface in self.interfaces:
-            if not interface.managed or interface.owner is not None:
-                return interface
-
-        raise Exception('Cannot find host interface for node {}: {}'.format(
-                    self, self.interfaces))
+    def management_interface(self):
+        if not self._management_interface:
+            raise Exception("No management interface has been defined")
+        return self._management_interface
 
     def execute(self, command, output = False, as_root = False):
         raise NotImplementedError

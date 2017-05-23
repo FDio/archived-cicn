@@ -75,7 +75,7 @@ class UUID:
         random identifier of length UUID_LEN. Components of the UUID are
         separated by UUID_SEP.
         """
-        uuid = ''.join(random.choice(string.ascii_uppercase + string.digits) 
+        uuid = ''.join(random.choice(string.ascii_uppercase + string.digits)
                 for _ in range(UUID_LEN))
         if name:
             uuid = name # + UUID_SEP + uuid
@@ -105,7 +105,7 @@ class PendingValue:
 
         if action == Operations.SET:
             self.value = value
-            self.operations = [(Operations.SET, value)] 
+            self.operations = [(Operations.SET, value)]
         elif action == Operations.LIST_CLEAR:
             self.value = list()
             self.operations = [(Operations.LIST_CLEAR, None)]
@@ -136,9 +136,8 @@ class InstanceState:
         # LIST set add remove clear
         self.dirty          = dict()
 
-
         # Initialize resource state
-        self.lock = asyncio.Lock() 
+        self.lock = asyncio.Lock()
         self.write_lock = asyncio.Lock()
         self.state          = ResourceState.UNINITIALIZED
         self.clean = asyncio.Event()
@@ -161,7 +160,7 @@ class InstanceState:
         self.attr_log = dict()
         # Initialize attribute state
         for attribute in instance.iter_attributes():
-            self.attr_lock[attribute.name] = asyncio.Lock() 
+            self.attr_lock[attribute.name] = asyncio.Lock()
             self.attr_init[attribute.name] = asyncio.Event()
             self.attr_clean[attribute.name] = asyncio.Event()
             self.attr_state[attribute.name] = AttributeState.UNINITIALIZED

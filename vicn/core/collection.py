@@ -16,14 +16,8 @@
 # limitations under the License.
 #
 
-from vicn.resource.icn.producer     import Producer
+from vicn.core.sa_collections       import InstrumentedList
+from netmodel.model.collection      import Collection
 
-class WebServer(Producer):
-    """
-    Resource: WebServer
-
-    CCNX Webserver
-    """
-
-    __package_names__ = ['http-server']
-    __service_name__ = 'http-server'
+class Collection(InstrumentedList, Collection):
+    pass

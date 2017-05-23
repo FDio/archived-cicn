@@ -16,14 +16,13 @@
 # limitations under the License.
 #
 
-from vicn.helpers.resource_definition import *
+from netmodel.model.filter      import Filter
 
-class GUI(Resource):
+class Collection(list):
     """
-    Resource: GUI
+    A collection corresponds to a list of objects, and includes processing functionalities to
+    manipulate them.
+    """
 
-    This resource is empty on purpose. It is a temporary resource used as a
-    placeholder for controlling the GUI and should be deprecated in future
-    releases.
-    """
-    pass
+    def filter(self, filter):
+        return filter.filter(self)

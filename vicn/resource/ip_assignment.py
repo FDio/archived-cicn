@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+import math
+
 from vicn.core.resource                 import Resource
 from netmodel.model.type                import String
 from vicn.core.attribute                import Attribute
@@ -60,9 +62,42 @@ class IpAssignment(Resource):
             self._assigned_addresses[obj] = ret
         return ret
 
+    @inline_task
+    def __get__(self):
+        raise ResourceNotFound
+
+    @inline_task
+    def __create__(self):
+        # XXX code from Channel.__create__, until Events are properly implemented.
+        # Iterate on channels for allocate IP addresses
+        for group in self.groups:
+            for channel in group.iter_by_type_str('channel'):
+                interfaces = sorted(channel.interfaces, key = lambda x : x.device_name)
+                if not interfaces:
+                    continue
+
+                min_prefix_size = math.ceil(math.log(len(channel.interfaces), 2))
+                prefix_size = min(self.DEFAULT_PREFIX_SIZE, self.MAX_PREFIX_SIZE - min_prefix_size)
+                prefix = iter(self.get_prefix(channel, prefix_size))
+
+                for interface in interfaces:
+                    ip = next(prefix)
+                    print('attribute ip=', ip)
+                    setattr(interface, self.ATTR_ADDRESS, ip)
+                    setattr(interface, self.ATTR_PREFIX, prefix_size)
+
+    __delete__ = None
+
 class Ipv6Assignment(IpAssignment):
     PrefixClass = Inet6Prefix
-
+    DEFAULT_PREFIX_SIZE = 64
+    MAX_PREFIX_SIZE = 128
+    ATTR_ADDRESS = 'ip6_address'
+    ATTR_PREFIX  = 'ip6_prefix'
 
 class Ipv4Assignment(IpAssignment):
     PrefixClass = Inet4Prefix
+    DEFAULT_PREFIX_SIZE = 32
+    MAX_PREFIX_SIZE = 32
+    ATTR_ADDRESS = 'ip4_address'
+    ATTR_PREFIX  = 'ip4_prefix'

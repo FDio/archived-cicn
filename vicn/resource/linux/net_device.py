@@ -22,14 +22,14 @@ import math
 import random
 import string
 
-from netmodel.model.type        import Integer, String, Bool
-from vicn.core.address_mgr      import AddressManager
-from vicn.core.attribute        import Attribute
-from vicn.core.exception        import ResourceNotFound
-from vicn.core.resource         import BaseResource
-from vicn.core.task             import BashTask, task, EmptyTask
-from vicn.resource.application  import Application
-from vicn.resource.interface    import Interface
+from netmodel.model.type                import Integer, String, Bool
+from vicn.core.address_mgr              import AddressManager
+from vicn.core.attribute                import Attribute
+from vicn.core.exception                import ResourceNotFound
+from vicn.core.resource                 import BaseResource
+from vicn.core.task                     import BashTask, task, EmptyTask
+from vicn.resource.linux.application    import LinuxApplication as Application
+from vicn.resource.interface            import Interface
 
 # parse_ip_addr inspired from:
 # From: https://github.com/ohmu/poni/blob/master/poni/cloud_libvirt.py

@@ -38,6 +38,7 @@ from vicn.core.task                   import BashTask, task
 from vicn.resource.linux.application  import LinuxApplication as Application
 from vicn.resource.linux.service      import Service
 from vicn.resource.linux.certificate  import Certificate
+from vicn.resource.lxd.lxd_profile    import LxdProfile
 
 # Suppress non-important logging messages from requests and urllib3
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -52,19 +53,20 @@ DEFAULT_KEY_PATH = os.path.expanduser(os.path.join(
         '~', '.vicn', 'lxd_client_cert', 'client_key.pem'))
 
 # FIXME hardcoded password for LXD server
-DEFAULT_TRUST_PASSWORD = 'vicn'
+LXD_TRUST_PWD_DEFAULT = 'vicn'
 
-DEFAULT_LXD_STORAGE = 100 # GB
+LXD_STORAGE_SIZE_DEFAULT = 100 # GB
+LXD_NETWORK_DEFAULT = 'lxdbr-vicn'
+LXD_PROFILE_NAME_DEFAULT = 'vicn'
 
+ZFS_DEFAULT_POOL_NAME = 'vicn'
 # Commands used to interact with the LXD hypervisor
 CMD_LXD_CHECK_INIT = 'lsof -i:{lxd.lxd_port}'
 
 CMD_LXD_INIT_BASE = 'lxd init --auto '
-CMD_LXD_INIT='''
-{base}
-lxc profile unset default environment.http_proxy
-lxc profile unset default user.network_mode
-'''
+
+CMD_LXD_NETWORK_GET = 'lxc network list | grep {lxd_hypervisor.network}'
+CMD_LXD_NETWORK_SET = 'lxc network create {lxd_hypervisor.network} || true'
 
 #------------------------------------------------------------------------------
 # Subresources
@@ -82,7 +84,7 @@ class LxdInit(Application):
             'storage-backend'       : self.owner.storage_backend,
             'network-port'          : self.owner.lxd_port,
             'network-address'       : '0.0.0.0',
-            'trust-password'        : DEFAULT_TRUST_PASSWORD,
+            'trust-password'        : self.owner.trust_password,
         }
 
         if self.owner.storage_backend == 'zfs':
@@ -104,8 +106,7 @@ class LxdInit(Application):
         # error: Failed to create the ZFS pool: The ZFS modules are not loaded.
         # Try running '/sbin/modprobe zfs' as root to load them.
         # zfs-dkms in the host
-        return BashTask(self.owner.node, CMD_LXD_INIT, {'base': cmd},
-                as_root = True)
+        return BashTask(self.owner.node, cmd, as_root = True)
 
     def __delete__(self):
         raise NotImplementedError
@@ -134,7 +135,7 @@ class LxdInstallCert(Resource):
         client certificate for the LXD daemon.
         """
         log.info('Adding certificate on LXD')
-        self.owner.client.authenticate(DEFAULT_TRUST_PASSWORD)
+        self.owner.client.authenticate(self.owner.trust_password)
         if not self.owner.client.trusted:
             raise Exception
 
@@ -154,9 +155,13 @@ class LxdHypervisor(Service):
             default = 'zfs',
             choices = ['zfs'])
     storage_size = Attribute(Integer, description = 'Storage size',
-            default = DEFAULT_LXD_STORAGE) # GB
+            default = LXD_STORAGE_SIZE_DEFAULT) # GB
     zfs_pool = Attribute(String, description = 'ZFS pool',
-            default='vicn')
+            default=ZFS_DEFAULT_POOL_NAME)
+    network  = Attribute(String, description = 'LXD network name',
+            default=LXD_NETWORK_DEFAULT)
+    trust_password = Attribute(String, description = 'Trust password for the LXD server',
+            default=LXD_TRUST_PWD_DEFAULT)
 
     # Just overload attribute with a new reverse
     node = Attribute(
@@ -194,8 +199,13 @@ class LxdHypervisor(Service):
                 owner = self)
         lxd_cert_install = LxdInstallCert(certificate = lxd_local_cert,
                 owner = self)
+        lxd_vicn_profile = LxdProfile(name=LXD_PROFILE_NAME_DEFAULT,
+                                      node=self.node,
+                                      description='vICN profile',
+                                      network=self.network,
+                                      pool=self.zfs_pool)
 
-        return (lxd_init | lxd_local_cert) > lxd_cert_install
+        return (lxd_init | lxd_local_cert) > (lxd_vicn_profile | lxd_cert_install)
 
     #--------------------------------------------------------------------------
     # Private methods
@@ -221,3 +231,10 @@ class LxdHypervisor(Service):
     @property
     def aliases(self):
         return [alias for image in self.images for alias in image.aliases]
+
+    @task
+    def _get_network(self):
+        return None #XXX We assume it's always nothing
+
+    def _set_network(self):
+        return BashTask(self.node, CMD_LXD_NETWORK_SET, {'lxd_hypervisor': self})

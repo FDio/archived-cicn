@@ -42,7 +42,6 @@ class Multiplicity:
     OneToMany = '1_N'
     ManyToOne = 'N_1'
     ManyToMany = 'N_N'
-    
 
     @staticmethod
     def reverse(value):
@@ -108,7 +107,7 @@ class Attribute(abc.ABC, ObjectSpecification):
         self.is_aggregate = False
 
         self._reverse_attributes = list()
-        
+
     #--------------------------------------------------------------------------
     # Display
     #--------------------------------------------------------------------------
@@ -157,7 +156,7 @@ class Attribute(abc.ABC, ObjectSpecification):
                 value = value.get_uuid()
             return value
         else:
-            try: 
+            try:
                 cur_value = vars(instance)[self.name]
                 if self.is_collection:
                     # copy the list
@@ -167,11 +166,11 @@ class Attribute(abc.ABC, ObjectSpecification):
                 if self.is_collection:
                     cur_value = list()
 
-            instance._state.dirty[self.name].trigger(Operations.LIST_ADD, 
+            instance._state.dirty[self.name].trigger(Operations.LIST_ADD,
                     value, cur_value)
 
             # prevent instrumented list to perform operation
-            raise VICNListException 
+            raise VICNListException
 
     def do_list_remove(self, instance, value):
         if instance.is_local_attribute(self.name):
@@ -184,11 +183,11 @@ class Attribute(abc.ABC, ObjectSpecification):
             if self.is_collection:
                 # copy the list
                 cur_value = list(cur_value)
-            instance._state.dirty[self.name].trigger(Operations.LIST_REMOVE, 
+            instance._state.dirty[self.name].trigger(Operations.LIST_REMOVE,
                     value, cur_value)
 
             # prevent instrumented list to perform operation
-            raise VICNListException 
+            raise VICNListException
 
     def do_list_clear(self, instance):
         if instance.is_local_attribute(self.name):
@@ -198,11 +197,11 @@ class Attribute(abc.ABC, ObjectSpecification):
             if self.is_collection:
                 # copy the list
                 cur_value = list(cur_value)
-            instance._state.dirty[self.name].trigger(Operations.LIST_CLEAR, 
+            instance._state.dirty[self.name].trigger(Operations.LIST_CLEAR,
                     value, cur_value)
 
             # prevent instrumented list to perform operation
-            raise VICNListException 
+            raise VICNListException
 
     def handle_getitem(self, instance, item):
         if isinstance(item, UUID):
@@ -227,7 +226,7 @@ class Attribute(abc.ABC, ObjectSpecification):
 
     @property
     def is_collection(self):
-        return self.multiplicity in (Multiplicity.OneToMany, 
+        return self.multiplicity in (Multiplicity.OneToMany,
                 Multiplicity.ManyToMany)
 
     def is_set(self, instance):

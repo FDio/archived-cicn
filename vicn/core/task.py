@@ -219,6 +219,14 @@ class PythonTask(Task):
         fut = loop.run_in_executor(None, partial)
         fut.add_done_callback(self._done_callback)
 
+    def execute_blocking(self, *args, **kwargs):
+        all_args = self._args + args
+        all_kwargs = dict()
+        all_kwargs.update(self._kwargs)
+        all_kwargs.update(kwargs)
+
+        return self._func(*all_args, **all_kwargs)
+
     def __repr__(self):
         s = _get_func_desc(self._func)
         return '<Task[py] {}>'.format(s) if s else '<Task[py]>'

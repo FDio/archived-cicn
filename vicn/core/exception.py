@@ -37,3 +37,10 @@ class SetupException(VICNException): pass
 class VICNListException(VICNException): pass
 
 class ResourceNotFound(VICNException): pass
+
+class VICNWouldBlock(VICNException):
+    """
+    Exception called when a request would block and the user explicitely
+    required non-blocking behaviour
+    """
+    pass
