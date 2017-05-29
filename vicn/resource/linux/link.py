@@ -73,8 +73,10 @@ class Link(Channel):
     delay = Attribute(String, description = 'Link propagation delay')
 
     src_node = Attribute(Node, description = 'Source node',
+            key = True,
             mandatory = True)
     dst_node = Attribute(Node, description = 'Destination node',
+            key = True,
             mandatory = True)
 
     def __init__(self, *args, **kwargs):
@@ -89,6 +91,7 @@ class Link(Channel):
         # but the resource manager has to take over for IP addresses etc.
         # Being done in initialize, those attributes won't be considered as
         # dependencies and will thus not block the resource state machine.
+
         self._src = NonTapBaseNetDevice(node = self.src_node,
                 device_name = self.dst_node.name,
                 channel = self,

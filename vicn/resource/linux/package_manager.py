@@ -78,6 +78,7 @@ class PackageManager(Resource):
             reverse_name = 'package_manager',
             reverse_auto = True,
             mandatory = True,
+            key = True,
             multiplicity = Multiplicity.OneToOne)
     trusted = Attribute(Bool,
             description="Force repository trust",
@@ -181,6 +182,7 @@ class Package(Resource):
     package_name = Attribute(String, mandatory = True)
     node = Attribute(Node,
             mandatory = True,
+            key = True,
             requirements=[
                 Requirement('package_manager')
             ])
@@ -216,6 +218,7 @@ class Packages(Resource):
     names = Attribute(String, multiplicity = Multiplicity.OneToMany)
     node = Attribute(Node,
             mandatory = True,
+            key = True,
             requirements=[
                 Requirement('package_manager')
             ])

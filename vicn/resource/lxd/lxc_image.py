@@ -43,22 +43,22 @@ class LxcImage(Resource):
     image = Attribute(Self, description = 'image', default = None)
     applications = Attribute(Application, multiplicity = Multiplicity.OneToMany)
 
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
     # Constructor / Accessors
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
 
     def __init__(self, *args, **kwargs):
         self.fingerprint = None
         self._tmp_container = None
         super().__init__(*args, **kwargs)
 
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
     # Resource lifecycle
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
 
     @task
     def __get__(self):
-        aliases = [alias['name'] for images in self.node.lxd_hypervisor.client.images.all() 
+        aliases = [alias['name'] for images in self.node.lxd_hypervisor.client.images.all()
                          for alias in images.aliases]
         if not self.image in aliases:
             raise ResourceNotFound
@@ -75,10 +75,8 @@ class LxcImage(Resource):
         Image creation consists in setting up a temporary container, stopping
         it, publishing an image of it, setting an alias, and deleting it.
         """
-
-
         tmp_container.setup()
-        
+
         print("TODO: Installing applications...")
         for application in self.applications:
             print('Installing application on image')
@@ -103,13 +101,13 @@ class LxcImage(Resource):
     def __delete__(self):
         self.node.lxd_hypervisor.client.images.delete(self.name)
 
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
     # Public methods
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
 
     def set_alias(self):
         alias_dict = {
-            "description": "Ubuntu 14.04 image with ICN software already installed",
+            "description": "Ubuntu 16.04 image with ICN software already installed",
             "target": self.fingerprint,
             "name": self.name
         }

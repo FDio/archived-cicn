@@ -75,7 +75,7 @@ class Physical(Node):
         """
         Require a SSH keypair to be present for authentication on nodes
         """
-        return Keypair(node = None, key = FN_KEY)
+        return Keypair(node = self, key = FN_KEY)
 
     def __initialize__(self):
         if not is_local_host(self.hostname):

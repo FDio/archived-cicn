@@ -128,9 +128,6 @@ class LxcContainer(Node):
             if iface.get_type() == "dpdkdevice":
                 self.node.vpp_host.dpdk_devices.append(iface.pci_address)
 
-        if 'vpp' in self.profiles:
-            dummy = self.node.vpp_host.uio_devices
-
     @task
     def __get__(self):
         client = self.node.lxd_hypervisor.client
@@ -158,7 +155,6 @@ class LxcContainer(Node):
         log.debug('Container description: {}'.format(container))
         client = self.node.lxd_hypervisor.client
         self._container = client.containers.create(container, wait=True)
-        #self._container.start(wait = True)
 
     def _get_container_description(self):
         # Base configuration
@@ -188,23 +184,6 @@ class LxcContainer(Node):
                         'path' : '/dev/{}'.format(device),
                         'type' : 'unix-char' }
 
-#        # NETWORK (not for images)
-#
-#        if not self.is_image:
-#            container['config']['user.network_mode'] = 'link-local'
-#            device = {
-#                'type'      : 'nic',
-#                'name'      : self.host_interface.device_name,
-#                'nictype'   : 'bridged',
-#                'parent'    : self.node.bridge.device_name,
-#            }
-#            device['hwaddr'] = AddressManager().get_mac(self)
-#            prefix = 'veth-{}'.format(self.container_name)
-#            device['host_name'] = AddressManager().get('device_name', self,
-#                    prefix = prefix, scope = prefix)
-#
-#            container['devices'][device['name']] = device
-
         # SOURCE
 
         image_names = [alias['name'] for alias in self.node.lxd_hypervisor.aliases]
@@ -231,7 +210,6 @@ class LxcContainer(Node):
     @task
     def __delete__(self):
         log.info("Delete container {}".format(self.container_name))
-        import pdb; pdb.set_trace()
         self.node.lxd_hypervisor.client.containers.remove(self.name)
 
     #--------------------------------------------------------------------------
@@ -307,6 +285,10 @@ class LxcContainer(Node):
         The node exposes an interface allowing command execution through LXD.
         We don't currently use an eventually available  SSH connection.
         """
+
+        if not self._container:
+            log.error("Executing command on uninitialized container", self, command)
+            import os; os._exit(1)
 
         ret = self._container.execute(shlex.split(command))
 

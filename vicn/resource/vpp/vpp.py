@@ -55,11 +55,11 @@ class VPP(Resource):
     node = Attribute(Node,
             multiplicity = Multiplicity.OneToOne,
             reverse_name = 'vpp')
-    numa_node = Attribute(Integer, 
+    numa_node = Attribute(Integer,
             description = 'Numa node on which vpp will run')
-    core = Attribute(Integer, 
+    core = Attribute(Integer,
             description = 'Core belonging the numa node on which vpp will run')
-    enable_worker = Attribute(Bool, 
+    enable_worker = Attribute(Bool,
             description = 'Enable one worker for packet processing',
             default = False)
 
@@ -88,8 +88,8 @@ class VPP(Resource):
         return BashTask(self.node, CMD_GET)
 
     def __subresources__(self):
-        self.dpdk_setup_file = TextFile(node = self.node, 
-                filename = FN_VPP_DPDK_SCRIPT, 
+        self.dpdk_setup_file = TextFile(node = self.node,
+                filename = FN_VPP_DPDK_SCRIPT,
                 overwrite = True)
         return self.dpdk_setup_file
 
@@ -137,7 +137,7 @@ class VPP(Resource):
 
         # Add the core on which running vpp and the dpdk parameters
         setup = TPL_VPP_DPDK_DAEMON_SCRIPT + 'cpu {'
-            
+
         setup = setup + ''' \n  main-core ''' + str(self.core)
 
         if self.enable_worker:
@@ -145,7 +145,7 @@ class VPP(Resource):
             setup = setup + '''\n  corelist-workers ''' + str(cpu_worker)
 
         setup = setup + '''\n}\n\n  dpdk { '''
-        
+
         for dpdk_dev in dpdk_list:
             setup = setup + ''' \n  ''' + dpdk_dev
 
@@ -175,7 +175,7 @@ class VPP(Resource):
     def _set_plugins(self):
         cmd = None
         for plugin in self.plugins:
-            cmd = cmd > BashTask(self.node, CMD_VPP_ENABLE_PLUGIN, 
+            cmd = cmd > BashTask(self.node, CMD_VPP_ENABLE_PLUGIN,
                     {'plugin' : plugin})
         return cmd
 

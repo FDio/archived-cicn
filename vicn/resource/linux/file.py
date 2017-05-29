@@ -37,14 +37,16 @@ class File(Resource):
     """
     Resource: File
     """
-    filename = Attribute(String, description = 'Path to the file', 
+    filename = Attribute(String, description = 'Path to the file',
+            key = True,
             mandatory = True)
     node = Attribute(Node, description = 'Node on which the file is created',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'files',
+            key = True,
             reverse_description = 'Files created on the node')
-    overwrite = Attribute(Bool, 
+    overwrite = Attribute(Bool,
             description = 'Determines whether an existing file is overwritten',
             default = False)
 
@@ -53,13 +55,12 @@ class File(Resource):
     #--------------------------------------------------------------------------
 
     def __get__(self):
-
         # UGLY
         @inline_task
         def not_found():
             raise ResourceNotFound
 
-        if self.overwrite: 
+        if self.overwrite:
             return not_found()
 
         def is_path (rv):

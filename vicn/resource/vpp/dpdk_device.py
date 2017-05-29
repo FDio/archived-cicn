@@ -27,9 +27,9 @@ class DpdkDevice(PhyInterface):
     A DpdkDevice is a physical net device supported by Dpdk and with parameters
     specific to VPP.
     """
-    numa_node = Attribute(Integer, 
+    numa_node = Attribute(Integer,
             description = 'NUMA node on the same PCI bus as the DPDK card')
-    socket_mem = Attribute(Integer, 
-            description = 'Memory used by the vpp forwarder', 
+    socket_mem = Attribute(Integer,
+            description = 'Memory used by the vpp forwarder',
             default = 512)
     mac_address = Attribute(String)

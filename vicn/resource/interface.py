@@ -30,7 +30,8 @@ class Interface(Resource):
     node = Attribute(Node, description = 'Node to which the interface belongs',
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'interfaces',
-            mandatory = True)
+            mandatory = True,
+            key = True)
     channel = Attribute(Channel, description = 'Channel to which the interface is attached',
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'interfaces')

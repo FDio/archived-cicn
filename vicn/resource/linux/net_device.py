@@ -280,6 +280,7 @@ class BaseNetDevice(Interface, Application):
             description = 'Capacity for interface shaping (Mb/s)')
     mac_address = Attribute(String, description = 'Mac address of the device')
     ip4_address = Attribute(String, description = 'IP address of the device')
+    ip4_prefix = Attribute(Integer, description = 'Prefix for the IPv4link', default=31) #XXX 31?
     ip6_address = Attribute(String, description = 'IPv6 address of the device')
     ip6_prefix = Attribute(Integer, description = 'Prefix for the IPv6 link', default=64)
     ip6_forwarding = Attribute(Bool, description = 'IPv6 forwarding', default = True)

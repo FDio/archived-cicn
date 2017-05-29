@@ -37,7 +37,7 @@ class Keypair(Resource):
 
     Implements a SSH keypair
     """
-    node = Attribute(Node, 
+    node = Attribute(Node,
             description = 'Node on which the certificate is created',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne)
@@ -47,24 +47,24 @@ class Keypair(Resource):
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
-    
+
     @inline_task
     def __initialize__(self):
         self._pubkey_file = File(node = Reference(self, 'node'),
                 filename = self.key + '.pub',
                 managed = False)
-        self._key_file = File(node = Reference(self, 'node'), 
-                filename = self.key, 
+        self._key_file = File(node = Reference(self, 'node'),
+                filename = self.key,
                 managed = False)
 
     def __get__(self):
         return self._pubkey_file.__get__() | self._key_file.__get__()
 
     def __create__(self):
-        return BashTask(None, CMD_CREATE, {
+        return BashTask(self.node, CMD_CREATE, {
                 'dirname': os.path.dirname(self.key),
                 'self': self})
-    
+
     def __delete__(self):
         return self._pubkey_file.__delete__() | self._key_file.__delete__()
 

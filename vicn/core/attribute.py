@@ -267,3 +267,16 @@ class Reference:
     def __init__(self, resource, attribute=None):
         self._resource = resource
         self._attribute = attribute
+
+    def get_proxy(self):
+        if self._resource is Self:
+            resource = getattr(self, self._attribute)
+        else:
+            resource = getattr(self._resource, self._attribute)
+        return resource
+
+    def get(self, attribute_name):
+        return self.get_proxy().get(attribute_name)
+
+    def __iter__(self):
+        return iter(self.get_proxy())

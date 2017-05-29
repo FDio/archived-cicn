@@ -55,7 +55,7 @@ class VPPHost(LinuxApplication):
 
     Host must be configured to let vpp to work into container:
      - install new apparmor profile (to let the container to read
-       hugepages info in /sys/kernel/mm/hugepages) 
+       hugepages info in /sys/kernel/mm/hugepages)
      - set hugepages into the host
     """
 
@@ -96,7 +96,7 @@ class VPPHost(LinuxApplication):
                 overwrite = True)
         startup_conf = TextFile(node = self.node,
                 filename = FN_VPP_DPDK_SCRIPT,
-                content = TPL_VPP_DPDK_DAEMON_SCRIPT, 
+                content = TPL_VPP_DPDK_DAEMON_SCRIPT,
                 overwrite = True)
         return app_armor_file | startup_conf
 
@@ -111,7 +111,7 @@ class VPPHost(LinuxApplication):
     def __create__(self):
         modules = BashTask(self.node, CMD_INSERT_MODULES)
         app_armor_reload = BashTask(self.node, CMD_APP_ARMOR_RELOAD)
-        sysctl_hugepages = BashTask(self.node, CMD_SYSCTL_HUGEPAGES, 
+        sysctl_hugepages = BashTask(self.node, CMD_SYSCTL_HUGEPAGES,
                 {'nb_hp': DEFAULT_NB_HUGEPAGES})
 
         # Hook
@@ -126,9 +126,9 @@ class VPPHost(LinuxApplication):
 
         create_uio = EmptyTask()
         for device in self.dpdk_devices:
-            create_uio = create_uio > BashTask(self.node, 
+            create_uio = create_uio > BashTask(self.node,
                     CMD_CREATE_UIO_DEVICES, {'pci_address' : device})
-	
+
         return ((modules | app_armor_reload) | sysctl_hugepages) > \
             (disable_vpp > create_uio)
 

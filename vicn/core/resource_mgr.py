@@ -365,7 +365,6 @@ class ResourceManager(metaclass=Singleton):
         for resource in self.get_resources():
             if resource.get_type() == 'lxccontainer':
                 task = task | resource.__delete__()
-                print("RESOURCE", resource.name)
         self.schedule(task)
         ret = await wait_task(task)
         return ret
@@ -613,18 +612,18 @@ class ResourceManager(metaclass=Singleton):
         """
         self.log(resource, ' - Waiting for attribute dependencies...')
         for attr in resource.iter_attributes():
-            if issubclass(attr.type, Resource):
-                deps = resource.get(attr.name)
-                if deps is None:
-                    # Not really a dependency, we expect mandatory to prevent
-                    # us to continue if we should not
-                    continue
 
-                if not attr.is_collection:
-                    deps = [deps]
+            if not issubclass(attr.type, Resource):
+                continue
 
-                for dep in deps:
-                    # XXX This could be done in parallel
+            deps = resource.get(attr.name)
+            if not deps:
+                continue
+            if not attr.is_collection:
+                deps = [deps]
+
+            for dep in deps:
+                if attr.key:
                     if not dep.managed:
                         continue
                     dep_pfx = '{}:{}'.format(dep.get_type(), dep.get_uuid())
@@ -632,27 +631,27 @@ class ResourceManager(metaclass=Singleton):
                     await wait_resource(dep)
                     self.log(resource, S_WAIT_DEP_OK. format(dep_pfx))
 
-                    if not attr.requirements:
-                        continue
+                if not attr.requirements:
+                    continue
 
-                    for req in attr.requirements:
-                        dep_attr_name = req.requirement_type
-                        dep_attr = dep.get_attribute(dep_attr_name)
-                        assert issubclass(dep_attr.type, Resource)
-                        dep_attr_value = dep.get(dep_attr_name)
+                for req in attr.requirements:
+                    dep_attr_name = req.requirement_type
+                    dep_attr = dep.get_attribute(dep_attr_name)
+                    assert issubclass(dep_attr.type, Resource)
+                    dep_attr_value = dep.get(dep_attr_name)
 
-                        if not dep_attr_value:
-                            dep_attr_value = dep.auto_instanciate(dep_attr)
-                            setattr(dep, dep_attr_name, dep_attr_value)
+                    if not dep_attr_value:
+                        dep_attr_value = dep.auto_instanciate(dep_attr)
+                        setattr(dep, dep_attr_name, dep_attr_value)
 
-                        dep_attr_value_pfx = '{}:{}'.format(
-                                dep_attr_value.get_type(),
-                                dep_attr_value.get_uuid())
-                        self.log(resource,
-                                S_WAIT_DEP.format(dep_attr_value_pfx))
-                        await wait_resource(dep_attr_value)
-                        self.log(resource,
-                                S_WAIT_DEP_OK .format(dep_attr_value_pfx))
+                    dep_attr_value_pfx = '{}:{}'.format(
+                            dep_attr_value.get_type(),
+                            dep_attr_value.get_uuid())
+                    self.log(resource,
+                            S_WAIT_DEP.format(dep_attr_value_pfx))
+                    await wait_resource(dep_attr_value)
+                    self.log(resource,
+                            S_WAIT_DEP_OK .format(dep_attr_value_pfx))
 
     async def _resource_wait_predecessors(self, resource):
         after = resource.__after__()
@@ -981,7 +980,6 @@ class ResourceManager(metaclass=Singleton):
         ip = resource.node.management_interface.ip4_address
         if not ip:
             log.error('IP of monitored Node {} is None'.format(resource.node))
-            #return # XXX
             import os; os._exit(1)
 
         ws = self._router.add_interface('websocketclient', address=ip,

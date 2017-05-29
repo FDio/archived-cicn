@@ -40,19 +40,17 @@ class Forwarder(ICNApplication, ABC):
     faces = Attribute(Face, description = 'ICN ffaces of the forwarder',
             multiplicity = Multiplicity.OneToMany,
             reverse_name = 'forwarder')
-    routes = Attribute(Route, description = 'Routes in the ICN FIB', 
+    routes = Attribute(Route, description = 'Routes in the ICN FIB',
             multiplicity = Multiplicity.OneToMany,
             reverse_name = 'forwarder')
-    cache_size = Attribute(Integer, 
+    cache_size = Attribute(Integer,
             description = 'Size of the cache (in chunks)',
             default = DEFAULT_CACHE_SIZE)
-    cache_policy = Attribute(String, description = 'Cache policy', 
+    cache_policy = Attribute(String, description = 'Cache policy',
             default = DEFAULT_CACHE_POLICY)
-    strategy = Attribute(String, description = 'Forwarding Strategy', 
+    strategy = Attribute(String, description = 'Forwarding Strategy',
             default = DEFAULT_STRATEGY)
     config_file = Attribute(String, description = 'Configuration file')
-    port = Attribute(Integer, description = 'Default listening port', 
-            default = lambda self: self._get_default_port())
     log_file = Attribute(String, description = 'Log file')
 
     # Overloaded attributes

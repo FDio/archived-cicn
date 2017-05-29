@@ -20,7 +20,7 @@ import logging
 import networkx as nx
 import os
 
-from netmodel.model.type                import String
+from netmodel.model.type                import String, Integer
 from netmodel.util.misc                 import pairwise
 from vicn.core.attribute                import Attribute, Reference
 from vicn.core.exception                import ResourceNotFound
@@ -219,6 +219,9 @@ class IPRoutes(Resource):
     """
     routing_strategy = Attribute(String)
 
+    def __after__(self):
+        return ("IpAssignment",)
+
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
@@ -246,17 +249,16 @@ class IPRoutes(Resource):
     def _get_ip_origins(self):
         origins = dict()
         for group in self.groups:
-            for node in group.iter_by_type_str('node'):
-                node_uuid = node._state.uuid
-                if not node_uuid in origins:
-                    origins[node_uuid] = list()
-                for interface in node.interfaces:
-                    # XXX temp fix (WouldBlock)
-                    try:
-                        origins[node_uuid].append(interface.ip4_address)
-                        if interface.ip6_address: #Control interfaces have no v6 address
-                            origins[node_uuid].append(interface.ip6_address)
-                    except: pass
+            for channel in group.iter_by_type_str('channel'):
+                for interface in channel.interfaces:
+                    node_uuid = interface.node._state.uuid
+                    if not node_uuid in origins:
+                        origins[node_uuid] = list()
+                    ip4 = interface.ip4_address
+                    origins[node_uuid].append(interface.ip4_address)
+                    if interface.ip6_address:
+                        ip6 = interface.ip6_address
+                        origins[node_uuid].append(interface.ip6_address)
         return origins
 
     def _get_ip_routes(self):
@@ -595,6 +597,9 @@ class CentralIP(Resource):
             mandatory = True)
     ip4_data_prefix = Attribute(String, description="Prefix for IPv4 forwarding",
             mandatory = True)
+    ip6_max_link_prefix = Attribute(Integer,
+            description = 'Maximum prefix size assigned to each link',
+            default = 64)
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
@@ -610,7 +615,8 @@ class CentralIP(Resource):
         ip4_assign = Ipv4Assignment(prefix = self.ip4_data_prefix,
                 groups = Reference(self, 'groups'))
         ip6_assign = Ipv6Assignment(prefix = self.ip6_data_prefix,
-                groups = Reference(self, 'groups'))
+                groups = Reference(self, 'groups'),
+                max_prefix_size = self.ip6_max_link_prefix)
         ip_routes = IPRoutes(owner = self,
                 groups = Reference(self, 'groups'),
                 routing_strategy = self.ip_routing_strategy)

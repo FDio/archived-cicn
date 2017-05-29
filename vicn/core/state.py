@@ -100,6 +100,7 @@ class PendingValue:
     def trigger(self, action, value, cur_value = None):
 
         if self.value is NEVER_SET:
+            #XXX Shouldn't we set it to None if it is demanded?
             if cur_value is not None:
                 self.value = cur_value
 

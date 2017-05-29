@@ -16,19 +16,19 @@
 # limitations under the License.
 #
 
-from vicn.resource.linux.application    import LinuxApplication 
+from vicn.resource.linux.application    import LinuxApplication
 from vicn.core.attribute                import Attribute
 from netmodel.model.type                import Integer
 
-ICN_SUITE_CCNX_1_0=0
-ICN_SUITE_NDN=1
+ICN_SUITE_CCNX_1_0=1
+ICN_SUITE_NDN=2
 
 class ICNApplication(LinuxApplication):
     """
     Resource: ICNApplication
     """
 
-    protocol_suites = Attribute(Integer, 
+    protocol_suites = Attribute(Integer,
             description = 'Protocol suites supported by the application',
             default = lambda self: self._def_protocol_suite())
 

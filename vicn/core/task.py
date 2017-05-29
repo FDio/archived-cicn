@@ -113,7 +113,6 @@ class CompositionMixin:
                 ret = await t.get_future()
             self.get_future().set_result(ret)
         except Exception as e:
-            print('we need to cancel tasks not executed...')
             self.get_future().set_exception(e)
 
 Task, EmptyTask = SchedulingAlgebra(BaseTask, ConcurrentMixin,

@@ -51,14 +51,14 @@ class CICNForwarder(Forwarder):
             mandatory=True,
             requirements = [Requirement('vpp')],
             reverse_name='cicn')
-    numa_node = Attribute(Integer, 
-            description = 'Numa node on which vpp will run', 
+    numa_node = Attribute(Integer,
+            description = 'Numa node on which vpp will run',
             default = None)
-    core = Attribute(Integer, 
+    core = Attribute(Integer,
             description = 'Core belonging the numa node on which vpp will run',
             default = None)
-    enable_worker = Attribute(Bool, 
-            description = 'Enable one worker for packet processing', 
+    enable_worker = Attribute(Bool,
+            description = 'Enable one worker for packet processing',
             default = False)
 
     #__packages__ = ['vpp-plugin-cicn']
@@ -70,14 +70,14 @@ class CICNForwarder(Forwarder):
         def parse(rv):
             if rv.return_value > 0 or 'cicn: not enabled' in rv.stdout:
                 raise ResourceNotFound
-        return BashTask(self.node, CMD_VPP_CICN_GET, 
+        return BashTask(self.node, CMD_VPP_CICN_GET,
                 lock = self.node.vpp.vppctl_lock, parse=parse)
 
     def __create__(self):
 
         #self.node.vpp.plugins.append("cicn")
         lock = self.node.vpp.vppctl_lock
-        create_task = BashTask(self.node, CMD_VPP_ENABLE_PLUGIN, 
+        create_task = BashTask(self.node, CMD_VPP_ENABLE_PLUGIN,
                 {'plugin' : 'cicn'}, lock = lock)
 
         face_task = EmptyTask()
@@ -89,7 +89,7 @@ class CICNForwarder(Forwarder):
             return {}
 
         for face in self.faces:
-            face_task = face_task > BashTask(self.node, CMD_VPP_ADD_ICN_FACE, 
+            face_task = face_task > BashTask(self.node, CMD_VPP_ADD_ICN_FACE,
                     {'face':face},
                     parse = (lambda x : parse_face(x, face)), lock = lock)
 
@@ -99,7 +99,7 @@ class CICNForwarder(Forwarder):
                 if route.node is self.node:
                     self.routes.append(route)
         for route in self.routes:
-            route_task = route_task > BashTask(self.node, 
+            route_task = route_task > BashTask(self.node,
                     CMD_VPP_ADD_ICN_ROUTE, {'route' : route}, lock = lock)
 
         return (wait_resource_task(self.node.vpp) > create_task) > (face_task > route_task)

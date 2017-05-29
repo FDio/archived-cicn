@@ -168,12 +168,6 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                 log.warning(W_UNK_ATTR.format(key, self.get_type()))
                 continue
 
-            if isinstance(value, Reference):
-                if value._resource is Self:
-                    value = getattr(self, value._attribute)
-                else:
-                    value = getattr(value._resource, value._attribute)
-
             if value and issubclass(attribute.type, Resource):
                 if attribute.is_collection:
                     new_value = list()
@@ -215,6 +209,9 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
         # Check requirements and default values
         for attr in self.iter_attributes():
+            # XXX fix for lambda attributes, since initialization makes no sense
+            if hasattr(attr, 'func') and attr.func:
+                continue
             if attr.name not in kwargs:
                 default = self.get_default_collection(attr) if attr.is_collection else \
                         self.get_default(attr)
@@ -311,7 +308,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                         try:
                             rv = task.execute_blocking()
                             break
-                        except LxdAPIException:
+                        except LXDAPIException:
                             log.warning("LxdAPIException, retrying to fetch value")
                             continue
                         except Exception as e:

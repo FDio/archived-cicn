@@ -16,19 +16,19 @@
 # limitations under the License.
 #
 
-def SchedulingAlgebra(cls, concurrent_mixin=object, composition_mixin=object, 
+def SchedulingAlgebra(cls, concurrent_mixin=object, composition_mixin=object,
         sequential_mixin=object): # allow_none = True
 
     class BaseElement(cls):
         def __default__(cls, *elements):
-            elts = [e for e in elements 
+            elts = [e for e in elements
                 if e is not None and not isinstance(e, Empty)]
             if len(elts) == 0:
                 # The first is always Empty
                 assert len(elements) != 0
                 return elements[0]
             elif len(elts) == 1:
-                return elts[0] 
+                return elts[0]
             return cls(*elts)
 
         def __concurrent__(*elements):

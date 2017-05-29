@@ -26,4 +26,5 @@ class Application(Resource):
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'applications',
+            key = True,
             reverse_description = 'Applications installed on node')

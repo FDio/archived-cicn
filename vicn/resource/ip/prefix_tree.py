@@ -20,8 +20,9 @@ from socket import inet_pton, inet_ntop, AF_INET6
 from struct import unpack, pack
 from abc    import ABCMeta
 
-class NotEnoughAddresses(Exception):
-    pass
+class PrefixTreeException(Exception): pass
+class NotEnoughAddresses(PrefixTreeException): pass
+class UnassignablePrefix(PrefixTreeException): pass
 
 class Prefix(metaclass=ABCMeta):
 
@@ -33,7 +34,6 @@ class Prefix(metaclass=ABCMeta):
             ip_address = self.aton(ip_address)
         self.ip_address = ip_address
         self.prefix_size = prefix_size
-        self._range = self.limits()
 
     def __contains__(self, obj):
         #it can be an IP as a integer
@@ -50,6 +50,14 @@ class Prefix(metaclass=ABCMeta):
 
         return self._contains_prefix(obj)
 
+    @classmethod
+    def mask(cls):
+        mask_len = cls.MAX_PREFIX_SIZE//8 #Converts from bits to bytes
+        mask = 0
+        for step in range(0,mask_len):
+            mask = (mask << 8) | 0xff
+        return mask
+
     def _contains_prefix(self, prefix):
         assert isinstance(prefix, type(self))
         return (prefix.prefix_size >= self.prefix_size and
@@ -58,10 +66,10 @@ class Prefix(metaclass=ABCMeta):
 
     #Returns the first address of a prefix
     def first_prefix_address(self):
-        return self.ip_address & (self.MASK << (self.MAX_PREFIX_SIZE-self.prefix_size))
+        return self.ip_address & (self.mask() << (self.MAX_PREFIX_SIZE-self.prefix_size))
 
     def last_prefix_address(self):
-        return self.ip_address | (self.MASK >> self.prefix_size)
+        return self.ip_address | (self.mask() >> self.prefix_size)
 
     def limits(self):
         return self.first_prefix_address(), self.last_prefix_address()
@@ -77,12 +85,20 @@ class Prefix(metaclass=ABCMeta):
         return hash(str(self))
 
     def __iter__(self):
-        for i in range(self._range[0], self._range[1]+1):
+        for i in range(self.first_prefix_address(), self.last_prefix_address()+1):
             yield self.ntoa(i)
+
+    #Iterates by steps of prefix_size, e.g., on all available /31 in a /24
+    def get_iterator(self, prefix_size=None):
+        if prefix_size is None:
+            prefix_size=self.MAX_PREFIX_SIZE
+        assert (prefix_size >= self.prefix_size and prefix_size<=self.MAX_PREFIX_SIZE)
+        step = 2**(self.MAX_PREFIX_SIZE - prefix_size)
+        for ip in range(self.first_prefix_address(), self.last_prefix_address()+1, step):
+            yield type(self)(ip, prefix_size)
 
 class Inet4Prefix(Prefix):
 
-    MASK = 0xffffffff
     MAX_PREFIX_SIZE = 32
 
     @classmethod
@@ -103,49 +119,47 @@ class Inet4Prefix(Prefix):
 
 class Inet6Prefix(Prefix):
 
-    MASK = 0xffffffffffffffff
-    MAX_PREFIX_SIZE = 64
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._range = self.limits(True)
+    MAX_PREFIX_SIZE = 128
 
     @classmethod
-    def aton (cls, address, with_suffix=False):
-        ret, suffix = unpack(">QQ", inet_pton(AF_INET6, address))
-        if with_suffix:
-            ret = (ret << 64) | suffix
-        return ret
+    def aton (cls, address):
+        prefix, suffix = unpack(">QQ", inet_pton(AF_INET6, address))
+        return (prefix << 64) | suffix
 
     @classmethod
-    def ntoa (cls, address, with_suffix=False):
-        ret = None
-        if with_suffix:
-            ret = inet_ntop(AF_INET6, pack(">QQ", address >> 64, address & ((1 << 64) -1)))
-        else:
-            ret = inet_ntop(AF_INET6, pack(">QQ", address, 0))
-        return ret
+    def ntoa (cls, address):
+        return inet_ntop(AF_INET6, pack(">QQ", address >> 64, address & ((1 << 64) -1)))
 
-    def limits(self, with_suffix=False):
-        ret = super().limits()
-        if with_suffix:
-            ret = ret[0] << 64, ret[1] << 64 | self.MASK
-        return ret
-
-    def __iter__(self):
-        for i in range(*self._range):
-            yield self.ntoa(i, True)
+    #skip_internet_address: skip a:b::0, as v6 often use default /64 prefixes
+    def get_iterator(self, prefix_size=None, skip_internet_address=None):
+        if skip_internet_address is None:
+            #We skip the internet address if we iterate over Addresses
+            if prefix_size is None:
+                skip_internet_address = True
+            #But not if we iterate over prefixes
+            else:
+                skip_internet_address = False
+        it = super().get_iterator(prefix_size)
+        if skip_internet_address:
+            next(it)
+        return it
 
 ###### PREFIX TREE ######
 
 class PrefixTree:
-    def __init__(self, prefix):
+
+    #Use max_served_prefix to set a maximum served prefix size (e.g., /64 for IPv6)
+    def __init__(self, prefix, max_served_prefix=None):
         self.prefix = prefix
         self.prefix_cls = type(prefix)
+        if max_served_prefix is None:
+            max_served_prefix = self.prefix_cls.MAX_PREFIX_SIZE
+        self.max_served_prefix = max_served_prefix
         self.left = None
         self.right = None
         #When the full prefix is assigned
         self.full = False
+
 
     def find_prefix(self, prefix_size):
         ret, lret, rret = [None]*3
