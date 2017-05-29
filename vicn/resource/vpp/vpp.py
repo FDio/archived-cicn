@@ -25,6 +25,7 @@ from vicn.core.resource                 import Resource
 from vicn.core.task                     import BashTask, task, inline_task
 from vicn.resource.lxd.lxc_container    import LxcContainer
 from vicn.resource.node                 import Node
+from vicn.resource.linux.application    import LinuxApplication
 from vicn.resource.linux.file           import TextFile
 from vicn.resource.vpp.dpdk_device      import DpdkDevice
 from vicn.resource.vpp.scripts          import FN_VPP_DPDK_SCRIPT
@@ -32,6 +33,7 @@ from vicn.resource.vpp.scripts          import TPL_VPP_DPDK_DAEMON_SCRIPT
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_DISABLE, CMD_VPP_STOP
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_START
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_ENABLE_PLUGIN
+from vicn.resource.vpp.vpp_host         import VPPHost
 
 #------------------------------------------------------------------------------
 # VPP forwarder
@@ -40,7 +42,7 @@ from vicn.resource.vpp.vpp_commands     import CMD_VPP_ENABLE_PLUGIN
 CMD_GET  = 'killall -0 vpp_main'
 CMD_DISABLE_IP_FORWARD = 'sysctl -w net.ipv4.ip_forward=0'
 
-class VPP(Resource):
+class VPP(LinuxApplication):
     """
     Todo:
      - make VPP an application with package install
@@ -48,7 +50,7 @@ class VPP(Resource):
      start and stop commands
     """
 
-    #__package_names__ = ['vpp', 'vpp-dbg', 'vpp-dpdk-dev']
+    __package_names__ = ['vpp', 'vpp-dbg', 'vpp-dpdk-dev']
 
     plugins = Attribute(String,
             multiplicity = Multiplicity.OneToMany)

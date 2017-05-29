@@ -288,6 +288,8 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                 # Automatic instanciation
                 #
                 # Used for instance in route.node.routing_table.routes
+                # XXX We can only auto_instanciate local attributes, otherwise we
+                # get issues with asyncio loop not present in thread
                 if attribute.requirements:
                     log.warning('Ignored requirements {}'.format(
                                 attribute.requirements))
@@ -301,7 +303,8 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                         value = self.get_default(attribute)
                     self.set(attribute.name, value)
                 else:
-                    log.info("Fetching remote value for {}.{}".format(self,attribute.name))
+                    # printing self might do an infinite loop here !
+                    log.info("Fetching remote value for {}.{}".format(self.get_uuid(), attribute.name))
                     task = getattr(self, "_get_{}".format(attribute.name))()
                     #XXX This is ugly but it prevents the LxdNotFound exception
                     while True:
@@ -315,7 +318,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                             import traceback; traceback.print_tb(e.__traceback__)
                             log.error("Failed to retrieve remote value for {} on {}".format(attribute.name, self))
                             import os; os._exit(1)
-                    value = rv[attribute.name]
+                    value = rv[attribute.name] if isinstance(rv, dict) else rv
                     vars(self)[attribute.name] = value
 
         if unref and isinstance(value, UUID):

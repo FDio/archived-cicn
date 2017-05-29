@@ -52,7 +52,6 @@ DEFAULT_CERT_PATH = os.path.expanduser(os.path.join(
 DEFAULT_KEY_PATH = os.path.expanduser(os.path.join(
         '~', '.vicn', 'lxd_client_cert', 'client_key.pem'))
 
-# FIXME hardcoded password for LXD server
 LXD_TRUST_PWD_DEFAULT = 'vicn'
 
 LXD_STORAGE_SIZE_DEFAULT = 100 # GB
@@ -199,6 +198,8 @@ class LxdHypervisor(Service):
                 owner = self)
         lxd_cert_install = LxdInstallCert(certificate = lxd_local_cert,
                 owner = self)
+        # XXX BUG network has to exist before profile, although as an attribute it
+        # will be setup after
         lxd_vicn_profile = LxdProfile(name=LXD_PROFILE_NAME_DEFAULT,
                                       node=self.node,
                                       description='vICN profile',

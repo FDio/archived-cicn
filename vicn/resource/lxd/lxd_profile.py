@@ -28,6 +28,8 @@ lxc profile device add {profile.name} root disk pool={profile.pool} path=/
 lxc profile device add {profile.name} {profile.iface_name} nic name={profile.iface_name} nictype=bridged parent={profile.network}
 lxc profile unset {profile.name} environment.http_proxy
 lxc profile unset {profile.name} user.network_mode
+# Temp fix for VPP
+lxc profile create vpp
 '''
 
 CMD_LXD_PROFILE_GET = 'lxc profile list | grep {profile.name}'

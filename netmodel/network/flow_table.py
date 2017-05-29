@@ -106,7 +106,6 @@ class FlowTable:
         # If the flow is a subscription, we need to associate it to the list
         query = packet.to_query()
         if query.action == ACTION_SUBSCRIBE:
-            print('adding subscription', query.to_dict())
             # XXX we currently don't merge subscriptions, and assume a single
             # next hop interface
             s = Subscription(packet, [ingress_interface], [interface])

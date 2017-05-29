@@ -43,12 +43,12 @@ class Certificate(Resource):
 
     Implements a SSL certificate.
     """
-    node = Attribute(Node, 
+    node = Attribute(Node,
             description = 'Node on which the certificate is created',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne)
     cert = Attribute(String, description = 'Certificate path',
-            mandatory = True) 
+            mandatory = True)
     key = Attribute(String, description = 'Key path',
             mandatory = True)
 
@@ -69,8 +69,8 @@ class Certificate(Resource):
         return self._cert_file.__get__() | self._key_file.__get__()
 
     def __create__(self):
-        return BashTask(None, CMD_CREATE, {'self': self})
-    
+        return BashTask(self.node, CMD_CREATE, {'self': self})
+
     def __delete__(self):
         return self._cert_file.__delete__() | self._key_file.__delete__()
 

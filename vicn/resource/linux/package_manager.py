@@ -41,7 +41,7 @@ apt-get update
 '''
 
 # We need to double { } we want to preserve
-CMD_PKG_TEST='dpkg -s {self.package_name}'
+CMD_PKG_TEST='dpkg -s {self.package_name} | grep  "Status:.* install "'
 
 CMD_PKG_INSTALL='''
 # Installing package {package_name}

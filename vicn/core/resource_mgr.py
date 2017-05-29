@@ -1126,6 +1126,7 @@ class ResourceManager(metaclass=Singleton):
 
     def _trigger_state_change(self, resource, fut):
         try:
+
             ret = fut.result()
             resource._state.change_success = True
             resource._state.change_value  = ret
@@ -1375,8 +1376,14 @@ class ResourceManager(metaclass=Singleton):
 
             # Update state based on task results
             if pending_state == ResourceState.PENDING_DEPS:
-                # XXX NO CHANGE SUCCESS TEST ??
-                new_state = ResourceState.DEPS_OK
+                if resource._state.change_success == True:
+                    self.log(resource, 'DEPS done.')
+                    new_state = ResourceState.DEPS_OK
+                else:
+                    e = resource._state.change_value
+                    log.error('Cannot wait resource dependencies {} : {}'.format(
+                            resource.get_uuid(), e))
+                    new_state = ResourceState.ERROR
 
             elif pending_state == ResourceState.PENDING_INIT:
                 if resource._state.change_success == True:

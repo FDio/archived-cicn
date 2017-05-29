@@ -154,6 +154,7 @@ class LxcContainer(Node):
         container = self._get_container_description()
         log.debug('Container description: {}'.format(container))
         client = self.node.lxd_hypervisor.client
+
         self._container = client.containers.create(container, wait=True)
 
     def _get_container_description(self):

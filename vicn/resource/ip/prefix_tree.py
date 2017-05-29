@@ -85,8 +85,7 @@ class Prefix(metaclass=ABCMeta):
         return hash(str(self))
 
     def __iter__(self):
-        for i in range(self.first_prefix_address(), self.last_prefix_address()+1):
-            yield self.ntoa(i)
+        return self.get_iterator()
 
     #Iterates by steps of prefix_size, e.g., on all available /31 in a /24
     def get_iterator(self, prefix_size=None):

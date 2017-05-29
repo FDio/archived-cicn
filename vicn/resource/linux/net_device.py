@@ -34,8 +34,6 @@ from vicn.resource.interface            import Interface
 # parse_ip_addr inspired from:
 # From: https://github.com/ohmu/poni/blob/master/poni/cloud_libvirt.py
 
-LXD_FIX = lambda cmd: 'sleep 1 && {}'.format(cmd)
-
 MAX_DEVICE_NAME_SIZE = 15
 
 IPV4=4
@@ -50,7 +48,7 @@ RX_INTERFACE_GET   = '.*?(?P<ifname>{})@{}:'
 
 log = logging.getLogger(__name__)
 
-CMD_GET = LXD_FIX('ip link show {netdevice.device_name}')
+CMD_GET = 'ip link show {netdevice.device_name}'
 CMD_CREATE = 'ip link add name {netdevice.device_name} ' \
              'type {netdevice.netdevice_type}'
 CMD_CREATE_PARENT = 'ip link add name {netdevice.device_name} ' \
