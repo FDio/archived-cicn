@@ -523,11 +523,12 @@ class ICNRoutes(Resource):
     def _get_prefix_origins(self):
         origins = dict()
         for group in self.groups:
-            for producer in group.iter_by_type_str('producer'):
-                node_uuid = producer.node._state.uuid
+            for node in group.iter_by_type_str('node'):
+                node_uuid = node._state.uuid
                 if not node_uuid in origins:
                     origins[node_uuid] = list()
-                origins[node_uuid].extend(producer.prefixes)
+                for producer in node.producers:
+                    origins[node_uuid].extend(producer.prefixes)
         return origins
 
     def _get_icn_routes(self):

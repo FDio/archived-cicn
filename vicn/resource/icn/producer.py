@@ -19,6 +19,7 @@
 from netmodel.model.type                import String
 from vicn.resource.icn.icn_application  import ICNApplication
 from vicn.core.attribute                import Attribute, Multiplicity
+from vicn.resource.node                 import Node
 
 class Producer(ICNApplication):
     """
@@ -27,3 +28,10 @@ class Producer(ICNApplication):
 
     prefixes = Attribute(String, description = 'List of served prefixes',
             multiplicity = Multiplicity.OneToMany)
+    #Overload to get producer list from node in CentralICN
+    node = Attribute(Node,
+            description = 'Node on which the producer is installed',
+            mandatory = True,
+            multiplicity = Multiplicity.ManyToOne,
+            reverse_name = 'producers',
+            key = True)
