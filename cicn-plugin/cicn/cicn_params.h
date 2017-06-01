@@ -27,10 +27,8 @@
 /*
  * Features
  */
-#define CICN_FEATURE_MULTITHREAD 0	// multiple worker support enabled?
-#define CICN_FEATURE_CS 1	// tri-valued:see cicn_cs_enabled()
-#define CICN_FEATURE_DPDK_RTEMBUF_CLONING 1	// dpdk rtembuf cloning enabled?
-#define CICN_FEATURE_VPP_VLIB_CLONING 0	// vpp vlib cloning enabled?
+#define CICN_FEATURE_MULTITHREAD 0      // multiple worker support enabled?
+#define CICN_FEATURE_CS 1               // tri-valued:see cicn_cs_enabled()
 
 /*
  * API compile-time parameters
@@ -114,4 +112,3 @@ extern int cicn_buftrc;
 #define GBI(vm,b0) (b0 ? vlib_get_buffer_index(vm, b0) : 0)
 
 #endif // _CICN_PARAM_H_
-

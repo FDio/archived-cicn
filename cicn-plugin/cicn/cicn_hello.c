@@ -23,7 +23,7 @@
 #include <vlibmemory/api.h>
 #include <vlibsocket/api.h>
 
-#include <vnet/ip/udp.h>
+#include <vnet/udp/udp.h>
 
 #include <cicn/cicn.h>
 #include <cicn/cicn_hello_inlines.h>

@@ -94,9 +94,7 @@ cicn_face_db_add (uint32_t src_addr, uint16_t src_port,
       goto done;
     }
   is_dpdk_driver = !strcmp (dev_class->name, "dpdk");
-  cloning_supported =
-    CICN_FEATURE_VPP_VLIB_CLONING ||
-    (CICN_FEATURE_DPDK_RTEMBUF_CLONING && is_dpdk_driver);
+  cloning_supported = CICN_INFRA_CLONE_REPLICATION;
 
   if (cicn_face_db.entry_count >= CICN_PARAM_FACES_MAX)
     {

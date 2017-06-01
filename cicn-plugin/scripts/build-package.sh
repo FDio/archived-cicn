@@ -9,12 +9,12 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential cmake"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU="vpp-dev vpp-dpdk-dev vpp-lib"
+DEPS_UBUNTU="vpp-dev vpp-lib"
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 BUILD_TOOLS_SINGLE_CENTOS="cmake"
 LIBSSL_LIBEVENT_CENTOS="libevent-devel openssl-devel"
-DEPS_CENTOS="vpp-dev vpp-dpdk-dev vpp-lib"
+DEPS_CENTOS="vpp-devel"
 
 # Parameters:
 # $1 = Distribution [Trusty / CentOS]
@@ -81,9 +81,9 @@ update_fdio_repo() {
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
 
         if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.xenial.main/"
+            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1704.ubuntu.xenial.main/"
         elif [ "$DISTRIB_CODENAME" == "trusty" ]; then
-            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.trusty.main/"
+            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1704.ubuntu.trusty.main/"
         else
             echo "Distribution $DISTRIB_CODENAME is not supported"
             exit -1
@@ -92,7 +92,7 @@ update_fdio_repo() {
         echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
 
     elif [ "$DISTRIB_ID" == "CentOS" ]; then
-        REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.centos7/"
+        REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1704.centos7/"
         REPO=${REPO_NAME:-"master.centos7"}
         REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
 

@@ -21,7 +21,7 @@
 #include <vlibmemory/api.h>
 #include <vlibsocket/api.h>
 #include <vppinfra/error.h>
-#include <vnet/ip/udp.h>
+#include <vnet/udp/udp.h>
 #include <cicn/cicn_api.h>
 
 uword unformat_sw_if_index (unformat_input_t * input, va_list * args);
@@ -252,16 +252,14 @@ static void
 
   fformat (vam->ofp,
 	   "Enabled %d\n"
-	   "  Features: multithreading:%d, cs:%d, dpdk-cloning:%d, "
-	   "vlib-cloning:%d\n",
+	   "  Features: multithreading:%d, cs:%d, clone-replication:%d\n"
 	   "  Workers %d, FIB size %d PIT size %d\n"
 	   "  PIT lifetime dflt %.3f, min %.3f, max %.3f\n"
 	   "  CS size %d\n",
 	   mp->is_enabled,
 	   mp->feature_multithread,
 	   mp->feature_cs,
-	   mp->feature_dpdk_rtembuf_cloning,
-	   mp->feature_vpp_vlib_cloning,
+	   mp->feature_clone_replication,
 	   clib_net_to_host_u32 (mp->worker_count),
 	   clib_net_to_host_u32 (mp->fib_max_size),
 	   clib_net_to_host_u32 (mp->pit_max_size),
@@ -1047,7 +1045,7 @@ _(cicn_api_face_events_subscribe, "enable|disable")                     \
 _(cicn_api_test_run_get, "testsuite <ID>")
 
 void
-vat_api_hookup (vat_main_t * vam)
+cicn_vat_api_hookup (vat_main_t * vam)
 {
   cicn_test_main_t *sm = &cicn_test_main;
   /* Hook up handlers for replies from the data plane plug-in */
@@ -1086,7 +1084,7 @@ vat_plugin_register (vat_main_t * vam)
   sm->msg_id_base = vl_client_get_first_plugin_msg_id ((char *) name);
 
   if (sm->msg_id_base != (u16) ~ 0)
-    vat_api_hookup (vam);
+    cicn_vat_api_hookup (vam);
 
   vec_free (name);
 

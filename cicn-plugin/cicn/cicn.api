@@ -76,8 +76,7 @@ define cicn_api_node_params_get_reply {
     /* compile-time plugin features */
     u8 feature_multithread;
     u8 feature_cs;
-    u8 feature_dpdk_rtembuf_cloning;
-    u8 feature_vpp_vlib_cloning;
+    u8 feature_clone_replication;
 
     /* Number of VPP workers */
     u32 worker_count;

@@ -26,7 +26,7 @@ set(VPP_SEARCH_PATH_LIST
     /opt
     /usr)
 
-find_path(VPP_INCLUDE_DIR vpp-api/vpe.api.h
+find_path(VPP_INCLUDE_DIR vpp/api/vpe.api.h
         HINTS ${VPP_SEARCH_PATH_LIST}
         PATH_SUFFIXES include
         DOC "Find the VPP includes")
@@ -34,7 +34,7 @@ find_path(VPP_INCLUDE_DIR vpp-api/vpe.api.h
 set(VPP_INCLUDE_DIRS
    ${VPP_INCLUDE_DIR}
    ${VPP_INCLUDE_DIR}/vpp-api
-   ${VPP_INCLUDE_DIR}/pneum
+   ${VPP_INCLUDE_DIR}/vpp-api/pneum
    ${VPP_INCLUDE_DIR}/vlibmemory
    ${VPP_INCLUDE_DIR}/vat
    ${VPP_INCLUDE_DIR}/vlibapi

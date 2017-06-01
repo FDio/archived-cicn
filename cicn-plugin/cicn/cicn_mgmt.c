@@ -28,7 +28,7 @@
 #include <vlibmemory/api.h>
 #include <vlibsocket/api.h>
 
-#include <vnet/ip/udp.h>	// port registration
+#include <vnet/udp/udp.h>	// port registration
 
 #include <cicn/cicn.h>
 
@@ -206,8 +206,7 @@ vl_api_cicn_api_node_params_get_t_handler (vl_api_cicn_api_node_params_get_t *
 
   rmp->feature_multithread = CICN_FEATURE_MULTITHREAD;
   rmp->feature_cs = CICN_FEATURE_CS;
-  rmp->feature_dpdk_rtembuf_cloning = CICN_FEATURE_DPDK_RTEMBUF_CLONING;
-  rmp->feature_vpp_vlib_cloning = CICN_FEATURE_VPP_VLIB_CLONING;
+  rmp->feature_clone_replication = CICN_INFRA_CLONE_REPLICATION;
 
   rmp->worker_count = clib_host_to_net_u32 (sm->worker_count);
 
@@ -1722,7 +1721,7 @@ cicn_cli_show_command_fn (vlib_main_t * vm, unformat_input_t * main_input,
       vlib_cli_output (vm,	//compare vl_api_cicn_api_node_stats_get_reply_t_handler block
 		       "  PIT entries (now): %d\n"
 		       "  CS entries (now): %d\n"
-		       "  Forwarding statistics:"
+		       "  Forwarding statistics:\n"
 		       "    pkts_processed: %d\n"
 		       "    pkts_interest_count: %d\n"
 		       "    pkts_data_count: %d\n"
@@ -1786,12 +1785,11 @@ done:
   if (all_p && internal_p)
     {
       vlib_cli_output (vm,
-		       "  Features: multithreading:%d, cs:%d, dpdk-cloning:%d, "
-		       "vlib-cloning:%d\n",
+		       "Plugin features: multithreading:%d, cs:%d, "
+		       "clone_replication:%d\n",
 		       CICN_FEATURE_MULTITHREAD,
 		       CICN_FEATURE_CS,
-		       CICN_FEATURE_DPDK_RTEMBUF_CLONING,
-		       CICN_FEATURE_VPP_VLIB_CLONING);
+		       CICN_INFRA_CLONE_REPLICATION);
     }
   return (0);
 }

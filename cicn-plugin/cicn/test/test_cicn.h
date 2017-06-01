@@ -41,4 +41,3 @@ test_cicn_result_record (cicn_api_test_suite_results_t * tr, int rc,
 int
 test_cicn_hash_suite (cicn_api_test_suite_results_t * tr,
 		      test_cicn_running_t * running);
-

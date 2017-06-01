@@ -136,4 +136,3 @@ test_cicn_init (vlib_main_t * vm)
 }
 
 VLIB_INIT_FUNCTION (test_cicn_init);
-

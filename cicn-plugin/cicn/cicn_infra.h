@@ -40,7 +40,6 @@ typedef struct cicn_main_s
   /* Convenience */
   vlib_main_t *vlib_main;
   vnet_main_t *vnet_main;
-  ethernet_main_t *ethernet_main;
 
   /* Global FIB instance */
   cicn_fib_t fib;
@@ -156,6 +155,9 @@ typedef struct cicn_infra_shard_s
 extern cicn_infra_shard_t cicn_infra_gshard;
 
 #define CICN_INFRA_CFG_GEN_INCR() (cicn_infra_gshard.cfg_generation++)
+
+/* VPP >= 17.04 supports clone-based replication */
+#define CICN_INFRA_CLONE_REPLICATION 1
 
 /* Fixed array for worker threads, to be indexed by worker index */
 #define CICN_INFRA_WORKERS_MAX  24

@@ -16,14 +16,13 @@
  * node.c - icn plug-in nodes for vpp
  */
 
-#include "cicn_rte_mbuf.h"	// needed first because vlib.h defs conflict
 #include <vlib/vlib.h>
 #include <vnet/vnet.h>
 
 #include <cicn/cicn.h>
 #include <cicn/cicn_hashtb.h>
 #include <cicn/cicn_pcs.h>
-#include <cicn/cicn_rte_mbuf_inlines.h>
+#include <cicn/cicn_infra_inlines.h>
 #include <cicn/cicn_hello_inlines.h>
 
 int cicn_buftrc = 0;		// make permanent or delete? Set to 1 to enable trace
@@ -121,7 +120,6 @@ prep_buffer_for_cs (vlib_main_t * vm, vlib_buffer_t * b0)
   /* Advance the vlib buffer to the beginning of the ICN payload */
   vlib_buffer_advance (b0, sizeof (ip4_header_t) + sizeof (udp_header_t));
 
-  cicn_infra_vlib_buffer_cs_prep_finalize (vm, b0);
   ret = AOK;
 
   return (ret);
@@ -135,10 +133,10 @@ prep_buffer_for_cs (vlib_main_t * vm, vlib_buffer_t * b0)
 static int
 cicn_clone_cs_buffer (vlib_buffer_t * hdr_b0, const cicn_pcs_entry_t * pcs,
 		      vlib_main_t * vm, vlib_buffer_free_list_t * fl,
-		      unsigned socket_id, cicn_face_db_entry_t * outface)
+		      cicn_face_db_entry_t * outface)
 {
   int ret = EINVAL;
-  vlib_buffer_t *cs_b0, *clone_b0;
+  vlib_buffer_t *cs_b0;
 
   BUFTRC ("CS-H-SW", GBI (vm, hdr_b0));
   if (PREDICT_FALSE (pcs->u.cs.cs_pkt_buf == 0))
@@ -149,33 +147,14 @@ cicn_clone_cs_buffer (vlib_buffer_t * hdr_b0, const cicn_pcs_entry_t * pcs,
 
   cs_b0 = vlib_get_buffer (vm, pcs->u.cs.cs_pkt_buf);
 
-  /* Clone the buf held in the CS */
-  clone_b0 = cicn_infra_vlib_buffer_clone (cs_b0, vm, fl, socket_id, outface);
-  BUFTRC ("CS-H-CL", GBI (vm, clone_b0));
-  if (PREDICT_FALSE (clone_b0 == 0))
-    {
-      /* If we can't get a buf, we can't continue */
-      goto done;
-    }
-
   /* At this point, the base CS buffer is pointing at the ICN payload
    * part of the packet, and we'll be using the other buffer
    * to hold the egress/tx rewrite info.
    */
   hdr_b0->current_data = 0;
   hdr_b0->current_length = sizeof (ip4_header_t) + sizeof (udp_header_t);
-  hdr_b0->flags |= VLIB_BUFFER_NEXT_PRESENT;
-  if (outface->swif_is_dpdk_driver)
-    {
-      ASSERT ((hdr_b0->flags & VNET_BUFFER_RTE_MBUF_VALID) != 0);
-    }
-  hdr_b0->total_length_not_including_first_buffer =
-    vlib_buffer_length_in_chain (vm, cs_b0);
 
-  /* Connect the header particle to the body */
-  hdr_b0->next_buffer = vlib_get_buffer_index (vm, clone_b0);
-
-  cicn_infra_vlib_buffer_clone_attach_finalize (hdr_b0, clone_b0, outface);
+  vlib_buffer_attach_clone (vm, hdr_b0, cs_b0);
 
   /* Looks like success */
   ret = AOK;
@@ -213,7 +192,6 @@ icnfwd_node_fn (vlib_main_t * vm,
   cicn_prefix_hashinf_t pfxhash;
   f64 tnow;
   vlib_buffer_free_list_t *fl;
-  unsigned socket_id = cicn_infra_rte_socket_id ();
   cicn_main_t *sm = &cicn_main;
 
   fl = vlib_buffer_get_free_list (vm, VLIB_BUFFER_DEFAULT_FREE_LIST_INDEX);
@@ -281,7 +259,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 	  uint16_t faceid;
 	  int clone_count;
 	  vlib_buffer_t *hdr_vec[CICN_PARAM_PIT_ENTRY_PHOPS_MAX];
-	  vlib_buffer_t *clone_vec[CICN_PARAM_PIT_ENTRY_PHOPS_MAX];
+	  vlib_buffer_t *cs_b0;
 	  cicn_face_db_entry_t *face_vec[CICN_PARAM_PIT_ENTRY_PHOPS_MAX];
 	  u64 seq_num;
 	  int trace_p = 0;
@@ -495,6 +473,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 	       * the ICN payload packet buf. We also capture the tx faceid.
 	       */
 	      ret = AOK;
+	      cs_b0 = b0;
 	      for (clone_count = 0, i = 0; i < CICN_PARAM_PIT_ENTRY_PHOPS_MAX;
 		   i++)
 		{
@@ -516,25 +495,11 @@ icnfwd_node_fn (vlib_main_t * vm,
 
 		      face_vec[clone_count] = outface;
 		      hdr_vec[clone_count] =
-			cicn_infra_vlib_buffer_alloc (vm, fl, socket_id,
-						      outface);
-		      if (!cicn_cs_enabled (&rt->pitcs) && clone_count == 0)
-			{
-			  clone_vec[clone_count] = b0;
-			}
-		      else
-			{
-			  clone_vec[clone_count] =
-			    cicn_infra_vlib_buffer_clone (b0, vm, fl,
-							  socket_id, outface);
-			}
+			cicn_infra_vlib_buffer_alloc (vm);
 		      BUFTRC ("CLN-HDR", GBI (vm, hdr_vec[clone_count]));
-		      BUFTRC ("CLN-CLN", GBI (vm, clone_vec[clone_count]));
 
-		      if (PREDICT_FALSE ((hdr_vec[clone_count] == NULL) ||
-					 (clone_vec[clone_count] == NULL)))
+		      if (PREDICT_FALSE (hdr_vec[clone_count] == NULL))
 			{
-
 			  /* Need to check this index in the arrays in
 			   * the error-handling code below.
 			   */
@@ -554,17 +519,10 @@ icnfwd_node_fn (vlib_main_t * vm,
 		  for (i = 0; i < clone_count; i++)
 		    {
 		      BUFTRC ("ERR-FRE",
-			      vlib_get_buffer_index (vm,
-						     clone_vec[clone_count]));
+			      vlib_get_buffer_index (vm, hdr_vec[i]));
 		      if (hdr_vec[i])
 			{
-			  cicn_infra_vlib_buffer_free (hdr_vec[i], vm,
-						       face_vec[i]);
-			}
-		      if (clone_vec[i])
-			{
-			  cicn_infra_vlib_buffer_free (hdr_vec[i], vm,
-						       face_vec[i]);
+			  cicn_infra_vlib_buffer_free (hdr_vec[i], vm);
 			}
 		    }
 
@@ -675,10 +633,8 @@ icnfwd_node_fn (vlib_main_t * vm,
 		   */
 		  for (i = 0; i < clone_count; i++)
 		    {
-		      vlib_buffer_t *cs_b0;
 
 		      b0 = hdr_vec[i];
-		      cs_b0 = clone_vec[i];
 		      outface = face_vec[i];
 
 		      if (PREDICT_FALSE (trace_p != 0))
@@ -691,16 +647,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 		      b0->current_data = 0;
 		      b0->current_length = (sizeof (ip4_header_t) +
 					    sizeof (udp_header_t));
-		      b0->flags |= VLIB_BUFFER_NEXT_PRESENT;
-
-		      b0->total_length_not_including_first_buffer =
-			vlib_buffer_length_in_chain (vm, cs_b0);
-
-		      /* Connect the header particle to the body */
-		      b0->next_buffer = vlib_get_buffer_index (vm, cs_b0);
-
-		      cicn_infra_vlib_buffer_clone_attach_finalize (b0, cs_b0,
-								    outface);
+		      vlib_buffer_attach_clone (vm, b0, cs_b0);
 
 		      /* Refresh the ip and udp headers
 		       * before the final part of the rewrite
@@ -991,7 +938,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 		   * Clone the CS packet, and prepare the incoming request
 		   * packet to hold the rewrite info as a particle.
 		   */
-		  if (cicn_clone_cs_buffer (b0, pitp, vm, fl, socket_id,
+		  if (cicn_clone_cs_buffer (b0, pitp, vm, fl,
 					    inface /*outface */ ) != AOK)
 		    {
 		      no_bufs_count++;
@@ -1526,23 +1473,7 @@ cicn_trim_cs_lru (vlib_main_t * vm, vlib_node_runtime_t * node,
       BUFTRC ("CS-TRIM-ALL", bufcount);
       if (bufcount > 0)
 	{
-#if 1				//$$$XXX TODO: does this work better than drop-node approach? seems so(?)
 	  vlib_buffer_free (vm, buf_list, bufcount);
-#else
-	  /* This ought to work, not limited to a single frame size. It has
-	   * the nice property that we get to set a stat/error code for
-	   * the bufs we're freeing. Note that we specify the 'next index'
-	   * in terms of our own node's array of 'nexts'.
-	   *
-	   * Seems to work but can replace with
-	   *    vlib_buffer_free (vm, buf_list, bufcount);
-	   * if willing to give up the counter.
-	   */
-	  vlib_error_drop_buffers (vm, node, buf_list, 1 /*stride */ ,
-				   bufcount,
-				   ICNFWD_NEXT_ERROR_DROP /*next index */ ,
-				   icnfwd_node.index, ICNFWD_ERROR_CS_LRU);
-#endif
 	}
     }
 

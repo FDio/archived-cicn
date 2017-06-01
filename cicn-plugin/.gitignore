@@ -27,5 +27,4 @@ Makefile
 *.swp
 libtool
 *~
-*.pyc
 .idea

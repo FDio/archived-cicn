@@ -31,7 +31,7 @@
 #include <cicn/cicn_std.h>
 
 #ifndef AOK
-#  define AOK 0
+#define AOK 0
 #endif
 
 /*

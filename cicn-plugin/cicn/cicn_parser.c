@@ -109,4 +109,3 @@ cicn_parse_name_from_str (uint8_t * obuf, int obuflen, const char *str,
     }
   return (ret);
 }
-

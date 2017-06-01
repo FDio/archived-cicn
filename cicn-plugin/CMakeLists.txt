@@ -18,7 +18,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # Dependencies
 
 find_package(Vpp REQUIRED)
-find_package(VppDpdk REQUIRED)
 
 set(CICN_PLUGIN_SOURCE_FILES
     cicn/cicn.c
@@ -41,7 +40,6 @@ set(CICN_PLUGIN_HEADER_FILES
     cicn/cicn_mgmt.h
     cicn/cicn_params.h
     cicn/cicn_pcs.h
-    cicn/cicn_rte_mbuf_inlines.h
     cicn/cicn_std.h
     cicn/cicn_api.h
     cicn/cicn_face.h
@@ -50,7 +48,6 @@ set(CICN_PLUGIN_HEADER_FILES
     cicn/cicn_infra.h
     cicn/cicn_msg_enum.h
     cicn/cicn_parser.h
-    cicn/cicn_rte_mbuf.h
     cicn/cicn_siphash.h
     cicn/cicn_types.h)
 
@@ -82,7 +79,6 @@ include_directories(SYSTEM)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(./)
 include_directories(cicn/test)
-include_directories(${VPP_DPDK_INCLUDE_DIRS})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -march=native -O3")
 add_library(cicn_api_test_plugin SHARED
@@ -90,7 +86,7 @@ add_library(cicn_api_test_plugin SHARED
         ${CICN_API_TEST_HEADER_FILES}
         ${CMAKE_CURRENT_BINARY_DIR}/cicn/cicn.api.h)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDPDK=1 -DCICN_VPP_PLUGIN=1")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DCICN_VPP_PLUGIN=1")
 add_library(cicn_plugin SHARED
         ${CICN_PLUGIN_SOURCE_FILES}
         ${CICN_PLUGIN_HEADER_FILES}
@@ -145,13 +141,13 @@ if (DEB_PACKAGE)
     SET(TYPE "DEBIAN")
     SET(GENERATOR "DEB")
     SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${PACKAGE_VERSION}_${ARCHITECTURE}")
-    SET(CPACK_${TYPE}_PACKAGE_DEPENDS "vpp (= 17.01), vpp-lib (= 17.01), vpp-dpdk-dkms (= 17.01)")
+    SET(CPACK_${TYPE}_PACKAGE_DEPENDS "vpp (>> 17.01), vpp-lib (>> 17.01)")
 elseif (RPM_PACKAGE)
     SET(TYPE "RPM")
     SET(GENERATOR "RPM")
     SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${PACKAGE_VERSION}.${ARCHITECTURE}")
     SET(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
-    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "vpp = 17.01, vpp-dpdk-devel = 17.01")
+    SET(CPACK_${TYPE}_PACKAGE_REQUIRES "vpp > 17.01, vpp-lib > 17.01")
 else ()
     RETURN()
 endif ()

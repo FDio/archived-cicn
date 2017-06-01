@@ -793,6 +793,3 @@ int
 done:
   return (rv);
 }
-
-
-
