@@ -108,7 +108,6 @@ EOF
         echo "Distribution $DISTRIB_CODENAME is not supported"
         exit -1
     fi
-
 }
 
 setup() {
