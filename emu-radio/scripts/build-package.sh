@@ -3,6 +3,7 @@
 set -euxo pipefail
 IFS=$'\n\t'
 
+SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
@@ -153,6 +154,22 @@ build() {
     make
 }
 
+change_version() {
+    OLD_PACKAGE=$1
+    NEW_PACKAGE=$2
+    B_NUMBER=$3
+
+    mkdir tmp
+    pushd tmp
+    ar p ../${OLD_PACKAGE} control.tar.gz | tar -xz
+    sed -i s/3.24.1-8/3.24.1-${B_NUMBER}/g control
+    mv ../${OLD_PACKAGE} ../${NEW_PACKAGE}
+    tar czf control.tar.gz *[!z]
+    ar r ../${NEW_PACKAGE} control.tar.gz
+    popd
+    rm -rf tmp
+}
+
 ARCHITECTURE=`uname -m`
 
 # Figure out what system we are running on
@@ -201,28 +218,29 @@ fi
 BLD_NUMBER=${BUILD_NUMBER:-"1"}
 
 # Install libns3
-pushd ../ns3-packages
+pushd ${SCRIPT_PATH}/../ns3-packages
 sudo dpkg -i *.deb || true
 sudo apt-get -f install -y --allow-unauthenticated || true
 popd
 
 # Build wifi-emualtor
-pushd ..
+pushd ${SCRIPT_PATH}/..
 build "-DWIFI=ON -DLTE=OFF"
 make package
 find . -not -name '*.deb' -not -name '*.rpm' -print0 | xargs -0 rm -rf -- || true
 popd
 
 # Build lte-emualtor
-pushd ..
+pushd ${SCRIPT_PATH}/..
 build "-DLTE=ON -DWIFI=OFF"
 make package
 find . -not -name '*.deb' -not -name '*.rpm' -print0 | xargs -0 rm -rf -- || true
 popd
 
 # Change build number to ns3 packages
-pushd ../ns3-packages
-mv libns3sx-3v5_3.24.1-6~xenial_amd64.deb libns3sx-3v5_3.24.1-$BLD_NUMBER~xenial_amd64.deb || true
-mv libns3sx-dev_3.24.1-6~xenial_amd64.deb libns3sx-dev_3.24.1-$BLD_NUMBER~xenial_amd64.deb || true
-mv ns3sx_3.24.1-6~xenial_amd64.deb ns3sx_3.24.1-$BLD_NUMBER~xenial_amd64.deb || true
+pushd ${SCRIPT_PATH}/../ns3-packages
+
+change_version libns3sx-3v5_3.24.1-8~xenial_amd64.deb libns3sx-3v5_3.24.1-$BLD_NUMBER~xenial_amd64.deb ${BLD_NUMBER} || true
+change_version libns3sx-dev_3.24.1-8~xenial_amd64.deb libns3sx-dev_3.24.1-$BLD_NUMBER~xenial_amd64.deb ${BLD_NUMBER} || true
+change_version ns3sx_3.24.1-8~xenial_amd64.deb ns3sx_3.24.1-$BLD_NUMBER~xenial_amd64.deb ${BLD_NUMBER} || true
 popd
