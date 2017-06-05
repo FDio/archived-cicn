@@ -13,17 +13,39 @@
 
 cmake_minimum_required(VERSION 3.2)
 project(http-server)
+set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type selected, default to Release")
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-find_package(Libicnet REQUIRED)
-include_directories(${LIBICNET_INCLUDE_DIRS})
+option(ICNET "Link against Libicnet." ON)
+option(HICNET "Link against Libhicnet." OFF)
+
+if (HICNET)
+    find_package(Libhicnet REQUIRED)
+    set (TRANSPORT_LIBRARY HICNET)
+    set(ICNET OFF)
+else()
+    find_package(Libicnet REQUIRED)
+    set (TRANSPORT_LIBRARY ICNET)
+endif()
+
+configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
+        "${CMAKE_BINARY_DIR}/config.h")
+
+include_directories(${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
 
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIRS})
+
 find_package(Boost 1.53.0 COMPONENTS regex system filesystem REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${LIBICNET_INCLUDE_DIR})
+include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${CMAKE_BINARY_DIR} ${CURL_INCLUDE_DIRS} ${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIR})
 
 set(SOURCE_FILES
     main.cc
@@ -45,10 +67,18 @@ set(SOURCE_FILES
     http-server/socket_request.cc
     http-server/socket_request.h
     http-server/configuration.cc
-    http-server/configuration.h)
+    http-server/configuration.h
+    http-client/http_client.cc
+    http-client/http_client.h
+    ${CMAKE_BINARY_DIR}/config.h)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
 
 add_executable(http-server ${SOURCE_FILES})
-target_link_libraries(http-server ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBICNET_LIBRARY})
+target_link_libraries(http-server ${LIB${TRANSPORT_LIBRARY}_LIBRARY} ${CURL_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS http-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
@@ -74,19 +104,21 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/scripts/version
                 OUTPUT_VARIABLE PACKAGE_VERSION)
 string(STRIP ${PACKAGE_VERSION} PACKAGE_VERSION)
 
+string(TOLOWER ${TRANSPORT_LIBRARY} TRANSPORT_DEPENDENCY)
+
 if (DEB_PACKAGE)
     set(TYPE "DEBIAN")
     set(GENERATOR "DEB")
     set(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${PACKAGE_VERSION}_${ARCHITECTURE}")
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-    set(CPACK_${TYPE}_PACKAGE_DEPENDS "libicnet (>= 1.0)")
+    set(CPACK_${TYPE}_PACKAGE_DEPENDS "lib${TRANSPORT_DEPENDENCY} (>= 0.1)")
 elseif (RPM_PACKAGE)
     set(TYPE "RPM")
     set(GENERATOR "RPM")
     set(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${PACKAGE_VERSION}.${ARCHITECTURE}")
     set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
     set(CPACK_${TYPE}_PACKAGE_AUTOREQ ON)
-    set(CPACK_${TYPE}_PACKAGE_REQUIRES "boost-system >= 1.53, boost-regex >= 1.53, boost-filesystem >= 1.53, libicnet >= 1.0")
+    set(CPACK_${TYPE}_PACKAGE_REQUIRES "boost-system >= 1.53, boost-regex >= 1.53, boost-filesystem >= 1.53, lib${TRANSPORT_DEPENDENCY} >= 1.0")
 else ()
     return()
 endif ()

@@ -74,13 +74,9 @@ class HttpServer {
   std::unordered_map<std::string, ResourceCallback> default_resource;
 
  private:
-  void processInterest(icnet::Name request_name, std::shared_ptr<icnet::ProducerSocket> p);
+  void onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher, const uint8_t* buffer, std::size_t size);
 
-  void processIncomingInterest(icnet::ProducerSocket &p, const icnet::Interest &interest);
-
-  void signPacket(icnet::ProducerSocket &p, icnet::ContentObject &content_object);
-
-  void spawnTcpThreads();
+  void spawnThreads();
 
   void setIcnAcceptor();
 
@@ -96,8 +92,6 @@ class HttpServer {
                       std::shared_ptr<Request> request,
                       ResourceCallback &resource_function);
 
-  std::shared_ptr<icnet::ProducerSocket> makeProducer(icnet::Name request_name);
-
   Configuration config_;
 
   std::vector<std::pair<std::string, std::vector<std::pair<boost::regex, ResourceCallback> > > > opt_resource_;
@@ -109,10 +103,8 @@ class HttpServer {
 
   // ICN parameters
   std::string icn_name_;
-  std::shared_ptr<icnet::ProducerSocket> acceptor_producer_;
-  std::unordered_map<icnet::Name, std::future<void>> icn_threads_;
-  std::unordered_map<icnet::Name, std::shared_ptr<icnet::ProducerSocket>> icn_producers_;
-  std::unordered_map<icnet::Name, std::shared_ptr<boost::asio::io_service>> name_io_service_map_;
+  std::shared_ptr<libl4::http::HTTPServerAcceptor> icn_acceptor_;
+  std::unordered_map<int, std::shared_ptr<libl4::http::HTTPServerPublisher>> icn_publishers_;
   std::mutex thread_list_mtx_;
 
   long timeout_request_;

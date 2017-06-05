@@ -27,6 +27,7 @@
 #include <boost/filesystem.hpp>
 
 #include "http-server/http_server.h"
+#include "http-client/http_client.h"
 
 typedef icn_httpserver::HttpServer HttpServer;
 typedef icn_httpserver::Response Response;
@@ -66,7 +67,7 @@ void afterSignal(HttpServer *webServer, const boost::system::error_code &errorCo
 }
 
 void usage(const char *programName) {
-  cerr << programName << " [-p PATH_TO_ROOT_FOOT_FOLDER] [-l WEBSERVER_PREFIX]\n"
+  cerr << programName << " [-p PATH_TO_ROOT_FOOT_FOLDER] [-l WEBSERVER_PREFIX] [-x PROXY_ADDRESS]\n"
        << "Web server able to publish content and generate http responses over TCP/ICN\n" << endl;
 
   exit(1);
@@ -76,11 +77,12 @@ int main(int argc, char **argv) {
   // Parse command line arguments
 
   string root_folder = "/var/www/html";
-  string webserver_prefix = "ccnx:/webserver";
+  string webserver_prefix = "http://webserver";
+  string proxy_address = "";
 
   int opt = 0;
 
-  while ((opt = getopt(argc, argv, "p:l:h")) != -1) {
+  while ((opt = getopt(argc, argv, "p:l:hx:")) != -1) {
 
     switch (opt) {
       case 'p':
@@ -89,7 +91,11 @@ int main(int argc, char **argv) {
       case 'l':
         webserver_prefix = optarg;
         break;
+      case 'x':
+        proxy_address = optarg;
+        break;
       case 'h':
+      default:
         usage(argv[0]);
         break;
     }
@@ -138,7 +144,7 @@ int main(int argc, char **argv) {
   // Will respond with content in the web/-directory, and its subdirectories.
   // Default file: index.html
   // Can for instance be used to retrieve an HTML 5 client that uses REST-resources on this server
-  server.default_resource["GET"] = [&server, &root_folder](shared_ptr<Response> response, shared_ptr<Request> request) {
+  server.default_resource["GET"] = [&server, &root_folder, &proxy_address](shared_ptr<Response> response, shared_ptr<Request> request) {
     const auto web_root_path = boost::filesystem::canonical(root_folder);
 
     boost::filesystem::path path = web_root_path;
@@ -164,7 +170,7 @@ int main(int argc, char **argv) {
           if (*ifs) {
             //read and send 1 MB at a time
             streamsize buffer_size = 15 * 1024 * 1024;
-            auto buffer = make_shared < vector < char > > (buffer_size);
+            auto buffer = make_shared<vector<char> >(buffer_size);
 
             ifs->seekg(0, ios::end);
             auto length = ifs->tellg();
@@ -182,9 +188,34 @@ int main(int argc, char **argv) {
             default_resource_send(server, response, ifs, buffer, length);
 
             return;
+
           }
         }
       }
+    }
+
+    if (!proxy_address.empty()) {
+
+      // Fetch content from remote origin
+      std::stringstream ss;
+      if (strncmp("http://", proxy_address.c_str(), 7) || strncmp("https://", proxy_address.c_str(), 8)) {
+        ss << "http://";
+      }
+
+      ss << proxy_address;
+      ss << request->getPath();
+
+      std::cout << ss.str() << std::endl;
+
+      HTTPClient client;
+
+      client.download(ss.str(), *response);
+
+//      std::cout << "+++++++++++++++++++++++++++++++++++" << reply.size() << std::endl;
+
+//      *response << reply;
+
+      return;
     }
 
     string content = "Could not open path " + request->getPath();

@@ -24,9 +24,9 @@ namespace icn_httpserver {
 class IcnRequest
     : public Request {
  public:
-  IcnRequest(std::shared_ptr<icnet::ProducerSocket> producer);
+  IcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher);
 
-  IcnRequest(std::shared_ptr<icnet::ProducerSocket> producer,
+  IcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher,
              std::string name,
              std::string path,
              std::string method,
@@ -40,14 +40,14 @@ class IcnRequest
 
   void setRequest_id(int request_id);
 
-  const std::shared_ptr<icnet::ProducerSocket> &getProducer() const;
+  const std::shared_ptr<libl4::http::HTTPServerPublisher> &getHttpPublisher() const;
 
-  void setProducer(const std::shared_ptr<icnet::ProducerSocket> &producer);
+  void setProducer(const std::shared_ptr<libl4::http::HTTPServerPublisher> &producer);
 
  private:
   std::string name_;
   int request_id_;
-  std::shared_ptr<icnet::ProducerSocket> producer_;
+  std::shared_ptr<libl4::http::HTTPServerPublisher> publisher_;
 
 };
 

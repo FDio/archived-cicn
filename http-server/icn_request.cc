@@ -17,19 +17,19 @@
 
 namespace icn_httpserver {
 
-IcnRequest::IcnRequest(std::shared_ptr<icnet::ProducerSocket> producer)
-    : producer_(producer) {
+IcnRequest::IcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher)
+    : publisher_(publisher) {
   time_t t;
   time(&t);
   srand((unsigned int) t);
   request_id_ = rand();
 }
 
-IcnRequest::IcnRequest(std::shared_ptr<icnet::ProducerSocket> producer,
+IcnRequest::IcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher,
                        std::string name,
                        std::string path,
                        std::string method, std::string http_version)
-    : IcnRequest(producer) {
+    : IcnRequest(publisher) {
   this->name_ = name;
   this->path_ = path;
   this->method_ = method;
@@ -52,12 +52,12 @@ void IcnRequest::setRequest_id(int request_id) {
   IcnRequest::request_id_ = request_id;
 }
 
-const std::shared_ptr<icnet::ProducerSocket> &IcnRequest::getProducer() const {
-  return producer_;
+const std::shared_ptr<libl4::http::HTTPServerPublisher> &IcnRequest::getHttpPublisher() const {
+  return publisher_;
 }
 
-void IcnRequest::setProducer(const std::shared_ptr<icnet::ProducerSocket> &producer) {
-  IcnRequest::producer_ = producer;
+void IcnRequest::setProducer(const std::shared_ptr<libl4::http::HTTPServerPublisher> &producer) {
+  IcnRequest::publisher_ = producer;
 }
 
 } // end namespace icn_httpserver

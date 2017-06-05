@@ -17,22 +17,23 @@
 
 namespace icn_httpserver {
 
-IcnResponse::IcnResponse(std::shared_ptr<icnet::ProducerSocket> producer,
+IcnResponse::IcnResponse(std::shared_ptr<libl4::http::HTTPServerPublisher> publisher,
                          std::string ndn_name,
                          std::string ndn_path,
                          int response_id)
-    : producer_(producer), ndn_name_(ndn_name), ndn_path_(ndn_path), response_id_(response_id) {
+    : publisher_(publisher), ndn_name_(ndn_name), ndn_path_(ndn_path), response_id_(response_id) {
 }
 
 void IcnResponse::send(const SendCallback &callback) {
   std::size_t buffer_size = this->streambuf_.size();
   this->streambuf_.commit(this->streambuf_.size());
 
-  this->producer_->produce(icnet::Name(/*this->ndn_name*/),
-                           boost::asio::buffer_cast<const uint8_t *>(this->streambuf_.data()),
-                           buffer_size,
-                           this->response_id_,
-                           this->is_last_);
+  std::cout << "Rrsponse Id " << response_id_ << std::endl;
+
+  this->publisher_->publishContent(boost::asio::buffer_cast<const uint8_t *>(this->streambuf_.data()),
+                                   buffer_size,
+                                   this->response_id_,
+                                   this->is_last_);
 
   this->streambuf_.consume(buffer_size);
 

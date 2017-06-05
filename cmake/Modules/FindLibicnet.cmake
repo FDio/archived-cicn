@@ -22,7 +22,7 @@ set(LIBICNET_SEARCH_PATH_LIST
         /usr
         )
 
-find_path(LIBICNET_INCLUDE_DIR icnet/icnet_common.h
+find_path(LIBICNET_INCLUDE_DIR icnet/icnet_ccnx_common.h
         HINTS ${LIBICNET_SEARCH_PATH_LIST}
         PATH_SUFFIXES include
         DOC "Find the libicnet includes")

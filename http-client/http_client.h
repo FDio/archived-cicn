@@ -13,32 +13,23 @@
  * limitations under the License.
  */
 
-#include "response.h"
+#ifndef HTTP_CLIENT_H_
+#define HTTP_CLIENT_H_
 
-#ifndef ICN_WEB_SERVER_ICNRESPONSE_H_
-#define ICN_WEB_SERVER_ICNRESPONSE_H_
+#include <string>
 
-namespace icn_httpserver {
-
-class IcnResponse
-    : public Response {
-
+class HTTPClient {
  public:
-
-  IcnResponse(std::shared_ptr<libl4::http::HTTPServerPublisher> producer,
-              std::string ndn_name,
-              std::string ndn_path,
-              int response_id);
-
-  void send(const SendCallback &callback = nullptr);
-
+  HTTPClient();
+  ~HTTPClient();
+  /**
+   * Download a file using HTTP GET and store in in a std::string
+   * @param url The URL to download
+   * @return The download result
+   */
+  bool download(const std::string& url, std::ostream& out);
  private:
-  std::string ndn_name_;
-  std::string ndn_path_;
-  int response_id_;
-  std::shared_ptr<libl4::http::HTTPServerPublisher> publisher_;
+  void* curl_;
 };
 
-} // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_ICNRESPONSE_H_
+#endif  // HTTP_CLIENT_H_

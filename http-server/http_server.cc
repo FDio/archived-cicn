@@ -33,7 +33,6 @@ HttpServer::HttpServer(unsigned short port,
       internal_io_service_(std::make_shared<boost::asio::io_service>()),
       io_service_(*internal_io_service_),
       acceptor_(io_service_),
-      acceptor_producer_(std::make_shared<icnet::ProducerSocket>(icnet::Name(icn_name))),
       timeout_request_(timeout_request),
       timeout_content_(timeout_send_or_receive) {
 }
@@ -48,124 +47,51 @@ HttpServer::HttpServer(unsigned short port,
       icn_name_(icn_name),
       io_service_(ioService),
       acceptor_(io_service_),
-      acceptor_producer_(std::make_shared<icnet::ProducerSocket>(icnet::Name(icn_name))),
       timeout_request_(timeout_request),
       timeout_content_(timeout_send_or_receive) {
 }
 
-void HttpServer::processIncomingInterest(icnet::ProducerSocket &p, const icnet::Interest &interest) {
-  icnet::Name complete_name = interest.getName();
+void HttpServer::onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher> &publisher,
+                              const uint8_t *buffer,
+                              std::size_t size) {
+  publisher->setTimeout(5);
+  std::shared_ptr<Request> request = std::make_shared<IcnRequest>(publisher);
+  request->getContent().rdbuf()->sputn((char*)buffer, size);
 
-  if (complete_name.getSegmentCount() <= 2) {
-    std::cerr << "Received malformed name " << complete_name << ". Ignoring it." << std::endl;
+  if (!parse_request(request, request->getContent())) {
     return;
   }
 
-  icnet::Name request_name = complete_name.get(-1).isSegment() ? complete_name.getPrefix(-1) : complete_name;
+  int request_id = libl4::utils::Hash::hash32(buffer, size);
+
+  std::cout << "Request ID" << request_id << std::endl;
 
   std::unique_lock<std::mutex> lock(thread_list_mtx_);
-  if (icn_producers_.size() < config_.getNum_threads()) {
-    if (icn_producers_.find(request_name) == icn_producers_.end()) {
-      std::cout << "Received interest name: " << request_name << std::endl;
-      std::shared_ptr<icnet::ProducerSocket> p = makeProducer(request_name);
-      icn_producers_[request_name] = p;
+  if (icn_publishers_.size() < config_.getNum_threads()) {
+    if (icn_publishers_.find(request_id) == icn_publishers_.end()) {
+      std::cout << "Received request for: " << request->getPath() << std::endl;
+      icn_publishers_[request_id] = publisher;
       std::cout << "Starting new thread" << std::endl;
-      std::thread t([this, interest, request_name, p]() {
-        processInterest(request_name, p);
+      io_service_.dispatch([this, request, request_id]() {
+        find_resource(nullptr, request);
+        icn_publishers_[request_id]->serveClients();
+        std::unique_lock<std::mutex> lock(thread_list_mtx_);
+        icn_publishers_.erase(request_id);
       });
-      t.detach();
-    } else {
-      icn_producers_[request_name]->onInterest(complete_name, interest);
     }
   }
-}
-
-void HttpServer::signPacket(icnet::ProducerSocket &p, icnet::ContentObject &content_object) {
-  // This is not really signing the packet. Signing every packet is cpu expensive.
-  icnet::KeyLocator keyLocator;
-  content_object.signWithSha256(keyLocator);
-}
-
-void HttpServer::processInterest(icnet::Name request_name, std::shared_ptr<icnet::ProducerSocket> p) {
-  // Create timer
-  std::shared_ptr<icnet::ccnx::Portal> portal;
-  p->getSocketOption(icnet::GeneralTransportOptions::PORTAL, portal);
-  boost::asio::io_service &ioService = portal->getIoService();
-
-  boost::asio::deadline_timer t(ioService, boost::posix_time::seconds(5));
-
-  std::function<void(const boost::system::error_code e)>
-      wait_callback = [&ioService](const boost::system::error_code e) {
-    if (!e) {
-      // Be sure to delete the timer before the io_service, otherwise we'll get some strange behavior!
-      ioService.stop();
-    }
-  };
-
-  t.async_wait(wait_callback);
-
-  // Get the name of the HTTP method to compute
-  std::string method = request_name.get(1).toString();
-  std::transform(method.begin(), method.end(), method.begin(), ::toupper);
-  std::string path;
-
-  // This is done for getting rid of useless name components such as ccnx: or ndn:
-  if (request_name.getSegmentCount() > 2) {
-    std::string rawPath = request_name.getSubName(2).toString();
-    std::size_t pos = rawPath.find("/");
-    path = rawPath.substr(pos);
-  }
-
-  std::function<void(icnet::ProducerSocket &p, const icnet::Interest &interest)>
-      interest_enter_callback = [this, &wait_callback, &t](icnet::ProducerSocket &p, const icnet::Interest &interest) {
-    t.cancel();
-    t.expires_from_now(boost::posix_time::seconds(5));
-    t.async_wait(wait_callback);
-  };
-
-  p->setSocketOption(icnet::ProducerCallbacksOptions::INTEREST_INPUT,
-                     (icnet::ProducerInterestCallback) interest_enter_callback);
-
-  // TODO The parsing of the parameters in theURL is missing!
-  if (method == GET) {
-    // Build new GET request to submit to the server
-
-    std::shared_ptr<Request> request = std::make_shared<IcnRequest>(p, request_name.toString(), path, method, "1.0");
-
-    std::static_pointer_cast<IcnRequest>(request)->getHeader()
-        .insert(std::make_pair(std::string("Host"), std::string("localhost")));
-
-    p->attach();
-
-    find_resource(nullptr, request);
-  }
-
-  p->serveForever();
-
-  std::unique_lock<std::mutex> lock(thread_list_mtx_);
-  icn_producers_.erase(request_name);
-}
-
-std::shared_ptr<icnet::ProducerSocket> HttpServer::makeProducer(icnet::Name request_name) {
-  std::shared_ptr<icnet::ProducerSocket> producer = std::make_shared<icnet::ProducerSocket>(request_name);
-  //  producer->setContextOption(FAST_SIGNING, true);
-  //  producer->setContextOption(DATA_TO_SECURE, (api::ProducerDataCallback) bind(&http-server::signPacket, this, _1, _2));
-  producer->setSocketOption(icnet::GeneralTransportOptions::DATA_PACKET_SIZE, PACKET_SIZE);
-  producer->setSocketOption(icnet::GeneralTransportOptions::OUTPUT_BUFFER_SIZE, SEND_BUFFER_SIZE);
-
-  return producer;
 }
 
 void HttpServer::setIcnAcceptor() {
-  acceptor_producer_->setSocketOption(icnet::ProducerCallbacksOptions::INTEREST_INPUT,
-                                      (icnet::ProducerInterestCallback) bind(&HttpServer::processIncomingInterest,
-                                                                             this,
-                                                                             std::placeholders::_1,
-                                                                             std::placeholders::_2));
-  acceptor_producer_->dispatch();
+  icn_acceptor_ = std::make_shared<libl4::http::HTTPServerAcceptor>(icn_name_, std::bind(&HttpServer::onIcnRequest,
+                                                                     this,
+                                                                     std::placeholders::_1,
+                                                                     std::placeholders::_2,
+                                                                     std::placeholders::_3));
+  icn_acceptor_->listen(true);
 }
 
-void HttpServer::spawnTcpThreads() {
+void HttpServer::spawnThreads() {
   if (io_service_.stopped()) {
     io_service_.reset();
   }
@@ -216,10 +142,8 @@ void HttpServer::start() {
     }
   }
 
-  spawnTcpThreads();
+  spawnThreads();
   setIcnAcceptor();
-
-
 
   // Wait for the rest of the threads, if any, to finish as well
   for (auto &t: socket_threads_) {
@@ -233,16 +157,14 @@ void HttpServer::start() {
 
 void HttpServer::stop() {
   acceptor_.close();
-  acceptor_producer_.reset();
+  icn_acceptor_.reset();
   io_service_.stop();
 
-  for (auto p: icn_producers_) {
-    std::shared_ptr<icnet::ccnx::Portal> portalPtr;
-    p.second->getSocketOption(icnet::GeneralTransportOptions::PORTAL, portalPtr);
-    portalPtr->getIoService().stop();
+  for (auto &p: icn_publishers_) {
+      p.second->stop();
   }
 
-  for (auto p : icn_producers_) {
+  for (auto p : icn_publishers_) {
     p.second.reset();
   }
 
@@ -289,7 +211,7 @@ void HttpServer::read_request_and_content(std::shared_ptr<socket_type> socket) {
   std::shared_ptr<Request> request = std::make_shared<SocketRequest>();
   request->read_remote_endpoint_data(*socket);
 
-  //Set timeout on the following boost::asio::async-read or write function
+  // Set timeout on the following boost::asio::async-read or write function
   std::shared_ptr<boost::asio::deadline_timer> timer;
   if (timeout_request_ > 0) {
     timer = set_timeout_on_socket(socket, timeout_request_);
@@ -439,7 +361,7 @@ void HttpServer::write_response(std::shared_ptr<socket_type> socket,
   if (socket) {
     resp = new SocketResponse(socket);
   } else {
-    resp = new IcnResponse(std::static_pointer_cast<IcnRequest>(request)->getProducer(),
+    resp = new IcnResponse(std::static_pointer_cast<IcnRequest>(request)->getHttpPublisher(),
                            std::static_pointer_cast<IcnRequest>(request)->getName(),
                            std::static_pointer_cast<IcnRequest>(request)->getPath(),
                            std::static_pointer_cast<IcnRequest>(request)->getRequest_id());
