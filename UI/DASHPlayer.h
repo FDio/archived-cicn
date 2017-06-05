@@ -23,6 +23,7 @@
 #include "../Buffer/IBufferObserver.h"
 #include "../MPD/AdaptationSetHelper.h"
 #include "../Common/Config.h"
+#include <QMessageLogger>
 #include <qimage.h>
 #include<map>
 #include<tuple>

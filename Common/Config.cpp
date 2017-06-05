@@ -527,7 +527,7 @@ void Config::reload()
     settings.endGroup();
 
     settings.beginGroup(QString::fromLatin1("backend"));
-    setIcnPrefix(settings.value(QString::fromLatin1("icn_prefix"), QString::fromLatin1("ccnx:/webserver/get/")).toString());
+    setIcnPrefix(settings.value(QString::fromLatin1("icn_prefix"), QString::fromLatin1("http://webserver/")).toString());
     setHttpPrefix(settings.value(QString::fromLatin1("http_prefix"), QString::fromLatin1("http://10.60.17.153:8080/")).toString());
     setIcnSuffix(settings.value(QString::fromLatin1("icn_suffix"), QString::fromLatin1("/mpd")).toString());
     setHttpSuffix(settings.value(QString::fromLatin1("http_suffix"), QString::fromLatin1("/mpd")).toString());

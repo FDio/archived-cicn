@@ -16,6 +16,13 @@
 #ifndef QTPLAYER_INPUT_ICNCONNECTIONCONSUMERAPI_H_
 #define QTPLAYER_INPUT_ICNCONNECTIONCONSUMERAPI_H_
 
+#if defined(HICNET)
+#include <hicnet/hicnet_http_facade.h>
+#else
+#include <icnet/icnet_http_facade.h>
+#endif
+
+#include <QMessageLogger>
 #include "../Portable/Networking.h"
 #include "IICNConnection.h"
 #include "../debug.h"
@@ -30,8 +37,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <algorithm>
-#include <icnet/icnet_socket_consumer.h>
-#include <icnet/icnet_download_observer.h>
+
 #include <future>
 #include <inttypes.h>
 #include <time.h>
@@ -50,7 +56,7 @@ namespace libdash {
 namespace framework {
 namespace input {
 
-class ICNConnectionConsumerApi : public IICNConnection, public icnet::IcnObserver {
+class ICNConnectionConsumerApi : public IICNConnection {
 public:
     ICNConnectionConsumerApi(double alpha, float beta, float drop);
     virtual ~ICNConnectionConsumerApi();
@@ -69,10 +75,6 @@ public:
 
     virtual double GetDownloadingTime();
 
-    void processPayload(icnet::ConsumerSocket& , const uint8_t*, size_t);
-
-    bool onPacket(icnet::ConsumerSocket& , const icnet::ContentObject&);
-
     const std::vector<dash::metrics::ITCPConnection *> &GetTCPConnectionList() const;
 
     const std::vector<dash::metrics::IHTTPTransaction *> &GetHTTPTransactionList() const;
@@ -81,6 +83,8 @@ public:
     virtual void notifyStats(double throughput);
 
 private:
+    libl4::http::HTTPClientConnection *hTTPClientConnection;
+    libl4::http::HTTPResponse response;
     float beta;
     float drop;
     uint64_t i_chunksize;
@@ -89,8 +93,6 @@ private:
     /**< number of content objects we missed in ICNBlock */
 
     std::string m_name;
-    icnet::ccnx::Name m_recv_name;
-    icnet::ccnx::Portal m_portal;
     int m_first;
     bool m_isFinished;
     uint64_t m_nextSeg;
@@ -109,7 +111,6 @@ private:
     unsigned int nchunks; // XXX chunks=-1 means: download the whole file!
     bool output;
     bool report_path;
-    icnet::ConsumerSocket* myConsumer;
     bool res;
     std::vector<char> mdata;
     char* deezData;

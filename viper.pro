@@ -18,18 +18,15 @@ android {
   QT += androidextras
 }
 
-CONFIG += release
+message($$TRANSPORT_LIBRARY)
+CONFIG -= release
+CONFIG += debug
 CONFIG += c++11
-
-
-INCLUDEPATH += /usr/include/libdash
-INCLUDEPATH += /usr/include/libxml2
 QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DANDROID_STL=c++_static #-DICNICPDOWNLOAD
 QMAKE_CXXFLAGS += -std=c++11 -g -fpermissive
 # Add more folders to ship with the application, here
 folder_01.source = qml/Viper
 folder_01.target = qml
-LIBS += -licnet
 
 
 RESOURCES += \
@@ -273,17 +270,29 @@ SOURCES *= \
 
 unix:!macx:!android {
     INCLUDEPATH += /usr/local/include
-    INCLUDEPATH += /usr/local/include/libdash
+    INCLUDEPATH += /usr/include
+    INCLUDEPATH += /usr/include/libdash
+    equals(TRANSPORT_LIBRARY, "HICNET") {
+	    LIBS += -L/usr/local/lib -ldash -lboost_system -lhicnet -lavcodec -lavutil -lavformat
+    	DEFINES += "HICNET=ON"
+    } else {
+        LIBS += -L/usr/local/lib -ldash -lboost_system -licnet -lavcodec -lavutil -lavformat
+    	DEFINES += "ICNET=ON"
+    }
 
-    LIBS += -L/usr/local/lib -ldash -lboost_system -licnet -lavcodec -lavutil -lavformat
 }
 
 macx:!ios {
 
-#SOURCE is ok
     INCLUDEPATH += /usr/local/include
     INCLUDEPATH += /usr/local/include/libdash
-    LIBS +=  -framework CoreServices -L"/usr/local/lib"  -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -licnet -lssl -lcrypto
+    equals(TRANSPORT_LIBRARY, "HICNET") {
+        LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -lhicnet -lssl -lcrypto
+		DEFINES += "HICNET=ON"
+	} else {
+	    LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -licnet -lssl -lcrypto
+		DEFINES += "ICNET=ON"
+	}
 }
 SOURCES *= main.cpp
 android {
@@ -296,11 +305,17 @@ android {
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew \
     android/gradlew.bat
+
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-    INCLUDEPATH += $$(QT_HOME)/5.7/android_armv7/include
-    INCLUDEPATH += $$(QT_HOME)/5.7/android_armv7/include/libdash
-    LIBS += -lstdc++  -licnet -lgnustl_shared -ldash  -lavcodec -lavutil -lavformat   -lboost_system # -lccnx_api_control -lccnx_api_notify -lccnx_api_portal -lccnx_common -lccnx_transport_rta #-lparc -lcrypto  #-llongbow-textplain -llongbow-ansiterm -llongbow
-#user can put fonts in android/assets/fonts
+    INCLUDEPATH += $$(CCNX_HOME)/include
+	INCLUDEPATH += $$(CCNX_HOME)/include/libdash
+    equals(TRANSPORT_LIBRARY, "HICNET") {
+        LIBS += -L"$$(CCNX_HOME)/lib" -lhicnet -ljsoncpp -ldash -lcurl-library -lcurl  -lxml2 -lccnx_hicn_api_portal -lccnx_hicn_transport_rta -lccnx_hicn_api_control -lccnx_hicn_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -lhicn -levent -lssl -lcrypto -ldash  -lavcodec -lavutil -lavformat   -lboost_system
+		DEFINES += "HICNET=ON"
+	} else {
+ 	    LIBS +=  -lconsumer-producer -ldash  -lavcodec -lavutil -lavformat   -lboost_system
+		DEFINES += "ICNET=ON"
+	}
 }
 
 

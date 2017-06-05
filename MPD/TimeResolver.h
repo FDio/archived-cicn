@@ -13,7 +13,11 @@
 #define LIBDASH_FRAMEWORK_MPD_TIMERESOLVER_H_
 
 #include <time.h>
-#include "config.h"
+#include <string>
+#include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+//#include "config.h"
 
 namespace libdash
 {

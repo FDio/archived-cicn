@@ -23,7 +23,7 @@ const std::string QueryKeys::FIELD_NAMES  = "field_names";
 const std::string QueryKeys::LAST         = "last";
 
 Query::Query()
-    : query(Json::object())
+    : query(Json2::object())
 {
 }
 
@@ -43,9 +43,9 @@ Query::Query(const std::string &action, const std::string &objectName, const std
 
   query[QueryKeys::ACTION] = action;
   query[QueryKeys::OBJECT_NAME] = objectName;
-  query[QueryKeys::FILTER] = Json(filter);
-  query[QueryKeys::PARAMS] = Json(params);
-  query[QueryKeys::FIELD_NAMES] = Json(fields);
+  query[QueryKeys::FILTER] = Json2(filter);
+  query[QueryKeys::PARAMS] = Json2(params);
+  query[QueryKeys::FIELD_NAMES] = Json2(fields);
   query[QueryKeys::LAST] = last;
 }
 
@@ -53,7 +53,7 @@ Query
 Query::fromJsonString(const std::string &jsonString)
 {
   Query query;
-  Json jsonQuery = Json::parse(jsonString);
+  Json2 jsonQuery = Json2::parse(jsonString);
 
   std::cout << jsonQuery << std::endl;
 
@@ -63,9 +63,9 @@ Query::fromJsonString(const std::string &jsonString)
   query.setLast(jsonQuery[QueryKeys::LAST]);
   query.setObjectName(jsonQuery[QueryKeys::OBJECT_NAME]);
 
-  Json list = jsonQuery[QueryKeys::FIELD_NAMES];
+  Json2 list = jsonQuery[QueryKeys::FIELD_NAMES];
 
-  for (Json::iterator it =list.begin(); it != list.end(); ++it) {
+  for (Json2::iterator it =list.begin(); it != list.end(); ++it) {
     query.fields.push_back(*it);
   }
 
@@ -73,24 +73,24 @@ Query::fromJsonString(const std::string &jsonString)
     query.fields.push_back("*");
   }
 
-  Json list2 = jsonQuery[QueryKeys::FILTER];
+  Json2 list2 = jsonQuery[QueryKeys::FILTER];
 
-  for (Json::iterator it = list2.begin(); it != list2.end(); ++it) {
+  for (Json2::iterator it = list2.begin(); it != list2.end(); ++it) {
     query.filter.push_back(*it);
   }
 
-  Json map = jsonQuery[QueryKeys::PARAMS];
+  Json2 map = jsonQuery[QueryKeys::PARAMS];
 
-  for (Json::iterator it = map.begin(); it != map.end(); ++it) {
+  for (Json2::iterator it = map.begin(); it != map.end(); ++it) {
     std::cout << it.key() << " " << it.value().dump() << std::endl;
     query.params[it.key()] = it.value().dump();
   }
 
   query.query[QueryKeys::ACTION] = query.action;
   query.query[QueryKeys::OBJECT_NAME] = query.objectName;
-  query.query[QueryKeys::FILTER] = Json(query.filter);
-  query.query[QueryKeys::PARAMS] = Json(query.params);
-  query.query[QueryKeys::FIELD_NAMES] = Json(query.fields);
+  query.query[QueryKeys::FILTER] = Json2(query.filter);
+  query.query[QueryKeys::PARAMS] = Json2(query.params);
+  query.query[QueryKeys::FIELD_NAMES] = Json2(query.fields);
   query.query[QueryKeys::LAST] = query.last;
 
   return query;
@@ -113,13 +113,13 @@ std::string
 Query::toJsonString(const std::string &action, const  std::string &objectName, const  std::list<std::vector<std::string>> &filter,
                     const std::map<std::string, std::string> &params, const  std::list<std::string> &fields, bool last)
 {
-  Json jsonQuery;
+  Json2 jsonQuery;
 
   jsonQuery[QueryKeys::ACTION] = action;
   jsonQuery[QueryKeys::OBJECT_NAME] = objectName;
-  jsonQuery[QueryKeys::FILTER] = Json(filter);
-  jsonQuery[QueryKeys::PARAMS] = Json(params);
-  jsonQuery[QueryKeys::FIELD_NAMES] = Json(fields);
+  jsonQuery[QueryKeys::FILTER] = Json2(filter);
+  jsonQuery[QueryKeys::PARAMS] = Json2(params);
+  jsonQuery[QueryKeys::FIELD_NAMES] = Json2(fields);
   jsonQuery[QueryKeys::LAST] = last;
 
   return jsonQuery.dump();

@@ -33,7 +33,7 @@ typedef struct QueryKeys {
 } QueryKeys;
 
 // for convenience
-typedef nlohmann::json Json;
+typedef nlohmann::json Json2;
 
 class Query
 {
@@ -107,7 +107,7 @@ public:
   isEmpty();
 
 private:
-  Json query;
+  Json2 query;
 
   std::string action;
   std::string objectName;

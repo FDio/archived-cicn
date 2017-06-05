@@ -18,8 +18,17 @@ set(CMAKE_VERBOSE_MAKEFILE true)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qmake_build)
 
+option(ICNET "Link against Libicnet." ON)
+option(HICNET "Link against Libhicnet." OFF)
+if (HICNET)
+    set (TRANSPORT_LIBRARY HICNET)
+    set(ICNET OFF)
+
+else()
+    set (TRANSPORT_LIBRARY ICNET)
+endif()
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/qmake_build/viper_
-                  COMMAND /opt/qt57/bin/qmake ${CMAKE_SOURCE_DIR}/viper.pro
+                  COMMAND /opt/qt57/bin/qmake ${CMAKE_SOURCE_DIR}/viper.pro "TRANSPORT_LIBRARY = ${TRANSPORT_LIBRARY}"
                   COMMAND make
                   COMMAND mv viper viper_
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qmake_build

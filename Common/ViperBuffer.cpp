@@ -85,6 +85,7 @@ qint64 ViperBuffer::writeData(libdash::framework::input::MediaObject* media)
     ret = media->Read(readBuffer,readMax);
     while(ret)
     {
+        printf("ret %d\n", ret);
         total += ret;
         this->writeData((const char *)readBuffer, ret);
         ret = media->Read(readBuffer,readMax);
