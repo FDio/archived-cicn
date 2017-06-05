@@ -106,7 +106,7 @@ set(LIBLONGBOW_SOURCE_FILES
         longBow_SubProcess.c
         longBow_TestCase.c
         longBow_TestCaseClipBoard.c
-	longBow_TestCaseMetaData.c
+        longBow_TestCaseMetaData.c
         longBow_TestFixture.c
         longBow_TestFixtureConfig.c
         longBow_TestRunner.c
@@ -115,55 +115,75 @@ set(LIBLONGBOW_SOURCE_FILES
 
 source_group(longbow FILES ${LIBLONGBOW_SOURCE_FILES})
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR COMPILE_FOR_IOS )
     set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 	message( "-- Set \"-undefined dynamic_lookup\" for shared libraries")
 endif()
 
-add_library(longbow-ansiterm STATIC ${LONGBOW_REPORT_ANSI_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
-add_library(longbow-ansiterm.shared SHARED ${LONGBOW_REPORT_ANSI_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(longbow-ansiterm STATIC ${LONGBOW_REPORT_ANSI_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
 
-set_target_properties(longbow-ansiterm.shared PROPERTIES 
-  SOVERSION 1 
-  VERSION 1.0
-  OUTPUT_NAME longbow-ansiterm)
+  add_library(longbow-textplain STATIC ${LONGBOW_REPORT_TEXT_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
+  add_library(longbow STATIC ${LIBLONGBOW_SOURCE_FILES})
 
-add_library(longbow-textplain STATIC ${LONGBOW_REPORT_TEXT_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
-add_library(longbow-textplain.shared SHARED ${LONGBOW_REPORT_TEXT_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
+  set(longbowLibraries
+    longbow
+    longbow-ansiterm
+    longbow-textplain
+    )
 
-set_target_properties(longbow-textplain.shared PROPERTIES 
-  SOVERSION 1 
-  VERSION 1.0
-  OUTPUT_NAME longbow-textplain)
+  foreach(lib ${longbowLibraries})
+    install(TARGETS ${lib} LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+  endforeach()
+else()
+  add_library(longbow-ansiterm STATIC ${LONGBOW_REPORT_ANSI_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
+  add_library(longbow-ansiterm.shared SHARED ${LONGBOW_REPORT_ANSI_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
 
-add_library(longbow STATIC ${LIBLONGBOW_SOURCE_FILES})
-add_library(longbow.shared SHARED ${LIBLONGBOW_SOURCE_FILES})
+  set_target_properties(longbow-ansiterm.shared PROPERTIES
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME longbow-ansiterm)
 
-set_target_properties(longbow.shared PROPERTIES 
-  SOVERSION 1 
-  VERSION 1.0
-  OUTPUT_NAME longbow)
+  add_library(longbow-textplain STATIC ${LONGBOW_REPORT_TEXT_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
+  add_library(longbow-textplain.shared SHARED ${LONGBOW_REPORT_TEXT_SOURCE_FILES} ${LONGBOW_REPORT_BASE_SOURCE_FILES})
 
-add_executable(longbow-config ${LONGBOW_CONFIG_SOURCE_FILES})
+  set_target_properties(longbow-textplain.shared PROPERTIES
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME longbow-textplain)
 
+  add_library(longbow STATIC ${LIBLONGBOW_SOURCE_FILES})
+  add_library(longbow.shared SHARED ${LIBLONGBOW_SOURCE_FILES})
 
-set(longbowLibraries
-  longbow
-  longbow.shared
-  longbow-ansiterm
-  longbow-ansiterm.shared
-  longbow-textplain
-  longbow-textplain.shared
-  )
+  set_target_properties(longbow.shared PROPERTIES
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME longbow)
 
-foreach(lib ${longbowLibraries})
-  install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
-endforeach()
+  add_executable(longbow-config ${LONGBOW_CONFIG_SOURCE_FILES})
+
+  set(longbowLibraries
+    longbow
+    longbow.shared
+    longbow-ansiterm
+    longbow-ansiterm.shared
+    longbow-textplain
+    longbow-textplain.shared
+    )
+
+  foreach(lib ${longbowLibraries})
+    install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+  endforeach()
+
+endif()
 
 install(FILES ${LIBLONGBOW_HEADER_FILES}     DESTINATION include/LongBow COMPONENT headers)
 install(FILES ${LONGBOW_REPORT_HEADER_FILES} DESTINATION include/LongBow/Reporting COMPONENT headers)
 
 if(ANDROID_API)
+  message("############ Detected cross compile for ${CMAKE_SYSTEM_NAME}")
+  message("############ This build will not include doxygen, tools, or tests")
+elseif(COMPILE_FOR_IOS)
   message("############ Detected cross compile for ${CMAKE_SYSTEM_NAME}")
   message("############ This build will not include doxygen, tools, or tests")
 else()

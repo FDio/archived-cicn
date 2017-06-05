@@ -352,25 +352,34 @@ source_group(testing FILES ${LIBPARC_TESTING_SOURCE_FILES} ${LIBPARC_TESTING_HEA
 source_group(statistics FILES ${LIBPARC_STATISTICS_SOURCE_FILES} ${LIBPARC_STATISTICS_HEADER_FILES})
 source_group(memory FILES ${LIBPARC_MEMORY_SOURCE_FILES} ${LIBPARC_MEMORY_HEADER_FILES})
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR COMPILE_FOR_IOS)
     set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 	message( "-- Set \"-undefined dynamic_lookup\" for shared libraries")
 endif()
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(parc         STATIC ${LIBPARC_SOURCE_FILES} ${LIBEVENT_LIBRARIES} ${OPENSSL_LIBRARIES})
+  target_link_libraries(parc ${LIBEVENT_LIBRARIES})
+  target_link_libraries(parc ${OPENSSL_LIBRARIES})
+  set(libparcLibraries
+    parc
+    )
+else()
+  add_library(parc         STATIC ${LIBPARC_SOURCE_FILES})
+  add_library(parc.shared  SHARED ${LIBPARC_SOURCE_FILES})
+  target_link_libraries(parc.shared ${LIBEVENT_LIBRARIES})
+  target_link_libraries(parc.shared ${OPENSSL_LIBRARIES})
+  set_target_properties(parc.shared PROPERTIES
+    C_STANDARD 99
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME parc )
+  set(libparcLibraries
+    parc
+    parc.shared
+    )
 
-add_library(parc         STATIC ${LIBPARC_SOURCE_FILES})
-add_library(parc.shared  SHARED ${LIBPARC_SOURCE_FILES})
-target_link_libraries(parc.shared ${LIBEVENT_LIBRARIES})
-target_link_libraries(parc.shared ${OPENSSL_LIBRARIES})
-set_target_properties(parc.shared PROPERTIES
-  C_STANDARD 99
-  SOVERSION 1
-  VERSION 1.0
-  OUTPUT_NAME parc )
+endif()
 
-set(libparcLibraries
-  parc
-  parc.shared
-  )
 
 foreach(lib ${libparcLibraries})
   install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
@@ -387,12 +396,14 @@ install(FILES ${LIBPARC_BASE_HEADER_FILES}       DESTINATION include/parc COMPON
 install(FILES ${LIBPARC_STATISTICS_HEADER_FILES} DESTINATION include/parc/statistics COMPONENT headers)
 install(FILES ${LIBPARC_MEMORY_HEADER_FILES}     DESTINATION include/parc/memory COMPONENT headers)
 
-add_subdirectory(security/command-line)
-add_subdirectory(algol/test)
-add_subdirectory(concurrent/test)
-add_subdirectory(developer/test)
-add_subdirectory(security/test)
-add_subdirectory(logging/test)
-add_subdirectory(testing/test)
-add_subdirectory(statistics/test)
-add_subdirectory(memory/test)
+if(NOT COMPILE_FOR_IOS)
+  add_subdirectory(security/command-line)
+  add_subdirectory(algol/test)
+  add_subdirectory(concurrent/test)
+  add_subdirectory(developer/test)
+  add_subdirectory(security/test)
+  add_subdirectory(logging/test)
+  add_subdirectory(testing/test)
+  add_subdirectory(statistics/test)
+  add_subdirectory(memory/test)
+endif()

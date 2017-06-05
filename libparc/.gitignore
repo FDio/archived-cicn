@@ -61,7 +61,7 @@ parc/parcLibrary_About.c
 parc/parcLibrary_About.h
 parc/parc_About.c
 parc/parc_About.h
-LDADD = ${INC_LFLAGS} 
+LDADD = ${INC_LFLAGS}
 
 libtool
 *~
