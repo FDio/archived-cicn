@@ -14,7 +14,6 @@ lib
 .DS_Store
 *.lo
 *.o
-*.lo
 build/
 conf.mk
 *.dSYM
@@ -22,7 +21,6 @@ conf.mk
 *.gcno
 *.gcov
 *.la
-conf.mk
 .deps
 config.log
 config.h
