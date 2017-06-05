@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
+
+#include <stdexcept>
+#include <string>
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace errors {
 
-  return 0;
+class RuntimeException : public std::runtime_error {
+ public:
+  RuntimeException();
+  RuntimeException(std::string what)
+      : runtime_error(what) {};
+};
 
-}
+} // end namespace errors
 
 } // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}

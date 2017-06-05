@@ -13,18 +13,30 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
+
+#include <cstdint>
+#include <cstddef>
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace utils {
 
-  return 0;
+//const uint32_t FNV1A_PRIME_32 = 0x01000193;
+//const uint32_t FNV1A_OFFSET_32 = 0x811C9DC5;
+//const uint64_t FNV1A_PRIME_64 = 0x00000100000001B3ULL;
+//const uint64_t FNV1A_OFFSET_64 = 0xCBF29CE484222325ULL;
+
+class Hash {
+ public:
+  static uint32_t cumulativeHash32(const void *data, std::size_t len, uint32_t lastValue);
+  static uint64_t cumulativeHash64(const void *data, std::size_t len, uint64_t lastValue);
+  static uint32_t hash32(const void *data, std::size_t len);
+  static uint64_t hash64(const void *data, std::size_t len);
+ private:
+
+};
 
 }
 
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
 }

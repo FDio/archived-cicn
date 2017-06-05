@@ -13,18 +13,20 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#include "icnet_errors_runtime_exception.h"
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace errors {
 
-  return 0;
-
+RuntimeException::RuntimeException()
+    : std::runtime_error("") {
 }
+
+//char const *Runtime::what() const {
+//  return "Function not yet implemented.";
+//}
+
+} // end namespace errors
 
 } // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}

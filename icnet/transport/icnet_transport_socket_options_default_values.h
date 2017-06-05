@@ -18,6 +18,8 @@
 
 namespace icnet {
 
+namespace transport {
+
 namespace default_values {
 
 const int interest_lifetime = 1000;                         // milliseconds
@@ -55,6 +57,8 @@ const int transport_protocol_max_retransmissions = 128;
 const int max_content_object_size = 8096;
 
 } // end namespace default_values
+
+} // end namespace transport
 
 } // end namespace icnet
 

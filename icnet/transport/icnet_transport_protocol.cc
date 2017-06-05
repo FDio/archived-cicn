@@ -13,41 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef ICNET_VEGAS_TRANSPORT_PROTOCOL_RTT_ESTIMATOR_H_
-#define ICNET_VEGAS_TRANSPORT_PROTOCOL_RTT_ESTIMATOR_H_
-
-#include "icnet_transport_common.h"
-
-// Implementation inspired from RFC6298 (https://tools.ietf.org/search/rfc6298#ref-JK88)
+#include "icnet_transport_protocol.h"
 
 namespace icnet {
 
 namespace transport {
 
-class RtoEstimator {
- public:
-  typedef std::chrono::microseconds Duration;
+TransportProtocol::TransportProtocol(Socket *icn_socket)
+    : socket_(icn_socket), is_running_(false) {
+}
 
-  static Duration getInitialRtt() {
-    return std::chrono::seconds(1);
-  }
+void TransportProtocol::updatePortal() {
+  socket_->getSocketOption(PORTAL, portal_);
+}
 
-  RtoEstimator(Duration min_rto = std::chrono::seconds(1));
-
-  void addMeasurement(Duration measure);
-
-  Duration computeRto() const;
-
- private:
-  double smoothed_rtt_;
-  double rtt_variation_;
-  bool first_measurement_;
-  double last_rto_;
-};
+bool TransportProtocol::isRunning() {
+  return is_running_;
+}
 
 } // end namespace transport
 
 } // end namespace icnet
-
-
-#endif // ICNET_VEGAS_TRANSPORT_PROTOCOL_RTT_ESTIMATOR_H_

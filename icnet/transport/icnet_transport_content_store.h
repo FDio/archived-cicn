@@ -16,11 +16,13 @@
 #ifndef ICNET_CONTENT_STORE_H_
 #define ICNET_CONTENT_STORE_H_
 
-#include "icnet_socket.h"
+#include "icnet_transport_socket.h"
 
 #include <mutex>
 
 namespace icnet {
+
+namespace transport {
 
 typedef std::pair<std::shared_ptr<ContentObject>, std::list<std::reference_wrapper<const Name>>::iterator>
     CcnxContentStoreEntry;
@@ -53,6 +55,8 @@ class ContentStore {
   std::size_t max_content_store_size_;
   std::mutex cs_mutex_;
 };
+
+} // end namespace transport
 
 } // end namespace icnet
 

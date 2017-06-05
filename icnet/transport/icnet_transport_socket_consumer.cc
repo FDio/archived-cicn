@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
-#include "icnet_socket_consumer.h"
+#include "icnet_transport_socket_consumer.h"
 
 namespace icnet {
+
+namespace transport {
 
 ConsumerSocket::ConsumerSocket(Name prefix, int protocol)
     : is_running_(false),
@@ -610,5 +612,7 @@ int ConsumerSocket::getSocketOption(int socket_option_key, IcnObserver **socket_
     return SOCKET_OPTION_NOT_GET;
   }
 }
+
+} // end namespace transport
 
 } // end namespace icnet

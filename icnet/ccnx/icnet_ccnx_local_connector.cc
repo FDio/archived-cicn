@@ -136,7 +136,7 @@ void LocalConnector::doReadHeader() {
 void LocalConnector::tryReconnect() {
   if (!is_connecting_) {
 #ifdef __ANDROID__
-  __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Connection lost. Trying to reconnect...\n");
+    __android_log_print(ANDROID_LOG_DEBUG, "libICNet", "Connection lost. Trying to reconnect...\n");
 #else
     std::cerr << "Connection lost. Trying to reconnect..." << std::endl;
 #endif

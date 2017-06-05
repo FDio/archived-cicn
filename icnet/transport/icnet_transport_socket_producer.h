@@ -13,31 +13,50 @@
  * limitations under the License.
  */
 
-#ifndef ICNET_CONSUMER_SOCKET_H_
-#define ICNET_CONSUMER_SOCKET_H_
+#ifndef ICNET_PRODUCER_SOCKET_H_
+#define ICNET_PRODUCER_SOCKET_H_
 
-#include "icnet_common.h"
-#include "icnet_socket.h"
-#include "icnet_transport.h"
-#include "icnet_transport_raaqm.h"
-#include "icnet_transport_vegas.h"
+#include "icnet_transport_socket.h"
+#include "icnet_transport_content_store.h"
 
-#define CONSUMER_READY 0
-#define CONSUMER_BUSY  1
+#include <queue>
+#include <mutex>
+#include <atomic>
+#include <thread>
+
+#define REGISTRATION_NOT_ATTEMPTED 0
+#define REGISTRATION_SUCCESS 1
+#define REGISTRATION_FAILURE 2
+#define REGISTRATION_IN_PROGRESS 3
 
 namespace icnet {
 
-class ConsumerSocket : public Socket {
+namespace transport {
+
+class ProducerSocket : public Socket {
  public:
-  explicit ConsumerSocket(const Name prefix, int protocol);
 
-  ~ConsumerSocket();
+  explicit ProducerSocket(Name prefix);
 
-  int consume(Name suffix);
+  ~ProducerSocket();
 
-  int asyncConsume(Name suffix);
+  void attach();
+
+  void dispatch();
+
+  void produce(Name name, const uint8_t *buffer, size_t buffer_size, const int request_id = 0, bool is_last = false);
+
+  void produce(ContentObject &content_object);
+
+  void asyncProduce(Name suffix, const uint8_t *buf, size_t buffer_size, const int response_id, bool is_last);
+
+  void asyncProduce(ContentObject &content_object);
+
+  void serveForever();
 
   void stop();
+
+  void onInterest(const Name &name, const Interest &interest);
 
   int setSocketOption(int socket_option_key, int socket_option_value);
 
@@ -51,13 +70,13 @@ class ConsumerSocket : public Socket {
 
   int setSocketOption(int socket_option_key, ProducerContentObjectCallback socket_option_value);
 
+  int setSocketOption(int socket_option_key, ProducerInterestCallback socket_option_value);
+
   int setSocketOption(int socket_option_key, ConsumerContentObjectVerificationCallback socket_option_value);
 
   int setSocketOption(int socket_option_key, ConsumerContentObjectCallback socket_option_value);
 
   int setSocketOption(int socket_option_key, ConsumerInterestCallback socket_option_value);
-
-  int setSocketOption(int socket_option_key, ProducerInterestCallback socket_option_value);
 
   int setSocketOption(int socket_option_key, ConsumerContentCallback socket_option_value);
 
@@ -65,27 +84,27 @@ class ConsumerSocket : public Socket {
 
   int setSocketOption(int socket_option_key, KeyLocator socket_option_value);
 
-  int setSocketOption(int socket_option_key, IcnObserver *socket_option_value);
+  int setSocketOption(int socket_option_key, IcnObserver *obs);
 
   int getSocketOption(int socket_option_key, int &socket_option_value);
 
   int getSocketOption(int socket_option_key, double &socket_option_value);
 
-  int getSocketOption(int socket_option_key, size_t &socket_option_value);
-
   int getSocketOption(int socket_option_key, bool &socket_option_value);
+
+  int getSocketOption(int socket_option_key, size_t &socket_option_value);
 
   int getSocketOption(int socket_option_key, Name &socket_option_value);
 
   int getSocketOption(int socket_option_key, ProducerContentObjectCallback &socket_option_value);
+
+  int getSocketOption(int socket_option_key, ProducerInterestCallback &socket_option_value);
 
   int getSocketOption(int socket_option_key, ConsumerContentObjectVerificationCallback &socket_option_value);
 
   int getSocketOption(int socket_option_key, ConsumerContentObjectCallback &socket_option_value);
 
   int getSocketOption(int socket_option_key, ConsumerInterestCallback &socket_option_value);
-
-  int getSocketOption(int socket_option_key, ProducerInterestCallback &socket_option_value);
 
   int getSocketOption(int socket_option_key, ConsumerContentCallback &socket_option_value);
 
@@ -99,63 +118,61 @@ class ConsumerSocket : public Socket {
 
  private:
 
-  void postponedConsume(Name name_suffix);
-
- private:
-  // context inner state variables
-  bool is_running_;
   std::shared_ptr<Portal> portal_;
-  std::shared_ptr<TransportProtocol> transport_protocol_;
+  boost::asio::io_service io_service_;
 
   Name name_prefix_;
-  Name name_suffix_;
 
-  int interest_lifetime_;
+  int data_packet_size_;
+  int content_object_expiry_time_;
+  int registration_status_;
 
-  double min_window_size_;
-  double max_window_size_;
-  double current_window_size_;
-  int max_retransmissions_;
-  size_t output_buffer_size_;
-  size_t input_buffer_size_;
+  bool making_manifest_;
 
-  // RAAQM Parameters
+  // map for storing sequence numbers for several calls of the publish function
+  std::unordered_map<std::string, std::unordered_map<int, uint64_t>> seq_number_map_;
 
-  double minimum_drop_probability_;
-  unsigned int sample_number_;
-  double gamma_;
-  double beta_;
-  double drop_factor_;
-
-  //Rate estimation parameters
-  double rate_estimation_alpha_;
-  IcnObserver *rate_estimation_observer_;
-  int rate_estimation_batching_parameter_;
-  int rate_estimation_choice_;
-
-  bool is_async_;
-
+  int signature_type_;
+  int signature_size_;
+  int key_locator_size_;
   KeyLocator key_locator_;
 
-  ConsumerInterestCallback on_interest_retransmission_;
-  ConsumerInterestCallback on_interest_output_;
-  ConsumerInterestCallback on_interest_timeout_;
-  ConsumerInterestCallback on_interest_satisfied_;
+  // buffers
+  ContentStore output_buffer_;
 
-  ConsumerContentObjectCallback on_content_object_input_;
-  ConsumerContentObjectVerificationCallback on_content_object_verification_;
+  std::queue<std::shared_ptr<const Interest> > input_buffer_;
+  std::mutex input_buffer_mutex_;
+  std::atomic_size_t input_buffer_capacity_;
+  std::atomic_size_t input_buffer_size_;
 
-  ConsumerContentObjectCallback on_content_object_;
-  ConsumerManifestCallback on_manifest_;
+  // threads
+  std::thread listening_thread_;
+  std::thread processing_thread_;
+  volatile bool processing_thread_stop_;
+  volatile bool listening_thread_stop_;
 
-  ConsumerContentCallback on_payload_retrieved_;
+  // callbacks
+  ProducerInterestCallback on_interest_input_;
+  ProducerInterestCallback on_interest_dropped_input_buffer_;
+  ProducerInterestCallback on_interest_inserted_input_buffer_;
+  ProducerInterestCallback on_interest_satisfied_output_buffer_;
+  ProducerInterestCallback on_interest_process_;
 
-  // Virtual download for traffic generator
+  ProducerContentObjectCallback on_new_segment_;
+  ProducerContentObjectCallback on_content_object_to_sign_;
+  ProducerContentObjectCallback on_content_object_in_output_buffer_;
+  ProducerContentObjectCallback on_content_object_output_;
+  ProducerContentObjectCallback on_content_object_evicted_from_output_buffer_;
 
-  bool virtual_download_;
-  bool rtt_stats_;
+ private:
+  void listen();
+
+  void passContentObjectToCallbacks(const std::shared_ptr<ContentObject> &content_object);
+
 };
+
+} // end namespace transport
 
 } // end namespace icnet
 
-#endif // ICNET_CONSUMER_SOCKET_H_
+#endif // ICNET_PRODUCER_SOCKET_H_

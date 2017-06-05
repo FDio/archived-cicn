@@ -13,31 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef ICNET_TRANSPORT_PROTOCOL_H_
-#define ICNET_TRANSPORT_PROTOCOL_H_
-
-#include "icnet_socket.h"
+#ifndef ICNET_DOWNLOAD_OBSERVER_H_
+#define ICNET_DOWNLOAD_OBSERVER_H_
 
 namespace icnet {
 
-class TransportProtocol {
+namespace transport {
+
+class IcnObserver {
  public:
-  TransportProtocol(Socket *icn_socket);
+  virtual ~IcnObserver() {
+  };
 
-  void updatePortal();
-
-  bool isRunning();
-
-  virtual void start() = 0;
-
-  virtual void stop() = 0;
-
- protected:
-  Socket *socket_;
-  std::shared_ptr<Portal> portal_;
-  bool is_running_;
+  virtual void notifyStats(double throughput) = 0;
 };
 
-}
+} // end namespace transport
 
-#endif // ICNET_TRANSPORT_PROTOCOL_H_
+} // end namespace icnet
+
+#endif // ICNET_DOWNLOAD_OBSERVER_H_
+

@@ -14,9 +14,11 @@
  */
 
 #include "icnet_transport_vegas_rto_estimator.h"
-#include "icnet_socket_options_default_values.h"
+#include "icnet_transport_socket_options_default_values.h"
 
 namespace icnet {
+
+namespace transport {
 
 RtoEstimator::RtoEstimator(Duration min_rto)
     : smoothed_rtt_(RtoEstimator::getInitialRtt().count()),
@@ -43,5 +45,7 @@ RtoEstimator::Duration RtoEstimator::computeRto() const {
       smoothed_rtt_ + std::max(double(default_values::clock_granularity.count()), default_values::k * rtt_variation_);
   return Duration(static_cast<Duration::rep>(rto));
 }
+
+} // end namespace transport
 
 } // end namespace icnet

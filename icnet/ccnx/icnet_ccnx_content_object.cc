@@ -63,11 +63,11 @@ bool ContentObject::operator==(const ContentObject &content_object) {
   return ccnxContentObject_Equals(ccnx_content_object_, content_object.ccnx_content_object_);
 }
 
-PayloadType ContentObject::getContentType() const {
+PayloadType ContentObject::getPayloadType() const {
   return (PayloadType) ccnxContentObject_GetPayloadType(ccnx_content_object_);
 }
 
-void ContentObject::setContentType(PayloadType payload_type) {
+void ContentObject::setPayloadType(PayloadType payload_type) {
   content_type_ = payload_type;
 }
 

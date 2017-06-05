@@ -13,18 +13,20 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#include "icnet_errors_malformed_packet_exception.h"
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace errors {
 
-  return 0;
-
+MalformedPacketException::MalformedPacketException()
+    : std::runtime_error("") {
 }
+
+char const *MalformedPacketException::what() const noexcept {
+  return "Malformed IP packet.";
+}
+
+} // end namespace errors
 
 } // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}

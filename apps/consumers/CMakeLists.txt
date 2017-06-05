@@ -14,17 +14,8 @@
 cmake_minimum_required(VERSION 3.2)
 
 set(CONSUMER_SOURCE_FILES icnet_consumer_test.cc)
-set(IGET_SOURCE_FILES icnet_iget.cc)
-set(CONSUMERDASH_SOURCE_FILES icnet_consumer_dash.cc)
 
 add_executable(consumer-test ${CONSUMER_SOURCE_FILES})
-add_executable(iget ${IGET_SOURCE_FILES})
-add_executable(consumer-dash ${CONSUMERDASH_SOURCE_FILES})
 
 target_link_libraries(consumer-test icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-target_link_libraries(iget icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-target_link_libraries(consumer-dash icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-
 install(TARGETS consumer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
-install(TARGETS iget DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
-install(TARGETS consumer-dash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)

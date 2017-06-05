@@ -13,18 +13,40 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#include "icnet_utils_array.h"
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace utils {
 
-  return 0;
+Array::Array(const void *array, size_t size) {
+  this->array_ = array;
+  this->size_ = size;
+}
+
+Array::Array() {
+  this->array_ = nullptr;
+  this->size_ = 0;
+}
+
+const void *Array::data() const {
+  return array_;
+}
+
+std::size_t Array::size() const {
+  return size_;
+}
+
+Array &Array::setData(const void *data) {
+  array_ = data;
+  return *this;
+}
+
+Array &Array::setSize(std::size_t size) {
+  size_ = size;
+  return *this;
+}
 
 }
 
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
 }

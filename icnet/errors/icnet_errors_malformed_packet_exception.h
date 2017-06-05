@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#include "icnet_transport.h"
+#pragma once
+
+#include <stdexcept>
 
 namespace icnet {
 
-TransportProtocol::TransportProtocol(Socket *icn_socket)
-    : socket_(icn_socket), is_running_(false) {
-}
+namespace errors {
 
-void TransportProtocol::updatePortal() {
-  socket_->getSocketOption(PORTAL, portal_);
-}
+class MalformedPacketException : public std::runtime_error {
+ public:
+  MalformedPacketException();
+  virtual char const *what() const noexcept override;
+};
 
-bool TransportProtocol::isRunning() {
-  return is_running_;
-}
+} // end namespace errors
 
 } // end namespace icnet

@@ -13,18 +13,26 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
+
+#include <string>
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace utils {
 
-  return 0;
+class StringTokenizer {
+ public:
+  StringTokenizer(const std::string &str);
+  StringTokenizer(const std::string &str, const std::string &delim);
+
+  bool hasMoreTokens();
+  std::string nextToken();
+ private:
+  std::string str_;
+  std::string delimiter_;
+};
 
 }
 
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
 }

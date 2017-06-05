@@ -13,18 +13,21 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#include "icnet_errors_not_implemented_exception.h"
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace errors {
 
-  return 0;
+NotImplementedException::NotImplementedException()
+    : std::logic_error("") {
 
 }
+
+char const *NotImplementedException::what() const noexcept {
+  return "Function not yet implemented.";
+}
+
+} // end namespace errors
 
 } // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}

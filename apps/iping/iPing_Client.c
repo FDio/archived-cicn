@@ -315,12 +315,11 @@ static bool _ccnxPingClient_ParseCommandline(CCNxPingClient *client, int argc, c
   static struct option longopts[] =
       {{"ping", no_argument, NULL, 'p'}, {"flood", no_argument, NULL, 'f'}, {"count", required_argument, NULL, 'c'}, {
           "size", required_argument, NULL, 's'
-      }, {"interval", required_argument, NULL, 'i'}, {"locator", required_argument, NULL, 'l'}, {"outstanding"
-                                                                                                 , required_argument
-                                                                                                 , NULL, 'o'
-      }, {"help", no_argument, NULL, 'h'}, {"timeout", required_argument, NULL, 't'}, {"lifetime", required_argument
-                                                                                       , NULL, 'e'
-      }, {NULL, 0, NULL, 0}};
+      }, {"interval", required_argument, NULL, 'i'}, {"locator", required_argument, NULL, 'l'},
+       {"outstanding", required_argument, NULL, 'o'
+       }, {"help", no_argument, NULL, 'h'}, {"timeout", required_argument, NULL, 't'},
+       {"lifetime", required_argument, NULL, 'e'
+       }, {NULL, 0, NULL, 0}};
 
   client->payloadSize = ccnxPing_DefaultPayloadSize;
 

@@ -20,6 +20,8 @@
 
 namespace icnet {
 
+namespace transport {
+
 RaaqmDataPath::RaaqmDataPath(double drop_factor,
                              double minimum_drop_probability,
                              unsigned new_timer,
@@ -208,5 +210,7 @@ bool RaaqmDataPath::isStale() {
   }
   return false;
 }
+
+} // end namespace transport
 
 } // end namespace icnet

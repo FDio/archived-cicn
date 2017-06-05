@@ -21,6 +21,8 @@
 
 namespace icnet {
 
+namespace transport {
+
 RaaqmTransportProtocol::RaaqmTransportProtocol(Socket *icnet_socket)
     : VegasTransportProtocol(icnet_socket), rate_estimator_(NULL) {
   init();
@@ -559,5 +561,7 @@ RaaqmTransportProtocol::onInterest(const Interest &interest)
   }
 }
 #endif
+
+} // end namespace transport
 
 } // end namespace icnet

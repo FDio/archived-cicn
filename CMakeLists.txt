@@ -15,14 +15,16 @@ cmake_minimum_required(VERSION 3.2)
 project(Libicnet)
 set(CMAKE_CXX_STANDARD 11)
 
-## Set build folders
-#set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-#set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-#set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type selected, default to Release")
+    set(CMAKE_BUILD_TYPE "Release")
+endif ()
 
 set(CCNX_API icnet/ccnx)
 set(CP_API icnet/transport)
-set(COMMON_INCLUDES icnet/common-includes)
+set(ERRORS icnet/errors)
+set(UTILS icnet/utils)
+set(HTTP icnet/http)
 set(APPS apps)
 
 option(BUILD_APPS "Build apps" ON)
@@ -40,62 +42,88 @@ include_directories(
         ${CMAKE_BINARY_DIR}
         ${PROJECT_SOURCE_DIR}/${CP_API}
         ${PROJECT_SOURCE_DIR}/${CCNX_API}
-        ${PROJECT_SOURCE_DIR}/${COMMON_INCLUDES}
+        ${PROJECT_SOURCE_DIR}/${ERRORS}
+        ${PROJECT_SOURCE_DIR}/${UTILS}
+        ${PROJECT_SOURCE_DIR}/${HTTP}
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-find_package(LongBow REQUIRED)
-include_directories(${LONGBOW_INCLUDE_DIRS})
+set(CMAKE_VERBOSE_MAKEFILE on)
 
-find_package(Libparc REQUIRED)
-include_directories(${LIBPARC_INCLUDE_DIRS})
+if(COMPILE_FOR_IOS)
+  set(OPENSSL_ROOT_DIR $ENV{CCNX_DEPENDENCIES})
+  find_host_package ( OpenSSL REQUIRED )
 
-find_package(CCNX_Common REQUIRED)
-include_directories(${CCNX_COMMON_INCLUDE_DIRS})
+  set(BOOST_ROOT $ENV{CCNX_DEPENDENCIES})
+  find_host_package(Boost 1.53.0 COMPONENTS system REQUIRED)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
-find_package(CCNX_Transport_Rta REQUIRED)
-include_directories(${CCNX_TRANSPORT_RTA_INCLUDE_DIRS})
+  find_host_package(LongBow REQUIRED)
+  include_directories(${LONGBOW_INCLUDE_DIRS})
 
-find_package(CCNX_Portal REQUIRED)
-include_directories(${CCNX_PORTAL_INCLUDE_DIRS})
+  find_host_package(Libparc REQUIRED)
+  include_directories(${LIBPARC_INCLUDE_DIRS})
 
-find_package(Threads REQUIRED)
-include_directories(${CMAKE_THREADS_INCLUDE_DIRS})
+  find_host_package(CCNX_Common REQUIRED)
+  include_directories(${CCNX_COMMON_INCLUDE_DIRS})
 
-find_package(Threads REQUIRED)
+  find_host_package(CCNX_Transport_Rta REQUIRED)
+  include_directories(${CCNX_TRANSPORT_RTA_INCLUDE_DIRS})
 
-set(CMAKE_VERBOSE_MAKEFILE off)
-
-if(ANDROID_API)
-  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
-  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
-  set(CCNX_PORTAL_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_api_portal.a" )
-  set(CCNX_TRANSPORT_RTA_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_api_notify.a" "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_api_control.a" "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_transport_rta.a")
-  set(CCNX_COMMON_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libccnx_common.a")
-  set(LIBPARC_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/libparc.a")
-  set(LONGBOW_LIBRARIES "$ENV{CCNX_DEPENDENCIES}/lib/liblongbow.a" "$ENV{CCNX_DEPENDENCIES}/lib/liblongbow-ansiterm.a" "$ENV{CCNX_DEPENDENCIES}/lib/liblongbow-textplain.a" "$ENV{CCNX_DEPENDENCIES}/lib/libcrypto.a" "$ENV{CCNX_DEPENDENCIES}/lib/libssl.a")
-  set(Boost_LIBRARIES $ENV{CCNX_DEPENDENCIES}/lib/libboost_regex.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_system.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_thread.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_filesystem.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_date_time.a $ENV{CCNX_DEPENDENCIES}/lib/libboost_chrono.a)
-  set(ANDROID_LIBRARIES "${ANDROID_NDK}/platforms/android-23/arch-arm/usr/lib/libz.a" "${ANDROID_NDK}/platforms/android-23/arch-arm/usr/lib/liblog.so" "$ENV{NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ENV{ABI}/libgnustl_shared.so" "$ENV{CCNX_DEPENDENCIES}/lib/libcrystax.a" "$ENV{CCNX_DEPENDENCIES}/lib/libevent.a")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -std=c++11 -Wall -fpermissive -O3")
+  find_host_package(CCNX_Portal REQUIRED)
+  include_directories(${CCNX_PORTAL_INCLUDE_DIRS})
 else ()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fpermissive -O3")
+  find_package(LongBow REQUIRED)
+  include_directories(${LONGBOW_INCLUDE_DIRS})
+
+  find_package(Libparc REQUIRED)
+  include_directories(${LIBPARC_INCLUDE_DIRS})
+
+  find_package(CCNX_Common REQUIRED)
+  include_directories(${CCNX_COMMON_INCLUDE_DIRS})
+
+  find_package(CCNX_Transport_Rta REQUIRED)
+  include_directories(${CCNX_TRANSPORT_RTA_INCLUDE_DIRS})
+
+  find_package(CCNX_Portal REQUIRED)
+  include_directories(${CCNX_PORTAL_INCLUDE_DIRS})
+
+  find_package(Threads REQUIRED)
+  include_directories(${CMAKE_THREADS_INCLUDE_DIRS})
+
   find_package(Boost 1.53.0 COMPONENTS system REQUIRED)
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
-  if (BUILD_APPS)
-    set(SUBFOLDERS ${APPS})
-  endif (BUILD_APPS)
+endif()
+
+if(ANDROID_API)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ANDROID_C_FLAGS} -Wall")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
+  if (NOT COMPILE_FOR_IOS)
+    if (BUILD_APPS)
+      set(SUBFOLDERS ${APPS})
+    endif (BUILD_APPS)
+  endif()
+
 endif (ANDROID_API)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS} -fpermissive")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${CMAKE_CXX_FLAGS} -fpermissive")
+
 set(LIBRARIES
-    ${CCNX_PORTAL_LIBRARIES}
-    ${CCNX_TRANSPORT_RTA_LIBRARIES}
-    ${CCNX_COMMON_LIBRARIES}
-    ${LIBPARC_LIBRARIES}
-    ${Boost_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${LONGBOW_LIBRARIES}
-    ${ANDROID_LIBRARIES})
+        ${CCNX_PORTAL_LIBRARIES}
+        ${CCNX_TRANSPORT_RTA_LIBRARIES}
+        ${CCNX_COMMON_LIBRARIES}
+        ${LIBPARC_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${LONGBOW_LIBRARIES})
 
 set(SUBFOLDERS ${SUBFOLDERS} icnet)
 

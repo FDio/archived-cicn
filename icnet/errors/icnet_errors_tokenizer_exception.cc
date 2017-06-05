@@ -13,20 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef ICNET_DOWNLOAD_OBSERVER_H_
-#define ICNET_DOWNLOAD_OBSERVER_H_
+#include "icnet_errors_tokenizer_exception.h"
 
 namespace icnet {
 
-class IcnObserver {
- public:
-  virtual ~IcnObserver() {
-  };
+namespace errors {
 
-  virtual void notifyStats(double throughput) = 0;
-};
+TokenizerException::TokenizerException()
+    : std::logic_error("") {
+
+}
+
+char const *TokenizerException::what() const noexcept {
+  return "No more tokens available.";
+}
+
+} // end namespace errors
 
 } // end namespace icnet
-
-#endif // ICNET_DOWNLOAD_OBSERVER_H_
-

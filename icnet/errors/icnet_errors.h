@@ -13,18 +13,9 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
 
-namespace icnet {
-
-int main(int argc, char **argv) {
-
-  return 0;
-
-}
-
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}
+#include "icnet_errors_malformed_name_exception.h"
+#include "icnet_errors_not_implemented_exception.h"
+#include "icnet_errors_malformed_packet_exception.h"
+#include "icnet_errors_runtime_exception.h"

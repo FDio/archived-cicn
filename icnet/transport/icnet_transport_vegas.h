@@ -16,10 +16,12 @@
 #ifndef ICNET_VEGAS_TRANSPORT_PROTOCOL_H_
 #define ICNET_VEGAS_TRANSPORT_PROTOCOL_H_
 
-#include "icnet_transport.h"
+#include "icnet_transport_protocol.h"
 #include "icnet_transport_vegas_rto_estimator.h"
 
 namespace icnet {
+
+namespace transport {
 
 class VegasTransportProtocol : public TransportProtocol {
  public:
@@ -102,6 +104,8 @@ class VegasTransportProtocol : public TransportProtocol {
   std::map<uint64_t, bool> received_segments_;
   std::unordered_map<uint64_t, bool> fast_retransmitted_segments;
 };
+
+} // end namespace transport
 
 } // end namespace icnet
 

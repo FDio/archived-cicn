@@ -17,13 +17,12 @@
 #define ICNET_CCNX_INTEREST_H_
 
 #include "icnet_ccnx_common.h"
+#include "icnet_utils_array.h"
+#include "icnet_ccnx_name.h"
 
 extern "C" {
 #include <ccnx/common/ccnx_Interest.h>
 };
-
-//#include "interest.hpp"
-#include "icnet_ccnx_name.h"
 
 namespace icnet {
 
@@ -67,11 +66,13 @@ class Interest : public std::enable_shared_from_this<Interest> {
 
   bool setPayload(const PARCBuffer *payload);
 
+  bool setPayload(const uint8_t *buffer, std::size_t size);
+
   bool setPayloadAndId(const PARCBuffer *payload);
 
   bool setPayloadWithId(const PARCBuffer *payload, const CCNxInterestPayloadId *payload_id);
 
-  PARCBuffer *getPayload();
+  utils::Array getPayload() const;
 
   void setHopLimit(uint32_t hop_limit);
 

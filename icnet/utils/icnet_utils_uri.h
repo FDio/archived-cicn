@@ -13,18 +13,39 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
+
+#include <string>
+#include <algorithm>    // find
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace utils {
 
-  return 0;
+class Uri {
+
+  typedef std::string::const_iterator iterator_t;
+
+ public:
+  Uri();
+
+  Uri &parse(const std::string &uri);
+
+  Uri &parseProtocolAndLocator(const std::string &locator);
+
+  std::string getQueryString();
+
+  std::string getPath();
+
+  std::string getProtocol();
+
+  std::string getLocator();
+
+  std::string getPort();
+ private:
+  std::string query_string_, path_, protocol_, locator_, port_;
+};  // uri
 
 }
 
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
 }

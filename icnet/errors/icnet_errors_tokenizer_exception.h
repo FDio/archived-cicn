@@ -13,18 +13,20 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
+
+#include <stdexcept>
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace errors {
 
-  return 0;
+class TokenizerException : public std::logic_error {
+ public:
+  TokenizerException();
+  virtual char const *what() const noexcept override;
+};
 
-}
+} // end namespace errors
 
 } // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}

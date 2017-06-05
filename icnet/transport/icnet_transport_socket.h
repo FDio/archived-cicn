@@ -16,10 +16,10 @@
 #ifndef ICNET_SOCKET_H_
 #define ICNET_SOCKET_H_
 
-#include "icnet_common.h"
-#include "icnet_socket_options_keys.h"
-#include "icnet_socket_options_default_values.h"
-#include "icnet_download_observer.h"
+#include "icnet_transport_common.h"
+#include "icnet_transport_socket_options_keys.h"
+#include "icnet_transport_socket_options_default_values.h"
+#include "icnet_transport_download_observer.h"
 
 #define SOCKET_OPTION_GET       0
 #define SOCKET_OPTION_NOT_GET   1
@@ -30,6 +30,8 @@
 #define VOID_HANDLER 0
 
 namespace icnet {
+
+namespace transport {
 
 class ConsumerSocket;
 class ProducerSocket;
@@ -45,7 +47,7 @@ typedef ccnx::PayloadType PayloadType;
 typedef ccnx::Array Array;
 
 typedef std::function<void(ConsumerSocket &, const Interest &)> ConsumerInterestCallback;
-typedef std::function<void(ConsumerSocket &, const uint8_t *, size_t)> ConsumerContentCallback;
+typedef std::function<void(ConsumerSocket &, std::vector<uint8_t> &&)> ConsumerContentCallback;
 typedef std::function<void(ConsumerSocket &, const ContentObject &)> ConsumerContentObjectCallback;
 typedef std::function<bool(ConsumerSocket &, const ContentObject &)> ConsumerContentObjectVerificationCallback;
 typedef std::function<void(ConsumerSocket &, const Manifest &)> ConsumerManifestCallback;
@@ -118,6 +120,8 @@ class Socket {
   virtual ~Socket() {
   };
 };
+
+} // end namespace transport
 
 } // namespace icnet
 

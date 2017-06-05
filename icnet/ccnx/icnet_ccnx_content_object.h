@@ -71,13 +71,13 @@ class ContentObject : public std::enable_shared_from_this<ContentObject> {
 
   bool operator==(const ContentObject &content_object);
 
-  PayloadType getContentType() const;
+  PayloadType getPayloadType() const;
 
   bool setContent(PayloadType content_type, const uint8_t *buffer, size_t buffer_size);
 
   bool setContent(const uint8_t *buffer, size_t buffer_size);
 
-  void setContentType(PayloadType payload_type);
+  void setPayloadType(PayloadType payload_type);
 
   Array getContent() const;
 

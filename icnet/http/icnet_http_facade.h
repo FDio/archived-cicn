@@ -13,18 +13,10 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
 
-namespace icnet {
+#include "icnet_http_server_acceptor.h"
+#include "icnet_http_server_publisher.h"
+#include "icnet_http_client_connection.h"
 
-int main(int argc, char **argv) {
-
-  return 0;
-
-}
-
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}
+namespace libl4 = icnet;

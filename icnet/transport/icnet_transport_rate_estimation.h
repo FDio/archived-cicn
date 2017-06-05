@@ -19,7 +19,7 @@
 #include <unistd.h>
 
 #include "icnet_transport_raaqm_data_path.h"
-#include "icnet_download_observer.h"
+#include "icnet_transport_download_observer.h"
 
 #define BATCH 50
 #define KV 20
@@ -27,6 +27,8 @@
 #define RATE_CHOICE 0
 
 namespace icnet {
+
+namespace transport {
 
 class IcnRateEstimator {
  public:
@@ -181,7 +183,9 @@ class SimpleEstimator : public IcnRateEstimator {
 
 void *Timer(void *data);
 
-}// end namespace icnet
+} // end namespace transport
+
+} // end namespace icnet
 
 #endif // ICNET_RATE_ESTIMATION_H_
 

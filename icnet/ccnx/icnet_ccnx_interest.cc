@@ -117,6 +117,13 @@ bool Interest::setPayload(const PARCBuffer *payload) {
   return ccnxInterest_SetPayload(interest_, payload);
 }
 
+bool Interest::setPayload(const uint8_t *buffer, std::size_t size) {
+  PARCBuffer *pbuffer = parcBuffer_CreateFromArray(buffer, size);
+  bool ret = setPayload(pbuffer);
+  parcBuffer_Release(&pbuffer);
+  return ret;
+}
+
 bool Interest::setPayloadAndId(const PARCBuffer *payload) {
   return ccnxInterest_SetPayloadAndId(interest_, payload);
 }
@@ -125,8 +132,9 @@ bool Interest::setPayloadWithId(const PARCBuffer *payload, const CCNxInterestPay
   return ccnxInterest_SetPayloadWithId(interest_, payload, payload_id);
 }
 
-PARCBuffer *Interest::getPayload() {
-  return ccnxInterest_GetPayload(interest_);
+utils::Array Interest::getPayload() const {
+  PARCBuffer *buffer = ccnxInterest_GetPayload(interest_);
+  return utils::Array(parcBuffer_Overlay(buffer, 0), parcBuffer_Remaining(buffer));
 }
 
 void Interest::setHopLimit(uint32_t hop_limit) {

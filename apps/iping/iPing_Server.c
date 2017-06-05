@@ -167,9 +167,9 @@ static void _displayUsage(char *progName) {
  */
 static bool _ccnxPingServer_ParseCommandline(CCNxPingServer *server, int argc, char *argv[argc]) {
   static struct option longopts[] =
-      {{"locator", required_argument, NULL, 'l'}, {"size", required_argument, NULL, 's'}, {"help", no_argument, NULL
-                                                                                           , 'h'
-      }, {NULL, 0, NULL, 0}};
+      {{"locator", required_argument, NULL, 'l'}, {"size", required_argument, NULL, 's'},
+       {"help", no_argument, NULL, 'h'
+       }, {NULL, 0, NULL, 0}};
 
   // Default value
   server->payloadSize = ccnxPing_MaxPayloadSize;

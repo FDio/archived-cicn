@@ -31,6 +31,8 @@
 
 namespace icnet {
 
+namespace transport {
+
 class RaaqmDataPath {
  public:
 
@@ -236,6 +238,8 @@ class RaaqmDataPath {
   double average_rtt_;
   double alpha_;
 };
+
+} // end namespace transport
 
 } // end namespace icnet
 

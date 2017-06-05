@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
-#include "icnet_socket_producer.h"
+#include "icnet_transport_socket_producer.h"
 
 namespace icnet {
+
+namespace transport {
 
 ProducerSocket::ProducerSocket(Name prefix)
     : portal_(new Portal()),
@@ -69,6 +71,10 @@ void ProducerSocket::serveForever() {
   }
 }
 
+void ProducerSocket::stop() {
+  portal_->stopEventsLoop();
+}
+
 void ProducerSocket::dispatch() {
   // Check that the INTEREST_INPUT callback is set.
   if (on_interest_input_ == VOID_HANDLER) {
@@ -98,7 +104,7 @@ void ProducerSocket::passContentObjectToCallbacks(const std::shared_ptr<ContentO
       if (!making_manifest_) {
         on_content_object_to_sign_(*this, *content_object);
       } else {
-        if (content_object->getContentType() == PayloadType::MANIFEST) {
+        if (content_object->getPayloadType() == PayloadType::MANIFEST) {
           on_content_object_to_sign_(*this, *content_object);
         } else {
           content_object->signWithSha256(key_locator_);
@@ -140,19 +146,19 @@ void ProducerSocket::produce(ContentObject &content_object) {
   portal_->sendContentObject(content_object);
 }
 
-void ProducerSocket::produce(Name suffix, const uint8_t *buf, size_t buffer_size, const int response_id, bool is_last) {
+void ProducerSocket::produce(Name name, const uint8_t *buf, size_t buffer_size, const int response_id, bool is_last) {
 
   if (buffer_size == 0) {
     return;
   }
 
+  if (name.empty() || !name_prefix_.isPrefixOf(name)) {
+    return;
+  }
+
   int bytes_segmented = 0;
 
-  Name name(name_prefix_);
-
-  if (!suffix.empty()) {
-    name.append(suffix);
-  }
+  std::cout << name.toString() << std::endl;
 
   size_t bytes_occupied_by_name = name.size();
 
@@ -192,8 +198,8 @@ void ProducerSocket::produce(Name suffix, const uint8_t *buf, size_t buffer_size
 
         Name manifest_name(name_prefix_);
 
-        if (!suffix.empty()) {
-          manifest_name.append(suffix);
+        if (!name.empty()) {
+          manifest_name.append(name);
         }
 
         manifest_name.appendSegment(current_segment);
@@ -716,5 +722,7 @@ int ProducerSocket::getSocketOption(int socket_option_key, IcnObserver **socket_
 int ProducerSocket::setSocketOption(int socket_option_key, IcnObserver *socket_option_value) {
   return SOCKET_OPTION_NOT_SET;
 }
+
+} // end namespace transport
 
 } // end namespace icnet

@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
-#include "icnet_content_store.h"
+#include "icnet_transport_content_store.h"
 
 namespace icnet {
+
+namespace transport {
 
 ContentStore::ContentStore(std::size_t max_packets)
     : max_content_store_size_(max_packets) {
@@ -71,6 +73,8 @@ std::size_t ContentStore::getLimit() const {
 
 std::size_t ContentStore::size() const {
   return content_store_hash_table_.size();
+}
+
 }
 
 } // end namespace icnet

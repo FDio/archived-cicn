@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace utils {
 
-  return 0;
+class Daemonizator {
+ public:
+  static void daemonize();
+};
 
 }
 
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
 }

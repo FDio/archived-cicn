@@ -13,11 +13,14 @@
  * limitations under the License.
  */
 
-#include "icnet_socket_producer.h"
+#include "icnet_transport_socket_producer.h"
+#include "icnet_utils_daemonizator.h"
 
 #define IDENTITY_NAME "cisco"
 
 namespace icnet {
+
+namespace transport {
 
 class CallbackContainer {
  public:
@@ -25,7 +28,7 @@ class CallbackContainer {
       : buffer_(1400, 'X'), final_chunk_number_(0) {
     content_object_.setContent((uint8_t *) buffer_.c_str(), 1400);
     if (download_size > 0) {
-      final_chunk_number_ = static_cast<uint64_t>(std::ceil(download_size / 1400.0));
+      final_chunk_number_ = static_cast<uint64_t > (std::ceil(download_size / 1400.0));
     }
   }
 
@@ -66,48 +69,6 @@ class Signer {
   Name identity_name_;
 };
 
-void becomeDaemon() {
-  pid_t process_id = 0;
-  pid_t sid = 0;
-
-  // Create child process
-  process_id = fork();
-
-  // Indication of fork() failure
-  if (process_id < 0) {
-    printf("fork failed!\n");
-    // Return failure in exit status
-    exit(EXIT_FAILURE);
-  }
-
-  // PARENT PROCESS. Need to kill it.
-  if (process_id > 0) {
-    printf("process_id of child process %d \n", process_id);
-    // return success in exit status
-    exit(EXIT_SUCCESS);
-  }
-
-  //unmask the file mode
-  umask(0);
-
-  //set new session
-  sid = setsid();
-  if (sid < 0) {
-    // Return failure
-    exit(EXIT_FAILURE);
-  }
-
-  // Change the current working directory to root.
-  chdir("/");
-
-  // Close stdin. stdout and stderr
-  close(STDIN_FILENO);
-  close(STDOUT_FILENO);
-  close(STDERR_FILENO);
-
-  // Really start application
-}
-
 int main(int argc, char **argv) {
   std::string name = "ccnx:/ccnxtest";
   unsigned long download_size = 0;
@@ -135,7 +96,7 @@ int main(int argc, char **argv) {
   }
 
   if (daemon) {
-    becomeDaemon();
+    utils::Daemonizator::daemonize();
   }
 
   CallbackContainer stubs(download_size);
@@ -168,9 +129,11 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+} // end namespace transport
+
 } // end namespace icnet
 
 int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
+  return icnet::transport::main(argc, argv);
 }
 

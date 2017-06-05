@@ -14,9 +14,11 @@
  */
 
 
-#include "icnet_rate_estimation.h"
+#include "icnet_transport_rate_estimation.h"
 
 namespace icnet {
+
+namespace transport {
 
 void *Timer(void *data) {
   InterRttEstimator *estimator = (InterRttEstimator *) data;
@@ -108,7 +110,7 @@ void InterRttEstimator::onRttUpdate(double rtt) {
       std::cerr << "Error allocating thread." << std::endl;
       my_th_ = NULL;
     }
-    if (/*int err = */pthread_create(my_th_, NULL, icnet::Timer, (void *) this)) {
+    if (/*int err = */pthread_create(my_th_, NULL, Timer, (void *) this)) {
       std::cerr << "Error creating the thread" << std::endl;
       my_th_ = NULL;
     }
@@ -319,6 +321,8 @@ void BatchingPacketsEstimator::onWindowDecrease(double win_current) {
   this->win_change_ += delay;
   gettimeofday(&(this->begin_), 0);
 }
+
+} // end namespace transport
 
 } // end namespace icnet
 

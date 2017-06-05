@@ -13,18 +13,20 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#include "icnet_errors.h"
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace errors {
 
-  return 0;
-
+MalformedNameException::MalformedNameException()
+    : std::runtime_error("") {
 }
+
+char const *MalformedNameException::what() const noexcept {
+  return "Malformed IP address.";
+}
+
+} // end namespace errors
 
 } // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}

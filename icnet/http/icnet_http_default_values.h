@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
 
-namespace icnet {
+namespace hicnet {
 
-int main(int argc, char **argv) {
+namespace http {
 
-  return 0;
+namespace default_values {
 
-}
+const uint16_t ipv6_first_word = 0xb001; // Network byte order
 
-} // end namespace icnet
+} // end namespace transport
 
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
-}
+} // end namespace default_values
+
+} // end namespace hicnet

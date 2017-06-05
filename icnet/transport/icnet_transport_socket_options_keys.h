@@ -18,6 +18,8 @@
 
 namespace icnet {
 
+namespace transport {
+
 typedef enum {
   RAAQM = 0, VEGAS = 1
 } TransportProtocolAlgorithms;
@@ -89,6 +91,8 @@ typedef enum {
 typedef enum {
   SHA_256 = 701, RSA_256 = 702,
 } SignatureType;
+
+} // end namespace transport
 
 } // end namespace icnet
 

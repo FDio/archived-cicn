@@ -14,9 +14,11 @@
  */
 
 #include "icnet_transport_vegas.h"
-#include "icnet_socket_consumer.h"
+#include "icnet_transport_socket_consumer.h"
 
 namespace icnet {
+
+namespace transport {
 
 VegasTransportProtocol::VegasTransportProtocol(Socket *icnet_socket)
     : TransportProtocol(icnet_socket),
@@ -139,9 +141,9 @@ void VegasTransportProtocol::onContentSegment(const Interest &interest, ContentO
     on_interest_satisfied(*dynamic_cast<ConsumerSocket *>(socket_), const_cast<Interest &>(interest));
   }
 
-  if (content_object.getContentType() == PayloadType::MANIFEST) {
+  if (content_object.getPayloadType() == PayloadType::MANIFEST) {
     onManifest(interest, content_object);
-  } else if (content_object.getContentType() == PayloadType::DATA) {
+  } else if (content_object.getPayloadType() == PayloadType::DATA) {
     onContentObject(interest, content_object);
   } // TODO InterestReturn
 
@@ -381,8 +383,7 @@ void VegasTransportProtocol::copyContent(ContentObject &content_object) {
     socket_->getSocketOption(CONTENT_RETRIEVED, on_payload);
     if (on_payload != VOID_HANDLER) {
       on_payload(*dynamic_cast<ConsumerSocket *>(socket_),
-                 (uint8_t *) (content_buffer_.data()),
-                 content_buffer_.size());
+                 std::move(content_buffer_));
     }
 
     //reduce window size to prevent its speculative growth in case when consume() is called in loop
@@ -401,7 +402,7 @@ void VegasTransportProtocol::reassemble() {
   uint64_t index = last_reassembled_segment_ % default_values::default_buffer_size;
 
   while (receive_buffer_[index % default_values::default_buffer_size]) {
-    if (receive_buffer_[index % default_values::default_buffer_size]->getContentType() == PayloadType::DATA) {
+    if (receive_buffer_[index % default_values::default_buffer_size]->getPayloadType() == PayloadType::DATA) {
       copyContent(*receive_buffer_[index % default_values::default_buffer_size]);
     }
 
@@ -484,4 +485,6 @@ void VegasTransportProtocol::removeAllPendingInterests() {
   portal_->clear();
 }
 
-} // namespace icn-interface
+} // end namespace transport
+
+} // end namespace icnet

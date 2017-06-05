@@ -13,18 +13,33 @@
  * limitations under the License.
  */
 
-#include "icnet_transport_socket.h"
+#pragma once
+
+#include <cstddef>
 
 namespace icnet {
 
-int main(int argc, char **argv) {
+namespace utils {
 
-  return 0;
+class Array {
+ public:
+  explicit Array(const void *array, size_t size);
+
+  Array();
+
+  const void *data() const;
+
+  std::size_t size() const;
+
+  Array &setData(const void *data);
+
+  Array &setSize(std::size_t size);
+
+ private:
+  std::size_t size_;
+  const void *array_;
+};
 
 }
 
-} // end namespace icnet
-
-int main(int argc, char **argv) {
-  return icnet::main(argc, argv);
 }

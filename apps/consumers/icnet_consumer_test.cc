@@ -13,12 +13,15 @@
  * limitations under the License.
  */
 
-#include "icnet_socket_consumer.h"
+#include "icnet_transport_socket_consumer.h"
+#include "icnet_utils_daemonizator.h"
 
 #define DEFAULT_BETA 0.99
 #define DEFAULT_GAMMA 0.07
 
 namespace icnet {
+
+namespace transport {
 
 class CallbackContainer {
  public:
@@ -34,20 +37,20 @@ class CallbackContainer {
     work_.reset();
   }
 
-  void processPayload(ConsumerSocket &c, const uint8_t *buffer, size_t bufferSize) {
-    std::cout << "Content retrieved!! Size: " << bufferSize << std::endl;
+  void processPayload(ConsumerSocket &c, std::vector<uint8_t> &&payload) {
+    std::cout << "Content retrieved!! Size: " << payload.size() << std::endl;
 
-    io_service_.dispatch([buffer, bufferSize]() {
-      std::ofstream file("ciao.txt", std::ofstream::binary);
-      file.write((char *) buffer, bufferSize);
+    io_service_.dispatch([payload]() {
+      std::ofstream file("consumer_test_file", std::ofstream::binary);
+      file.write((char *) payload.data(), payload.size());
       file.close();
     });
   }
 
   bool verifyData(ConsumerSocket &c, const ContentObject &contentObject) {
-    if (contentObject.getContentType() == PayloadType::DATA) {
+    if (contentObject.getPayloadType() == PayloadType::DATA) {
       std::cout << "VERIFY CONTENT" << std::endl;
-    } else if (contentObject.getContentType() == PayloadType::MANIFEST) {
+    } else if (contentObject.getPayloadType() == PayloadType::MANIFEST) {
       std::cout << "VERIFY MANIFEST" << std::endl;
     }
 
@@ -81,48 +84,6 @@ class Verificator {
     return true;
   }
 };
-
-void becomeDaemon() {
-  pid_t process_id = 0;
-  pid_t sid = 0;
-
-  // Create child process
-  process_id = fork();
-
-  // Indication of fork() failure
-  if (process_id < 0) {
-    printf("fork failed!\n");
-    // Return failure in exit status
-    exit(EXIT_FAILURE);
-  }
-
-  // PARENT PROCESS. Need to kill it.
-  if (process_id > 0) {
-    printf("process_id of child process %d \n", process_id);
-    // return success in exit status
-    exit(EXIT_SUCCESS);
-  }
-
-  //unmask the file mode
-  umask(0);
-
-  //set new session
-  sid = setsid();
-  if (sid < 0) {
-    // Return failure
-    exit(EXIT_FAILURE);
-  }
-
-  // Change the current working directory to root.
-  chdir("/");
-
-  // Close stdin. stdout and stderr
-  close(STDIN_FILENO);
-  close(STDOUT_FILENO);
-  close(STDERR_FILENO);
-
-  // Really start application
-}
 
 int main(int argc, char *argv[]) {
   double beta = DEFAULT_BETA;
@@ -159,7 +120,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (daemon) {
-    becomeDaemon();
+    utils::Daemonizator::daemonize();
   }
 
   ConsumerSocket c(Name(name.c_str()), TransportProtocolAlgorithms::RAAQM);
@@ -184,8 +145,7 @@ int main(int argc, char *argv[]) {
                     (ConsumerContentCallback) std::bind(&CallbackContainer::processPayload,
                                                         &stubs,
                                                         std::placeholders::_1,
-                                                        std::placeholders::_2,
-                                                        std::placeholders::_3));
+                                                        std::placeholders::_2));
 
   c.setSocketOption(ConsumerCallbacksOptions::INTEREST_OUTPUT,
                     (ConsumerInterestCallback) std::bind(&CallbackContainer::processLeavingInterest,
@@ -203,6 +163,8 @@ int main(int argc, char *argv[]) {
 
 } // end namespace icnet
 
+} // end namespace transport
+
 int main(int argc, char *argv[]) {
-  return icnet::main(argc, argv);
+  return icnet::transport::main(argc, argv);
 }

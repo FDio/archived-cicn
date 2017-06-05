@@ -19,9 +19,11 @@
 #include "icnet_transport_vegas.h"
 #include "icnet_transport_vegas_rto_estimator.h"
 #include "icnet_transport_raaqm_data_path.h"
-#include "icnet_rate_estimation.h"
+#include "icnet_transport_rate_estimation.h"
 
 namespace icnet {
+
+namespace transport {
 
 class RaaqmTransportProtocol : public VegasTransportProtocol {
  public:
@@ -94,6 +96,8 @@ class RaaqmTransportProtocol : public VegasTransportProtocol {
   //RTT stats
   double avg_rtt_;
 };
+
+} // end namespace transport
 
 } // end namespace icnet
 
