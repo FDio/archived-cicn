@@ -15,7 +15,7 @@
     },
     {
       "type": "LxcImage",
-      "name": "ubuntu1604-cicnsuite-rc2",
+      "name": "ubuntu1604-cicnsuite-rc3",
       "node": "server",
       "managed": false
     },
@@ -23,7 +23,7 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "bridge1",
-      "image": "ubuntu1604-cicnsuite-rc2"
+      "image": "ubuntu1604-cicnsuite-rc3"
     },
     {
       "type": "VPP",
@@ -43,7 +43,7 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "core1",
-      "image": "ubuntu1604-cicnsuite-rc2"
+      "image": "ubuntu1604-cicnsuite-rc3"
     },
     {
       "type": "VPP",
@@ -93,7 +93,7 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "core2",
-      "image": "ubuntu1604-cicnsuite-rc2"
+      "image": "ubuntu1604-cicnsuite-rc3"
     },
     {
       "type": "VPP",
@@ -143,7 +143,7 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "bridge2",
-      "image": "ubuntu1604-cicnsuite-rc2"
+      "image": "ubuntu1604-cicnsuite-rc3"
     },
     {
       "type": "VPP",
@@ -162,7 +162,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "cons1"
     },
     {
@@ -174,7 +174,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "cons2"
     },
     {
@@ -186,7 +186,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "cons3"
     },
     {
@@ -198,7 +198,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "cons4"
     },
     {
@@ -210,7 +210,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "cons5"
     },
     {
@@ -222,7 +222,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "prod1"
     },
     {
@@ -234,7 +234,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "prod2"
     },
     {
@@ -246,7 +246,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "prod3"
     },
     {
@@ -258,7 +258,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "prod4"
     },
     {
@@ -270,7 +270,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc2",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "name": "prod5"
     },
     {

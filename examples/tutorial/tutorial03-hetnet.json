@@ -13,12 +13,12 @@
         },
         {
             "type": "LxcImage",
-            "name": "ubuntu1604-cicnsuite-rc2",
+            "name": "ubuntu1604-cicnsuite-rc3",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "name": "cons",
             "node": "server",
             "category": "tablet",
@@ -27,7 +27,7 @@
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "name": "wifi",
             "node": "server",
             "category": "wifi",
@@ -36,7 +36,7 @@
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "name": "lte",
             "node": "server",
             "category": "lte",
@@ -45,7 +45,7 @@
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "name": "prod",
             "node": "server",
             "category": "video-server",

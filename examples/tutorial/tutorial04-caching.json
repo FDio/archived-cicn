@@ -17,12 +17,12 @@
         },
         {
             "type": "LxcImage",
-            "name": "ubuntu1604-cicnsuite-rc2",
+            "name": "ubuntu1604-cicnsuite-rc3",
             "node": "server"
         },
         {
             "name": "u1core",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "asr",
             "type": "LxcContainer",
             "y": 10,
@@ -31,7 +31,7 @@
         },
         {
             "name": "u1srv1",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "user",
             "type": "LxcContainer",
             "y": 8,
@@ -40,7 +40,7 @@
         },
         {
             "name": "u1srv2",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "user",
             "type": "LxcContainer",
             "y": 12,
@@ -49,7 +49,7 @@
         },
         {
             "name": "u2core",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "asr",
             "type": "LxcContainer",
             "y": 6,
@@ -58,7 +58,7 @@
         },
         {
             "name": "u2srv1",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "user",
             "type": "LxcContainer",
             "y": 2,
@@ -67,7 +67,7 @@
         },
         {
             "name": "u3core",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "asr",
             "type": "LxcContainer",
             "y": 12,
@@ -76,7 +76,7 @@
         },
         {
             "name": "u3srv1",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "serverDemo",
             "type": "LxcContainer",
             "y": 10,
@@ -85,7 +85,7 @@
         },
         {
             "name": "u3srv2",
-            "image": "ubuntu1604-cicnsuite-rc2",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "category": "serverDemo",
             "type": "LxcContainer",
             "y": 14,
