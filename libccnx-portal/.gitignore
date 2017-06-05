@@ -27,6 +27,7 @@ config.status
 .dirstamp
 Makefile
 stamp-h1
+.DS_Store
 
 transport/common/test/test_keyvalue
 transport/transport_rta/test/test_multi_connections

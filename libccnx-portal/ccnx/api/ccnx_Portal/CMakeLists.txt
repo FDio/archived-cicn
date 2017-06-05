@@ -28,18 +28,24 @@ set(CCNX_API_PORTAL_SOURCE_FILES
 source_group(Sources FILES ${CCNX_API_PORTAL_SOURCE_FILES})
 source_group(Sources FILES ${CCNX_API_PORTAL_HEADERS})
 
-add_library(ccnx_api_portal         STATIC ${CCNX_API_PORTAL_SOURCE_FILES} ${CCNX_API_PORTAL_HEADER_FILES})
-add_library(ccnx_api_portal.shared  SHARED ${CCNX_API_PORTAL_SOURCE_FILES})
-set_target_properties(ccnx_api_portal.shared PROPERTIES
-  C_STANDARD 99
-  SOVERSION 1
-  VERSION 1.0
-  OUTPUT_NAME ccnx_api_portal )
-
-set(libccnx_api_portal_libraries
-  ccnx_api_portal
-  ccnx_api_portal.shared
-  )
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(ccnx_api_portal         STATIC ${CCNX_API_PORTAL_SOURCE_FILES} ${CCNX_API_PORTAL_HEADER_FILES})
+  set(libccnx_api_portal_libraries
+    ccnx_api_portal
+    )
+else()
+  add_library(ccnx_api_portal         STATIC ${CCNX_API_PORTAL_SOURCE_FILES} ${CCNX_API_PORTAL_HEADER_FILES})
+  add_library(ccnx_api_portal.shared  SHARED ${CCNX_API_PORTAL_SOURCE_FILES})
+  set_target_properties(ccnx_api_portal.shared PROPERTIES
+    C_STANDARD 99
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME ccnx_api_portal )
+  set(libccnx_api_portal_libraries
+    ccnx_api_portal
+    ccnx_api_portal.shared
+    )
+endif()
 
 foreach(lib ${libccnx_api_portal_libraries})
   install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
@@ -48,5 +54,7 @@ endforeach()
 
 install(FILES ${CCNX_API_PORTAL_HEADERS} DESTINATION include/ccnx/api/ccnx_Portal COMPONENT headers)
 
-add_subdirectory(test)
-add_subdirectory(command-line)
+if (NOT COMPILE_FOR_IOS AND NOT ANDROID_API)
+  add_subdirectory(test)
+  add_subdirectory(command-line)
+endif()

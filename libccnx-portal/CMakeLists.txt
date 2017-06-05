@@ -7,6 +7,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type selected, default to Release")
+    set(CMAKE_BUILD_TYPE "Release")
+endif ()
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if( UNIX )
@@ -23,35 +28,57 @@ if(ANDROID_API)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -Wall")
 else()
 	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -DNDEBUG -DLibccnx_Portal_DISABLE_VALIDATION")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 	find_package( Doxygen )
 endif()
-#set(CMAKE_C_FLAGS_NOPANTS "${CMAKE_C_FLAGS_NOPANTS} -O3 -DNDEBUG -DLibccnx_Portal_DISABLE_VALIDATION")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -DLibccnx_Portal_DISABLE_VALIDATION")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${CMAKE_C_FLAGS}")
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/ccnx/api/ccnx_Portal)
 
 include_directories($ENV{CCNX_DEPENDENCIES}/include)
 set(OPENSSL_ROOT_DIR $ENV{CCNX_DEPENDENCIES})
+if(COMPILE_FOR_IOS)
+  find_host_package( LongBow REQUIRED )
+  include_directories(${LONGBOW_INCLUDE_DIRS})
 
-find_package( LongBow REQUIRED )
-include_directories(${LONGBOW_INCLUDE_DIRS})
+  find_host_package( LibEvent REQUIRED )
+  include_directories(${LIBEVENT_INCLUDE_DIRS})
 
-find_package( LibEvent REQUIRED )
-include_directories(${LIBEVENT_INCLUDE_DIRS})
+  find_host_package( Libparc REQUIRED )
+  include_directories(${LIBPARC_INCLUDE_DIRS})
 
-find_package( Libparc REQUIRED )
-include_directories(${LIBPARC_INCLUDE_DIRS})
+  find_host_package( CCNX_Common REQUIRED )
+  include_directories(${CCNX_COMMON_INCLUDE_DIRS})
 
-find_package( CCNX_Common REQUIRED )
-include_directories(${CCNX_COMMON_INCLUDE_DIRS})
+  find_host_package( CCNX_Transport_Rta REQUIRED )
+  include_directories(${CCNX_TRANSPORT_RTA_INCLUDE_DIRS})
 
-find_package( CCNX_Transport_Rta REQUIRED )
-include_directories(${CCNX_TRANSPORT_RTA_INCLUDE_DIRS})
+  find_host_package ( OpenSSL REQUIRED )
+else()
+  find_package( LongBow REQUIRED )
+  include_directories(${LONGBOW_INCLUDE_DIRS})
 
-find_package ( Threads REQUIRED )
+  find_package( LibEvent REQUIRED )
+  include_directories(${LIBEVENT_INCLUDE_DIRS})
 
-find_package ( OpenSSL REQUIRED )
+  find_package( Libparc REQUIRED )
+  include_directories(${LIBPARC_INCLUDE_DIRS})
 
+  find_package( CCNX_Common REQUIRED )
+  include_directories(${CCNX_COMMON_INCLUDE_DIRS})
+
+  find_package( CCNX_Transport_Rta REQUIRED )
+  include_directories(${CCNX_TRANSPORT_RTA_INCLUDE_DIRS})
+
+  find_package ( Threads REQUIRED )
+
+  find_package ( OpenSSL REQUIRED )
+
+endif()
 
 
 set(CCNX_LINK_LIBRARIES
@@ -71,6 +98,10 @@ if (ANDROID_API)
     macro(AddTest testFile)
         message("Android build: Skipping test ${ARGV0}")
     endmacro(AddTest)
+elseif(COMPILE_FOR_IOS)
+    macro(AddTest testFile)
+        message("iOS build: Skipping test ${ARGV0}")
+    endmacro(AddTest)
 else()
    macro(AddTest testFile)
      add_executable(${ARGV0} ${ARGV0}.c)
@@ -80,7 +111,7 @@ else()
    endmacro(AddTest)
 endif()
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR COMPILE_FOR_IOS)
     set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 	message( "-- Set \"-undefined dynamic_lookup\" for shared libraries")
 endif()

@@ -232,25 +232,32 @@ set(PUBLIC_HDRS
 
 configure_file("config.h.in" "config.h" @ONLY)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR COMPILE_FOR_IOS)
     set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 	message( "-- Set \"-undefined dynamic_lookup\" for shared libraries")
 endif()
 
-add_library(ccnx_common         STATIC ${ALL_SRCS} ${ALL_HDRS})
-add_library(ccnx_common.shared  SHARED ${ALL_SRCS})
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(ccnx_common         STATIC ${ALL_SRCS} ${ALL_HDRS})
+  set(libccnx_commonLibraries
+    ccnx_common
+    )
+else()
+  add_library(ccnx_common         STATIC ${ALL_SRCS} ${ALL_HDRS})
+  add_library(ccnx_common.shared  SHARED ${ALL_SRCS})
 
-target_link_libraries(ccnx_common.shared ${LIBPARC_LIBRARIES})
-set_target_properties(ccnx_common.shared PROPERTIES
-  C_STANDARD 99
-  SOVERSION 1
-  VERSION 1.0
-  OUTPUT_NAME ccnx_common )
+  target_link_libraries(ccnx_common.shared ${LIBPARC_LIBRARIES})
+  set_target_properties(ccnx_common.shared PROPERTIES
+    C_STANDARD 99
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME ccnx_common )
 
-set(libccnx_commonLibraries
-  ccnx_common
-  ccnx_common.shared
-  )
+  set(libccnx_commonLibraries
+    ccnx_common
+    ccnx_common.shared
+    )
+endif()
 
 foreach(lib ${libccnx_commonLibraries})
   install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

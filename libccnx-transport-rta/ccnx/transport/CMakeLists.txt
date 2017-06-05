@@ -181,20 +181,24 @@ set(TRANSPORT_RTA_SOURCE_FILES
   ${RTA_COMMANDS_SRCS}
   )
 
-add_library(ccnx_transport_rta         STATIC ${TRANSPORT_RTA_SOURCE_FILES})
-add_library(ccnx_transport_rta.shared  SHARED ${TRANSPORT_RTA_SOURCE_FILES})
-
-set_target_properties(ccnx_transport_rta.shared PROPERTIES
-  C_STANDARD 99
-  SOVERSION 1
-  VERSION 1.0
-  OUTPUT_NAME ccnx_transport_rta )
-
-set(libccnx_transport_rta_libraries
-  ccnx_transport_rta
-  ccnx_transport_rta.shared
-  )
-
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(ccnx_transport_rta         STATIC ${TRANSPORT_RTA_SOURCE_FILES})
+  set(libccnx_transport_rta_libraries
+      ccnx_transport_rta
+      )
+else()
+  add_library(ccnx_transport_rta         STATIC ${TRANSPORT_RTA_SOURCE_FILES})
+  add_library(ccnx_transport_rta.shared  SHARED ${TRANSPORT_RTA_SOURCE_FILES})
+  set_target_properties(ccnx_transport_rta.shared PROPERTIES
+    C_STANDARD 99
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME ccnx_transport_rta )
+  set(libccnx_transport_rta_libraries
+      ccnx_transport_rta
+      ccnx_transport_rta.shared
+      )
+endif()
 foreach(lib ${libccnx_transport_rta_libraries})
   install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
   set_property(TARGET ${lib} PROPERTY C_STANDARD 99)

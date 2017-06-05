@@ -6,6 +6,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type selected, default to Release")
+    set(CMAKE_BUILD_TYPE "Release")
+endif ()
+
 if( UNIX )
   link_libraries(m)
 endif( UNIX )
@@ -20,8 +25,13 @@ if(ANDROID_API)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -Wall")
 else()
     # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -DNDEBUG -DLibccnx_DISABLE_VALIDATION")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 endif()
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -DLibccnx_DISABLE_VALIDATION")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${CMAKE_C_FLAGS}")
 
 #set(CMAKE_C_FLAGS_NOPANTS "${CMAKE_C_FLAGS_NOPANTS} -O3 -DNDEBUG -DLibccnx_DISABLE_VALIDATION")
 
@@ -30,20 +40,35 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/ccnx/common)
 include_directories($ENV{CCNX_DEPENDENCIES}/include)
 set(OPENSSL_ROOT_DIR $ENV{CCNX_DEPENDENCIES})
 
-find_package( LongBow REQUIRED )
-include_directories(${LONGBOW_INCLUDE_DIRS})
+if(COMPILE_FOR_IOS)
+  find_host_package( LongBow REQUIRED )
+  include_directories(${LONGBOW_INCLUDE_DIRS})
 
-find_package( LibEvent REQUIRED )
-include_directories(${LIBEVENT_INCLUDE_DIRS})
+  find_host_package( LibEvent REQUIRED )
+  include_directories(${LIBEVENT_INCLUDE_DIRS})
 
-find_package( Libparc REQUIRED )
-include_directories(${LIBPARC_INCLUDE_DIRS})
+  find_host_package( Libparc REQUIRED )
+  include_directories(${LIBPARC_INCLUDE_DIRS})
 
-find_package ( Threads REQUIRED )
+  find_host_package ( OpenSSL REQUIRED )
 
-find_package ( OpenSSL REQUIRED )
+  find_host_package( Doxygen )
+else()
+  find_package( LongBow REQUIRED )
+  include_directories(${LONGBOW_INCLUDE_DIRS})
 
-find_package( Doxygen )
+  find_package( LibEvent REQUIRED )
+  include_directories(${LIBEVENT_INCLUDE_DIRS})
+
+  find_package( Libparc REQUIRED )
+  include_directories(${LIBPARC_INCLUDE_DIRS})
+
+  find_package ( Threads REQUIRED )
+
+  find_package ( OpenSSL REQUIRED )
+
+  find_package( Doxygen )
+endif()
 
 add_custom_target(${PROJECT_NAME}_cleanup_profiling_data
         "find" "." "-name" "*.gcda" "-delete"
@@ -53,6 +78,10 @@ add_custom_target(${PROJECT_NAME}_cleanup_profiling_data
 if (ANDROID_API) 
     macro(AddTest testFile)
         message("Android build: Skipping test ${ARGV0}")
+    endmacro(AddTest)
+elseif(COMPILE_FOR_IOS)
+    macro(AddTest testFile)
+        message("iOS build: Skipping test ${ARGV0}")
     endmacro(AddTest)
 else()
     macro(AddTest testFile)

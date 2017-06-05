@@ -63,23 +63,28 @@ set(CCNX_API_CONTROL_SOURCE_FILES
 	controlPlaneInterface.c
 )
 
-
-add_library(ccnx_api_control         STATIC ${CCNX_API_CONTROL_SOURCE_FILES} ${CCNX_API_CONTROL_HEADERS})
-add_library(ccnx_api_control.shared  SHARED ${CCNX_API_CONTROL_SOURCE_FILES})
-
-source_group(Sources FILES ${CCNX_API_CONTROL_SOURCE_FILES})
-source_group(Sources FILES ${CCNX_API_CONTROL_HEADERS})
-
-set_target_properties(ccnx_api_control.shared PROPERTIES
-  C_STANDARD 99
-  SOVERSION 1
-  VERSION 1.0
-  OUTPUT_NAME ccnx_api_control )
-
-set(libccnx_api_control_libraries
-  ccnx_api_control
-  ccnx_api_control.shared
-  )
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(ccnx_api_control         STATIC ${CCNX_API_CONTROL_SOURCE_FILES} ${CCNX_API_CONTROL_HEADERS})
+  source_group(Sources FILES ${CCNX_API_CONTROL_SOURCE_FILES})
+  source_group(Sources FILES ${CCNX_API_CONTROL_HEADERS})
+  set(libccnx_api_control_libraries
+    ccnx_api_control
+    )
+else()
+  add_library(ccnx_api_control         STATIC ${CCNX_API_CONTROL_SOURCE_FILES} ${CCNX_API_CONTROL_HEADERS})
+  add_library(ccnx_api_control.shared  SHARED ${CCNX_API_CONTROL_SOURCE_FILES})
+  source_group(Sources FILES ${CCNX_API_CONTROL_SOURCE_FILES})
+  source_group(Sources FILES ${CCNX_API_CONTROL_HEADERS})
+  set_target_properties(ccnx_api_control.shared PROPERTIES
+    C_STANDARD 99
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME ccnx_api_control )
+  set(libccnx_api_control_libraries
+    ccnx_api_control
+    ccnx_api_control.shared
+    )
+endif()
 
 foreach(lib ${libccnx_api_control_libraries})
   install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

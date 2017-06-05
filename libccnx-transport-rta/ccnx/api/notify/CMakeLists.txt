@@ -11,24 +11,30 @@ set(CCNX_API_NOTIFY_SOURCE_FILES
 	notify_Status.c
 )
 
+if(COMPILE_FOR_IOS OR ANDROID_API)
+  add_library(ccnx_api_notify         STATIC ${CCNX_API_NOTIFY_SOURCE_FILES} ${CCNX_API_NOTIFY_HEADERS})
+  source_group(Sources FILES ${CCNX_API_NOTIFY_SOURCE_FILES})
+  source_group(Sources FILES ${CCNX_API_NOTIFY_HEADERS})
 
-add_library(ccnx_api_notify         STATIC ${CCNX_API_NOTIFY_SOURCE_FILES} ${CCNX_API_NOTIFY_HEADERS})
-add_library(ccnx_api_notify.shared  SHARED ${CCNX_API_NOTIFY_SOURCE_FILES})
+  set(libccnx_api_notify_libraries
+    ccnx_api_notify
+    )
+else()
+  add_library(ccnx_api_notify         STATIC ${CCNX_API_NOTIFY_SOURCE_FILES} ${CCNX_API_NOTIFY_HEADERS})
+  add_library(ccnx_api_notify.shared  SHARED ${CCNX_API_NOTIFY_SOURCE_FILES})
+  source_group(Sources FILES ${CCNX_API_NOTIFY_SOURCE_FILES})
+  source_group(Sources FILES ${CCNX_API_NOTIFY_HEADERS})
 
-source_group(Sources FILES ${CCNX_API_NOTIFY_SOURCE_FILES})
-source_group(Sources FILES ${CCNX_API_NOTIFY_HEADERS})
-
-set_target_properties(ccnx_api_notify.shared PROPERTIES
-  C_STANDARD 99
-  SOVERSION 1
-  VERSION 1.0
-  OUTPUT_NAME ccnx_api_notify )
-
-set(libccnx_api_notify_libraries
-  ccnx_api_notify
-  ccnx_api_notify.shared
-  )
-
+  set_target_properties(ccnx_api_notify.shared PROPERTIES
+    C_STANDARD 99
+    SOVERSION 1
+    VERSION 1.0
+    OUTPUT_NAME ccnx_api_notify )
+  set(libccnx_api_notify_libraries
+    ccnx_api_notify
+    ccnx_api_notify.shared
+    )
+endif()
 foreach(lib ${libccnx_api_notify_libraries})
   install(TARGETS ${lib} COMPONENT library LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
   set_property(TARGET ${lib} PROPERTY C_STANDARD 99)
