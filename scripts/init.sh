@@ -18,29 +18,33 @@
 set -e
 
 ABI=$1
+
 INSTALLATION_DIR=$2
 OS=`echo $OS | tr '[:upper:]' '[:lower:]'`
+BASE_DIR=`pwd`
 echo "SDK_PATH ${SDK}"
 if [ -z ${SDK_PATH} ]; then
 	mkdir -p sdk
 	cd sdk
 	if [ ! -d sdk ]; then
-		if [ $OS == darwin ]; then
-			if [ ! -f android-sdk_r23.0.2-macosx.zip ]; then
-				wget http://dl.google.com/android/android-sdk_r23.0.2-macosx.zip
+		if [ $OS = darwin ]; then
+			if [ ! -f android-sdk_r24.4.1-macosx.zip ]; then
+				wget http://dl.google.com/android/android-sdk_r24.4.1-macosx.zip
 			fi
-			unzip -q android-sdk_r23.0.2-macosx.zip
+			unzip -q android-sdk_r24.4.1-macosx.zip
 			mv android-sdk-macosx sdk
 		else
-			if [ ! -f android-sdk_r23.0.2-linux.zip ]; then
-				wget http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz
+			if [ ! -f android-sdk_r24.4.1-linux.zip ]; then
+				wget http://dl.google.com/android/android-sdk_r24.4.1-linux.tgz
 			fi
-			tar zxf android-sdk_r23.0.2-linux.tgz
+			tar zxf android-sdk_r24.4.1-linux.tgz
 			mv android-sdk-linux sdk
 		fi
-		mkdir "sdk/licenses" || true
+		mkdir -p sdk/licenses
 		echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > "sdk/licenses/android-sdk-license"
 		echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "sdk/licenses/android-sdk-preview-license"
+		echo "y" | ./sdk/tools/android update sdk --filter platform-tools,build-tools-23.0.2,android-23,extra-android-m2repository,extra-google-m2repository --no-ui --all --force
+		echo "y" | ./sdk/tools/android update sdk --filter "android-23" --no-ui --all --forceecho y | ./sdk/tools/android update sdk --no-ui --all --filter build-tools-23.0.2
 	fi
 	cd ..
 fi
@@ -49,11 +53,11 @@ if [ -z ${NDK_PATH} ]; then
     mkdir -p sdk
 	cd sdk
 	if [ ! -d ndk-bundle ]; then
-		if [ ! -f android-ndk-r13b-${OS}-${ARCH}.zip ]; then
-			wget https://dl.google.com/android/repository/android-ndk-r13b-${OS}-${ARCH}.zip
+		if [ ! -f android-ndk-r14b-${OS}-${ARCH}.zip ]; then
+			wget https://dl.google.com/android/repository/android-ndk-r14b-${OS}-${ARCH}.zip
 		fi
-		unzip -q android-ndk-r13b-${OS}-${ARCH}.zip
-		mv android-ndk-r13b ndk-bundle
+		unzip -q android-ndk-r14b-${OS}-${ARCH}.zip
+		mv android-ndk-r14b ndk-bundle
 	fi
 	cd ..
 fi
@@ -71,8 +75,9 @@ if [ -z ${CMAKE_PATH} ]; then
 fi
 
 
-
+mkdir -p src
 cd src
+
 if [ ! -d ccnxlibs ]; then
 	echo "ccnxlibs not found"
 	git clone -b ccnxlibs/master https://gerrit.fd.io/r/cicn ccnxlibs
@@ -97,16 +102,12 @@ fi
 cd ../
 
 cd external
-if [ ! -d crystax-ndk-10.3.2 ]; then
-	echo "Crystax Directory not found!"
-	if [ ! -f crystax-ndk-10.3.2-${OS}-${ARCH}.tar.xz ]; then
-		echo "CrystaX Ndk not found!"
-		wget https://www.crystax.net/download/crystax-ndk-10.3.2-"${OS}"-${ARCH}.tar.xz
-	fi
-	tar xpf crystax-ndk-10.3.2-${OS}-${ARCH}.tar.xz
-fi
 
-if [ ! -d crystax-ndk-10.3.2/sources/openssl/1.0.2k ]; then
+mkdir -p ${INSTALLATION_DIR}
+mkdir -p ${INSTALLATION_DIR}/include
+mkdir -p ${INSTALLATION_DIR}/lib
+
+if [ ! -d ${INSTALLATION_DIR}/include/openssl ]; then
 	echo "OpenSSL Libs not found!"
 	if [ ! -d openssl-1.0.2k ]; then
 		echo "OpenSSL Directory not found"
@@ -116,28 +117,59 @@ if [ ! -d crystax-ndk-10.3.2/sources/openssl/1.0.2k ]; then
 		fi
 		tar -xzf openssl-1.0.2k.tar.gz
 	fi
-	./crystax-ndk-10.3.2/build/tools/build-target-openssl.sh --abis=$ABI openssl-1.0.2k
-fi
-
-mkdir -p ${INSTALLATION_DIR}
-mkdir -p ${INSTALLATION_DIR}/include
-mkdir -p ${INSTALLATION_DIR}/lib
-
-echo "Copy libssl and libcrypto in workspace"
-if [ ! -d ${INSTALLATION_DIR}/include/openssl ]; then
-	cp -rf crystax-ndk-10.3.2/sources/openssl/1.0.2k/include/* ${INSTALLATION_DIR}/include/
+	echo "Compile OpenSSL"
+	if [ ! -d ${NDK}/sources/openssl/1.0.2 ]; then
+	   export ANDROID_NDK_ROOT=$NDK
+	   bash ${BASE_DIR}/scripts/tools/build-target-openssl.sh --abis=$ABI openssl-1.0.2k --ndk-dir=${NDK}
+	fi
+	echo "Copy libssl and libcrypto in workspace"
+	cp -rf ${NDK}/sources/openssl/1.0.2k/include/* ${INSTALLATION_DIR}/include/
 	cp -f ${INSTALLATION_DIR}/include/openssl/opensslconf_armeabi_v7a.h ${INSTALLATION_DIR}/include/openssl/opensslconf_armeabi.h
-	cp -f crystax-ndk-10.3.2/sources/openssl/1.0.2k/libs/${ABI}/* ${INSTALLATION_DIR}/lib/
+	cp -f ${NDK}/sources/openssl/1.0.2k/libs/${ABI}/*.a ${INSTALLATION_DIR}/lib/
+	rm -rf ${NDK}/sources/openssl/1.0.2k
 fi
 
-echo "Copy libboost in workspace"
+
 if [ ! -d ${INSTALLATION_DIR}/include/boost ]; then
-	cp -rf crystax-ndk-10.3.2/sources/boost/1.59.0/include/* ${INSTALLATION_DIR}/include/
-	cp -f crystax-ndk-10.3.2/sources/boost/1.59.0/libs/${ABI}/gnu-4.9/* ${INSTALLATION_DIR}/lib/
+	echo "Boost Libs not found!"
+	if [ ! -d boost_1_63_0 ]; then
+		echo "Boost Directory not found"
+		if [ ! -f boost_1_63_0.tar.gz ]; then
+			echo "Boost Archive not found"
+			wget https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz
+		fi
+		tar -xzf boost_1_63_0.tar.gz
+	fi
+	cd boost_1_63_0
+	if [ ! -d install_boost ]; then
+		echo "Compile Boost"
+		./bootstrap.sh
+		echo "import option ;" > project-config.jam
+		if [ $ABI = armeabi-v7a ]; then
+			echo "using gcc : arm : arm-linux-androideabi-g++ ;" >> project-config.jam
+			export PATH=$PATH:${NDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/${OS}-${ARCH}/bin
+		elif [ $ABI = x86 ]; then
+		    echo "using gcc : x86 : i686-linux-android-g++ ;" >> project-config.jam
+		    export PATH=$PATH:${NDK}/toolchains/x86-4.9/prebuilt/${OS}-${ARCH}/bin
+		elif [ $ABI = x86_64 ]; then
+		    echo "using gcc : x86_64 : x86_64-linux-android-g++ ;" >> project-config.jam
+		    export PATH=$PATH:${NDK}/toolchains/x86_64-4.9/prebuilt/${OS}-${ARCH}/bin
+		else
+		    echo "using gcc : arm64-v8a : aarch64-linux-android-g++ ;" >> project-config.jam
+		    export PATH=$PATH:${NDK}/toolchains/aarch64-4.9/prebuilt/${OS}-${ARCH}/bin
+		fi
+		
+		echo "option.set keep-going : false ;" >> project-config.jam
+		echo "before compile"
+		bash ${BASE_DIR}/scripts/build-boost.sh
+		echo "after compile"
+	fi
+	echo "Copy boost libs in workspace"
+	cp -rf install_boost/include/* ${INSTALLATION_DIR}/include/
+	cp -rf install_boost/lib/* ${INSTALLATION_DIR}/lib/
+	cd ..
+	
 fi
-
-echo "Copy libcrystax in workspace"
-cp crystax-ndk-10.3.2/sources/crystax/libs/${ABI}/libcrystax.* ${INSTALLATION_DIR}/lib/
 
 echo "Create libevent"
 

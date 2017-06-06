@@ -1,1 +1,1 @@
-$(eval $(call addCMakeModule,libdash))
+$(eval $(call addCMakeModule,viper/libdash))

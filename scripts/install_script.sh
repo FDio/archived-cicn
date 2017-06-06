@@ -26,7 +26,7 @@ gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.environmentVar
 Controller.prototype.ComponentSelectionPageCallback = function() {
     var widget = gui.currentPageWidget();
 
-    widget.selectAll();
+    widget.selectAll(); 
 
     gui.clickButton(buttons.NextButton);
 }

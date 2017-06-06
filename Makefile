@@ -111,16 +111,16 @@ init_depend:
 init_qt:
 	./scripts/init_qt.sh
 android_metis:
-	./scripts/compile_androidmetis.sh
+	./scripts/compile_metisforwarder.sh
 android_metis_debug:
-	./scripts/compile_androidmetis.sh DEBUG
+	./scripts/compile_metisforwarder.sh DEBUG
 android_iget:
-	./scripts/compile_androidiget.sh
+	./scripts/compile_iget.sh
 android_iget_debug:
-	./scripts/compile_androidiget.sh DEBUG
+	./scripts/compile_iget.sh DEBUG
 android_viper:
 	./scripts/compile_androidviper.sh
-android_iget_debug:
+android_viper_debug:
 	./scripts/compile_androidviper.sh DEBUG
 
 curl-clean:

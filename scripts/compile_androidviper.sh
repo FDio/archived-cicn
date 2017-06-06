@@ -14,6 +14,9 @@
  ##############################################################################
 
 #!/bin/bash
+
+
+#!/bin/bash
 set -e
 export ANDROID_HOME=${SDK}
 export ANDROID_NDK_HOST=${OS}-${ARCH}
@@ -29,10 +32,10 @@ echo $QT_HOME
 cd ${DISTILLERY_ROOT_DIR}
 mkdir -p ${DISTILLERY_BUILD_DIR}/viper
 cd ${DISTILLERY_BUILD_DIR}/viper
-${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/qmake -r -spec android-g++ ${DISTILLERY_ROOT_DIR}/src/viper/viper.pro
+${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/qmake -r -spec android-g++ ${DISTILLERY_ROOT_DIR}/src/viper/viper.pro "TRANSPORT_LIBRARY = ICNET"
 make
 make install INSTALL_ROOT=viper-${ANDROID_ARCH}
-if [ "$1" == "DEBUG" ]; then
+if [ "$1" = "DEBUG" ]; then
 	${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/androiddeployqt --output viper-${ANDROID_ARCH} --verbose --input android-libviper.so-deployment-settings.json --gradle --android-platform android-23 --stacktrace --debug --target android-23 --debug --sign ${DISTILLERY_ROOT_DIR}/src/viper/android/viper.keystore viper --storepass icn_viper
 else
 	${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/androiddeployqt --output viper-${ANDROID_ARCH} --verbose --input android-libviper.so-deployment-settings.json --gradle --android-platform android-23 --stacktrace --debug --target android-23 --release --sign ${DISTILLERY_ROOT_DIR}/src/viper/android/viper.keystore viper --storepass icn_viper

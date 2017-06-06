@@ -175,5 +175,4 @@ make android_iget
 # Compile viper
 make android_viper
 
-mv build/viper/viper-armv7//build/outputs/apk/viper-armv7-release-signed.apk iget_android/app/build/outputs/apk/
 popd

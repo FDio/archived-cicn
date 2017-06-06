@@ -9,7 +9,7 @@
 #
 
 set(ANDROID_NDK_VERSION "android-ndk-r13b")
-set(ANDROID_API_VERSION "android-23")
+set(ANDROID_API_VERSION "android-24")
 set(ANDROID_TOOLCHAIN "arm-linux-androideabi")
 set(ANDROID_TOOLCHAIN_VERSION "${ANDROID_TOOLCHAIN}-4.9")
 set(ANDROID_API "${ANDROID_API_VERSION}")
