@@ -27,11 +27,13 @@ option(HICNET "Link against Libhicnet." OFF)
 
 if (HICNET)
     find_package(Libhicnet REQUIRED)
-    set (TRANSPORT_LIBRARY HICNET)
+    set(TRANSPORT_LIBRARY HICNET)
     set(ICNET OFF)
+    set(PREFIX "hicn-")
 else()
     find_package(Libicnet REQUIRED)
-    set (TRANSPORT_LIBRARY ICNET)
+    set(TRANSPORT_LIBRARY ICNET)
+    set(PREFIX "")
 endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
@@ -77,10 +79,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fper
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
 
-add_executable(http-server ${SOURCE_FILES})
-target_link_libraries(http-server ${LIB${TRANSPORT_LIBRARY}_LIBRARY} ${CURL_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_executable(${PREFIX}http-server ${SOURCE_FILES})
+target_link_libraries(${PREFIX}http-server ${LIB${TRANSPORT_LIBRARY}_LIBRARY} ${CURL_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-install(TARGETS http-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS ${PREFIX}http-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Generate DEB / RPM packages
 
@@ -93,7 +95,7 @@ set(DISTRIBUTION "xenial" CACHE STRING "Distribution")
 set(ARCHITECTURE "amd64" CACHE STRING "Architecture")
 set(PACKAGE_MAINTAINER "Mauro Sardara (msardara@cisco.com)" CACHE STRING "Maintainer")
 set(BUILD_NUMBER "1" CACHE STRING "Build Number")
-string(TOLOWER ${CMAKE_PROJECT_NAME} PACKAGE_NAME)
+string(TOLOWER ${PREFIX}${CMAKE_PROJECT_NAME} PACKAGE_NAME)
 
 set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 set(CPACK_PACKAGE_VENDOR ${VENDOR})
@@ -122,6 +124,10 @@ elseif (RPM_PACKAGE)
 else ()
     return()
 endif ()
+
+# Install also configuration files
+set (HTTP_SERVER_SERVICE ${PROJECT_SOURCE_DIR}/config/${PREFIX}http-server.service)
+install(FILES ${HTTP_SERVER_SERVICE} DESTINATION /lib/systemd/system RENAME ${PREFIX}http-server.service)
 
 set(CPACK_GENERATOR ${GENERATOR})
 set(CPACK_${TYPE}_PACKAGE_MAINTAINER ${PACKAGE_MAINTAINER})
