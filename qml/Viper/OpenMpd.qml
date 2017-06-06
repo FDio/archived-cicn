@@ -55,24 +55,34 @@ Rectangle {
             return rowMulti * item.Layout.rowSpan
         }
 
-        ComboBox {
-            z: parent.z + 1
-            id: comboBoxList
+        TextInput  {
+
+            id: sourceTextInput
+            text: lastPlayed
             Layout.rowSpan : 1
-            Layout.columnSpan : 2
-            Layout.preferredWidth  : parent.colMulti * 2 + Utils.scaled(5) //grid.prefWidth(this)
-            Layout.preferredHeight : parent.rowMulti//grid.prefHeight(this)
-
-            onCurrentIndexChanged: {
-            }
-
-            model: ListModel {
-                id: mpdItems
-                ListElement { text: "gastown"; }
-                ListElement { text: "sintel"; }
-            }
-            currentIndex: find(lastPlayed)
+                 Layout.columnSpan : 2
+                 Layout.preferredWidth  : parent.colMulti * 2 + Utils.scaled(5) //grid.prefWidth(this)
+                 Layout.preferredHeight : parent.rowMulti//grid.prefHeight(this)
+            color: "white"
         }
+       // ComboBox {
+       //     z: parent.z + 1
+       //     id: comboBoxList
+       //     Layout.rowSpan : 1
+       //     Layout.columnSpan : 2
+       //     Layout.preferredWidth  : parent.colMulti * 2 + Utils.scaled(5) //grid.prefWidth(this)
+       //     Layout.preferredHeight : parent.rowMulti//grid.prefHeight(this)
+       //
+       //     onCurrentIndexChanged: {
+       //     }
+
+       //     model: ListModel {
+       //         id: mpdItems
+       //         ListElement { text: "gastown"; }
+       //         ListElement { text: "sintel"; }
+       //     }
+       //     currentIndex: find(lastPlayed)
+        //}
 
         Button {
             id: cancelBtn
@@ -98,7 +108,7 @@ Rectangle {
             Layout.preferredHeight : grid.prefHeight(this)
             text: "Download"
             onClicked: {
-                saveAndPlayMpd(mpdItems.get(comboBoxList.currentIndex).text)
+                saveAndPlayMpd(sourceTextInput.text)
                 closeOpenMpd();
             }
 
