@@ -19,7 +19,6 @@ If Max Os X
 brew install automake libconf libtool
 ```
 
-
 ## Quick Start ##
 
 Clone this distro
@@ -104,9 +103,7 @@ Here's a short summary:
 - `curl-clean`			- Clean curl files and libs
 - `boost-clean`			- Clean boost files and libs
 - `openssl-clean`		- Clean opennssl files and libs
-- `crystax-clean`		- Clean crystax files and libs
 - `event-clean`			- Clean libevent files and libs
-- `crystaxndk-clean`	- Clean crystax ndk files
 - `xml2-clean`			- Clean libxml2 files and libs
 - `dependencies-clean`	- Clean all dependencies files and libs
 - `sdk-clean`			- Clean sdk files

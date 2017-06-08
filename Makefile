@@ -132,27 +132,25 @@ curl-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcurl*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/curl
 
-boost-clean:
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libboost*
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/boost
-
 openssl-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libssl.*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcrypto.*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/openssl
 	@rm -rf external/openssl-1.0.2k*
-	@rm -rf external/crystax-ndk-10.3.2/sources/openssl/1.0.2k
+	@rm -rf ${NDK}/sources/openssl/1.0.2k
+	
+boost-clean:
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libboost*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/boost
+	@rm -rf external/boost_1_63_0
+	@rm -rf external/boost_1_63_0.tar.gz
 
-crystax-clean:
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libxrystax.*
 
 event-clean:
 	@rm -rf external/libevent
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libevent*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/event2
 
-crystaxndk-clean:
-	@rm -rf external/crystax-ndk*
 
 xml2-clean:
 	@rm -rf external/libxml2
@@ -165,7 +163,7 @@ xml2-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/win32config.h
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/wsockcompat.h
 	
-dependencies-clean: crystaxndk-clean event-clean crystax-clean openssl-clean boost-clean curl-clean xml2-clean
+dependencies-clean: event-clean openssl-clean boost-clean curl-clean xml2-clean
 	
 sdk-clean:
 	@rm -rf sdk/android-sdk_*
@@ -233,9 +231,7 @@ help:
 	@echo "curl-clean			- Clean curl files and libs"
 	@echo "boost-clean			- Clean boost files and libs"
 	@echo "openssl-clean		- Clean opennssl files and libs"
-	@echo "crystax-clean		- Clean crystax files and libs"
 	@echo "event-clean			- Clean libevent files and libs"
-	@echo "crystaxndk-clean		- Clean crystax ndk files"
 	@echo "xml2-clean			- Clean libxml2 files and libs"
 	@echo "dependencies-clean 	- Clean all dependencies files and libs"
 	@echo "sdk-clean			- Clean sdk files"
