@@ -164,6 +164,7 @@ private:
     float                                       beta;
     float                                       drop;
     bool                                        seek;
+    bool                                        isLive;
     Config                                      *config;
     bool                                        repeat;
     float                                       segmentDuration;

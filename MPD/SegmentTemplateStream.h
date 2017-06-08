@@ -38,6 +38,7 @@ public:
     virtual RepresentationStreamType getStreamType();
     virtual uint32_t getSize();
     virtual uint32_t getAverageSegmentDuration();
+    virtual uint32_t getTimescale();
 
 private:
     dash::mpd::ISegmentTemplate* findSegmentTemplate();
@@ -45,6 +46,9 @@ private:
 
     dash::mpd::ISegmentTemplate *segmentTemplate;
     std::vector<uint32_t>       segmentStartTimes;
+    uint32_t                    averageDuration;
+    bool                        inSync;
+    uint32_t                    currentSegment;
 };
 }
 }

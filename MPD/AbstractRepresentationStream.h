@@ -46,6 +46,9 @@ public:
     virtual uint32_t getLastSegmentNumber();
     virtual uint32_t getAverageSegmentDuration();
 
+    virtual uint32_t getTimescale();
+    virtual void	 setSegmentOffset(uint32_t offset);
+
 protected:
     virtual void setBaseUrls(const std::vector<dash::mpd::IBaseUrl *> baseurls);
 
@@ -54,6 +57,7 @@ protected:
     dash::mpd::IPeriod                  *period;
     dash::mpd::IAdaptationSet           *adaptationSet;
     dash::mpd::IRepresentation          *representation;
+    uint32_t                            segmentOffset;
 };
 }
 }

@@ -117,12 +117,10 @@ bool    MultimediaManager::initICN(const std::string& url)
         return false;
     }
     ret = icnConn->Read((uint8_t*)data, 4096);
-    printf("downloaded %d\n", ret);
     while(ret)
     {
         fwrite(data, sizeof(char), ret, fp);
         ret = icnConn->Read((uint8_t*)data,4096);
-        printf("downloaded %d\n", ret);
     }
     fclose(fp);
     this->mpd = this->manager->Open(const_cast<char*>(downloadFile.c_str()), url);
@@ -138,7 +136,6 @@ bool    MultimediaManager::initICN(const std::string& url)
     free(data);
     delete icnConn;
     LeaveCriticalSection(&this->monitorMutex);
-    printf("return true\n");
     return true;
 }
 
