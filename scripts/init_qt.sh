@@ -25,23 +25,14 @@ fi
 
 mkdir -p qt
 cd qt
-echo "####"
-pwd 
-echo ${QT_HOME}
 export QT_HOME=`pwd`/Qt
-echo "####"
 if [ ! -d ${QT_HOME} ]; then
-echo ${QT_HOME}
 	if [ $OS = "darwin" ]; then
 		if [ ! -f qt-opensource-mac-x64-android-5.7.1.dmg ]; then
 			wget http://download.qt.io/archive/qt/5.7/5.7.1/qt-opensource-mac-x64-android-5.7.1.dmg
 		fi
 		
 		VOLUME=$(hdiutil attach qt-opensource-mac-x64-android-5.7.1.dmg | tail -1 | awk '{print $3}')
-		
-		echo "######"
-		pwd
-		echo "######"
 		$VOLUME/qt-opensource-mac-x64-android-5.7.1.app/Contents/MacOS/qt-opensource-mac-x64-android-5.7.1  --script ../scripts/install_script.sh -platform minimal --verbose
 		diskutil unmount $VOLUME
 	else
@@ -53,8 +44,6 @@ echo ${QT_HOME}
 	fi
 fi
 
-
-echo $DISTILLERY_INSTALL_DIR
 cp -f $DISTILLERY_INSTALL_DIR/lib/libdash.so ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
 
 if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/boost ]; then
@@ -71,7 +60,6 @@ if [[ ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavformat.so || ! -f ${Q
 		wget https://downloads.sourceforge.net/project/qtav/depends/FFmpeg/android/ffmpeg-3.1.4-android.7z	
 	fi
 	7z x ffmpeg-3.1.4-android.7z -offmpeg
-	echo $QT_HOME
 	cp ffmpeg/ffmpeg-3.1.4-android-armv7a/lib/lib* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
 	cp -r ffmpeg/ffmpeg-3.1.4-android-armv7a/include/* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
 fi
@@ -87,7 +75,6 @@ export ANDROID_SDK_ROOT=${SDK}
 export ANDROID_API_VERSION=${ANDROID_PLATFORM}
 export PATH=$PATH:${ANDROID_HOME}/tools:${JAVA_HOME}/bin
 if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/QtAV ]; then
-	pwd
 	git clone https://github.com/wang-bin/QtAV.git 
 	cd QtAV
 	mkdir -p ${DISTILLERY_BUILD_DIR}/qtav

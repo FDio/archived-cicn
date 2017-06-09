@@ -144,7 +144,7 @@ public class MetisForwarderActivity extends AppCompatActivity {
                 sourceNetworkInterfaceArrayList.clear();
                 for (String networkInterface : addressesMap.keySet()) {
                     sourceIpArrayList.add(networkInterface + ": " + addressesMap.get(networkInterface));
-                    sourceNetworkInterfaceArrayList.add(addressesMap.get(networkInterface));
+                    sourceNetworkInterfaceArrayList.add(networkInterface);
                 }
                 if (addressesMap.size() > 0) {
                     ArrayAdapter<String> sourceIpComboArrayAdapter = new ArrayAdapter<String>(v.getContext(),
