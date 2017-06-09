@@ -822,7 +822,6 @@ class ResourceManager(metaclass=Singleton):
                 else:
                     log.error('Attribute error {} for resource {}'.format(
                         attribute.name, resource.get_uuid()))
-                    print("task1=", task)
                     sys.stdout.flush()
 
                     import traceback; traceback.print_tb(e.__traceback__)
@@ -951,7 +950,6 @@ class ResourceManager(metaclass=Singleton):
                         log.error('Attribute error {} for resource {}'.format(
                             attribute.name, resource.get_uuid()))
                         # XXX need better logging
-                        print("task2=", task._node.name, task.get_full_cmd())
                         sys.stdout.flush()
                         e = resource._state.attr_change_value[attribute.name]
                         import traceback; traceback.print_tb(e.__traceback__)
