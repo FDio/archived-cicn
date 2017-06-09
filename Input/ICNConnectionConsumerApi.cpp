@@ -147,7 +147,6 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
        return len;
     } else
     {
-        printf("minore uguale\n");
         memcpy(data, (char*)response.data() + this->dataPos, response.size() - this->dataPos);
 	 int length = response.size() - this->dataPos;
 	if (length == 0)
