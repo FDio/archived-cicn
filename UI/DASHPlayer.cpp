@@ -26,10 +26,11 @@ DASHPlayer::DASHPlayer(ViperGui &gui, Config *config) :
 {
     InitializeCriticalSection(&this->monitorMutex);
     this->offset = 0;
-    this->url 				= NULL;
-    this->icn				= false;
+    this->url = NULL;
+    this->icn = false;
     this->adaptLogic = LogicType::RateBased;
-    this->seek              = false;
+    this->seek = false;
+    this->isLive = false;
     this->reloadParameters();
     this->setSettings(0, 0, 0, 0, 0);
     this->multimediaManager = new MultimediaManager(this->gui, this->parametersAdaptation->segmentBufferSize, config->getConfigPath().toStdString() + QString::fromLatin1("/").toStdString());
@@ -207,13 +208,39 @@ bool DASHPlayer::downloadMPD(const QString &url, const QString &adaptationLogic,
         IPeriod *period = this->multimediaManager->getMPD()->GetPeriods().at(0);
         IAdaptationSet *adaptation = period->GetAdaptationSets().at(0);
         IRepresentation *representation = adaptation->GetRepresentation().at(0);
-        uint32_t duration = representation->GetSegmentList()->GetDuration();
-        uint32_t timescale = representation->GetSegmentList()->GetTimescale();
-        this->gui->setListSegmentSize(representation->GetSegmentList()->GetSegmentURLs().size());
-        this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
-        this->gui->setSegmentDuration(this->segmentDuration);
-        this->parametersAdaptation->segmentDuration = this->segmentDuration;
-        this->parametersAdaptation->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
+        if(!strcmp(this->multimediaManager->getMPD()->GetType().c_str(), "static")) // VOD MPD
+        {
+            if(representation->GetSegmentList())
+            {
+                uint32_t duration = representation->GetSegmentList()->GetDuration();
+                uint32_t timescale = representation->GetSegmentList()->GetTimescale();
+                this->gui->setListSegmentSize(representation->GetSegmentList()->GetSegmentURLs().size());
+                this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
+                this->gui->setSegmentDuration(this->segmentDuration);
+                this->parametersAdaptation->segmentDuration = this->segmentDuration;
+           }
+            else //SegmentTemplate
+            {
+                uint32_t duration = representation->GetSegmentTemplate()->GetDuration();
+                uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
+                this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
+                this->gui->setSegmentDuration(this->segmentDuration);
+                this->gui->setListSegmentSize(TimeResolver::getDurationInSec(period->GetDuration())*1000/this->segmentDuration + 1);
+                this->parametersAdaptation->segmentDuration = this->segmentDuration;
+            }
+        }
+        else   //Live MPD
+        {
+            //SegmentTemplate->SegmentTimeline
+            this->isLive = true;
+            //Assuming here that the segment duration doesn't change. If so, need to do an average over all segments.
+            uint32_t duration = representation->GetSegmentTemplate()->GetSegmentTimeline()->GetTimelines().at(0)->GetDuration();
+            uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
+            this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
+            this->gui->setSegmentDuration(this->segmentDuration);
+            this->gui->setListSegmentSize(1);
+            this->parametersAdaptation->segmentDuration = this->segmentDuration;
+        }
         this->onSettingsChanged(0,0,0,0,0);
         int j =0;
         std::string temp = adaptationLogic.toStdString();

@@ -46,7 +46,8 @@ uint32_t AbstractRepresentationStream::getFirstSegmentNumber()
         uint32_t availStT = TimeResolver::getUTCDateTimeInSec(this->mpd->GetAvailabilityStarttime());
         uint32_t duration = this->getAverageSegmentDuration();
         uint32_t timeshift = TimeResolver::getDurationInSec(this->mpd->GetTimeShiftBufferDepth());
-        return (currTime - duration - availStT - timeshift ) / duration;
+        uint32_t timescale = this->getTimescale();
+        return (double)((double)currTime - (double)availStT - (double)timeshift ) < 0? 0 : (currTime - availStT - timeshift );
     }
     return 0;
 }
@@ -59,7 +60,8 @@ uint32_t AbstractRepresentationStream::getCurrentSegmentNumber()
         uint32_t duration = this->getAverageSegmentDuration();
         uint32_t availStT = TimeResolver::getUTCDateTimeInSec(this->mpd->GetAvailabilityStarttime());
 
-        return (currTime - duration - availStT) / duration;
+        return (double)((double)currTime - (double)availStT) < 0 ? 0 : (currTime - availStT);
+    //    return (currTime - duration - availStT) / duration;
     }
     return 0;
 }
@@ -81,4 +83,12 @@ uint32_t AbstractRepresentationStream::getLastSegmentNumber      ()
 uint32_t AbstractRepresentationStream::getAverageSegmentDuration()
 {
     return 1;
+}
+uint32_t    AbstractRepresentationStream::getTimescale ()
+{
+    return 1;
+}
+void	    AbstractRepresentationStream::setSegmentOffset (uint32_t offset)
+{
+    this->segmentOffset = offset;
 }

@@ -43,6 +43,8 @@ public:
     virtual uint32_t getCurrentSegmentNumber() = 0;
     virtual uint32_t getLastSegmentNumber() = 0;
     virtual uint32_t getAverageSegmentDuration() = 0;
+    virtual void     setSegmentOffset(uint32_t offset) = 0;
+
 };
 }
 }

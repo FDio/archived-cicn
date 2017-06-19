@@ -112,7 +112,6 @@ void ICNConnectionConsumerApi::InitForMPD(const std::string& url)
 {
     m_first = 1;
     sizeDownloaded = 0;
-    printf("initmpd %s\n", url.c_str());
     m_name = url;
     m_isFinished = false;
 
@@ -120,7 +119,6 @@ void ICNConnectionConsumerApi::InitForMPD(const std::string& url)
     dataPos = 0;
     datSize = 0;
 
-    printf("initiated for mpd\n");
     Debug("ICN_Connection:\tINTIATED_for_mpd %s\n", m_name.c_str());
 }
 

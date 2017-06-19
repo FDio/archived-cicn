@@ -55,6 +55,7 @@ DASHReceiver::DASHReceiver          (IMPD *mpd, IDASHReceiverObserver *obs, Buff
     this->adaptationSetStream = new AdaptationSetStream(mpd, period, adaptationSet);
     this->representationStream = adaptationSetStream->getRepresentationStream(this->representation);
     this->segmentOffset = CalculateSegmentOffset();
+    this->representationStream->setSegmentOffset(this->segmentOffset);
 
     this->conn = NULL;
     this->initConn = NULL;
@@ -131,20 +132,23 @@ MediaObject*	DASHReceiver::GetNextSegment	()
     while(this->isPaused)
         SleepConditionVariableCS(&this->paused, &this->monitorPausedMutex, INFINITE);
 
-    if(this->segmentNumber >= this->representationStream->getSize())
+    if(!strcmp(this->mpd->GetType().c_str(), "static"))
     {
-        qDebug("looping? : %s\n", this->isLooping ? "YES" : "NO");
-        if(this->isLooping)
+        if(this->segmentNumber >= this->representationStream->getSize())
         {
-            this->segmentNumber = 0;
-        }
-        else
-        {
-            LeaveCriticalSection(&this->monitorPausedMutex);
-            return NULL;
+            qDebug("looping? : %s\n", this->isLooping ? "YES" : "NO");
+            if(this->isLooping)
+            {
+                this->segmentNumber = 0;
+            }
+            else
+            {
+                LeaveCriticalSection(&this->monitorPausedMutex);
+                return NULL;
+            }
         }
     }
-    seg = this->representationStream->getMediaSegment(this->segmentNumber + this->segmentOffset);
+    seg = this->representationStream->getMediaSegment(this->segmentNumber);
 
     if (seg != NULL)
     {
@@ -167,7 +171,7 @@ MediaObject*	DASHReceiver::GetSegment		(uint32_t segNum)
     if(segNum >= this->representationStream->getSize())
         return NULL;
 
-    seg = this->representationStream->getMediaSegment(segNum + segmentOffset);
+    seg = this->representationStream->getMediaSegment(segNum);
 
     if (seg != NULL)
     {
