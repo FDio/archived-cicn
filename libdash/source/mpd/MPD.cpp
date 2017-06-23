@@ -104,6 +104,10 @@ void                                        MPD::SetType                        
 {
     this->type = type;
 }
+const std::string&                          MPD::GetPublishTime		            ()  const
+{
+    return this->publishTime;
+}
 const std::string&                          MPD::GetAvailabilityStarttime           ()  const
 {
     return this->availabilityStarttime;
@@ -111,6 +115,10 @@ const std::string&                          MPD::GetAvailabilityStarttime       
 void                                        MPD::SetAvailabilityStarttime           (const std::string& availabilityStarttime)
 {
     this->availabilityStarttime = availabilityStarttime;
+}
+void                                        MPD::SetPublishTime           (const std::string& publishTime)
+{
+    this->publishTime = publishTime;
 }
 const std::string&                          MPD::GetAvailabilityEndtime             ()  const
 {

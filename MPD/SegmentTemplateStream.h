@@ -14,7 +14,7 @@
 
 #include <math.h>
 
-#include "IMPD.h"
+#include "MPDWrapper.h"
 #include "AbstractRepresentationStream.h"
 #include "ISegment.h"
 #include "ISegmentTemplate.h"
@@ -28,7 +28,8 @@ namespace mpd
 class SegmentTemplateStream: public AbstractRepresentationStream
 {
 public:
-    SegmentTemplateStream(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    SegmentTemplateStream(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    SegmentTemplateStream(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation, dash::mpd::IMPD* mpd);
     virtual ~SegmentTemplateStream();
 
     virtual dash::mpd::ISegment* getInitializationSegment();
@@ -39,6 +40,8 @@ public:
     virtual uint32_t getSize();
     virtual uint32_t getAverageSegmentDuration();
     virtual uint32_t getTimescale();
+    virtual uint32_t getTime(size_t segmentNumber);
+    virtual size_t getSegmentNumber(uint32_t time);
 
 private:
     dash::mpd::ISegmentTemplate* findSegmentTemplate();

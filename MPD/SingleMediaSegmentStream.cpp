@@ -14,10 +14,16 @@
 using namespace dash::mpd;
 using namespace libdash::framework::mpd;
 
-SingleMediaSegmentStream::SingleMediaSegmentStream(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
-                          AbstractRepresentationStream  (mpd, period, adaptationSet, representation)
+SingleMediaSegmentStream::SingleMediaSegmentStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
+                          AbstractRepresentationStream  (type, mpdWrapper, period, adaptationSet, representation)
 {
-    this->baseUrls = BaseUrlResolver::resolveBaseUrl(mpd, period, adaptationSet, 0, 0, 0);
+    this->baseUrls = BaseUrlResolver::resolveBaseUrl(type, mpdWrapper, 0, 0, 0);
+}
+
+SingleMediaSegmentStream::SingleMediaSegmentStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation, IMPD* mpd) :
+                          AbstractRepresentationStream  (type, mpdWrapper, period, adaptationSet, representation)
+{
+    this->baseUrls = BaseUrlResolver::resolveBaseUrl(type, mpdWrapper, 0, 0, 0, mpd);
 }
 SingleMediaSegmentStream::~SingleMediaSegmentStream()
 {

@@ -12,7 +12,7 @@
 #ifndef LIBDASH_FRAMEWORK_MPD_SEGMENTLISTSTREAM_H_
 #define LIBDASH_FRAMEWORK_MPD_SEGMENTLISTSTREAM_H_
 
-#include "IMPD.h"
+#include "MPDWrapper.h"
 #include "AbstractRepresentationStream.h"
 #include "ISegment.h"
 #include "ISegmentList.h"
@@ -26,7 +26,9 @@ namespace mpd
 class SegmentListStream: public AbstractRepresentationStream
 {
 public:
-    SegmentListStream(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    SegmentListStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    SegmentListStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation, dash::mpd::IMPD* mpd);
+//    SegmentListStream(viper::managers::StreamType type, dash::mpd::MPDWrapper *mpdWrapper);
     virtual ~SegmentListStream();
 
     virtual dash::mpd::ISegment* getInitializationSegment();
@@ -38,8 +40,9 @@ public:
     virtual uint32_t getAverageSegmentDuration();
 
 private:
-    dash::mpd::ISegmentList* findSegmentList();
-    dash::mpd::ISegmentList             *segmentList;
+    dash::mpd::ISegmentList  *findSegmentList();
+
+    dash::mpd::ISegmentList  *segmentList;
 
 };
 }

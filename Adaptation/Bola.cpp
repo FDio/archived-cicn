@@ -47,8 +47,8 @@ using std::placeholders::_2;
 
 using duration_in_seconds = std::chrono::duration<double, std::ratio<1, 1> >;
 
-BolaAdaptation::BolaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params) :
-                  AbstractAdaptationLogic   (mpd, period, adaptationSet, isVid)
+BolaAdaptation::BolaAdaptation(viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
+                  AbstractAdaptationLogic   (type, mpdWrapper)
 {
 	this->bufferMaxSizeSeconds =(double) params->segmentBufferSize * params->segmentDuration;
 	this->alphaRate = params->Bola_Alpha;
@@ -62,11 +62,12 @@ BolaAdaptation::BolaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *adapt
 	this->currentDownloadTimeInstant = 0.0;
 	//this->lastSegmentDownloadTime = 0.0;
 	this->currentQuality = 0;
-
+        this->representation = NULL;
 	this->bufferTargetPerc = (uint32_t) ( round(this->bufferTargetSeconds / this->bufferMaxSizeSeconds)*100 );
 
+	this->mpdWrapper->acquireLock();
 	/// Retrieve available bitrates
-	std::vector<IRepresentation* > representations = this->adaptationSet->GetRepresentation();
+	std::vector<IRepresentation* > representations = this->mpdWrapper->getRepresentations(this->type);
 
 	this->availableBitrates.clear();
 	Debug("BOLA Available Bitrates...\n");
@@ -85,8 +86,8 @@ BolaAdaptation::BolaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *adapt
 	    // return 0;   // Check if exit with a message is necessary
 	}
 
-	// Check if the following is correct
-    this->totalDuration = TimeResolver::getDurationInSec(this->mpd->GetMediaPresentationDuration());
+	// Check if the following is correct XXX Maybe useless
+    this->totalDuration = TimeResolver::getDurationInSec(this->mpdWrapper->getMediaPresentationDuration());
 //	this->segmentDuration = (double) (representations.at(0)->GetSegmentTemplate()->GetDuration() / representations.at(0)->GetSegmentTemplate()->GetTimescale() );
 	this->segmentDuration = 2.0;
 	Debug("Total Duration - BOLA:\t%f\nSegment Duration - BOLA:\t%f\n",this->totalDuration, this->segmentDuration);
@@ -169,6 +170,7 @@ BolaAdaptation::BolaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *adapt
 	this->representation = representations.at(0);
 	this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
 
+	this->mpdWrapper->releaseLock();
 	Debug("BOLA Init Params - \tAlpha: %f \t BufferTarget: %f\n",this->alphaRate, this->bufferTargetSeconds);
 	Debug("BOLA Init Current BitRate - %I64u\n",this->currentBitrate);
 	Debug("Buffer Adaptation BOLA:	STARTED\n");
@@ -204,16 +206,20 @@ void BolaAdaptation::setMultimediaManager(viper::managers::IMultimediaManagerBas
 
 void BolaAdaptation::notifyBitrateChange()
 {
+	this->mpdWrapper->setRepresentation(this->type, this->representation);
 	if(this->multimediaManager)
         if(this->multimediaManager->isStarted() && !this->multimediaManager->isStopping())
-			if(this->isVideo)
-                this->multimediaManager->setVideoQuality(this->period, this->adaptationSet, this->representation);
+			if(type==viper::managers::VIDEO)
+                this->multimediaManager->setVideoQuality();
+//                this->multimediaManager->setVideoQuality(this->period, this->adaptationSet, this->representation);
 			else
-                this->multimediaManager->setAudioQuality(this->period, this->adaptationSet, this->representation);
+                this->multimediaManager->setAudioQuality();
+//                this->multimediaManager->setAudioQuality(this->period, this->adaptationSet, this->representation);
 	//Should Abort is done here to avoid race condition with DASHReceiver::DoBuffering()
 	if(this->shouldAbort)
 	{
-        this->multimediaManager->shouldAbort(this->isVideo);
+        this->multimediaManager->shouldAbort(1);
+//        this->multimediaManager->shouldAbort((this->type == viper::managers::StreamType::VIDEO));
 	}
 	this->shouldAbort = false;
 }
@@ -263,10 +269,10 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 		}
 		//this->representation = this->availableBitrates[this->currentQuality];
 		//this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
-		this->representation = this->adaptationSet->GetRepresentation().at(this->currentQuality);
+		this->representation = this->mpdWrapper->getRepresentationAt(this->type, this->currentQuality);
 		this->currentBitrate = (uint64_t) this->availableBitrates[this->currentQuality];
 		Debug("INIT - Current Bitrate:\t%I64u\n", this->currentBitrate);
-		Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",isVideo ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
+		Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
 		this->lastBufferFill = bufferFill;
 		return;
 	}
@@ -275,10 +281,10 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 		this->currentQuality = 0;
 		//this->representation = this->availableBitrates[this->currentQuality];
 		//this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
-		this->representation = this->adaptationSet->GetRepresentation().at(this->currentQuality);
+		this->representation = this->mpdWrapper->getRepresentationAt(this->type,this->currentQuality);
 		this->currentBitrate = (uint64_t) this->availableBitrates[this->currentQuality];
 		Debug("ONE BITRATE - Current Bitrate:\t%I64u\n", this->currentBitrate);
-		Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",isVideo ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
+		Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
 		this->lastBufferFill = bufferFill;
 		return;
 	}
@@ -384,10 +390,10 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 	    	this->currentQuality = quality;
 	    	//this->representation = this->availableBitrates[this->currentQuality];
 	    	//this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
-	    	this->representation = this->adaptationSet->GetRepresentation().at(this->currentQuality);
+	    	this->representation = this->mpdWrapper->getRepresentationAt(this->type, this->currentQuality);
 	    	this->currentBitrate = (uint64_t) this->availableBitrates[this->currentQuality];
 	    	Debug("STILL IN STARTUP - Current Bitrate:\t%I64u\n", this->currentBitrate);
-	    	Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",isVideo ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
+	    	Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
 	    	this->lastBufferFill = bufferFill;
 	    	return;
 	    }
@@ -434,15 +440,15 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 		// streamProcessor.getScheduleController().setTimeToLoadDelay(1000.0 * delaySeconds);
 		// NEED TO CHECK THIS
 		Debug("STEADY -- DELAY DOWNLOAD OF:\t%f\n", delaySeconds);
-        this->multimediaManager->setTargetDownloadingTime(this->isVideo, delaySeconds);
+        this->multimediaManager->setTargetDownloadingTime((this->type == viper::managers::StreamType::VIDEO), delaySeconds);
 	}
 
 	this->currentQuality = bolaQuality;
 	//this->representation = this->availableBitrates[this->currentQuality];
-	this->representation = this->adaptationSet->GetRepresentation().at(this->currentQuality);
+	this->representation = this->mpdWrapper->getRepresentationAt(this->type, this->currentQuality);
 	this->currentBitrate = (uint64_t) this->availableBitrates[this->currentQuality];
 	Debug("STEADY - Current Bitrate:\t%I64u\n", this->currentBitrate);
-	Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",isVideo ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
+	Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->currentQuality);
 	this->lastBufferFill = bufferFill;
 }
 
@@ -501,6 +507,8 @@ void BolaAdaptation::checkedByDASHReceiver()
 }
 void BolaAdaptation::bufferUpdate(uint32_t bufferFill, int maxC)
 {
+    this->mpdWrapper->acquireLock();
     this->setBitrate(bufferFill);
     this->notifyBitrateChange();
+    this->mpdWrapper->releaseLock();
 }

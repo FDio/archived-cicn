@@ -12,15 +12,22 @@
 #ifndef LIBDASH_FRAMEWORK_MPD_ABSTRACTREPRESENTATIONSTREAM_H_
 #define LIBDASH_FRAMEWORK_MPD_ABSTRACTREPRESENTATIONSTREAM_H_
 
+#include "../MPD/IMPDWrapper.h"
 #include "IRepresentationStream.h"
 #include "IBaseUrl.h"
 #include "IRepresentation.h"
 #include "IAdaptationSet.h"
-#include "IMPD.h"
 #include "IPeriod.h"
 #include "BaseUrlResolver.h"
 #include "TimeResolver.h"
 
+namespace viper
+{
+namespace managers
+{
+enum StreamType;
+}
+}
 namespace libdash
 {
 namespace framework
@@ -30,7 +37,7 @@ namespace mpd
 class AbstractRepresentationStream : public IRepresentationStream
 {
 public:
-    AbstractRepresentationStream(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet,
+    AbstractRepresentationStream(viper::managers::StreamType type, libdash::framework::mpd::IMPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet,
                                  dash::mpd::IRepresentation *representation);
     virtual ~AbstractRepresentationStream();
 
@@ -47,17 +54,20 @@ public:
     virtual uint32_t getAverageSegmentDuration();
 
     virtual uint32_t getTimescale();
-    virtual void	 setSegmentOffset(uint32_t offset);
+    virtual void     setSegmentOffset(uint32_t offset);
+    virtual uint32_t getTime(size_t segmentNumber);
+    virtual size_t getSegmentNumber(uint32_t time);
 
 protected:
     virtual void setBaseUrls(const std::vector<dash::mpd::IBaseUrl *> baseurls);
 
     std::vector<dash::mpd::IBaseUrl *>  baseUrls;
-    dash::mpd::IMPD                     *mpd;
+    libdash::framework::mpd::IMPDWrapper *mpdWrapper;
     dash::mpd::IPeriod                  *period;
     dash::mpd::IAdaptationSet           *adaptationSet;
     dash::mpd::IRepresentation          *representation;
     uint32_t                            segmentOffset;
+    viper::managers::StreamType		type;
 };
 }
 }

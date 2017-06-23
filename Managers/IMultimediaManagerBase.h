@@ -16,7 +16,7 @@
 #ifndef VIPER_MANAGERS_IMULTIMEDIAMANAGERBASE_H_
 #define VIPER_MANAGERS_IMULTIMEDIAMANAGERBASE_H_
 
-#include "IMPD.h"
+#include "MPD/MPDWrapper.h"
 
 namespace viper
 {
@@ -25,8 +25,10 @@ namespace managers
 class IMultimediaManagerBase
 {
 public:
-    virtual bool setVideoQuality(dash::mpd::IPeriod* period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation) = 0;
-    virtual bool setAudioQuality(dash::mpd::IPeriod* period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation) = 0;
+//    virtual bool setVideoQuality(dash::mpd::IPeriod* period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation) = 0;
+//    virtual bool setAudioQuality(dash::mpd::IPeriod* period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation) = 0;
+    virtual bool setVideoQuality() = 0;
+    virtual bool setAudioQuality() = 0;
     virtual bool isStarted() = 0;
     virtual bool isStopping() = 0;
     virtual void shouldAbort(bool isVideo) = 0;

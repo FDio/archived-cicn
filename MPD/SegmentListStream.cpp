@@ -14,10 +14,19 @@
 using namespace dash::mpd;
 using namespace libdash::framework::mpd;
 
-SegmentListStream::SegmentListStream(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
-                   AbstractRepresentationStream (mpd, period, adaptationSet, representation)
+SegmentListStream::SegmentListStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation) :
+                   AbstractRepresentationStream (type, mpdWrapper, period, adaptationSet, representation)
 {
-    this->baseUrls      = BaseUrlResolver::resolveBaseUrl(mpd, period, adaptationSet, 0, 0, 0);
+    this->baseUrls      = BaseUrlResolver::resolveBaseUrl(type, mpdWrapper, 0, 0, 0);
+//    this->baseUrls      = mpdWrapper->resolveBaseUrl(type, mpdWrapper, 0, 0, 0);
+    this->segmentList   = findSegmentList();
+}
+
+SegmentListStream::SegmentListStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation, dash::mpd::IMPD* mpd) :
+                   AbstractRepresentationStream (type, mpdWrapper, period, adaptationSet, representation)
+{
+    this->baseUrls      = BaseUrlResolver::resolveBaseUrl(type, mpdWrapper, 0, 0, 0, mpd);
+//    this->baseUrls      = mpdWrapper->resolveBaseUrl(type, mpdWrapper, 0, 0, 0);
     this->segmentList   = findSegmentList();
 }
 
@@ -28,16 +37,19 @@ SegmentListStream::~SegmentListStream()
 ISegment* SegmentListStream::getInitializationSegment()
 {
     if (this->segmentList->GetInitialization())
+    {
         return this->segmentList->GetInitialization()->ToSegment(this->baseUrls);
-
+    }
     return NULL;
 }
 
 ISegment* SegmentListStream::getIndexSegment(size_t segmentNumber)
 {
     if (this->segmentList->GetSegmentURLs().size() > segmentNumber)
+    {
+        this->mpdWrapper->releaseLock();
         return this->segmentList->GetSegmentURLs().at(segmentNumber)->ToIndexSegment(this->baseUrls);
-
+    }
     return NULL;
 }
 

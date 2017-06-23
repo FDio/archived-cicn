@@ -30,7 +30,6 @@ DASHPlayer::DASHPlayer(ViperGui &gui, Config *config) :
     this->icn = false;
     this->adaptLogic = LogicType::RateBased;
     this->seek = false;
-    this->isLive = false;
     this->reloadParameters();
     this->setSettings(0, 0, 0, 0, 0);
     this->multimediaManager = new MultimediaManager(this->gui, this->parametersAdaptation->segmentBufferSize, config->getConfigPath().toStdString() + QString::fromLatin1("/").toStdString());
@@ -40,13 +39,22 @@ DASHPlayer::DASHPlayer(ViperGui &gui, Config *config) :
     connect(this->gui->getVideoPlayer(), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(manageGraph(QtAV::AVPlayer::State)));
     connect(this->gui->getVideoPlayer(), SIGNAL(error(QtAV::AVError)), this, SLOT(error(QtAV::AVError)));
     this->multimediaManager->attachManagerObserver(this);
+    this->mpdWrapper = new MPDWrapper(NULL);
+    this->multimediaManager->setMPDWrapper(this->mpdWrapper);
 }
 
 DASHPlayer::~DASHPlayer()
 {
     this->multimediaManager->stop();
     delete(this->multimediaManager);
+    if(this->mpdWrapper)
+        delete(this->mpdWrapper);
     DeleteCriticalSection(&this->monitorMutex);
+}
+
+void DASHPlayer::setMPDWrapper(MPDWrapper* mpdWrapper)
+{
+    this->mpdWrapper = mpdWrapper;
 }
 
 void DASHPlayer::onStartButtonPressed(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation, int adaptationLogic)
@@ -85,25 +93,27 @@ void DASHPlayer::onPauseButtonPressed()
 
 void DASHPlayer::onSettingsChanged(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation)
 {
-    if(this->multimediaManager->getMPD() == NULL)
+    if(this->mpdWrapper->getMPD() == NULL)
         return;
 
     if (!this->settingsChanged(period, videoAdaptationSet, videoRepresentation, audioAdaptationSet, audioRepresentation))
         return;
 
-    IPeriod                         *currentPeriod      = this->multimediaManager->getMPD()->GetPeriods().at(period);
-    std::vector<IAdaptationSet *>   videoAdaptationSets = AdaptationSetHelper::getVideoAdaptationSets(currentPeriod);
-    std::vector<IAdaptationSet *>   audioAdaptationSets = AdaptationSetHelper::getAudioAdaptationSets(currentPeriod);
-    if (videoAdaptationSet >= 0 && videoRepresentation >= 0)
-    {
-        this->multimediaManager->setVideoQuality(currentPeriod,
-                                                 videoAdaptationSets.at(videoAdaptationSet),
-                                                 videoAdaptationSets.at(videoAdaptationSet)->GetRepresentation().at(videoRepresentation));
-    }
-    else
-    {
-        this->multimediaManager->setVideoQuality(currentPeriod, NULL, NULL);
-    }
+//    IPeriod                         *currentPeriod      = this->multimediaManager->getMPD()->GetPeriods().at(period);
+//    std::vector<IAdaptationSet *>   videoAdaptationSets = AdaptationSetHelper::getVideoAdaptationSets(currentPeriod);
+//    std::vector<IAdaptationSet *>   audioAdaptationSets = AdaptationSetHelper::getAudioAdaptationSets(currentPeriod);
+//    if (videoAdaptationSet >= 0 && videoRepresentation >= 0)
+//    {
+//        this->multimediaManager->setVideoQuality(currentPeriod,
+//                                                 videoAdaptationSets.at(videoAdaptationSet),
+//                                                 videoAdaptationSets.at(videoAdaptationSet)->GetRepresentation().at(videoRepresentation));
+//    }
+//    else
+//    {
+//        this->multimediaManager->setVideoQuality(currentPeriod, NULL, NULL);
+//    }
+    this->mpdWrapper->settingsChanged(period, videoAdaptationSet, videoRepresentation, audioAdaptationSet, audioRepresentation);
+    this->multimediaManager->setVideoQuality();
 }
 
 void DASHPlayer::onVideoBufferStateChanged(uint32_t fillstateInPercent)
@@ -149,7 +159,7 @@ bool DASHPlayer::onDownloadMPDPressed (const std::string &url)
         }
     }
     this->setSettings(-1, -1, -1, -1, -1);
-    this->gui->setGuiFields(this->multimediaManager->getMPD());
+    this->gui->setGuiFields(this->mpdWrapper->getMPD());
     return true;
 }
 
@@ -205,42 +215,10 @@ bool DASHPlayer::downloadMPD(const QString &url, const QString &adaptationLogic,
         }
         if (!this->onDownloadMPDPressed(mUrl))
             return false;
-        IPeriod *period = this->multimediaManager->getMPD()->GetPeriods().at(0);
-        IAdaptationSet *adaptation = period->GetAdaptationSets().at(0);
-        IRepresentation *representation = adaptation->GetRepresentation().at(0);
-        if(!strcmp(this->multimediaManager->getMPD()->GetType().c_str(), "static")) // VOD MPD
-        {
-            if(representation->GetSegmentList())
-            {
-                uint32_t duration = representation->GetSegmentList()->GetDuration();
-                uint32_t timescale = representation->GetSegmentList()->GetTimescale();
-                this->gui->setListSegmentSize(representation->GetSegmentList()->GetSegmentURLs().size());
-                this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
-                this->gui->setSegmentDuration(this->segmentDuration);
-                this->parametersAdaptation->segmentDuration = this->segmentDuration;
-           }
-            else //SegmentTemplate
-            {
-                uint32_t duration = representation->GetSegmentTemplate()->GetDuration();
-                uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
-                this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
-                this->gui->setSegmentDuration(this->segmentDuration);
-                this->gui->setListSegmentSize(TimeResolver::getDurationInSec(period->GetDuration())*1000/this->segmentDuration + 1);
-                this->parametersAdaptation->segmentDuration = this->segmentDuration;
-            }
-        }
-        else   //Live MPD
-        {
-            //SegmentTemplate->SegmentTimeline
-            this->isLive = true;
-            //Assuming here that the segment duration doesn't change. If so, need to do an average over all segments.
-            uint32_t duration = representation->GetSegmentTemplate()->GetSegmentTimeline()->GetTimelines().at(0)->GetDuration();
-            uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
-            this->segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
-            this->gui->setSegmentDuration(this->segmentDuration);
-            this->gui->setListSegmentSize(1);
-            this->parametersAdaptation->segmentDuration = this->segmentDuration;
-        }
+
+        this->segmentDuration = this->mpdWrapper->onFirstDownloadMPD(this->gui);
+        this->multimediaManager->setSegmentDuration(this->segmentDuration);
+        this->parametersAdaptation->segmentDuration = this->segmentDuration / 1000.0; //to have it in seconds 
         this->onSettingsChanged(0,0,0,0,0);
         int j =0;
         std::string temp = adaptationLogic.toStdString();

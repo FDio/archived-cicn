@@ -29,6 +29,7 @@ public:
     virtual void onEOS() = 0;
     virtual void notifyStatistics(int, uint32_t, int, uint32_t) = 0;
     virtual void notifyQualityDownloading(uint32_t) = 0;
+    virtual void setMPDWrapper(libdash::framework::mpd::MPDWrapper*) = 0;
 };
 }
 }

@@ -55,6 +55,7 @@ SOURCES += \
     MPD/SegmentTemplateStream.cpp \
     MPD/SingleMediaSegmentStream.cpp \
     MPD/TimeResolver.cpp \
+    MPD/MPDWrapper.cpp \
     Portable/MultiThreading.cpp \
     Managers/MultimediaManager.cpp \
     Managers/MultimediaStream.cpp \
@@ -142,6 +143,8 @@ HEADERS *= \
     MPD/SegmentTemplateStream.h \
     MPD/SingleMediaSegmentStream.h \
     MPD/TimeResolver.h \
+    MPD/IMPDWrapper.h \
+    MPD/MPDWrapper.h \
     Portable/MultiThreading.h \
     Portable/Networking.h \
     Managers/IMultimediaManagerBase.h \
@@ -257,6 +260,7 @@ HEADERS *= \
     websocketpp/utf8_validator.hpp \
     websocketpp/utilities.hpp \
     websocketpp/version.hpp \
+    UI/IViperGui.h \
     UI/ViperGui.h \
     Common/ViperBuffer.h \
     Common/QtQuick2ApplicationViewer.h

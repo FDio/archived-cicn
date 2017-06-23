@@ -50,42 +50,25 @@ public:
     virtual void notifyStatistics(int, uint32_t, int, uint32_t);
     virtual void notifyQualityDownloading(uint32_t);
     virtual bool onDownloadMPDPressed(const std::string &url);
+    virtual void setMPDWrapper(libdash::framework::mpd::MPDWrapper* mpdWrapper);
     bool isRunning();
 
 private:
-    dash::mpd::IMPD			*mpd;
-    viper::managers::MultimediaManager	*multimediaManager;
-    CRITICAL_SECTION		monitorMutex;
-    char					*url;
-    bool					isICN;
-    libdash::framework::adaptation::LogicType	adaptLogic;
-    pthread_cond_t			*mainCond;
-    bool					running;
+//    dash::mpd::IMPD						                    *mpd;
+    libdash::framework::mpd::MPDWrapper                         *mpdWrapper;
+    viper::managers::MultimediaManager                          *multimediaManager;
+    CRITICAL_SECTION                                            monitorMutex;
+    char                                                        *url;
+    bool                                                        isICN;
+    libdash::framework::adaptation::LogicType                   adaptLogic;
+    pthread_cond_t                                              *mainCond;
+    bool                                                        running;
     struct libdash::framework::adaptation::AdaptationParameters *parameterAdaptation;
-    float	segmentDuration;
-    int		segmentBufferSize;
-    double	alpha;
-    double	rateAlpha;
-    double	bolaAlpha;
-    double	bolaBufferTargetSeconds;
-    int		bufferBasedReservoirThreshold;
-    int		bufferBasedMaxThreshold;
-    double	adaptechAlpha;
-    int		adaptechFirstThreshold;
-    int		adaptechSecondThreshold;
-    int		adaptechSwitchUpThreshold;
-    int		bufferThreeThreshold_FirstThreshold;
-    int		bufferThreeThreshold_SecondThreshold;
-    int		bufferThreeThreshold_ThirdThreshold;
-    double	pandaAlpha;
-    double	pandaParam_Beta;
-    double	pandaParam_Bmin;
-    double	pandaParam_K;
-    double	pandaParam_W;
-    double	pandaParamEpsilon;
-    bool	repeat;
-    GraphDataSource *graphData;
-    bool noDecoding;
+    double                                                      alpha;
+    bool                                                        repeat;
+    GraphDataSource                                             *graphData;
+    bool                                                        noDecoding;
+
     bool settingsChanged(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation);
 
 };

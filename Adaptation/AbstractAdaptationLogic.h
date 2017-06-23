@@ -24,33 +24,37 @@ namespace adaptation
 class AbstractAdaptationLogic : public IAdaptationLogic
 {
 public:
-    AbstractAdaptationLogic(dash::mpd::IMPD *mpd, dash::mpd::IPeriod* period, dash::mpd::IAdaptationSet *adaptationSet, bool isVideo);
+//    AbstractAdaptationLogic(dash::mpd::IMPD *mpd, dash::mpd::IPeriod* period, dash::mpd::IAdaptationSet *adaptationSet, bool isVideo);
+    AbstractAdaptationLogic(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper);
     virtual ~AbstractAdaptationLogic();
 
     virtual uint32_t getPosition();
     virtual void setPosition(uint32_t segmentNumber);
     virtual dash::mpd::IRepresentation* getRepresentation   ();
-    virtual void setRepresentation(dash::mpd::IPeriod *period,
-                                   dash::mpd::IAdaptationSet *adaptationSet,
-                                   dash::mpd::IRepresentation *representation);
+//    virtual void setRepresentation(dash::mpd::IPeriod *period,
+//                                   dash::mpd::IAdaptationSet *adaptationSet,
+//                                   dash::mpd::IRepresentation *representation);
+//    virtual void updateMPD(dash::mpd::IMPD* mpd);
 
-    virtual LogicType getType() = 0;
-    virtual bool isUserDependent()	= 0;
-    virtual bool isRateBased()	= 0;
-    virtual bool isBufferBased() = 0;
+    virtual LogicType getType() 			= 0;
+    virtual bool isUserDependent() 			= 0;
+    virtual bool isRateBased()				= 0;
+    virtual bool isBufferBased()			= 0;
     virtual void bitrateUpdate(uint64_t, uint32_t)	= 0;
-    virtual void bufferUpdate(uint32_t, int)	= 0;
-    virtual void onEOS(bool value)= 0;
-    virtual void dLTimeUpdate(double) = 0;
+    virtual void bufferUpdate(uint32_t, int)		= 0;
+    virtual void onEOS(bool value)			= 0;
+    virtual void dLTimeUpdate(double)			= 0;
+    virtual void checkedByDASHReceiver()		= 0;
 
-    virtual void checkedByDASHReceiver() = 0;
 protected:
-    dash::mpd::IMPD                     *mpd;
-    dash::mpd::IPeriod                  *period;
-    dash::mpd::IAdaptationSet           *adaptationSet;
-    dash::mpd::IRepresentation          *representation;
+    libdash::framework::mpd::MPDWrapper	*mpdWrapper;
+//    dash::mpd::IPeriod                  *period;
+//    dash::mpd::IAdaptationSet           *adaptationSet;
+//    dash::mpd::IRepresentation          *representation;
     uint32_t                            segmentNumber;
-    bool								isVideo;
+//    bool				isVideo;
+    viper::managers::StreamType		type;
+    mutable CRITICAL_SECTION        	monitorLock;
 };
 }
 }

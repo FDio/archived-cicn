@@ -28,6 +28,7 @@
 #include "../Common/QtQuick2ApplicationViewer.h"
 #include "../Managers/MultimediaStream.h"
 #include "GraphDataSource.h"
+#include "IViperGui.h"
 
 #include <QLabel>
 
@@ -35,7 +36,7 @@ namespace viper
 {
 class IDASHPlayerGuiObserver;
 
-class ViperGui : public QObject
+class ViperGui : public QObject,public IViperGui
 {
     Q_OBJECT
 

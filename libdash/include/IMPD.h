@@ -111,6 +111,13 @@ namespace dash
 
                 /**
                  *  Returns a reference to a string that specifies
+                 * the publishTime
+                 *  @return     a reference to a string
+                 */
+                virtual const std::string&                          GetPublishTime        ()  const = 0;
+
+                /**
+                 *  Returns a reference to a string that specifies
                  *  <ul>
                  *      <li>the anchor for the computation of the earliest availability time (in UTC) for any Segment in the Media Presentation if <tt>\@type=\"dynamic\"</tt>.
                  *      <li>the Segment availability start time for all Segments referred to in this MPD if <tt>\@type=\"static\"</tt>.

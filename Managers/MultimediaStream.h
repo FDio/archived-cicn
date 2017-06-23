@@ -14,6 +14,7 @@
 
 #include "IMPD.h"
 #include "IStreamObserver.h"
+#include "../MPD/MPDWrapper.h"
 #include "../Input/DASHManager.h"
 #include "../Buffer/IBufferObserver.h"
 #include "../Adaptation/IAdaptationLogic.h"
@@ -22,6 +23,20 @@
 #include "../Buffer/Buffer.h"
 #include <QImage>
 
+namespace libdash
+{
+namespace framework
+{
+namespace mpd
+{
+class MPDWrapper;
+}
+namespace input
+{
+class DASHManager;
+}
+}
+}
 namespace viper
 {
 namespace managers
@@ -29,7 +44,7 @@ namespace managers
 class MultimediaStream : public libdash::framework::input::IDASHManagerObserver, public libdash::framework::buffer::IBufferObserver
 {
 public:
-    MultimediaStream(StreamType type, dash::mpd::IMPD *mpd, uint32_t segmentBufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop);
+    MultimediaStream(StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, uint32_t segmentBufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop);
     virtual ~MultimediaStream();
 
     bool start();
@@ -50,7 +65,8 @@ public:
 
     void notifyBufferChange(uint32_t bufferfill, int maxC);
 
-    void setRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+//    void setRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    void setRepresentation();
     void enqueueRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
     void setAdaptationLogic(libdash::framework::adaptation::IAdaptationLogic *logic);
 
@@ -65,20 +81,22 @@ public:
     int	getBufferLevel();
     bool isICN();
     void shouldAbort();
-
     void setTargetDownloadingTime(double);
+    void updateMPD(dash::mpd::IMPD* mpd);
+    void fetchMPD();
 
 private:
     float							beta;
     float							drop;
     std::vector<IStreamObserver *>				observers;
-    dash::mpd::IMPD						*mpd;
-    libdash::framework::adaptation::IAdaptationLogic	*logic;
+    libdash::framework::mpd::MPDWrapper					*mpdWrapper;
+    libdash::framework::adaptation::IAdaptationLogic		*logic;
     libdash::framework::input::DASHManager			*dashManager;
-    uint32_t						segmentBufferSize;
-    StreamType						type;
+    uint32_t							segmentBufferSize;
+    StreamType							type;
     bool							icn;
     double							icnAlpha;
+    mutable CRITICAL_SECTION					monitorMutex;
 
     bool							noDecoding;
     void init ();

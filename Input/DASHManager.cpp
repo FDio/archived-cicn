@@ -17,8 +17,9 @@ using namespace libdash::framework::buffer;
 using namespace dash;
 using namespace dash::network;
 using namespace dash::mpd;
+using namespace libdash::framework::mpd;
 
-DASHManager::DASHManager(viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver* stream, IMPD* mpd, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
+DASHManager::DASHManager(viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver* stream, MPDWrapper* mpdWrapper, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
     readSegmentCount	(0),
     receiver		(NULL),
     multimediaStream	(stream),
@@ -33,7 +34,7 @@ DASHManager::DASHManager(viper::managers::StreamType type, uint32_t maxCapacity,
     this->buffer = new Buffer<MediaObject>(maxCapacity,libdash::framework::buffer::VIDEO);
     this->buffer->attachObserver(this);
 
-    this->receiver  = new DASHReceiver(mpd, this, this->buffer, maxCapacity, this->isICN(), this->icnAlpha, this->beta, this->drop);
+    this->receiver  = new DASHReceiver(type, mpdWrapper, this, this->buffer, maxCapacity, this->isICN(), this->icnAlpha, this->beta, this->drop);
 }
 DASHManager::~DASHManager()
 {
@@ -107,14 +108,14 @@ void DASHManager::clear()
     this->buffer->clear();
 }
 
-void DASHManager::setRepresentation(IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
+void DASHManager::setRepresentation()
 {
-    this->receiver->SetRepresentation(period, adaptationSet, representation);
+    this->receiver->SetRepresentation();
 }
 
 void DASHManager::enqueueRepresentation(IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
 {
-    this->receiver->SetRepresentation(period, adaptationSet, representation);
+//    this->receiver->SetRepresentation(period, adaptationSet, representation);
 }
 
 void DASHManager::onSegmentDownloaded()
@@ -158,4 +159,14 @@ void DASHManager::onBufferStateChanged(BufferType type, uint32_t fillstateInPerc
     this->multimediaStream->onSegmentBufferStateChanged(fillstateInPercent, maxC);
     if(this->adaptationLogic->isBufferBased())
         this->receiver->OnSegmentBufferStateChanged(fillstateInPercent, maxC);
+}
+
+void DASHManager::updateMPD(IMPD* mpd)
+{
+//    this->receiver->updateMPD(mpd);
+}
+
+void DASHManager::fetchMPD()
+{
+    this->multimediaStream->fetchMPD();
 }

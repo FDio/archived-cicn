@@ -14,17 +14,16 @@
 using namespace libdash::framework::adaptation;
 using namespace dash::mpd;
 
-AbstractAdaptationLogic::AbstractAdaptationLogic(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid) :
-    mpd                        (mpd),
-    period                     (period),
-    adaptationSet              (adaptationSet),
-    representation             (NULL),
-    isVideo					(isVid)
+AbstractAdaptationLogic::AbstractAdaptationLogic(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper) :
+    mpdWrapper			(mpdWrapper),
+    type			(type)
 {
+        InitializeCriticalSection   (&this->monitorLock);
 }
 
 AbstractAdaptationLogic::~AbstractAdaptationLogic()
 {
+    DeleteCriticalSection   (&this->monitorLock);
 }
 
 uint32_t AbstractAdaptationLogic::getPosition()
@@ -39,15 +38,19 @@ void AbstractAdaptationLogic::setPosition(uint32_t segmentNumber)
 
 IRepresentation* AbstractAdaptationLogic::getRepresentation()
 {
-    return this->representation;
+//    return this->representation;
 }
 
-void AbstractAdaptationLogic::setRepresentation(IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
-{
-    this->period            = period;
-    this->adaptationSet     = adaptationSet;
-    this->representation    = representation;
-}
+//void AbstractAdaptationLogic::setRepresentation(IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
+//{
+//    this->period            = period;
+//    this->adaptationSet     = adaptationSet;
+//    this->representation    = representation;
+//}
+
+//void AbstractAdaptationLogic::updateMPD(IMPD* mpd)
+//{
+//}
 
 void AbstractAdaptationLogic::dLTimeUpdate(double time)
 {

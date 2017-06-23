@@ -26,6 +26,9 @@ MediaObject::MediaObject(ISegment *segment, IRepresentation *rep, bool withFeedB
     this->initSeg = NULL;
     InitializeConditionVariable (&this->stateChanged);
     InitializeCriticalSection   (&this->stateLock);
+    this->representationBandwidth = rep->GetBandwidth();
+    this->representationHeight = rep->GetHeight();
+    this->representationId = std::stoi(rep->GetId());
 }
 
 MediaObject::~MediaObject()
@@ -44,6 +47,21 @@ MediaObject::~MediaObject()
     this->segment = NULL;
 }
 
+uint32_t MediaObject::GetRepresentationBandwidth()
+{
+    return this->representationBandwidth;
+}
+
+uint32_t MediaObject::GetRepresentationHeight()
+{
+    return this->representationHeight;
+}
+
+int MediaObject::GetRepresentationID()
+{
+    return this->representationId;
+}
+
 void MediaObject::SetFeedBack(bool flag)
 {
     this->withFeedBack = flag;
@@ -57,9 +75,13 @@ void MediaObject::AddInitSegment(MediaObject* initSeg)
 int MediaObject::ReadInitSegment(uint8_t* data, size_t len)
 {
     if(this->initSeg)
+    {
         return this->initSeg->Peek(data,len);
+    }
     else
+    {
         return 0;
+    }
 }
 
 bool MediaObject::StartDownload()

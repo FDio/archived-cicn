@@ -14,7 +14,7 @@
 
 #include "IRepresentationStream.h"
 #include "IRepresentation.h"
-#include "IMPD.h"
+#include "MPDWrapper.h"
 #include "IPeriod.h"
 #include "IAdaptationSet.h"
 #include "RepresentationStreamFactory.h"
@@ -29,19 +29,21 @@ namespace mpd
 class AdaptationSetStream
 {
 public:
-    AdaptationSetStream(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet);
+//    AdaptationSetStream(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet);
+    AdaptationSetStream(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper);
     virtual ~AdaptationSetStream();
 
-    IRepresentationStream* getRepresentationStream(dash::mpd::IRepresentation *representation);
+//    IRepresentationStream* getRepresentationStream(dash::mpd::IRepresentation *representation);
 
 private:
-    RepresentationStreamType determineRepresentationStreamType(dash::mpd::IRepresentation *representation);
+//    RepresentationStreamType determineRepresentationStreamType(dash::mpd::IRepresentation *representation);
     void initialize();
 
-    std::map<dash::mpd::IRepresentation *, IRepresentationStream *> representations;
-    dash::mpd::IMPD                                                 *mpd;
-    dash::mpd::IPeriod                                              *period;
-    dash::mpd::IAdaptationSet                                       *adaptationSet;
+//    std::map<dash::mpd::IRepresentation *, IRepresentationStream *>	representations;
+    libdash::framework::mpd::MPDWrapper					*mpdWrapper;
+    viper::managers::StreamType						type;
+//    dash::mpd::IPeriod						*period;
+//    dash::mpd::IAdaptationSet						*adaptationSet;
 
 };
 }

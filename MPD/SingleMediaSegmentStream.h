@@ -12,7 +12,7 @@
 #ifndef LIBDASH_FRAMEWORK_MPD_SINGLEMEDIASEGMENTSTREAM_H_
 #define LIBDASH_FRAMEWORK_MPD_SINGLEMEDIASEGMENTSTREAM_H_
 
-#include "IMPD.h"
+#include "MPDWrapper.h"
 #include "AbstractRepresentationStream.h"
 #include "ISegment.h"
 
@@ -25,7 +25,8 @@ namespace mpd
 class SingleMediaSegmentStream: public AbstractRepresentationStream
 {
 public:
-    SingleMediaSegmentStream(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    SingleMediaSegmentStream(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    SingleMediaSegmentStream(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation, dash::mpd::IMPD* mpd);
     virtual ~SingleMediaSegmentStream();
 
     virtual dash::mpd::ISegment* getInitializationSegment();
