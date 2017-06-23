@@ -14,8 +14,9 @@
 using namespace libdash::framework::mpd;
 using namespace dash::mpd;
 
-AbstractRepresentationStream::AbstractRepresentationStream(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
-                              mpd                           (mpd),
+AbstractRepresentationStream::AbstractRepresentationStream(viper::managers::StreamType type, IMPDWrapper *mpdWrapper, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
+                              type			    (type),
+			      mpdWrapper                    (mpdWrapper),
                               period                        (period),
                               adaptationSet                 (adaptationSet),
                               representation                (representation)
@@ -40,12 +41,12 @@ uint32_t AbstractRepresentationStream::getSize()
 
 uint32_t AbstractRepresentationStream::getFirstSegmentNumber()
 {
-    if (this->mpd->GetType() == "dynamic")
+    if (this->mpdWrapper->getTypeWithoutLock() == "dynamic")
     {
         uint32_t currTime = TimeResolver::getCurrentTimeInSec();
-        uint32_t availStT = TimeResolver::getUTCDateTimeInSec(this->mpd->GetAvailabilityStarttime());
+        uint32_t availStT = TimeResolver::getUTCDateTimeInSec(this->mpdWrapper->getAvailabilityStarttime());
         uint32_t duration = this->getAverageSegmentDuration();
-        uint32_t timeshift = TimeResolver::getDurationInSec(this->mpd->GetTimeShiftBufferDepth());
+        uint32_t timeshift = TimeResolver::getDurationInSec(this->mpdWrapper->getTimeShiftBufferDepth());
         uint32_t timescale = this->getTimescale();
         return (double)((double)currTime - (double)availStT - (double)timeshift ) < 0? 0 : (currTime - availStT - timeshift );
     }
@@ -54,11 +55,11 @@ uint32_t AbstractRepresentationStream::getFirstSegmentNumber()
 
 uint32_t AbstractRepresentationStream::getCurrentSegmentNumber()
 {
-    if (this->mpd->GetType() == "dynamic")
+    if (this->mpdWrapper->getTypeWithoutLock() == "dynamic")
     {
         uint32_t currTime = TimeResolver::getCurrentTimeInSec();
         uint32_t duration = this->getAverageSegmentDuration();
-        uint32_t availStT = TimeResolver::getUTCDateTimeInSec(this->mpd->GetAvailabilityStarttime());
+        uint32_t availStT = TimeResolver::getUTCDateTimeInSec(this->mpdWrapper->getAvailabilityStarttime());
 
         return (double)((double)currTime - (double)availStT) < 0 ? 0 : (currTime - availStT);
     //    return (currTime - duration - availStT) / duration;
@@ -68,13 +69,13 @@ uint32_t AbstractRepresentationStream::getCurrentSegmentNumber()
 
 uint32_t AbstractRepresentationStream::getLastSegmentNumber      ()
 {
-    if (this->mpd->GetType() == "dynamic")
+    if (this->mpdWrapper->getTypeWithoutLock() == "dynamic")
     {
         uint32_t currTime   = TimeResolver::getCurrentTimeInSec();
         uint32_t duration = this->getAverageSegmentDuration();
-        uint32_t availStT   = TimeResolver::getUTCDateTimeInSec(this->mpd->GetAvailabilityStarttime());
-        uint32_t checkTime  = mpd->GetFetchTime() + 
-                              TimeResolver::getDurationInSec(this->mpd->GetMinimumUpdatePeriod());
+        uint32_t availStT   = TimeResolver::getUTCDateTimeInSec(this->mpdWrapper->getAvailabilityStarttime());
+        uint32_t checkTime  = mpdWrapper->getFetchTime() + 
+                              TimeResolver::getDurationInSec(this->mpdWrapper->getMinimumUpdatePeriodWithoutLock());
         return ( ((checkTime > currTime) ? currTime : checkTime) - duration - availStT) / duration;
     }
     return 0;
@@ -91,4 +92,13 @@ uint32_t    AbstractRepresentationStream::getTimescale ()
 void	    AbstractRepresentationStream::setSegmentOffset (uint32_t offset)
 {
     this->segmentOffset = offset;
+}
+
+uint32_t AbstractRepresentationStream::getTime(size_t segmentNumber)
+{
+    return 0;
+}
+size_t AbstractRepresentationStream::getSegmentNumber(uint32_t time)
+{
+    return 0;
 }

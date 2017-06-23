@@ -68,7 +68,7 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
     }
     if(!configFile)
     {
-        qDebug("beta %f, drop %f", this->beta, this->drop);
+//        qDebug("beta %f, drop %f", this->beta, this->drop);
    //     this->myConsumer->setSocketOption(RaaqmTransportOptions::BETA_VALUE, this->beta);
    //     this->myConsumer->setSocketOption(RaaqmTransportOptions::DROP_FACTOR, this->drop);
     }
@@ -104,8 +104,8 @@ void ICNConnectionConsumerApi::Init(IChunk *chunk) {
     m_isFinished = false;
 
     res = false;
-    qDebug("ICN_Connection:\tINTIATED_to_name %s\n", m_name.c_str());
-    qDebug("ICN_Connection:\tSTARTING DOWNLOAD %s\n", m_name.c_str());
+    Debug("ICN_Connection:\tINTIATED_to_name %s\n", m_name.c_str());
+    Debug("ICN_Connection:\tSTARTING DOWNLOAD %s\n", m_name.c_str());
 }
 
 void ICNConnectionConsumerApi::InitForMPD(const std::string& url)
@@ -118,7 +118,6 @@ void ICNConnectionConsumerApi::InitForMPD(const std::string& url)
     res = false;
     dataPos = 0;
     datSize = 0;
-
     Debug("ICN_Connection:\tINTIATED_for_mpd %s\n", m_name.c_str());
 }
 
@@ -134,7 +133,6 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
        std::string s(m_name.c_str());
        hTTPClientConnection->get(s);
        response  = hTTPClientConnection->response();
-       std::cout << m_name.c_str()<< " SIZE:" << response.size() << std::endl;
        this->res = true;
        this->dataPos = 0;
     }

@@ -29,7 +29,8 @@ namespace adaptation
 class BufferBasedThreeThresholdAdaptation : public AbstractAdaptationLogic
 {
 public:
-    BufferBasedThreeThresholdAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    BufferBasedThreeThresholdAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    BufferBasedThreeThresholdAdaptation(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~BufferBasedThreeThresholdAdaptation();
 
     virtual LogicType getType();
@@ -47,20 +48,20 @@ public:
     void checkedByDASHReceiver();
 
 private:
-    uint64_t						currentBitrate;
+    uint64_t					currentBitrate;
     std::vector<uint64_t>			availableBitrates;
     viper::managers::IMultimediaManagerBase	*multimediaManager;
-    dash::mpd::IRepresentation		*representation;
-    uint32_t						secondThreshold;
-    uint32_t						thirdThreshold;
-    uint32_t						lastBufferFill;
-    bool							bufferEOS;
-    bool							shouldAbort;
-    uint32_t						firstThreshold;
-    uint64_t						instantBw;
-    int								myQuality;
-    double							slackParam;
-    bool							isCheckedForReceiver;
+    dash::mpd::IRepresentation			*representation;
+    uint32_t					secondThreshold;
+    uint32_t					thirdThreshold;
+    uint32_t					lastBufferFill;
+    bool					bufferEOS;
+    bool					shouldAbort;
+    uint32_t					firstThreshold;
+    uint64_t					instantBw;
+    int						myQuality;
+    double					slackParam;
+    bool					isCheckedForReceiver;
 };
 }
 }

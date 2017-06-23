@@ -29,7 +29,8 @@ namespace adaptation
 class BufferBasedAdaptation : public AbstractAdaptationLogic
 {
 public:
-    BufferBasedAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    BufferBasedAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    BufferBasedAdaptation(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~BufferBasedAdaptation();
 
     virtual LogicType getType();
@@ -47,15 +48,15 @@ public:
     void checkedByDASHReceiver();
 
 private:
-    uint64_t						currentBitrate;
+    uint64_t					currentBitrate;
     std::vector<uint64_t>			availableBitrates;
     viper::managers::IMultimediaManagerBase	*multimediaManager;
-    dash::mpd::IRepresentation		*representation;
-    uint32_t						reservoirThreshold;
-    uint32_t						maxThreshold;
-    uint32_t						lastBufferFill;
-    bool							bufferEOS;
-    bool							shouldAbort;
+    dash::mpd::IRepresentation			*representation;
+    uint32_t					reservoirThreshold;
+    uint32_t					maxThreshold;
+    uint32_t					lastBufferFill;
+    bool					bufferEOS;
+    bool					shouldAbort;
 };
 }
 }

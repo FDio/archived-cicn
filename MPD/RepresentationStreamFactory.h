@@ -12,6 +12,8 @@
 #ifndef LIBDASH_FRAMEWORK_MPD_RERPRESENTATIONSTREAMFACTORY_H_
 #define LIBDASH_FRAMEWORK_MPD_RERPRESENTATIONSTREAMFACTORY_H_
 
+
+#include "../MPD/MPDWrapper.h"
 #include "IRepresentationStream.h"
 #include "SingleMediaSegmentStream.h"
 #include "SegmentListStream.h"
@@ -27,8 +29,9 @@ namespace mpd
 class RepresentationStreamFactory
 {
 public:
-    static IRepresentationStream* create(libdash::framework::mpd::RepresentationStreamType type, dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period,
-                                         dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    static IRepresentationStream* create(viper::managers::StreamType streamType, libdash::framework::mpd::RepresentationStreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period,
+                                         dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation, dash::mpd::IMPD* mpd = NULL);
+//    static IRepresentationStream* create(viper::managers::StreamType streamType, libdash::framework::mpd::RepresentationStreamType type, dash::mpd::MPDWrapper *mpdWrapper);
 
 };
 }

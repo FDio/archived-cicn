@@ -19,11 +19,13 @@ using namespace dash::mpd;
 using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::mpd;
+using namespace viper::managers;
 
-RateBasedAdaptation::RateBasedAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params) :
-    AbstractAdaptationLogic(mpd, period, adaptationSet, isVid)
+RateBasedAdaptation::RateBasedAdaptation(StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
+    AbstractAdaptationLogic(type, mpdWrapper)
 {
-    std::vector<IRepresentation* > representations = this->adaptationSet->GetRepresentation();
+    this->mpdWrapper->acquireLock();
+    std::vector<IRepresentation* > representations = this->mpdWrapper->getRepresentations(type);
 
     this->availableBitrates.clear();
     for(size_t i = 0; i < representations.size(); i++)
@@ -32,6 +34,7 @@ RateBasedAdaptation::RateBasedAdaptation(IMPD *mpd, IPeriod *period, IAdaptation
     }
     this->currentBitrate = this->availableBitrates.at(0);
     this->representation = representations.at(0);
+    this->mpdWrapper->releaseLock();
     this->multimediaManager = NULL;
     this->alpha = params->Rate_Alpha;
     Debug("RateBasedParams:\t%f\n",alpha);
@@ -69,11 +72,12 @@ void RateBasedAdaptation::setMultimediaManager(viper::managers::IMultimediaManag
 
 void RateBasedAdaptation::notifyBitrateChange()
 {
+    this->mpdWrapper->setRepresentation(this->type, this->representation);
     if(this->multimediaManager->isStarted() && !this->multimediaManager->isStopping())
-        if(this->isVideo)
-            this->multimediaManager->setVideoQuality(this->period, this->adaptationSet, this->representation);
+        if(this->type == viper::managers::StreamType::VIDEO)
+            this->multimediaManager->setVideoQuality();
         else
-            this->multimediaManager->setAudioQuality(this->period, this->adaptationSet, this->representation);
+            this->multimediaManager->setAudioQuality();
 }
 
 uint64_t RateBasedAdaptation::getBitrate()
@@ -84,7 +88,7 @@ uint64_t RateBasedAdaptation::getBitrate()
 void RateBasedAdaptation::setBitrate(uint64_t bps)
 {
     std::vector<IRepresentation *> representations;
-    representations = this->adaptationSet->GetRepresentation();
+    representations = this->mpdWrapper->getRepresentations(this->type);
     size_t i = 0;
     this->ewma(bps);
     for(i = 0;i < representations.size();i++)
@@ -99,7 +103,7 @@ void RateBasedAdaptation::setBitrate(uint64_t bps)
     if((size_t)i == (size_t)(representations.size()))
         i = i-1;
 
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tBW_estimation(ewma): %lu, choice: %lu\n", (this->isVideo ? "video" : "audio"), this->averageBw, i);
+    Debug("ADAPTATION_LOGIC:\tFor %s:\tBW_estimation(ewma): %lu, choice: %lu\n", ((this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio"), this->averageBw, i);
     this->representation = representations.at(i);
     this->currentBitrate = this->representation->GetBandwidth();
 }
@@ -107,8 +111,10 @@ void RateBasedAdaptation::setBitrate(uint64_t bps)
 void RateBasedAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)
 {
     Debug("Rate Based adaptation: speed received: %lu\n", bps);
+    this->mpdWrapper->acquireLock();
     this->setBitrate(bps);
     this->notifyBitrateChange();
+    this->mpdWrapper->releaseLock();
 }
 
 void RateBasedAdaptation::ewma(uint64_t bps)

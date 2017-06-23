@@ -715,6 +715,10 @@ dash::mpd::MPD*                             Node::ToMPD                 ()  cons
     {
         mpd->SetType(this->GetAttributeValue("type"));
     }
+    if (this->HasAttribute("publishTime"))
+    {
+        mpd->SetPublishTime(this->GetAttributeValue("publishTime"));
+    }
     if (this->HasAttribute("availabilityStartTime"))
     {
         mpd->SetAvailabilityStarttime(this->GetAttributeValue("availabilityStartTime"));

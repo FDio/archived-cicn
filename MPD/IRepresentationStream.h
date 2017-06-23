@@ -44,6 +44,9 @@ public:
     virtual uint32_t getLastSegmentNumber() = 0;
     virtual uint32_t getAverageSegmentDuration() = 0;
     virtual void     setSegmentOffset(uint32_t offset) = 0;
+    virtual uint32_t getTime(size_t segmentNumber) = 0;
+    virtual size_t getSegmentNumber(uint32_t time) = 0;
+
 
 };
 }

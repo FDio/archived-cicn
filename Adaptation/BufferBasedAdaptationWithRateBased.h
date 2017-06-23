@@ -29,7 +29,8 @@ namespace adaptation
 class BufferBasedAdaptationWithRateBased : public AbstractAdaptationLogic
 {
 public:
-    BufferBasedAdaptationWithRateBased(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    BufferBasedAdaptationWithRateBased(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    BufferBasedAdaptationWithRateBased(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~BufferBasedAdaptationWithRateBased();
 
     virtual LogicType getType();
@@ -48,22 +49,22 @@ public:
 
 private:
     uint64_t						currentBitrate;
-    std::vector<uint64_t>			availableBitrates;
-    viper::managers::IMultimediaManagerBase	*multimediaManager;
-    dash::mpd::IRepresentation		*representation;
+    std::vector<uint64_t>				availableBitrates;
+    viper::managers::IMultimediaManagerBase		*multimediaManager;
+    dash::mpd::IRepresentation				*representation;
     uint32_t						reservoirThreshold;
     uint32_t						maxThreshold;
     uint32_t						lastBufferFill;
-    int								m_count;
-    int								switchUpThreshold;
-    bool							bufferEOS;
-    bool							shouldAbort;
-    double							alphaRate;
+    int							m_count;
+    int							switchUpThreshold;
+    bool						bufferEOS;
+    bool						shouldAbort;
+    double						alphaRate;
     uint64_t						averageBw;
     uint64_t						instantBw;
-    int								myQuality;
-    double							slackParam;
-    bool							isCheckedForReceiver;
+    int							myQuality;
+    double						slackParam;
+    bool						isCheckedForReceiver;
 };
 }
 }

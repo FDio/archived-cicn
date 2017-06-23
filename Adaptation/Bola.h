@@ -29,7 +29,8 @@ namespace adaptation
 class BolaAdaptation : public AbstractAdaptationLogic
 {
 public:
-    BolaAdaptation            (dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    BolaAdaptation            (dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    BolaAdaptation            (viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~BolaAdaptation();
 
     virtual LogicType getType();
@@ -58,58 +59,54 @@ private:
         STEADY					// The buffer is primed (should be above bufferTarget)
     };
 
-    bool							initState;
-    double 							bufferMaxSizeSeconds;		// Usually set to 30s
-    double 							bufferTargetSeconds;  	// It is passed as an init parameter.
+    bool					initState;
+    double					bufferMaxSizeSeconds;		// Usually set to 30s
+    double					bufferTargetSeconds;  	// It is passed as an init parameter.
     // It states the difference between STARTUP and STEADY
     // 12s following dash.js implementation
 
-    double 							bolaBufferTargetSeconds; 	// BOLA introduces a virtual buffer level in order to make quality decisions
+    double					bolaBufferTargetSeconds; 	// BOLA introduces a virtual buffer level in order to make quality decisions
     // as it was filled (instead of the actual bufferTargetSeconds)
 
-    double 							bolaBufferMaxSeconds; 	// When using the virtual buffer, it must be capped.
-
-    uint32_t 						bufferTargetPerc;		// Computed considering a bufferSize = 30s
-    double 							totalDuration;			// Total video duration in seconds (taken from MPD)
-    double 							segmentDuration;		// Segment duration in seconds
+    double					bolaBufferMaxSeconds; 	// When using the virtual buffer, it must be capped.
+    uint32_t 					bufferTargetPerc;		// Computed considering a bufferSize = 30s
+    double 					totalDuration;	  // Total video duration in seconds (taken from MPD)
+    double 					segmentDuration;  // Segment duration in seconds
 
     std::vector<uint64_t>			availableBitrates;
     std::vector<double>				utilityVector;
-    uint32_t						bitrateCount;			// Number of available bitrates
-    BolaState						bolaState;				// Keeps track of Bola state
+    uint32_t					bitrateCount;			// Number of available bitrates
+    BolaState					bolaState;				// Keeps track of Bola state
 
     // Bola Vp and gp (multiplied by the segment duration 'p')
     // They are dimensioned such that log utility would always prefer
     // - the lowest bitrate when bufferLevel = segmentDuration
     // - the highest bitrate when bufferLevel = bufferTarget
-    double							Vp;
-    double 							gp;
+    double					Vp;
+    double 					gp;
+    bool					safetyGuarantee;
+    double					maxRtt;
+    double 					virtualBuffer;
 
-    bool							safetyGuarantee;
-    double							maxRtt;
-
-    double 							virtualBuffer;
-
-    uint64_t						currentBitrate;
-    int 							currentQuality;
-    uint64_t						batchBw;
-    int								batchBwCount;
+    uint64_t					currentBitrate;
+    int 					currentQuality;
+    uint64_t					batchBw;
+    int						batchBwCount;
     std::vector<uint64_t>			batchBwSamples;
-    uint64_t						instantBw;
-    uint64_t						averageBw;
+    uint64_t					instantBw;
+    uint64_t					averageBw;
 
-    double 							lastDownloadTimeInstant;
-    double 							currentDownloadTimeInstant;
-    double							lastSegmentDownloadTime;
+    double 					lastDownloadTimeInstant;
+    double 					currentDownloadTimeInstant;
+    double					lastSegmentDownloadTime;
 
-    uint32_t						lastBufferFill;
-    bool							bufferEOS;
-    bool							shouldAbort;
-    double							alphaRate;
-    bool							isCheckedForReceiver;
-
+    uint32_t					lastBufferFill;
+    bool					bufferEOS;
+    bool					shouldAbort;
+    double					alphaRate;
+    bool					isCheckedForReceiver;
     viper::managers::IMultimediaManagerBase	*multimediaManager;
-    dash::mpd::IRepresentation		*representation;
+    dash::mpd::IRepresentation			*representation;
 };
 }
 }

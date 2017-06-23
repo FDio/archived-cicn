@@ -14,15 +14,28 @@
 using namespace dash::mpd;
 using namespace libdash::framework::mpd;
 
-SegmentTemplateStream::SegmentTemplateStream(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
-    AbstractRepresentationStream     (mpd, period, adaptationSet, representation)
+SegmentTemplateStream::SegmentTemplateStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation) :
+    AbstractRepresentationStream     (type, mpdWrapper, period, adaptationSet, representation)
 {
-    this->baseUrls          = BaseUrlResolver::resolveBaseUrl(mpd, period, adaptationSet, 0, 0, 0);
+//    this->baseUrls          = BaseUrlResolver::resolveBaseUrl(mpd, period, adaptationSet, 0, 0, 0);
+    this->baseUrls          = BaseUrlResolver::resolveBaseUrl(type, mpdWrapper, 0, 0, 0);
     this->segmentTemplate   = findSegmentTemplate();
     this->inSync = false;
     this->currentSegment = 0;
     calculateSegmentStartTimes();
 }
+
+SegmentTemplateStream::SegmentTemplateStream(viper::managers::StreamType type, MPDWrapper *mpdWrapper, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation, IMPD* mpd) :
+    AbstractRepresentationStream     (type, mpdWrapper, period, adaptationSet, representation)
+{
+//    this->baseUrls          = BaseUrlResolver::resolveBaseUrl(mpd, period, adaptationSet, 0, 0, 0);
+    this->baseUrls          = BaseUrlResolver::resolveBaseUrl(type, mpdWrapper, 0, 0, 0, mpd);
+    this->segmentTemplate   = findSegmentTemplate();
+    this->inSync = false;
+    this->currentSegment = 0;
+    calculateSegmentStartTimes();
+}
+
 SegmentTemplateStream::~SegmentTemplateStream()
 {
 }
@@ -55,7 +68,14 @@ ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber)
 {
     /* time-based template */
     if (this->segmentTemplate->GetSegmentTimeline())
-    {
+    {//Get the one at segmentNumber
+    	if(this->segmentStartTimes.size() > segmentNumber)
+	    return this->segmentTemplate->GetMediaSegmentFromTime(baseUrls, representation->GetId(), representation->GetBandwidth(), this->segmentStartTimes.at(segmentNumber));
+    	else
+	    return NULL;
+	
+//The following is to be used if you wish to start directly from the right time
+/*  {
         if(this->inSync)
         {
             this->currentSegment++;
@@ -86,7 +106,7 @@ ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber)
             this->currentSegment = segNumber;
             return this->segmentTemplate->GetMediaSegmentFromTime(baseUrls, representation->GetId(), representation->GetBandwidth(), this->segmentStartTimes.at(this->currentSegment));
         }
-        return NULL;
+        return NULL; */
     }
 
     /* number-based template */
@@ -115,9 +135,9 @@ uint32_t SegmentTemplateStream::getSize()
     uint32_t numberOfSegments          = 0;
     double   mediaPresentationDuration = 0;
 
-    if (this->mpd->GetType() == "static")
+    if (this->mpdWrapper->getTypeWithoutLock() == "static")
     {
-        mediaPresentationDuration = TimeResolver::getDurationInSec(this->mpd->GetMediaPresentationDuration());
+        mediaPresentationDuration = TimeResolver::getDurationInSec(this->mpdWrapper->getMediaPresentationDuration());
         numberOfSegments = (uint32_t) ceil(mediaPresentationDuration / (this->segmentTemplate->GetDuration() / this->segmentTemplate->GetTimescale()));
     }
     else
@@ -193,4 +213,25 @@ void SegmentTemplateStream::calculateSegmentStartTimes()
         }
     }
     this->averageDuration = totalDuration / numOfTimelines;
+}
+
+uint32_t SegmentTemplateStream::getTime(size_t segmentNumber)
+{
+    if(segmentNumber < this->segmentStartTimes.size())
+	return this->segmentStartTimes.at(segmentNumber);
+    else
+	return 0;
+}
+
+size_t SegmentTemplateStream::getSegmentNumber(uint32_t time)
+{
+    size_t i;
+    for(i = 0; i < this->segmentStartTimes.size(); i ++)
+    {
+	if(time <= this->segmentStartTimes.at(i))
+	{
+	    break;
+	}
+    }
+    return i;
 }

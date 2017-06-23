@@ -21,9 +21,10 @@ using namespace dash::mpd;
 using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::mpd;
+using namespace viper::managers;
 
-PandaAdaptation::PandaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params) :
-    AbstractAdaptationLogic   (mpd, period, adaptationSet, isVid)
+PandaAdaptation::PandaAdaptation(StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
+    AbstractAdaptationLogic   (type, mpdWrapper)
 {
     this->param_Alpha = params->Panda_Alpha;
     this->param_Beta = params->Panda_Beta;
@@ -52,17 +53,17 @@ PandaAdaptation::PandaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *ada
 
     this->downloadTime = 0.0;
 
-    this->isVideo = isVid;
-    this->mpd = mpd;
-    this->adaptationSet = adaptationSet;
-    this->period = period;
+//    this->mpd = mpd;
+//    this->adaptationSet = adaptationSet;
+//    this->period = period;
     this->multimediaManager = NULL;
     this->representation = NULL;
     this->currentBitrate = 0;
     this->current = 0;
 
     // Retrieve the available bitrates
-    std::vector<IRepresentation* > representations = this->adaptationSet->GetRepresentation();
+    this->mpdWrapper->acquireLock();
+    std::vector<IRepresentation* > representations = this->mpdWrapper->getRepresentations(this->type);
 
     this->availableBitrates.clear();
     Debug("PANDA Available Bitrates...\n");
@@ -72,7 +73,7 @@ PandaAdaptation::PandaAdaptation(IMPD *mpd, IPeriod *period, IAdaptationSet *ada
         Debug("%d  -  %I64u bps\n", i+1, this->availableBitrates[i]);
     }
 
-    this->representation = this->adaptationSet->GetRepresentation().at(0);
+    this->representation = representations.at(0);
     this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
 
     Debug("Panda parameters: K= %f, Bmin = %f, alpha = %f, beta = %f, W = %f\n", param_K, param_Bmin, param_Alpha, param_Beta, param_W);
@@ -108,11 +109,12 @@ void PandaAdaptation::setMultimediaManager (viper::managers::IMultimediaManagerB
 
 void PandaAdaptation::notifyBitrateChange()
 {
+    this->mpdWrapper->setRepresentation(this->type, this->representation);
     if(this->multimediaManager->isStarted() && !this->multimediaManager->isStopping())
-        if(this->isVideo)
-            this->multimediaManager->setVideoQuality(this->period, this->adaptationSet, this->representation);
+        if(this->type == viper::managers::StreamType::VIDEO)
+            this->multimediaManager->setVideoQuality();
         else
-            this->multimediaManager->setAudioQuality(this->period, this->adaptationSet, this->representation);
+            this->multimediaManager->setAudioQuality();
 }
 
 uint64_t PandaAdaptation::getBitrate()
@@ -133,7 +135,7 @@ void PandaAdaptation::quantizer()
     Debug("** Smooth-BW UP:\t%d\t Smooth-BW DOWN:\t%d\n", smoothBw_UP, smoothBw_DOWN);
 
     std::vector<IRepresentation *> representations;
-    representations = this->adaptationSet->GetRepresentation();
+    representations = this->mpdWrapper->getRepresentations(this->type);
     uint32_t numQualLevels = representations.size();
 
     // We have to find bitrateMin and bitrateMax
@@ -188,7 +190,7 @@ void PandaAdaptation::quantizer()
         this->currentBitrate = bitrateDown;
         this->current = iDown;
     }
-    this->representation = this->adaptationSet->GetRepresentation().at(this->current);
+    this->representation = representations.at(this->current);
 }
 
 void PandaAdaptation::setBitrate(uint64_t bps)
@@ -220,7 +222,7 @@ void PandaAdaptation::setBitrate(uint64_t bps)
 
     // 3. Quantization
     this->quantizer();
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",isVideo ? "video" : "audio",(double)lastBufferLevel/100 , (double)bufferLevel/100, this->instantBw, this->averageBw , this->current);
+    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferLevel/100 , (double)bufferLevel/100, this->instantBw, this->averageBw , this->current);
     this->lastBufferLevel = this->bufferLevel;
 
     // 4. Computing the "actual inter time"
@@ -233,7 +235,7 @@ void PandaAdaptation::setBitrate(uint64_t bps)
     this->interTime = this->interTime > 3 ? 3 : this->interTime;
 
     Debug("** ACTUAL INTER TIME:\t%f\n", this->interTime);
-    this->multimediaManager->setTargetDownloadingTime(this->isVideo, interTime);
+    this->multimediaManager->setTargetDownloadingTime((this->type == viper::managers::StreamType::VIDEO), interTime);
 }
 
 void PandaAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)
@@ -249,9 +251,10 @@ void PandaAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)
     {
         this->averageBw = this->alpha_ewma*this->averageBw + (1 - this->alpha_ewma)*bps;
     }
-
+    this->mpdWrapper->acquireLock();
     this->setBitrate(bps);
     this->notifyBitrateChange();
+    this->mpdWrapper->releaseLock();
 }
 
 void PandaAdaptation::dLTimeUpdate(double time)

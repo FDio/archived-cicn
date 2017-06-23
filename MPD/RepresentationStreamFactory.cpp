@@ -14,14 +14,28 @@
 using namespace libdash::framework::mpd;
 using namespace dash::mpd;
 
-IRepresentationStream* RepresentationStreamFactory::create(RepresentationStreamType type, IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
+IRepresentationStream* RepresentationStreamFactory::create(viper::managers::StreamType streamType, libdash::framework::mpd::RepresentationStreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation, dash::mpd::IMPD* mpd)
 {
-    switch(type)
+    if(mpd)
     {
-        case SingleMediaSegment: return new SingleMediaSegmentStream(mpd, period, adaptationSet, representation);
-        case SegmentList:        return new SegmentListStream       (mpd, period, adaptationSet, representation);
-        case SegmentTemplate:    return new SegmentTemplateStream   (mpd, period, adaptationSet, representation);
+        switch(type)
+        {
+            case SingleMediaSegment: return new SingleMediaSegmentStream(streamType, mpdWrapper, period, adaptationSet, representation,mpd);
+            case SegmentList:        return new SegmentListStream       (streamType, mpdWrapper, period, adaptationSet, representation,mpd);
+            case SegmentTemplate:    return new SegmentTemplateStream   (streamType, mpdWrapper, period, adaptationSet, representation,mpd);
 
-        default:                 return NULL;
+            default:                 return NULL;
+       }
+    }
+    else
+    {
+        switch(type)
+        {
+            case SingleMediaSegment: return new SingleMediaSegmentStream(streamType, mpdWrapper, period, adaptationSet, representation);
+            case SegmentList:        return new SegmentListStream       (streamType, mpdWrapper, period, adaptationSet, representation);
+            case SegmentTemplate:    return new SegmentTemplateStream   (streamType, mpdWrapper, period, adaptationSet, representation);
+
+            default:                 return NULL;
+       }
     }
 }

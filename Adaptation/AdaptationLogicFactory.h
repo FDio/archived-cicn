@@ -30,8 +30,8 @@ namespace adaptation
 class AdaptationLogicFactory
 {
 public:
-    static IAdaptationLogic* create(libdash::framework::adaptation::LogicType logic,
-                                    dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    static IAdaptationLogic* create(libdash::framework::adaptation::LogicType logic, viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
+//    static IAdaptationLogic* create(libdash::framework::adaptation::LogicType logic, dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
 };
 }
 }

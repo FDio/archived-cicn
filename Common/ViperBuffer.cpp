@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <stdio.h>
 #include "ViperBuffer.h"
 ViperBuffer::ViperBuffer(QObject* parent) :
     QIODevice(parent)
@@ -76,17 +76,18 @@ qint64 ViperBuffer::readData(char* data, qint64 maxSize)
 qint64 ViperBuffer::writeData(libdash::framework::input::MediaObject* media)
 {
     pthread_mutex_lock(&(this->monitorMutex));
+
     int ret = 0;
     int total = 0;
     ret = media->ReadInitSegment(readBuffer,readMax);
     total += ret;
     this->writeData((const char *)readBuffer, ret);
-
     ret = media->Read(readBuffer,readMax);
     while(ret)
     {
         total += ret;
         this->writeData((const char *)readBuffer, ret);
+	
         ret = media->Read(readBuffer,readMax);
     }
     pthread_mutex_unlock(&(this->monitorMutex));

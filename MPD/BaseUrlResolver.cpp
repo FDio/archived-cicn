@@ -14,10 +14,10 @@
 using namespace dash::mpd;
 using namespace libdash::framework::mpd;
 
-std::vector<dash::mpd::IBaseUrl *> BaseUrlResolver::resolveBaseUrl(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet,
-                                                                   size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl)
+std::vector<dash::mpd::IBaseUrl *> BaseUrlResolver::resolveBaseUrl(viper::managers::StreamType type, IMPDWrapper *mpdWrapper, size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl)
 {
-    std::vector<dash::mpd::IBaseUrl *> urls;
+    return mpdWrapper->resolveBaseUrl(type, mpdBaseUrl, periodBaseUrl, adaptationSetBaseUrl);
+/*    std::vector<dash::mpd::IBaseUrl *> urls;
 
     if (mpd->GetBaseUrls().size() > 0)
     {
@@ -60,5 +60,10 @@ std::vector<dash::mpd::IBaseUrl *> BaseUrlResolver::resolveBaseUrl(IMPD *mpd, IP
         urls.push_back(mpd->GetMPDPathBaseUrl());
     }
 
-    return urls;
+    return urls; */
+}
+
+std::vector<dash::mpd::IBaseUrl *> BaseUrlResolver::resolveBaseUrl(viper::managers::StreamType type, IMPDWrapper *mpdWrapper, size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl, IMPD* mpd)
+{
+    return mpdWrapper->resolveBaseUrl(type, mpdBaseUrl, periodBaseUrl, adaptationSetBaseUrl, mpd);
 }

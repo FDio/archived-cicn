@@ -15,23 +15,26 @@ using namespace viper::managers;
 using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::buffer;
+using namespace libdash::framework::mpd;
 using namespace dash::mpd;
 
-MultimediaStream::MultimediaStream(StreamType type, IMPD *mpd, uint32_t bufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
+MultimediaStream::MultimediaStream(StreamType type, MPDWrapper *mpdWrapper, uint32_t bufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
     type		(type),
     segmentBufferSize	(bufferSize),
     dashManager		(NULL),
-    mpd			(mpd),
-    icn		(icnEnabled),
+    mpdWrapper		(mpdWrapper),
+    icn			(icnEnabled),
     icnAlpha		(icnAlpha),
     noDecoding		(nodecoding),
-    beta            (beta),
-    drop            (drop)
+    beta            	(beta),
+    drop            	(drop)
 {
+//    InitializeCriticalSection (&this->monitorMutex);
     this->init();
 }
 MultimediaStream::~MultimediaStream ()
 {
+//    DestroyCriticalSection (&this->monitorMutex);
     this->stop();
     delete this->dashManager;
 }
@@ -68,7 +71,7 @@ void MultimediaStream::setPositionInMsec(uint32_t milliSecs)
 
 void MultimediaStream::init()
 {
-    this->dashManager   = new DASHManager(this->type, this->segmentBufferSize, this, this->mpd, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop);
+    this->dashManager   = new DASHManager(this->type, this->segmentBufferSize, this, this->mpdWrapper, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop);
 }
 
 bool MultimediaStream::start()
@@ -117,9 +120,9 @@ void MultimediaStream::attachStreamObserver(IStreamObserver *observer)
     this->observers.push_back(observer);
 }
 
-void MultimediaStream::setRepresentation(IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
+void MultimediaStream::setRepresentation()
 {
-    this->dashManager->setRepresentation(period, adaptationSet, representation);
+    this->dashManager->setRepresentation();
 }
 
 void MultimediaStream::enqueueRepresentation(IPeriod *period, IAdaptationSet *adaptationSet, IRepresentation *representation)
@@ -205,4 +208,18 @@ libdash::framework::input::MediaObject* MultimediaStream::getSegment()
 void MultimediaStream::notifyBufferChange(uint32_t bufferfill, int maxC)
 {
     this->dashManager->onBufferStateChanged(libdash::framework::buffer::VIDEO, bufferfill, maxC);
+}
+
+void MultimediaStream::updateMPD (IMPD* mpd)
+{
+//    this->mpd = mpd;
+//    this->dashManager->updateMPD(mpd);
+}
+
+void MultimediaStream::fetchMPD()
+{
+    for(size_t i=0; i < this->observers.size(); i++)
+    {
+	this->observers.at(i)->fetchMPD();
+    }
 }

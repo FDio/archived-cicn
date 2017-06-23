@@ -41,6 +41,7 @@ namespace dash
                 const std::string&                          GetId                           ()  const;
                 const std::vector<std::string>&             GetProfiles                     ()  const;
                 const std::string&                          GetType                         ()  const;
+                const std::string&                          GetPublishTime	            ()  const;
                 const std::string&                          GetAvailabilityStarttime        ()  const;
                 const std::string&                          GetAvailabilityEndtime          ()  const;
                 const std::string&                          GetMediaPresentationDuration    ()  const;
@@ -66,6 +67,7 @@ namespace dash
                 void    SetId                           (const std::string& id);
                 void    SetProfiles                     (const std::string& profiles);
                 void    SetType                         (const std::string& type);
+                void    SetPublishTime		        (const std::string& publishTime);
                 void    SetAvailabilityStarttime        (const std::string& availabilityStarttime);
                 void    SetAvailabilityEndtime          (const std::string& availabilityEndtime);
                 void    SetMediaPresentationDuration    (const std::string& mediaPresentationDuration);
@@ -87,6 +89,7 @@ namespace dash
                 std::string                         id;
                 std::vector<std::string>            profiles;
                 std::string                         type;
+                std::string                         publishTime;
                 std::string                         availabilityStarttime;
                 std::string                         availabilityEndtime;
                 std::string                         mediaPresentationDuration;

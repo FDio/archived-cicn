@@ -41,6 +41,7 @@ ViperGui::ViperGui(QObject *parent) :
     this->position = 0;
     this->videoPlayer = qvariant_cast<QtAV::AVPlayer *>(parent->property("mediaObject"));
     this->streamBuffer = new ViperBuffer();
+    this->listSegmentSize = 0;
     pthread_mutex_init(&(this->monitorMutex), NULL);
     if (streamBuffer->open(QIODevice::ReadWrite)) {
         this->videoPlayer->setIODevice(streamBuffer);
@@ -55,25 +56,28 @@ ViperGui::~ViperGui()
 
 void ViperGui::setGuiFields(dash::mpd::IMPD* mpd)
 {
-    this->setPeriodComboBox(mpd);
-    if (mpd->GetPeriods().size() > 0)
+//USELESS CALLS
+//    this->setPeriodComboBox(mpd);
+//    if (mpd->GetPeriods().size() > 0)
+//    {
+//        IPeriod *period = mpd->GetPeriods().at(0);
+//        this->setVideoAdaptationSetComboBox(period);
+//        if (!AdaptationSetHelper::getVideoAdaptationSets(period).empty())
+//        {
+//            IAdaptationSet *adaptationSet = AdaptationSetHelper::getVideoAdaptationSets(period).at(0);
+//            this->setRepresentationComoboBox(adaptationSet);
+//        }
+//        if (!AdaptationSetHelper::getAudioAdaptationSets(period).empty())
+//        {
+//            IAdaptationSet *adaptationSet = AdaptationSetHelper::getAudioAdaptationSets(period).at(0);
+//            this->setRepresentationComoboBox(adaptationSet);
+//        }
+//    }
+    if(!strcmp(mpd->GetType().c_str(),"static"))
     {
-        IPeriod *period = mpd->GetPeriods().at(0);
-        this->setVideoAdaptationSetComboBox(period);
-        if (!AdaptationSetHelper::getVideoAdaptationSets(period).empty())
-        {
-            IAdaptationSet *adaptationSet = AdaptationSetHelper::getVideoAdaptationSets(period).at(0);
-            this->setRepresentationComoboBox(adaptationSet);
-        }
-        if (!AdaptationSetHelper::getAudioAdaptationSets(period).empty())
-        {
-            IAdaptationSet *adaptationSet = AdaptationSetHelper::getAudioAdaptationSets(period).at(0);
-            this->setRepresentationComoboBox(adaptationSet);
-        }
+        parse8601(mpd->GetMediaPresentationDuration());
+        this->lifeLabel->setProperty("text", QVariant(this->durationString.c_str()));
     }
-    parse8601(mpd->GetMediaPresentationDuration());
-    this->mpd = mpd;
-    this->lifeLabel->setProperty("text", QVariant(this->durationString.c_str()));
 }
 
 void ViperGui::parse8601(std::string durationISO8601)
@@ -242,7 +246,10 @@ void ViperGui::writeData(libdash::framework::input::MediaObject* media)
 {
     this->streamBuffer->writeData(media);
     pthread_mutex_lock(&(this->monitorMutex));
-    this->segment = (this->segment + 1) % this->listSegmentSize;
+    if(this->listSegmentSize)
+        this->segment = (this->segment + 1) % this->listSegmentSize;
+    else
+        this->segment = this->segment + 1;
     if( this->segment > 0)
     {
         this->bufferDuration += this->segmentDuration;

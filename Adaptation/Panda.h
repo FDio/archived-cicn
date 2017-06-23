@@ -29,7 +29,8 @@ namespace adaptation
 class PandaAdaptation : public AbstractAdaptationLogic
 {
 public:
-    PandaAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    PandaAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    PandaAdaptation(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~PandaAdaptation();
 
     virtual LogicType getType();
@@ -48,38 +49,36 @@ public:
 
     void quantizer();
 private:
-    uint64_t						currentBitrate;
+    uint64_t					currentBitrate;
 
     std::vector<uint64_t>			availableBitrates;
     viper::managers::IMultimediaManagerBase	*multimediaManager;
-    dash::mpd::IRepresentation		*representation;
+    dash::mpd::IRepresentation			*representation;
 
-    uint64_t						averageBw;			// Classic EWMA
-    uint64_t						instantBw;
-    uint64_t						smoothBw;			// Panda paper smoothed y[n]
-    uint64_t						targetBw;			// Panda paper x[n] bw estimation
+    uint64_t					averageBw;			// Classic EWMA
+    uint64_t					instantBw;
+    uint64_t					smoothBw;			// Panda paper smoothed y[n]
+    uint64_t					targetBw;			// Panda paper x[n] bw estimation
+    double					param_Alpha;
+    double 					alpha_ewma;
+    double					param_Epsilon;
+    double					param_K;
+    double					param_W;
+    double					param_Beta;
+    double					param_Bmin;
+    double					interTime;				// Actual inter time
+    double					targetInterTime;		// Target inter time
+    double					downloadTime;
 
-    double						param_Alpha;
-    double 						alpha_ewma;
-    double						param_Epsilon;
-    double						param_K;
-    double						param_W;
-    double						param_Beta;
-    double						param_Bmin;
+    uint32_t					bufferLevel;
+    uint32_t					lastBufferLevel;
+    double 					bufferMaxSizeSeconds;		// Usually set to 60s
+    double 					bufferLevelSeconds;			// Current buffer level [s]
 
-    double						interTime;				// Actual inter time
-    double						targetInterTime;		// Target inter time
-    double						downloadTime;
-
-    uint32_t						bufferLevel;
-    uint32_t						lastBufferLevel;
-    double 							bufferMaxSizeSeconds;		// Usually set to 60s
-    double 							bufferLevelSeconds;			// Current buffer level [s]
-
-    double						segmentDuration;
-    double						deltaUp;
-    double						deltaDown;
-    size_t						current;
+    double					segmentDuration;
+    double					deltaUp;
+    double					deltaDown;
+    size_t					current;
 };
 
 } /* namespace adaptation */

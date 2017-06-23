@@ -58,9 +58,9 @@ public:
     virtual uint32_t getPosition() = 0;
     virtual void setPosition(uint32_t segmentNumber) = 0;
     virtual dash::mpd::IRepresentation* getRepresentation() = 0;
-    virtual void setRepresentation(dash::mpd::IPeriod *period,
-                                                             dash::mpd::IAdaptationSet *adaptationSet,
-                                                             dash::mpd::IRepresentation *representation)= 0;
+//    virtual void setRepresentation(dash::mpd::IPeriod *period,
+//                                                             dash::mpd::IAdaptationSet *adaptationSet,
+//                                                             dash::mpd::IRepresentation *representation)= 0;
     virtual LogicType getType() = 0;
     virtual bool isUserDependent()= 0;
     virtual void bitrateUpdate(uint64_t bps, uint32_t segNum) = 0;
@@ -71,6 +71,7 @@ public:
     virtual void setMultimediaManager(viper::managers::IMultimediaManagerBase *mmManager)= 0;
     virtual void onEOS(bool value) = 0;
     virtual void checkedByDASHReceiver() = 0;
+//    virtual void updateMPD(dash::mpd::IMPD* mpd) = 0;
 };
 
 struct AdaptationParameters

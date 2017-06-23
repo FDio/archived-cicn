@@ -14,12 +14,12 @@
 
 using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
+using namespace libdash::framework::mpd;
 using namespace dash::mpd;
 
-AlwaysLowestLogic::AlwaysLowestLogic(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params) :
-    AbstractAdaptationLogic(mpd, period, adaptationSet, isVid)
+AlwaysLowestLogic::AlwaysLowestLogic(viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
+    AbstractAdaptationLogic(type, mpdWrapper)
 {
-    this->representation = this->adaptationSet->GetRepresentation().at(0);
 }
 
 AlwaysLowestLogic::~AlwaysLowestLogic()

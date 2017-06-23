@@ -24,7 +24,8 @@ namespace adaptation
 class AlwaysLowestLogic : public AbstractAdaptationLogic
 {
 public:
-    AlwaysLowestLogic(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    AlwaysLowestLogic(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    AlwaysLowestLogic(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~AlwaysLowestLogic();
 
     virtual LogicType getType();

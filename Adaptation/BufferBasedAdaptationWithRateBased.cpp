@@ -21,8 +21,8 @@ using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::mpd;
 
-BufferBasedAdaptationWithRateBased::BufferBasedAdaptationWithRateBased(IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params) :
-    AbstractAdaptationLogic(mpd, period, adaptationSet, isVid)
+BufferBasedAdaptationWithRateBased::BufferBasedAdaptationWithRateBased(viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
+    AbstractAdaptationLogic(type, mpdWrapper)
 {
     this->alphaRate = params->Adaptech_Alpha;
     this->reservoirThreshold = params->Adaptech_FirstThreshold;
@@ -30,18 +30,18 @@ BufferBasedAdaptationWithRateBased::BufferBasedAdaptationWithRateBased(IMPD *mpd
     this->switchUpThreshold = params->Adaptech_SwitchUpThreshold;
     this->slackParam = params->Adaptech_SlackParameter;
 
-    std::vector<IRepresentation* > representations = this->adaptationSet->GetRepresentation();
-
     this->m_count = 0;
     this->instantBw = 0;
     this->averageBw = 0;
-    this->representation = this->adaptationSet->GetRepresentation().at(0);
+//    this->representation = this->adaptationSet->GetRepresentation().at(0);
+
     this->multimediaManager = NULL;
     this->lastBufferFill = 0;
     this->bufferEOS = false;
     this->shouldAbort = false;
     this->isCheckedForReceiver = false;
     this->myQuality = 0;
+    this->currentBitrate = 0;
     Debug("BufferRateBasedParams:\talpha:%f\tfirst threshold: %f\tsecond threshold: %f\tswitch-up margin: %d\tSlack: %f\n",this->alphaRate, (double)reservoirThreshold/100, (double)maxThreshold/100, this->switchUpThreshold, this->slackParam);
     Debug("Buffer Adaptation:	STARTED\n");
 }
@@ -75,18 +75,19 @@ void BufferBasedAdaptationWithRateBased::setMultimediaManager(viper::managers::I
 
 void BufferBasedAdaptationWithRateBased::notifyBitrateChange()
 {
+    this->mpdWrapper->setRepresentation(this->type, this->representation);
     if(this->multimediaManager)
         if(this->multimediaManager->isStarted() && !this->multimediaManager->isStopping())
-            if(this->isVideo)
-                this->multimediaManager->setVideoQuality(this->period, this->adaptationSet, this->representation);
+            if(this->type==viper::managers::StreamType::VIDEO)
+                this->multimediaManager->setVideoQuality();
             else
-                this->multimediaManager->setAudioQuality(this->period, this->adaptationSet, this->representation);
+                this->multimediaManager->setAudioQuality();
     //Should Abort is done here to avoid race condition with DASHReceiver::DoBuffering()
-    if(this->shouldAbort)
-    {
-        this->multimediaManager->shouldAbort(this->isVideo);
-    }
-    this->shouldAbort = false;
+//    if(this->shouldAbort)
+//    {
+//        this->multimediaManager->shouldAbort((this->type == viper::managers::StreamType::VIDEO));
+//    }
+//    this->shouldAbort = false;
 }
 
 uint64_t BufferBasedAdaptationWithRateBased::getBitrate()
@@ -98,7 +99,7 @@ void BufferBasedAdaptationWithRateBased::setBitrate(uint32_t bufferFill)
 {
     uint32_t phi1, phi2;
     std::vector<IRepresentation *> representations;
-    representations = this->adaptationSet->GetRepresentation();
+    representations = this->mpdWrapper->getRepresentations(this->type);
     size_t i = 0;
 
     Debug("bufferlevel: %u, instant rate %lu, average rate %lu\n", bufferFill, this->instantBw, this->averageBw);
@@ -167,7 +168,7 @@ void BufferBasedAdaptationWithRateBased::setBitrate(uint32_t bufferFill)
     }
     this->representation = representations.at(this->myQuality);
     this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",isVideo ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
+    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
 }
 
 void BufferBasedAdaptationWithRateBased::bitrateUpdate(uint64_t bps, uint32_t segNum)
@@ -196,11 +197,14 @@ void BufferBasedAdaptationWithRateBased::checkedByDASHReceiver()
 void BufferBasedAdaptationWithRateBased::bufferUpdate(uint32_t bufferFill, int maxC)
 {
     Debug("buffer update: %u\n", bufferFill);
+    EnterCriticalSection(&this->monitorLock);
     this->setBitrate(bufferFill);
     this->notifyBitrateChange();
+    LeaveCriticalSection(&this->monitorLock);
 }
 
 void BufferBasedAdaptationWithRateBased::dLTimeUpdate(double time)
 {
 }
+
 

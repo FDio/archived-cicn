@@ -14,7 +14,7 @@
 
 #include "libdash.h"
 #include "IMPD.h"
-
+#include "../MPD/MPDWrapper.h"
 #include "../Input/MediaObject.h"
 #include "IDASHReceiverObserver.h"
 #include "../MPD/AdaptationSetStream.h"
@@ -28,6 +28,10 @@ namespace libdash
 {
 namespace framework
 {
+namespace mpd
+{
+class AdaptationSetStream;
+}
 namespace adaptation
 {
 class IAdaptationLogic;
@@ -44,7 +48,7 @@ class MediaObject;
 class DASHReceiver
 {
 public:
-    DASHReceiver(dash::mpd::IMPD *mpd, IDASHReceiverObserver *obs, buffer::Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop);
+    DASHReceiver(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, IDASHReceiverObserver *obs, buffer::Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop);
     virtual ~DASHReceiver();
 
     bool Start();
@@ -52,15 +56,18 @@ public:
     input::MediaObject* GetNextSegment();
     input::MediaObject* GetSegment(uint32_t segmentNumber);
     input::MediaObject* GetInitSegment();
-    input::MediaObject* FindInitSegment(dash::mpd::IRepresentation *representation);
+    input::MediaObject* GetInitSegmentWithoutLock();
+//    input::MediaObject* FindInitSegment(dash::mpd::IRepresentation *representation);
+    input::MediaObject* FindInitSegment(int representation);
     uint32_t GetPosition();
     void SetPosition(uint32_t segmentNumber);
     void SetLooping(bool isLoopinp);
     void SetPositionInMsecs(uint32_t milliSecs);
     dash::mpd::IRepresentation* GetRepresentation();
-    void SetRepresentation(dash::mpd::IPeriod *period,
-                                                         dash::mpd::IAdaptationSet *adaptationSet,
-                                                         dash::mpd::IRepresentation *representation);
+//    void SetRepresentation(dash::mpd::IPeriod *period,
+//                                                         dash::mpd::IAdaptationSet *adaptationSet,
+//                                                         dash::mpd::IRepresentation *representation);
+    void SetRepresentation();
     void SetAdaptationLogic(adaptation::IAdaptationLogic *_adaptationLogic);
     libdash::framework::adaptation::IAdaptationLogic* GetAdaptationLogic();
     void NotifyQualityDownloading(uint32_t quality);
@@ -78,21 +85,24 @@ public:
     bool CanPush();
     void SetBeta(float beta);
     void SetDrop(float drop);
+    void updateMPD(dash::mpd::IMPD* mpd);
 
 private:
     float                                               beta;
     float                                               drop;
     bool                                                withFeedBack;
     bool                                                isBufferBased;
-    std::map<dash::mpd::IRepresentation*, MediaObject*> initSegments;
+//    std::map<dash::mpd::IRepresentation*, MediaObject*> initSegments;
+    std::map<int, MediaObject*> initSegments;
     libdash::framework::buffer::Buffer<MediaObject>     *buffer;
     IDASHReceiverObserver                               *observer;
-    dash::mpd::IMPD                                     *mpd;
-    dash::mpd::IPeriod                                  *period;
-    dash::mpd::IAdaptationSet                           *adaptationSet;
-    dash::mpd::IRepresentation                          *representation;
+    libdash::framework::mpd::MPDWrapper			*mpdWrapper;
+//    dash::mpd::IMPD                                     *mpd;
+//    dash::mpd::IPeriod                                  *period;
+//    dash::mpd::IAdaptationSet                           *adaptationSet;
+//    dash::mpd::IRepresentation                          *representation;
     mpd::AdaptationSetStream                            *adaptationSetStream;
-    mpd::IRepresentationStream                          *representationStream;
+//    mpd::IRepresentationStream                          *representationStream;
     uint32_t                                            segmentNumber;
     uint32_t                                            positionInMsecs;
     uint32_t                                            segmentOffset;
@@ -109,6 +119,7 @@ private:
     IICNConnection                                      *conn;
     IICNConnection                                      *initConn;
     THREAD_HANDLE                                       bufferingThread;
+    THREAD_HANDLE                                       mpdFetcherThread;
     bool                                                isBuffering;
     bool                                                icn;
     double                                              icnAlpha;
@@ -116,11 +127,16 @@ private:
     int                                                 bufferLevelAtUpdate;
     int                                                 readMax;
     uint8_t                                             *readBuffer;
+    viper::managers::StreamType 			type;
     uint32_t CalculateSegmentOffset();
     void NotifySegmentDownloaded();
-    void DownloadInitSegment(dash::mpd::IRepresentation* rep);
-    bool InitSegmentExists(dash::mpd::IRepresentation* rep);
+//    void DownloadInitSegment(dash::mpd::IRepresentation* rep);
+    void DownloadInitSegment();
+    void DownloadInitSegmentWithoutLock();
+//    bool InitSegmentExists(dash::mpd::IRepresentation* rep);
+    bool InitSegmentExists(int rep);
     static void* DoBuffering(void *receiver);
+    static void* DoMPDFetching(void * data);
 };
 }
 }

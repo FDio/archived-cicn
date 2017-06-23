@@ -22,18 +22,21 @@
 #include "../Managers/IStreamObserver.h"
 #include "../Buffer/IBufferObserver.h"
 
-
 namespace libdash
 {
 namespace framework
 {
+namespace mpd
+{
+class MPDWrapper;
+}
 namespace input
 {
 
 class DASHManager : public IDASHReceiverObserver, public IBufferObserver
 {
 public:
-    DASHManager             (viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver *multimediaStream, dash::mpd::IMPD *mpd, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop);
+    DASHManager             (viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver *multimediaStream, libdash::framework::mpd::MPDWrapper *mpdWrapper, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop);
     virtual ~DASHManager    ();
 
     bool start();
@@ -43,7 +46,8 @@ public:
     void setLooping(bool looping);
     void setPositionInMsec(uint32_t millisec);
     void clear();
-    void setRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+//    void setRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
+    void setRepresentation();
     void enqueueRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
 
     void onSegmentDownloaded();
@@ -58,19 +62,20 @@ public:
     void setTargetDownloadingTime(double);
     MediaObject* getSegment();
     void onBufferStateChanged(BufferType type, uint32_t fillstateInPercent, int maxC);
+    void updateMPD(dash::mpd::IMPD* mpd);
+    void fetchMPD();
 
 private:
-    float                       beta;
-    float                       drop;
-    buffer::Buffer<MediaObject>	*buffer;
-    DASHReceiver				*receiver;
-    uint32_t					readSegmentCount;
-    IDASHManagerObserver		*multimediaStream;
+    float                       			beta;
+    float                       			drop;
+    buffer::Buffer<MediaObject>				*buffer;
+    DASHReceiver					*receiver;
+    uint32_t						readSegmentCount;
+    IDASHManagerObserver				*multimediaStream;
     bool						isRunning;
     bool						icn;
     double						icnAlpha;
     bool						noDecoding;
-
     libdash::framework::adaptation::IAdaptationLogic	*adaptationLogic;
 };
 }

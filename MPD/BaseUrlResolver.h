@@ -12,7 +12,7 @@
 #ifndef LIBDASH_FRAMEWORK_MPD_BASEURLRESOLVER_H_
 #define LIBDASH_FRAMEWORK_MPD_BASEURLRESOLVER_H_
 
-#include "IMPD.h"
+#include "IMPDWrapper.h"
 
 namespace libdash
 {
@@ -23,8 +23,10 @@ namespace mpd
 class BaseUrlResolver
 {
 public:
-    static std::vector<dash::mpd::IBaseUrl *> resolveBaseUrl(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet,
+    static std::vector<dash::mpd::IBaseUrl *> resolveBaseUrl(viper::managers::StreamType type, libdash::framework::mpd::IMPDWrapper *mpdWrapper,
                                                                  size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl);
+    static std::vector<dash::mpd::IBaseUrl *> resolveBaseUrl(viper::managers::StreamType type, libdash::framework::mpd::IMPDWrapper *mpdWrapper,
+                                                                 size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl, dash::mpd::IMPD* mpd);
 };
 }
 }

@@ -29,7 +29,8 @@ namespace adaptation
 class RateBasedAdaptation : public AbstractAdaptationLogic
 {
 public:
-    RateBasedAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+//    RateBasedAdaptation(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    RateBasedAdaptation(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
     virtual ~RateBasedAdaptation();
 
     virtual LogicType getType();
@@ -47,12 +48,12 @@ public:
     void ewma(uint64_t bps);
     void checkedByDASHReceiver();
 private:
-    uint64_t						currentBitrate;
+    uint64_t					currentBitrate;
     std::vector<uint64_t>			availableBitrates;
     viper::managers::IMultimediaManagerBase	*multimediaManager;
-    dash::mpd::IRepresentation		*representation;
-    double							alpha;
-    uint64_t						averageBw;
+    dash::mpd::IRepresentation			*representation;
+    double					alpha;
+    uint64_t					averageBw;
 };
 }
 }

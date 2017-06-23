@@ -30,11 +30,9 @@ DASHPlayerNoGUI::DASHPlayerNoGUI(int argc, char ** argv, pthread_cond_t *mainCon
     noDecoding	(nodecoding)
 {
     InitializeCriticalSection(&this->monitorMutex);
-
-    this->mpd 		= NULL;
-    this->url 		= NULL;
-    this->adaptLogic	= LogicType::RateBased;
-    this->isICN 		= false;
+    this->url = NULL;
+    this->adaptLogic = LogicType::RateBased;
+    this->isICN = false;
     this->alpha = -1;
     this->graphData = NULL;
     this->parameterAdaptation = (struct libdash::framework::adaptation::AdaptationParameters *)malloc(sizeof(struct libdash::framework::adaptation::AdaptationParameters));
@@ -71,6 +69,8 @@ DASHPlayerNoGUI::DASHPlayerNoGUI(int argc, char ** argv, pthread_cond_t *mainCon
     this->parseArgs(argc, argv);
 
     this->multimediaManager = new MultimediaManager(NULL, this->parameterAdaptation->segmentBufferSize, "/tmp/",  noDecoding);
+    this->mpdWrapper = new MPDWrapper(NULL);
+    this->multimediaManager->setMPDWrapper(this->mpdWrapper);
     this->multimediaManager->attachManagerObserver(this);
 
     if(this->url == NULL)
@@ -87,6 +87,8 @@ DASHPlayerNoGUI::DASHPlayerNoGUI(int argc, char ** argv, pthread_cond_t *mainCon
             WebSocketService webSocketService;
             webSocketService.setGraphDataSource(this->graphData);
             webSocketService.start();
+            this->parameterAdaptation->segmentDuration = this->mpdWrapper->onFirstDownloadMPD(NULL);
+            this->multimediaManager->setSegmentDuration(this->parameterAdaptation->segmentDuration);
             this->onStartButtonPressed(0,0,0,0,0);
             this->multimediaManager->setLooping(this->repeat);
         }
@@ -102,40 +104,23 @@ DASHPlayerNoGUI::~DASHPlayerNoGUI()
 {
     this->multimediaManager->stop();
     delete(this->multimediaManager);
+    if(this->mpdWrapper)
+        delete(this->mpdWrapper);
     if(this->graphData)
         delete(this->graphData);
     DeleteCriticalSection(&this->monitorMutex);
+}
+
+void DASHPlayerNoGUI::setMPDWrapper(MPDWrapper *mpdWrapper)
+{
+    this->mpdWrapper = mpdWrapper;
 }
 
 void DASHPlayerNoGUI::onStartButtonPressed(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation)
 {
     this->onSettingsChanged(period,videoAdaptationSet,videoRepresentation, audioAdaptationSet, audioRepresentation);
     bool setOk = false;
-
-    switch(adaptLogic)
-    {
-    case RateBased:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    case BufferBased:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    case BufferRateBased:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    case BufferBasedThreeThreshold:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    case Panda:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    case Bola:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    default:
-        setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
-        break;
-    }
+    setOk = this->multimediaManager->setVideoAdaptationLogic((LogicType)adaptLogic, this->parameterAdaptation);
 
     if(!setOk)
     {
@@ -302,37 +287,39 @@ void DASHPlayerNoGUI::helpMessage(char * name)
 
 void DASHPlayerNoGUI::onSettingsChanged(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation)
 {
-    if(this->multimediaManager->getMPD() == NULL)
-        return; // TODO dialog or symbol that indicates that error
+    if(this->mpdWrapper->getMPD() == NULL)
+        return;
 
     if (!this->settingsChanged(period, videoAdaptationSet, videoRepresentation, audioAdaptationSet, audioRepresentation))
         return;
 
-    IPeriod                         *currentPeriod      = this->multimediaManager->getMPD()->GetPeriods().at(period);
-    std::vector<IAdaptationSet *>   videoAdaptationSets = AdaptationSetHelper::getVideoAdaptationSets(currentPeriod);
-    std::vector<IAdaptationSet *>   audioAdaptationSets = AdaptationSetHelper::getAudioAdaptationSets(currentPeriod);
-
-    if (videoAdaptationSet >= 0 && videoRepresentation >= 0 && !videoAdaptationSets.empty())
-    {
-        this->multimediaManager->setVideoQuality(currentPeriod,
-                                                 videoAdaptationSets.at(videoAdaptationSet),
-                                                 videoAdaptationSets.at(videoAdaptationSet)->GetRepresentation().at(videoRepresentation));
-    }
-    else
-    {
-        this->multimediaManager->setVideoQuality(currentPeriod, NULL, NULL);
-    }
-
-    if (audioAdaptationSet >= 0 && audioRepresentation >= 0 && !audioAdaptationSets.empty())
-    {
-        this->multimediaManager->setAudioQuality(currentPeriod,
-                                                 audioAdaptationSets.at(audioAdaptationSet),
-                                                 audioAdaptationSets.at(audioAdaptationSet)->GetRepresentation().at(audioRepresentation));
-    }
-    else
-    {
-        this->multimediaManager->setAudioQuality(currentPeriod, NULL, NULL);
-    }
+//    IPeriod                         *currentPeriod      = this->multimediaManager->getMPD()->GetPeriods().at(period);
+//    std::vector<IAdaptationSet *>   videoAdaptationSets = AdaptationSetHelper::getVideoAdaptationSets(currentPeriod);
+//    std::vector<IAdaptationSet *>   audioAdaptationSets = AdaptationSetHelper::getAudioAdaptationSets(currentPeriod);
+//
+//    if (videoAdaptationSet >= 0 && videoRepresentation >= 0 && !videoAdaptationSets.empty())
+//    {
+//        this->multimediaManager->setVideoQuality(currentPeriod,
+//                                                 videoAdaptationSets.at(videoAdaptationSet),
+//                                                 videoAdaptationSets.at(videoAdaptationSet)->GetRepresentation().at(videoRepresentation));
+//    }
+//    else
+//    {
+//        this->multimediaManager->setVideoQuality(currentPeriod, NULL, NULL);
+//    }
+//
+//    if (audioAdaptationSet >= 0 && audioRepresentation >= 0 && !audioAdaptationSets.empty())
+//    {
+//        this->multimediaManager->setAudioQuality(currentPeriod,
+//                                                 audioAdaptationSets.at(audioAdaptationSet),
+//                                                 audioAdaptationSets.at(audioAdaptationSet)->GetRepresentation().at(audioRepresentation));
+//    }
+//    else
+//    {
+//        this->multimediaManager->setAudioQuality(currentPeriod, NULL, NULL);
+//    }
+    this->mpdWrapper->settingsChanged(period, videoAdaptationSet, videoRepresentation, audioAdaptationSet, audioRepresentation);
+    this->multimediaManager->setVideoQuality();
 }
 
 void DASHPlayerNoGUI::onEOS()

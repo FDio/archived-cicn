@@ -22,15 +22,13 @@ using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::mpd;
 
-BufferBasedAdaptation::BufferBasedAdaptation          (IMPD *mpd, IPeriod *period, IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params) :
-    AbstractAdaptationLogic   (mpd, period, adaptationSet, isVid)
+BufferBasedAdaptation::BufferBasedAdaptation          (viper::managers::StreamType type, MPDWrapper *mpd, struct AdaptationParameters *params) :
+    AbstractAdaptationLogic   (type, mpdWrapper)
 {
     this->reservoirThreshold = params->BufferBased_reservoirThreshold;
     this->maxThreshold = params->BufferBased_maxThreshold;
 
-    std::vector<IRepresentation* > representations = this->adaptationSet->GetRepresentation();
-
-    this->representation = this->adaptationSet->GetRepresentation().at(0);
+//    this->representation = this->adaptationSet->GetRepresentation().at(0);
     this->multimediaManager = NULL;
     this->lastBufferFill = 0;
     this->bufferEOS = false;
@@ -69,18 +67,19 @@ void BufferBasedAdaptation::setMultimediaManager (viper::managers::IMultimediaMa
 
 void BufferBasedAdaptation::notifyBitrateChange()
 {
+    this->mpdWrapper->setRepresentation(this->type, this->representation);
     if(this->multimediaManager)
         if(this->multimediaManager->isStarted() && !this->multimediaManager->isStopping())
-            if(this->isVideo)
-                this->multimediaManager->setVideoQuality(this->period, this->adaptationSet, this->representation);
+            if(this->type == viper::managers::StreamType::VIDEO)
+                this->multimediaManager->setVideoQuality();
             else
-                this->multimediaManager->setAudioQuality(this->period, this->adaptationSet, this->representation);
+                this->multimediaManager->setAudioQuality();
 
-    if(this->shouldAbort)
-    {
-        this->multimediaManager->shouldAbort(this->isVideo);
-    }
-    this->shouldAbort = false;
+//    if(this->shouldAbort)
+//    {
+//        this->multimediaManager->shouldAbort((this->type == viper::managers::StreamType::VIDEO));
+//    }
+//    this->shouldAbort = false;
 }
 
 uint64_t BufferBasedAdaptation::getBitrate()
@@ -90,8 +89,8 @@ uint64_t BufferBasedAdaptation::getBitrate()
 
 void BufferBasedAdaptation::setBitrate(uint32_t bufferFill)
 {
-    std::vector<IRepresentation *> representations;
-    representations = this->adaptationSet->GetRepresentation();
+    std::vector<IRepresentation *> representations = this->mpdWrapper->getRepresentations(this->type);
+    this->representation = representations.at(0);
     size_t i = 0;
 
     if(representations.size() == 1)
@@ -112,7 +111,7 @@ void BufferBasedAdaptation::setBitrate(uint32_t bufferFill)
     {
         this->shouldAbort = true;
     }
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, choice: %lu, should_trigger_abort: %s\n",isVideo ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, i, this->shouldAbort ? "YES" : "NO");
+    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, choice: %lu, should_trigger_abort: %s\n", (this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, i, this->shouldAbort ? "YES" : "NO");
     this->lastBufferFill = bufferFill;
 
 }
@@ -136,6 +135,8 @@ void BufferBasedAdaptation::checkedByDASHReceiver()
 
 void BufferBasedAdaptation::bufferUpdate(uint32_t bufferFill, int maxC)
 {
+    this->mpdWrapper->acquireLock();
     this->setBitrate(bufferFill);
     this->notifyBitrateChange();
+    this->mpdWrapper->releaseLock();
 }

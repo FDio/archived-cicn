@@ -57,6 +57,9 @@ public:
     const std::vector<dash::metrics::IHTTPTransaction *>& GetHTTPTransactionList() const;
     void SetAdaptationLogic(framework::adaptation::IAdaptationLogic *_adaptationLogic);
     void SetDASHReceiver(input::DASHReceiver *_dashReceiver);
+    uint32_t GetRepresentationBandwidth();
+    uint32_t GetRepresentationHeight();
+    int GetRepresentationID();
 
 private:
     dash::mpd::ISegment             *segment;
@@ -70,6 +73,9 @@ private:
     adaptation::IAdaptationLogic    *adaptationLogic;
     mutable CRITICAL_SECTION        stateLock;
     mutable CONDITION_VARIABLE      stateChanged;
+    uint32_t			    representationBandwidth;
+    uint32_t			    representationHeight;
+    int				    representationId;
 };
 }
 }
