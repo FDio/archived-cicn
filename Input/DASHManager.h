@@ -62,7 +62,6 @@ public:
     void setTargetDownloadingTime(double);
     MediaObject* getSegment();
     void onBufferStateChanged(BufferType type, uint32_t fillstateInPercent, int maxC);
-    void updateMPD(dash::mpd::IMPD* mpd);
     void fetchMPD();
 
 private:

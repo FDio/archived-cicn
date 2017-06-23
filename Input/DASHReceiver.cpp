@@ -204,10 +204,7 @@ libdash::framework::adaptation::IAdaptationLogic* DASHReceiver::GetAdaptationLog
 {
     return this->adaptationLogic;
 }
-dash::mpd::IRepresentation* DASHReceiver::GetRepresentation         ()
-{
-     return NULL;
-}
+
 uint32_t                    DASHReceiver::CalculateSegmentOffset    ()
 {
     return this->mpdWrapper->calculateSegmentOffset(type, bufferSize);
@@ -218,14 +215,6 @@ void                        DASHReceiver::NotifySegmentDownloaded   ()
     this->observer->onSegmentDownloaded();
 }
 
-void						DASHReceiver::NotifyBitrateChange(dash::mpd::IRepresentation *representation)
-{
-//    if(this->representation != representation)
-//    {
-//        this->representation = representation;
-//        this->SetRepresentation(this->period,this->adaptationSet,this->representation);
-//    }
-}
 void                        DASHReceiver::DownloadInitSegmentWithoutLock    ()
 {
     int rep = std::stoi(this->mpdWrapper->getRepresentationIDWithoutLock(type).c_str());
@@ -417,32 +406,5 @@ void					DASHReceiver::SetBeta	(float beta)
 void					DASHReceiver::SetDrop	(float drop)
 {
     this->drop = drop;
-}
-
-void					DASHReceiver::updateMPD(IMPD* mpd)
-{
-//    EnterCriticalSection(&this->monitorMutex);
-    //First we need to find the new segmentNumber -> what is the segment time now?
-//    uint32_t time = this->representationStream->getTime(this->segmentNumber);
-//    printf("old segmentNumber!: %d\n", this->segmentNumber);
-//    printf("time: %u\n", time);
-    //Second, replace the MPD with the new one
-//    delete(this->mpd);
-//    this->mpd = mpd;
-//
-    //Third, Update all the structures associated to the mpd
-//    this->period = this->mpd->GetPeriods().at(0);
-//    this->adaptationSet = this->period->GetAdaptationSets().at(0);
-//    this->representation = this->adaptationSet->GetRepresentation().at(0);
-//    delete(this->adaptationSetStream);
-//    this->adaptationSetStream = new AdaptationSetStream(mpd, period, adaptationSet);
-//    this->representationStream = adaptationSetStream->getRepresentationStream(this->representation);
-//    this->segmentOffset = CalculateSegmentOffset();
-//    this->representationStream->setSegmentOffset(this->segmentOffset);
-//
-    //Fourth, Set the new segmentNumber by finding the index of the segment associated to 'uint32_t time' in the new mpd
-//    this->segmentNumber = this->representationStream->getSegmentNumber(time);
-//    printf("new segmentNumber!: %d\n", this->segmentNumber);
-//    LeaveCriticalSection(&this->monitorMutex);
 }
 

@@ -161,11 +161,6 @@ void DASHManager::onBufferStateChanged(BufferType type, uint32_t fillstateInPerc
         this->receiver->OnSegmentBufferStateChanged(fillstateInPercent, maxC);
 }
 
-void DASHManager::updateMPD(IMPD* mpd)
-{
-//    this->receiver->updateMPD(mpd);
-}
-
 void DASHManager::fetchMPD()
 {
     this->multimediaStream->fetchMPD();

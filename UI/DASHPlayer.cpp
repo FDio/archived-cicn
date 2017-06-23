@@ -159,7 +159,7 @@ bool DASHPlayer::onDownloadMPDPressed (const std::string &url)
         }
     }
     this->setSettings(-1, -1, -1, -1, -1);
-    this->gui->setGuiFields(this->mpdWrapper->getMPD());
+    this->gui->setMPDDuration(this->mpdWrapper->getMPD());
     return true;
 }
 

@@ -26,7 +26,6 @@ class IDASHManagerObserver
 public:
     virtual ~IDASHManagerObserver() {}
 
-    virtual void addFrame(QImage *frame) = 0;
     virtual void setEOS(bool value)= 0;
 
     virtual void onSegmentBufferStateChanged(uint32_t fillstateInPercent, int maxC) = 0;

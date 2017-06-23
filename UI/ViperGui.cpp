@@ -54,25 +54,8 @@ ViperGui::~ViperGui()
     pthread_mutex_destroy(&(this->monitorMutex));
 }
 
-void ViperGui::setGuiFields(dash::mpd::IMPD* mpd)
+void ViperGui::setMPDDuration(dash::mpd::IMPD* mpd)
 {
-//USELESS CALLS
-//    this->setPeriodComboBox(mpd);
-//    if (mpd->GetPeriods().size() > 0)
-//    {
-//        IPeriod *period = mpd->GetPeriods().at(0);
-//        this->setVideoAdaptationSetComboBox(period);
-//        if (!AdaptationSetHelper::getVideoAdaptationSets(period).empty())
-//        {
-//            IAdaptationSet *adaptationSet = AdaptationSetHelper::getVideoAdaptationSets(period).at(0);
-//            this->setRepresentationComoboBox(adaptationSet);
-//        }
-//        if (!AdaptationSetHelper::getAudioAdaptationSets(period).empty())
-//        {
-//            IAdaptationSet *adaptationSet = AdaptationSetHelper::getAudioAdaptationSets(period).at(0);
-//            this->setRepresentationComoboBox(adaptationSet);
-//        }
-//    }
     if(!strcmp(mpd->GetType().c_str(),"static"))
     {
         parse8601(mpd->GetMediaPresentationDuration());
@@ -88,49 +71,6 @@ void ViperGui::parse8601(std::string durationISO8601)
     char timeStamp[10];
     sprintf(timeStamp, "%02d:%02d:%02d", hours, min, sec);
     this->durationString.assign(timeStamp);
-}
-
-void ViperGui::setRepresentationComoboBox(dash::mpd::IAdaptationSet *adaptationSet)
-{
-    std::vector<IRepresentation *> represenations = adaptationSet->GetRepresentation();
-    for(size_t i = 0; i < represenations.size(); i++)
-    {
-        IRepresentation *representation = represenations.at(i);
-    }
-}
-void ViperGui::setAdaptationSetComboBox(dash::mpd::IPeriod *period)
-{
-    std::vector<IAdaptationSet *> adaptationSets = period->GetAdaptationSets();
-    for(size_t i = 0; i < adaptationSets.size(); i++)
-    {
-        IAdaptationSet *adaptationSet = adaptationSets.at(i);
-    }
-}
-
-void ViperGui::setAudioAdaptationSetComboBox(dash::mpd::IPeriod *period)
-{
-    std::vector<IAdaptationSet *> adaptationSets = AdaptationSetHelper::getAudioAdaptationSets(period);
-    for(size_t i = 0; i < adaptationSets.size(); i++)
-    {
-        IAdaptationSet *adaptationSet = adaptationSets.at(i);
-    }
-}
-
-void ViperGui::setVideoAdaptationSetComboBox(dash::mpd::IPeriod *period)
-{
-    std::vector<IAdaptationSet *> adaptationSets = AdaptationSetHelper::getVideoAdaptationSets(period);
-    for(size_t i = 0; i < adaptationSets.size(); i++)
-    {
-        IAdaptationSet *adaptationSet = adaptationSets.at(i);
-    }
-}
-void ViperGui::setPeriodComboBox(dash::mpd::IMPD *mpd)
-{
-    std::vector<IPeriod *> periods = mpd->GetPeriods();
-    for(size_t i = 0; i < periods.size(); i++)
-    {
-        IPeriod *period = periods.at(i);
-    }
 }
 
 ViperBuffer* ViperGui::getStreamBuffer()

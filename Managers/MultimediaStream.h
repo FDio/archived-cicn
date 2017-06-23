@@ -57,15 +57,9 @@ public:
     void setLooping(bool looping);
     void setPositionInMsec(uint32_t milliSecs);
 
-    void addFrame(QImage *frame);
-    QImage* getFrame();
     libdash::framework::input::MediaObject* getSegment();
-
     void setEOS(bool value);
-
     void notifyBufferChange(uint32_t bufferfill, int maxC);
-
-//    void setRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
     void setRepresentation();
     void enqueueRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
     void setAdaptationLogic(libdash::framework::adaptation::IAdaptationLogic *logic);
@@ -82,23 +76,22 @@ public:
     bool isICN();
     void shouldAbort();
     void setTargetDownloadingTime(double);
-    void updateMPD(dash::mpd::IMPD* mpd);
     void fetchMPD();
 
 private:
-    float							beta;
-    float							drop;
-    std::vector<IStreamObserver *>				observers;
-    libdash::framework::mpd::MPDWrapper					*mpdWrapper;
-    libdash::framework::adaptation::IAdaptationLogic		*logic;
-    libdash::framework::input::DASHManager			*dashManager;
-    uint32_t							segmentBufferSize;
-    StreamType							type;
-    bool							icn;
-    double							icnAlpha;
-    mutable CRITICAL_SECTION					monitorMutex;
+    float                                               beta;
+    float                                               drop;
+    std::vector<IStreamObserver *>                      observers;
+    libdash::framework::mpd::MPDWrapper                 *mpdWrapper;
+    libdash::framework::adaptation::IAdaptationLogic    *logic;
+    libdash::framework::input::DASHManager              *dashManager;
+    uint32_t                                            segmentBufferSize;
+    StreamType                                          type;
+    bool                                                icn;
+    double                                              icnAlpha;
+    mutable CRITICAL_SECTION                            monitorMutex;
+    bool                                                noDecoding;
 
-    bool							noDecoding;
     void init ();
 };
 }

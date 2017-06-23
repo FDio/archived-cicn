@@ -57,23 +57,18 @@ public:
     input::MediaObject* GetSegment(uint32_t segmentNumber);
     input::MediaObject* GetInitSegment();
     input::MediaObject* GetInitSegmentWithoutLock();
-//    input::MediaObject* FindInitSegment(dash::mpd::IRepresentation *representation);
     input::MediaObject* FindInitSegment(int representation);
     uint32_t GetPosition();
     void SetPosition(uint32_t segmentNumber);
     void SetLooping(bool isLoopinp);
     void SetPositionInMsecs(uint32_t milliSecs);
-    dash::mpd::IRepresentation* GetRepresentation();
-//    void SetRepresentation(dash::mpd::IPeriod *period,
-//                                                         dash::mpd::IAdaptationSet *adaptationSet,
-//                                                         dash::mpd::IRepresentation *representation);
+
     void SetRepresentation();
     void SetAdaptationLogic(adaptation::IAdaptationLogic *_adaptationLogic);
     libdash::framework::adaptation::IAdaptationLogic* GetAdaptationLogic();
     void NotifyQualityDownloading(uint32_t quality);
     void Notifybps(uint64_t bps);
     void NotifyDLTime(double time);
-    void NotifyBitrateChange(dash::mpd::IRepresentation *representation);
     void OnSegmentBufferStateChanged(uint32_t fillstateInPercent, int maxC);
     bool IsICN();
     void ShouldAbort();
@@ -85,7 +80,6 @@ public:
     bool CanPush();
     void SetBeta(float beta);
     void SetDrop(float drop);
-    void updateMPD(dash::mpd::IMPD* mpd);
 
 private:
     float                                               beta;

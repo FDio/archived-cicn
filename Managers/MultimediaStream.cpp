@@ -19,22 +19,20 @@ using namespace libdash::framework::mpd;
 using namespace dash::mpd;
 
 MultimediaStream::MultimediaStream(StreamType type, MPDWrapper *mpdWrapper, uint32_t bufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
-    type		(type),
-    segmentBufferSize	(bufferSize),
-    dashManager		(NULL),
-    mpdWrapper		(mpdWrapper),
-    icn			(icnEnabled),
-    icnAlpha		(icnAlpha),
-    noDecoding		(nodecoding),
-    beta            	(beta),
-    drop            	(drop)
+    type                (type),
+    segmentBufferSize   (bufferSize),
+    dashManager         (NULL),
+    mpdWrapper          (mpdWrapper),
+    icn                 (icnEnabled),
+    icnAlpha            (icnAlpha),
+    noDecoding          (nodecoding),
+    beta                (beta),
+    drop                (drop)
 {
-//    InitializeCriticalSection (&this->monitorMutex);
     this->init();
 }
 MultimediaStream::~MultimediaStream ()
 {
-//    DestroyCriticalSection (&this->monitorMutex);
     this->stop();
     delete this->dashManager;
 }
@@ -104,15 +102,6 @@ void MultimediaStream::stopDownload()
 void MultimediaStream::clear()
 {
     this->dashManager->clear();
-}
-
-void MultimediaStream::addFrame(QImage *frame)
-{
-}
-
-QImage* MultimediaStream::getFrame()
-{
-    return NULL;
 }
 
 void MultimediaStream::attachStreamObserver(IStreamObserver *observer)
@@ -208,12 +197,6 @@ libdash::framework::input::MediaObject* MultimediaStream::getSegment()
 void MultimediaStream::notifyBufferChange(uint32_t bufferfill, int maxC)
 {
     this->dashManager->onBufferStateChanged(libdash::framework::buffer::VIDEO, bufferfill, maxC);
-}
-
-void MultimediaStream::updateMPD (IMPD* mpd)
-{
-//    this->mpd = mpd;
-//    this->dashManager->updateMPD(mpd);
 }
 
 void MultimediaStream::fetchMPD()
