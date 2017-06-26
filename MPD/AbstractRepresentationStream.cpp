@@ -94,11 +94,11 @@ void	    AbstractRepresentationStream::setSegmentOffset (uint32_t offset)
     this->segmentOffset = offset;
 }
 
-uint32_t AbstractRepresentationStream::getTime(size_t segmentNumber)
+uint64_t AbstractRepresentationStream::getTime(size_t segmentNumber)
 {
     return 0;
 }
-size_t AbstractRepresentationStream::getSegmentNumber(uint32_t time)
+size_t AbstractRepresentationStream::getSegmentNumber(uint64_t time)
 {
     return 0;
 }

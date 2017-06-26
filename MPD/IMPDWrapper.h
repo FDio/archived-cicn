@@ -28,15 +28,15 @@ namespace mpd
 class IMPDWrapper
 {
 public:
-    virtual std::string				getAvailabilityStarttime() = 0;
-    virtual std::string				getTimeShiftBufferDepth() = 0;
-    virtual std::string				getTypeWithoutLock() = 0;
-    virtual uint32_t				getFetchTime() = 0;
-    virtual std::string				getMinimumUpdatePeriodWithoutLock() = 0;
-    virtual std::vector<dash::mpd::IBaseUrl *>	resolveBaseUrl(viper::managers::StreamType type, size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl) = 0;
-    virtual std::vector<dash::mpd::IBaseUrl *>	resolveBaseUrl(viper::managers::StreamType type, size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl, dash::mpd::IMPD* mpd) = 0;
-    virtual void				releaseLock() = 0;
-    virtual std::string				getMediaPresentationDuration() = 0;
+    virtual std::string                         getAvailabilityStarttime() = 0;
+    virtual std::string                         getTimeShiftBufferDepth() = 0;
+    virtual std::string                         getTypeWithoutLock() = 0;
+    virtual uint32_t                            getFetchTime() = 0;
+    virtual std::string                         getMinimumUpdatePeriodWithoutLock() = 0;
+    virtual std::vector<dash::mpd::IBaseUrl *>  resolveBaseUrl(viper::managers::StreamType type, size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl) = 0;
+    virtual std::vector<dash::mpd::IBaseUrl *>  resolveBaseUrl(viper::managers::StreamType type, size_t mpdBaseUrl, size_t periodBaseUrl, size_t adaptationSetBaseUrl, dash::mpd::IMPD* mpd) = 0;
+    virtual void                                releaseLock() = 0;
+    virtual std::string                         getMediaPresentationDuration() = 0;
 };
 }
 }

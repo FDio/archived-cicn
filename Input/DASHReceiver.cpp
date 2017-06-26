@@ -22,11 +22,7 @@ using duration_in_seconds = std::chrono::duration<double, std::ratio<1, 1> >;
 DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrapper *mpdWrapper, IDASHReceiverObserver *obs, Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop) :
     type                        (type),
     mpdWrapper                  (mpdWrapper),
-//    period                    (NULL),
-//    adaptationSet             (NULL),
-//    representation            (NULL),
     adaptationSetStream         (NULL),
-//    representationStream      (NULL),
     segmentNumber               (0),
     observer                    (obs),
     buffer                      (buffer),
@@ -51,14 +47,8 @@ DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrappe
 {
     readMax = 32768;
     readBuffer = (uint8_t*)malloc(sizeof(uint8_t)*readMax);
-//    this->period = this->mpd->GetPeriods().at(0);
-//    this->adaptationSet = this->period->GetAdaptationSets().at(0);
-//    this->representation = this->adaptationSet->GetRepresentation().at(0);
-
     this->adaptationSetStream = new AdaptationSetStream(type, mpdWrapper);
-//    this->representationStream = adaptationSetStream->getRepresentationStream(this->representation);
     this->segmentOffset = CalculateSegmentOffset();
-//    this->representationStream->setSegmentOffset(this->segmentOffset);
     this->mpdWrapper->setSegmentOffset(type, this->segmentOffset);
     this->conn = NULL;
     this->initConn = NULL;
@@ -407,4 +397,5 @@ void					DASHReceiver::SetDrop	(float drop)
 {
     this->drop = drop;
 }
+
 

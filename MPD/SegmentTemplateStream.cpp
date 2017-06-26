@@ -179,10 +179,10 @@ void SegmentTemplateStream::calculateSegmentStartTimes()
         return;
 
     size_t   numOfTimelines = 0;
-    uint32_t segStartTime   = 0;
-    uint32_t segDuration    = 0;
+    uint64_t segStartTime   = 0;
+    uint64_t segDuration    = 0;
     size_t   repeatCount    = 0;
-    uint32_t totalDuration  = 0;
+    uint64_t totalDuration  = 0;
 
     numOfTimelines      = this->segmentTemplate->GetSegmentTimeline()->GetTimelines().size();
 
@@ -192,7 +192,6 @@ void SegmentTemplateStream::calculateSegmentStartTimes()
         segStartTime    = this->segmentTemplate->GetSegmentTimeline()->GetTimelines().at(i)->GetStartTime();
         segDuration     = this->segmentTemplate->GetSegmentTimeline()->GetTimelines().at(i)->GetDuration();
         totalDuration   = totalDuration + segDuration;
-
         if (repeatCount > 0)
         {
             for (size_t j = 0; j <= repeatCount; j++)
@@ -215,7 +214,7 @@ void SegmentTemplateStream::calculateSegmentStartTimes()
     this->averageDuration = totalDuration / numOfTimelines;
 }
 
-uint32_t SegmentTemplateStream::getTime(size_t segmentNumber)
+uint64_t SegmentTemplateStream::getTime(size_t segmentNumber)
 {
     if(segmentNumber < this->segmentStartTimes.size())
 	return this->segmentStartTimes.at(segmentNumber);
@@ -223,7 +222,7 @@ uint32_t SegmentTemplateStream::getTime(size_t segmentNumber)
 	return 0;
 }
 
-size_t SegmentTemplateStream::getSegmentNumber(uint32_t time)
+size_t SegmentTemplateStream::getSegmentNumber(uint64_t time)
 {
     size_t i;
     for(i = 0; i < this->segmentStartTimes.size(); i ++)

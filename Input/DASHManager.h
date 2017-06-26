@@ -42,11 +42,10 @@ public:
     bool start();
     void stop();
     uint32_t getPosition();
-    void setPosition(uint32_t segmentNumber); // to implement
+    void setPosition(uint32_t segmentNumber);
     void setLooping(bool looping);
     void setPositionInMsec(uint32_t millisec);
     void clear();
-//    void setRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
     void setRepresentation();
     void enqueueRepresentation(dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, dash::mpd::IRepresentation *representation);
 
@@ -65,17 +64,17 @@ public:
     void fetchMPD();
 
 private:
-    float                       			beta;
-    float                       			drop;
-    buffer::Buffer<MediaObject>				*buffer;
-    DASHReceiver					*receiver;
-    uint32_t						readSegmentCount;
-    IDASHManagerObserver				*multimediaStream;
-    bool						isRunning;
-    bool						icn;
-    double						icnAlpha;
-    bool						noDecoding;
-    libdash::framework::adaptation::IAdaptationLogic	*adaptationLogic;
+    float                                               beta;
+    float                                               drop;
+    buffer::Buffer<MediaObject>                         *buffer;
+    DASHReceiver                                        *receiver;
+    uint32_t                                            readSegmentCount;
+    IDASHManagerObserver                                *multimediaStream;
+    bool                                                isRunning;
+    bool                                                icn;
+    double                                              icnAlpha;
+    bool                                                noDecoding;
+    libdash::framework::adaptation::IAdaptationLogic    *adaptationLogic;
 };
 }
 }

@@ -209,6 +209,7 @@ dash::mpd::Timeline*                        Node::ToTimeline            ()  cons
 
     if (this->HasAttribute("t"))
     {
+        uint64_t yolo = strtoul(this->GetAttributeValue("t").c_str(), NULL, 10);
         timeline->SetStartTime(strtoul(this->GetAttributeValue("t").c_str(), NULL, 10));
     }
     if (this->HasAttribute("d"))

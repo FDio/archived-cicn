@@ -40,15 +40,15 @@ public:
     virtual uint32_t getSize();
     virtual uint32_t getAverageSegmentDuration();
     virtual uint32_t getTimescale();
-    virtual uint32_t getTime(size_t segmentNumber);
-    virtual size_t getSegmentNumber(uint32_t time);
+    virtual uint64_t getTime(size_t segmentNumber);
+    virtual size_t getSegmentNumber(uint64_t time);
 
 private:
     dash::mpd::ISegmentTemplate* findSegmentTemplate();
     void calculateSegmentStartTimes();
 
     dash::mpd::ISegmentTemplate *segmentTemplate;
-    std::vector<uint32_t>       segmentStartTimes;
+    std::vector<uint64_t>       segmentStartTimes;
     uint32_t                    averageDuration;
     bool                        inSync;
     uint32_t                    currentSegment;

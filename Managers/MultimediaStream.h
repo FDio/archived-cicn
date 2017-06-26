@@ -56,7 +56,6 @@ public:
     void setPosition(uint32_t segmentNumber);
     void setLooping(bool looping);
     void setPositionInMsec(uint32_t milliSecs);
-
     libdash::framework::input::MediaObject* getSegment();
     void setEOS(bool value);
     void notifyBufferChange(uint32_t bufferfill, int maxC);
@@ -89,10 +88,9 @@ private:
     StreamType                                          type;
     bool                                                icn;
     double                                              icnAlpha;
-    mutable CRITICAL_SECTION                            monitorMutex;
     bool                                                noDecoding;
 
-    void init ();
+    void init();
 };
 }
 }

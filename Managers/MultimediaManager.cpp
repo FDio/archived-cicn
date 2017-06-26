@@ -280,6 +280,7 @@ void MultimediaManager::stopAudio()
 
 bool MultimediaManager::setVideoQuality()
 {
+
     if (this->videoStream)
         this->videoStream->setRepresentation();
     return true;

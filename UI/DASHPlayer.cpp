@@ -99,19 +99,6 @@ void DASHPlayer::onSettingsChanged(int period, int videoAdaptationSet, int video
     if (!this->settingsChanged(period, videoAdaptationSet, videoRepresentation, audioAdaptationSet, audioRepresentation))
         return;
 
-//    IPeriod                         *currentPeriod      = this->multimediaManager->getMPD()->GetPeriods().at(period);
-//    std::vector<IAdaptationSet *>   videoAdaptationSets = AdaptationSetHelper::getVideoAdaptationSets(currentPeriod);
-//    std::vector<IAdaptationSet *>   audioAdaptationSets = AdaptationSetHelper::getAudioAdaptationSets(currentPeriod);
-//    if (videoAdaptationSet >= 0 && videoRepresentation >= 0)
-//    {
-//        this->multimediaManager->setVideoQuality(currentPeriod,
-//                                                 videoAdaptationSets.at(videoAdaptationSet),
-//                                                 videoAdaptationSets.at(videoAdaptationSet)->GetRepresentation().at(videoRepresentation));
-//    }
-//    else
-//    {
-//        this->multimediaManager->setVideoQuality(currentPeriod, NULL, NULL);
-//    }
     this->mpdWrapper->settingsChanged(period, videoAdaptationSet, videoRepresentation, audioAdaptationSet, audioRepresentation);
     this->multimediaManager->setVideoQuality();
 }

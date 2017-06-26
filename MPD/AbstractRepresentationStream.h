@@ -47,27 +47,27 @@ public:
     virtual dash::mpd::ISegment* getBitstreamSwitchingSegment() = 0;
     virtual RepresentationStreamType getStreamType() = 0;
 
-    virtual uint32_t getSize();
-    virtual uint32_t getFirstSegmentNumber();
-    virtual uint32_t getCurrentSegmentNumber();
-    virtual uint32_t getLastSegmentNumber();
-    virtual uint32_t getAverageSegmentDuration();
+    virtual uint32_t    getSize();
+    virtual uint32_t    getFirstSegmentNumber();
+    virtual uint32_t    getCurrentSegmentNumber();
+    virtual uint32_t    getLastSegmentNumber();
+    virtual uint32_t    getAverageSegmentDuration();
 
-    virtual uint32_t getTimescale();
-    virtual void     setSegmentOffset(uint32_t offset);
-    virtual uint32_t getTime(size_t segmentNumber);
-    virtual size_t getSegmentNumber(uint32_t time);
+    virtual uint32_t    getTimescale();
+    virtual void        setSegmentOffset(uint32_t offset);
+    virtual uint64_t    getTime(size_t segmentNumber);
+    virtual size_t      getSegmentNumber(uint64_t time);
 
 protected:
     virtual void setBaseUrls(const std::vector<dash::mpd::IBaseUrl *> baseurls);
 
-    std::vector<dash::mpd::IBaseUrl *>  baseUrls;
-    libdash::framework::mpd::IMPDWrapper *mpdWrapper;
-    dash::mpd::IPeriod                  *period;
-    dash::mpd::IAdaptationSet           *adaptationSet;
-    dash::mpd::IRepresentation          *representation;
-    uint32_t                            segmentOffset;
-    viper::managers::StreamType		type;
+    std::vector<dash::mpd::IBaseUrl *>      baseUrls;
+    libdash::framework::mpd::IMPDWrapper    *mpdWrapper;
+    dash::mpd::IPeriod                      *period;
+    dash::mpd::IAdaptationSet               *adaptationSet;
+    dash::mpd::IRepresentation              *representation;
+    uint32_t                                segmentOffset;
+    viper::managers::StreamType             type;
 };
 }
 }
