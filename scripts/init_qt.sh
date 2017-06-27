@@ -55,15 +55,11 @@ if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/boost ]; then
 	ln -s $DISTILLERY_INSTALL_DIR/include/dash  ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
 fi
 
-if [[ ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavformat.so || ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavfilter.so || ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavformat.so || ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libavutil.so || ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libswresample.so || ! -f ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/libswscale.so ]]; then
-	if [ ! -f ffmpeg-3.1.4-android.7z ]; then
-		wget https://downloads.sourceforge.net/project/qtav/depends/FFmpeg/android/ffmpeg-3.1.4-android.7z	
-	fi
-	7z x ffmpeg-3.1.4-android.7z -offmpeg
-	cp ffmpeg/ffmpeg-3.1.4-android-armv7a/lib/lib* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
-	cp -r ffmpeg/ffmpeg-3.1.4-android-armv7a/include/* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+if [ ! -d ffmpeg ]; then
+	git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 fi
-
+export FFSRC=`pwd`/ffmpeg
+export ANDROID_NDK=${NDK}
 export ANDROID_HOME=${SDK}
 export ANDROID_NDK_HOST=${OS}-${ARCH}
 export ANDROID_NDK_PLATFORM=${ANDROID_PLATFORM}
@@ -77,6 +73,12 @@ export PATH=$PATH:${ANDROID_HOME}/tools:${JAVA_HOME}/bin
 if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/QtAV ]; then
 	git clone https://github.com/wang-bin/QtAV.git 
 	cd QtAV
+	git submodule update --init
+	cd tools/build_ffmpeg
+	./avbuild.sh android armv7
+	cp sdk-android-gcc/lib/armeabi-v7a/lib* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/lib/
+	cp -r sdk-android-gcc/include/* ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/
+	cd ../..
 	mkdir -p ${DISTILLERY_BUILD_DIR}/qtav
 	cd ${DISTILLERY_BUILD_DIR}/qtav
 	${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/qmake -r -spec android-g++ ${DISTILLERY_ROOT_DIR}/qt/QtAV/QtAV.pro
