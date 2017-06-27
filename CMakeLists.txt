@@ -97,17 +97,17 @@ else ()
 endif()
 
 if(ANDROID_API)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
   include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
+  set(ANDROID_LIBRARIES "${ANDROID_NDK}/platforms/android-24/arch-arm/usr/lib/libz.a" "${ANDROID_NDK}/platforms/android-24/arch-arm/usr/lib/liblog.so" "$ENV{NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ENV{ABI}/libgnustl_shared.so")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ANDROID_C_FLAGS} -Wall")
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-
   if (NOT COMPILE_FOR_IOS)
     if (BUILD_APPS)
       set(SUBFOLDERS ${APPS})
     endif (BUILD_APPS)
   endif()
-
 endif (ANDROID_API)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS}")
