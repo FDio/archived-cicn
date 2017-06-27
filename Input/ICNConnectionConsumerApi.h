@@ -56,7 +56,7 @@ namespace libdash {
 namespace framework {
 namespace input {
 
-class ICNConnectionConsumerApi : public IICNConnection {
+class ICNConnectionConsumerApi : public IICNConnection, public libl4::transport::IcnObserver{
 public:
     ICNConnectionConsumerApi(double alpha, float beta, float drop);
     virtual ~ICNConnectionConsumerApi();

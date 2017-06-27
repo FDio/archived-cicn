@@ -56,25 +56,22 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
     InitializeConditionVariable (&this->contentRetrieved);
     InitializeCriticalSection   (&this->monitorMutex);
 	this->hTTPClientConnection = new libl4::http::HTTPClientConnection();
-    //this->myConsumer = new ConsumerSocket(ccnx::Name(), TransportProtocolAlgorithms::RAAQM);
-    //this->myConsumer->setSocketOption(RaaqmTransportOptions::GAMMA_VALUE, (int)gamma);
-
+	libl4::transport::ConsumerSocket &c = this->hTTPClientConnection->getConsumer();
     bool configFile = false;
     //CHECK if we are not going to override the configuration file. (if !autotune)
-    if(FILE *fp = fopen("/usr/etc/consumer.conf", "r"))
+    if(FILE *fp = fopen("/usr/local/etc/hicn-consumer.conf", "r"))
     {
         fclose(fp);
         configFile = true;
     }
     if(!configFile)
     {
-//        qDebug("beta %f, drop %f", this->beta, this->drop);
-   //     this->myConsumer->setSocketOption(RaaqmTransportOptions::BETA_VALUE, this->beta);
-   //     this->myConsumer->setSocketOption(RaaqmTransportOptions::DROP_FACTOR, this->drop);
+        qDebug("beta %f, drop %f", this->beta, this->drop);
+
+        c.setSocketOption(libl4::transport::RaaqmTransportOptions::BETA_VALUE, this->beta);
+        c.setSocketOption(libl4::transport::RaaqmTransportOptions::DROP_FACTOR, this->drop);
     }
-    //this->myConsumer->setSocketOption(RateEstimationOptions::RATE_ESTIMATION_OBSERVER, this);
-    //this->myConsumer->setSocketOption(ConsumerCallbacksOptions::CONTENT_RETRIEVED, (ConsumerContentCallback) bind(&ICNConnectionConsumerApi::processPayload, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-    //this->myConsumer->setSocketOption(ConsumerCallbacksOptions::CONTENT_OBJECT_TO_VERIFY, (ConsumerContentObjectVerificationCallback)bind(&ICNConnectionConsumerApi::onPacket, this, std::placeholders::_1, std::placeholders::_2));
+    c.setSocketOption(int(libl4::transport::RateEstimationOptions::RATE_ESTIMATION_OBSERVER), (libl4::transport::IcnObserver * )this);
 #ifdef NO_GUI
     if(this->icnAlpha != 20)
         this->icnRateBased = true;

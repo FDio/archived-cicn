@@ -125,10 +125,10 @@ void	MPDWrapper::findVideoRepresentation	(IMPD* mpd)
         if(this->videoRepresentation)
         {
             uint32_t time = this->videoRepresentations->find(this->videoRepresentation)->second->getTime(this->videoSegmentNumber);
-            uint32_t id = std::stoi(this->videoRepresentation->GetId());
+            uint32_t id = atoi(this->videoRepresentation->GetId().c_str());
             for(size_t i = 0; i < representations.size(); i++)
             {
-                if(id == std::stoi(representations.at(i)->GetId()))
+                if(id == atoi(representations.at(i)->GetId().c_str()))
                 {
                     this->videoRepresentation = representations.at(i);
                     this->destroyAdaptationSetStream(viper::managers::StreamType::VIDEO);
@@ -157,10 +157,10 @@ void	MPDWrapper::findAudioRepresentation	(IMPD* mpd)
         if(this->audioRepresentation)
         {
             uint32_t time = this->audioRepresentations->find(this->audioRepresentation)->second->getTime(this->audioSegmentNumber);
-            uint32_t id = std::stoi(this->audioRepresentation->GetId());
+            uint32_t id = atoi(this->audioRepresentation->GetId().c_str());
             for(size_t i = 0; i < representations.size(); i++)
             {
-                if(id == std::stoi(representations.at(i)->GetId()))
+                if(id == atoi(representations.at(i)->GetId().c_str()))
                 {
                     this->audioRepresentation = representations.at(i);
                     this->destroyAdaptationSetStream(viper::managers::StreamType::AUDIO);

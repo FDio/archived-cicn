@@ -28,7 +28,7 @@ MediaObject::MediaObject(ISegment *segment, IRepresentation *rep, bool withFeedB
     InitializeCriticalSection   (&this->stateLock);
     this->representationBandwidth = rep->GetBandwidth();
     this->representationHeight = rep->GetHeight();
-    this->representationId = std::stoi(rep->GetId());
+    this->representationId = atoi(rep->GetId().c_str());
 }
 
 MediaObject::~MediaObject()

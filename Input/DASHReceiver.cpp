@@ -207,7 +207,7 @@ void                        DASHReceiver::NotifySegmentDownloaded   ()
 
 void                        DASHReceiver::DownloadInitSegmentWithoutLock    ()
 {
-    int rep = std::stoi(this->mpdWrapper->getRepresentationIDWithoutLock(type).c_str());
+    int rep = atoi(this->mpdWrapper->getRepresentationIDWithoutLock(type).c_str());
     if (this->InitSegmentExists(rep))
         return;
 
@@ -224,7 +224,7 @@ void                        DASHReceiver::DownloadInitSegmentWithoutLock    ()
 
 void                        DASHReceiver::DownloadInitSegment    ()
 {
-    int rep = std::stoi(this->mpdWrapper->getRepresentationID(type).c_str());
+    int rep = atoi(this->mpdWrapper->getRepresentationID(type).c_str());
     if (this->InitSegmentExists(rep))
         return;
 
