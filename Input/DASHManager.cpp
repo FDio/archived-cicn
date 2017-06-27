@@ -141,7 +141,7 @@ int DASHManager::getBufferLevel()
 
 bool DASHManager::canPush()
 {
-    this->multimediaStream->canPush();
+    return this->multimediaStream->canPush();
 }
 
 MediaObject* DASHManager::getSegment()
