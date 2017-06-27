@@ -39,6 +39,8 @@ class HTTPClientConnection {
 
   HTTPClientConnection &stop();
 
+  transport::ConsumerSocket &getConsumer();
+
  private:
 
   void processPayload(transport::ConsumerSocket &c, std::vector<uint8_t> &&payload);

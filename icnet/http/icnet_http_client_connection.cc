@@ -27,11 +27,6 @@ using namespace transport;
 HTTPClientConnection::HTTPClientConnection()
     : consumer_(Name("ccnx:"), transport::TransportProtocolAlgorithms::RAAQM) {
 
-  consumer_.setSocketOption(GeneralTransportOptions::INTEREST_LIFETIME, 1001);
-  consumer_.setSocketOption(RaaqmTransportOptions::BETA_VALUE, DEFAULT_BETA);
-  consumer_.setSocketOption(RaaqmTransportOptions::DROP_FACTOR, DEFAULT_GAMMA);
-  consumer_.setSocketOption(GeneralTransportOptions::MAX_INTEREST_RETX, 200);
-
   consumer_.setSocketOption(ConsumerCallbacksOptions::CONTENT_OBJECT_TO_VERIFY,
                             (ConsumerContentObjectVerificationCallback) std::bind(&HTTPClientConnection::verifyData,
                                                                                   this,
@@ -112,6 +107,10 @@ HTTPClientConnection& HTTPClientConnection::stop() {
   consumer_.stop();
 
   return *this;
+}
+
+transport::ConsumerSocket& HTTPClientConnection::getConsumer() {
+  return consumer_;
 }
 
 }

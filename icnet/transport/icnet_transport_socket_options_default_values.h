@@ -22,7 +22,7 @@ namespace transport {
 
 namespace default_values {
 
-const int interest_lifetime = 1000;                         // milliseconds
+const int interest_lifetime = 1001;                         // milliseconds
 const int content_object_expiry_time = 50000;               // milliseconds -> 50 seconds
 const int content_object_packet_size = 1500;                // The ethernet MTU
 const int producer_socket_input_buffer_size = 150000;      // Interests

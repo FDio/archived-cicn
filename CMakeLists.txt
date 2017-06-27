@@ -98,7 +98,6 @@ endif()
 
 if(ANDROID_API)
   include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
-  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ANDROID_C_FLAGS} -Wall")
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
