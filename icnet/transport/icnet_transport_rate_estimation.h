@@ -60,7 +60,8 @@ class IcnRateEstimator {
     this->observer_ = observer;
   };
   IcnObserver *observer_;
-  struct timeval begin_;
+  struct timeval start_time_;
+  struct timeval begin_batch_;
   double base_alpha_;
   double alpha_;
   double estimation_;

@@ -85,7 +85,7 @@ InterRttEstimator::InterRttEstimator(double alpha_arg) {
   this->win_current_ = 1.0;
 
   pthread_mutex_init(&(this->mutex_), NULL);
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->start_time_), 0);
 }
 
 InterRttEstimator::~InterRttEstimator() {
@@ -121,7 +121,7 @@ void InterRttEstimator::onRttUpdate(double rtt) {
 void InterRttEstimator::onWindowIncrease(double win_current) {
   timeval end;
   gettimeofday(&end, 0);
-  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_batch_);
 
   pthread_mutex_lock(&(this->mutex_));
   this->avg_win_ += this->win_current_ * delay;
@@ -129,13 +129,13 @@ void InterRttEstimator::onWindowIncrease(double win_current) {
   this->win_change_ += delay;
   pthread_mutex_unlock(&(this->mutex_));
 
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 void InterRttEstimator::onWindowDecrease(double win_current) {
   timeval end;
   gettimeofday(&end, 0);
-  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_batch_);
 
   pthread_mutex_lock(&(this->mutex_));
   this->avg_win_ += this->win_current_ * delay;
@@ -143,25 +143,25 @@ void InterRttEstimator::onWindowDecrease(double win_current) {
   this->win_change_ += delay;
   pthread_mutex_unlock(&(this->mutex_));
 
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 ALaTcpEstimator::ALaTcpEstimator() {
   this->estimation_ = 0.0;
   this->observer_ = NULL;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->start_time_), 0);
   this->totalSize_ = 0.0;
 }
 
 void ALaTcpEstimator::onStart() {
   this->totalSize_ = 0.0;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->start_time_), 0);
 }
 
 void ALaTcpEstimator::onDownloadFinished() {
   timeval end;
   gettimeofday(&end, 0);
-  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->start_time_);
   this->estimation_ = this->totalSize_ * 8 * 1000000 / delay;
   if (observer_) {
     observer_->notifyStats(this->estimation_);
@@ -181,22 +181,27 @@ SimpleEstimator::SimpleEstimator(double alphaArg, int batching_param) {
   this->number_of_packets_ = 0;
   this->base_alpha_ = alphaArg;
   this->alpha_ = alphaArg;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->start_time_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 void SimpleEstimator::onStart() {
   this->estimated_ = false;
   this->number_of_packets_ = 0;
   this->total_size_ = 0.0;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->start_time_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 void SimpleEstimator::onDownloadFinished() {
-  if (!this->estimated_) {
-    timeval end;
-    gettimeofday(&end, 0);
-    double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+  timeval end;
+  gettimeofday(&end, 0);
+  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->start_time_);
 
+  if(observer_) {
+    observer_->notifyDownloadTime(delay);
+  }
+  if (!this->estimated_) {
     //Assuming all packets carry max_packet_size_ bytes of data (8*max_packet_size_ bits); 1000000 factor to convert us to seconds
     if (this->estimation_) {
       this->estimation_ = alpha_ * this->estimation_ + (1 - alpha_) * (total_size_ * 8 * 1000000.0 / (delay));
@@ -207,15 +212,8 @@ void SimpleEstimator::onDownloadFinished() {
       observer_->notifyStats(this->estimation_);
     }
     this->alpha_ = this->base_alpha_ * (((double) this->number_of_packets_) / ((double) this->batching_param_));
-    this->number_of_packets_ = 0;
-    this->total_size_ = 0.0;
-    gettimeofday(&(this->begin_), 0);
   } else {
     if (this->number_of_packets_ >= (int) (75.0 * (double) this->batching_param_ / 100.0)) {
-      timeval end;
-      gettimeofday(&end, 0);
-      double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
-
       //Assuming all packets carry max_packet_size_ bytes of data (8*max_packet_size_ bits); 1000000 factor to convert us to seconds
       if (this->estimation_) {
         this->estimation_ = alpha_ * this->estimation_ + (1 - alpha_) * (total_size_ * 8 * 1000000.0 / (delay));
@@ -226,13 +224,12 @@ void SimpleEstimator::onDownloadFinished() {
         observer_->notifyStats(this->estimation_);
       }
       this->alpha_ = this->base_alpha_ * (((double) this->number_of_packets_) / ((double) this->batching_param_));
-      this->number_of_packets_ = 0;
-      this->total_size_ = 0.0;
-
-      gettimeofday(&(this->begin_), 0);
-
     }
   }
+  this->number_of_packets_ = 0;
+  this->total_size_ = 0.0;
+  gettimeofday(&(this->start_time_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 void SimpleEstimator::onDataReceived(int packet_size) {
@@ -245,7 +242,7 @@ void SimpleEstimator::onRttUpdate(double rtt) {
   if (number_of_packets_ == this->batching_param_) {
     timeval end;
     gettimeofday(&end, 0);
-    double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+    double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_batch_);
     //Assuming all packets carry max_packet_size_ bytes of data (8*max_packet_size_ bits); 1000000 factor to convert us to seconds
     if (this->estimation_) {
       this->estimation_ = alpha_ * this->estimation_ + (1 - alpha_) * (total_size_ * 8 * 1000000.0 / (delay));
@@ -258,7 +255,7 @@ void SimpleEstimator::onRttUpdate(double rtt) {
     this->alpha_ = this->base_alpha_;
     this->number_of_packets_ = 0;
     this->total_size_ = 0.0;
-    gettimeofday(&(this->begin_), 0);
+    gettimeofday(&(this->begin_batch_), 0);
   }
 }
 
@@ -274,7 +271,8 @@ BatchingPacketsEstimator::BatchingPacketsEstimator(double alpha_arg, int param) 
   this->max_packet_size_ = 0;
   this->estimation_ = 0.0;
   this->win_current_ = 1.0;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->start_time_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 void BatchingPacketsEstimator::onRttUpdate(double rtt) {
@@ -305,21 +303,21 @@ void BatchingPacketsEstimator::onRttUpdate(double rtt) {
 void BatchingPacketsEstimator::onWindowIncrease(double win_current) {
   timeval end;
   gettimeofday(&end, 0);
-  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_batch_);
   this->avg_win_ += this->win_current_ * delay;
   this->win_current_ = win_current;
   this->win_change_ += delay;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 void BatchingPacketsEstimator::onWindowDecrease(double win_current) {
   timeval end;
   gettimeofday(&end, 0);
-  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_);
+  double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_batch_);
   this->avg_win_ += this->win_current_ * delay;
   this->win_current_ = win_current;
   this->win_change_ += delay;
-  gettimeofday(&(this->begin_), 0);
+  gettimeofday(&(this->begin_batch_), 0);
 }
 
 } // end namespace transport
