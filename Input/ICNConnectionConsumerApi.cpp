@@ -182,6 +182,12 @@ void ICNConnectionConsumerApi::notifyStats(double winSize)
     Debug("ICNConnection:\tNotificationICPDL\t%f\t%f\n", winSize, speed);
 }
 
+void ICNConnectionConsumerApi::notifyDownloadTime(double downloadingTime)
+{
+    //downloadingTime is in microseconds, dnltime should be in seconds
+    this->dnltime = downloadingTime / 1000000; 
+}
+
 void ICNConnectionConsumerApi::SetBeta(float beta)
 {
     this->beta = beta;

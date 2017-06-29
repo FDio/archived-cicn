@@ -80,7 +80,10 @@ public:
     const std::vector<dash::metrics::IHTTPTransaction *> &GetHTTPTransactionList() const;
     virtual void SetBeta(float beta);
     virtual void SetDrop(float drop);
+
+    //libl4::transport::IcnObserver
     virtual void notifyStats(double throughput);
+    virtual void notifyDownloadTime(double downloadingTime);
 
 private:
     libl4::http::HTTPClientConnection *hTTPClientConnection;
