@@ -13,7 +13,9 @@
 #define __BLOCKSTREAM_H__
 
 #include "config.h"
-
+#include <stddef.h>
+#include <stdint.h>
+#include <deque>
 #include "Block.h"
 
 namespace dash

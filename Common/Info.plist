@@ -34,9 +34,9 @@
 				<string>waw</string>
 				<string>wma</string>
 			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>document.icns</string>
-			<key>CFBundleTypeName</key>
+                        <key>CFBundleTypeIconFile</key>
+                        <string>Viper.icns</string>
+                        <key>CFBundleTypeName</key>
 			<string>Audio file</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
@@ -162,7 +162,7 @@
 				<string>utf</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>document.icns</string>
+                        <string>Viper.icns</string>
 			<key>CFBundleTypeName</key>
 			<string>Subtitles file</string>
 			<key>CFBundleTypeRole</key>
@@ -176,7 +176,7 @@
 	<key>CFBundleExecutable</key>
 	<string>@EXECUTABLE@</string>
 	<key>CFBundleIconFile</key>
-	<string>Cisco.icns</string>
+        <string>Viper.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.cisco.@EXECUTABLE@</string>
 	<key>CFBundleInfoDictionaryVersion</key>

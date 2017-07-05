@@ -13,6 +13,10 @@
 #define STRING_H_
 
 #include "config.h"
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 namespace dash
 {

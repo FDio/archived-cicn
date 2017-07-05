@@ -288,8 +288,12 @@ unix:!macx:!android {
 
 macx:!ios {
 
+    QMAKE_INFO_PLIST = $$COMMON/Info.plist
+    ICON = $$COMMON/Viper.icns
+    QMAKE_RPATHDIR += /usr/local/lib
     INCLUDEPATH += /usr/local/include
     INCLUDEPATH += /usr/local/include/libdash
+    INCLUDEPATH += $$[QT_HOST_PREFIX]/include/
     equals(TRANSPORT_LIBRARY, "HICNET") {
         LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -lhicnet -lssl -lcrypto
 		DEFINES += "HICNET=ON"

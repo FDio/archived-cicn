@@ -13,6 +13,11 @@
 #define PATH_H_
 
 #include "config.h"
+#include <stdlib.h>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <sstream>
 
 namespace dash
 {

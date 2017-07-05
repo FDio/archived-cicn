@@ -14,6 +14,7 @@
 
 #include <time.h>
 #include "config.h"
+#include <string>
 
 namespace dash
 {
