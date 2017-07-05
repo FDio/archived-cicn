@@ -198,9 +198,9 @@ void SimpleEstimator::onDownloadFinished() {
   gettimeofday(&end, 0);
   double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->start_time_);
 
-  if(observer_) {
-    observer_->notifyDownloadTime(delay);
-  }
+  //if(observer_) {
+  //  observer_->notifyDownloadTime(delay);
+  //}
   if (!this->estimated_) {
     //Assuming all packets carry max_packet_size_ bytes of data (8*max_packet_size_ bits); 1000000 factor to convert us to seconds
     if (this->estimation_) {
