@@ -198,9 +198,9 @@ void SimpleEstimator::onDownloadFinished() {
   gettimeofday(&end, 0);
   double delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->start_time_);
 
-  //if(observer_) {
-  //  observer_->notifyDownloadTime(delay);
-  //}
+  if(observer_) {
+    observer_->notifyDownloadTime(delay);
+  }
   if (!this->estimated_) {
     //Assuming all packets carry max_packet_size_ bytes of data (8*max_packet_size_ bits); 1000000 factor to convert us to seconds
     if (this->estimation_) {
@@ -213,6 +213,7 @@ void SimpleEstimator::onDownloadFinished() {
     }
     this->alpha_ = this->base_alpha_ * (((double) this->number_of_packets_) / ((double) this->batching_param_));
   } else {
+    delay = RaaqmDataPath::getMicroSeconds(end) - RaaqmDataPath::getMicroSeconds(this->begin_batch_);
     if (this->number_of_packets_ >= (int) (75.0 * (double) this->batching_param_ / 100.0)) {
       //Assuming all packets carry max_packet_size_ bytes of data (8*max_packet_size_ bits); 1000000 factor to convert us to seconds
       if (this->estimation_) {

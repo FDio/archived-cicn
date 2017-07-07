@@ -26,7 +26,7 @@ class IcnObserver {
   };
 
   virtual void notifyStats(double throughput) = 0;
-  //virtual void notifyDownloadTime(double downloadTime) = 0;
+  virtual void notifyDownloadTime(double downloadTime) = 0;
 };
 
 } // end namespace transport
