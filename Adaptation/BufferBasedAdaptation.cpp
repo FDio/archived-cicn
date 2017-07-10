@@ -22,7 +22,7 @@ using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::mpd;
 
-BufferBasedAdaptation::BufferBasedAdaptation          (viper::managers::StreamType type, MPDWrapper *mpd, struct AdaptationParameters *params) :
+BufferBasedAdaptation::BufferBasedAdaptation          (viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
     AbstractAdaptationLogic   (type, mpdWrapper)
 {
     this->reservoirThreshold = params->BufferBased_reservoirThreshold;
