@@ -79,10 +79,10 @@ int main(int argc, char **argv) {
   string root_folder = "/var/www/html";
   string webserver_prefix = "http://webserver";
   string proxy_address = "";
-
+  int port = 8080;
   int opt = 0;
 
-  while ((opt = getopt(argc, argv, "p:l:hx:")) != -1) {
+  while ((opt = getopt(argc, argv, "p:l:o:hx:")) != -1) {
 
     switch (opt) {
       case 'p':
@@ -93,6 +93,9 @@ int main(int argc, char **argv) {
         break;
       case 'x':
         proxy_address = optarg;
+        break;
+      case 'o':
+        port = atoi(optarg);
         break;
       case 'h':
       default:
@@ -119,7 +122,7 @@ int main(int argc, char **argv) {
   std::cout << "Using locator: [" << webserver_prefix << "]" << std::endl;
 
   boost::asio::io_service io_service;
-  HttpServer server(8080, webserver_prefix, 50, 5, 300, io_service);
+  HttpServer server(port, webserver_prefix, 50, 5, 300, io_service);
 
   // GET for the path /info
   // Responds with some server info
