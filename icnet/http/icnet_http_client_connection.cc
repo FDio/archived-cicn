@@ -14,6 +14,9 @@
  */
 
 #include "icnet_http_client_connection.h"
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 
 #define DEFAULT_BETA 0.99
 #define DEFAULT_GAMMA 0.07
