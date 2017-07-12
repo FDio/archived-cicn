@@ -54,7 +54,6 @@ HttpServer::HttpServer(unsigned short port,
 void HttpServer::onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher> &publisher,
                               const uint8_t *buffer,
                               std::size_t size) {
-  publisher->setTimeout(5);
   std::shared_ptr<Request> request = std::make_shared<IcnRequest>(publisher);
   request->getContent().rdbuf()->sputn((char*)buffer, size);
 
@@ -71,6 +70,8 @@ void HttpServer::onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher> 
     if (icn_publishers_.find(request_id) == icn_publishers_.end()) {
       std::cout << "Received request for: " << request->getPath() << std::endl;
       icn_publishers_[request_id] = publisher;
+      icn_publishers_[request_id]->attachPublisher();
+      icn_publishers_[request_id]->setTimeout(5);
       std::cout << "Starting new thread" << std::endl;
       io_service_.dispatch([this, request, request_id]() {
         find_resource(nullptr, request);
