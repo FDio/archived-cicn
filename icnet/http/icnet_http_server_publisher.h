@@ -48,13 +48,7 @@ class HTTPServerPublisher {
 
   HTTPServerPublisher &setTimeout(uint32_t timeout);
 
-//  HttpRequest&& request();
-
-//  void sendResponse();
-
-//  HTTPClientConnection& get(std::string &url, HTTPHeaders headers = {}, HTTPPayload payload = {});
-//
-//  HTTPResponse&& response();
+  HTTPServerPublisher &attachPublisher();
 
  private:
 
