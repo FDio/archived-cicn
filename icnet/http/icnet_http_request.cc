@@ -59,7 +59,10 @@ HTTPRequest::HTTPRequest(HTTPMethod method, std::string &url, HTTPHeaders &heade
     stream << item.first << ": " << item.second << "\r\n";
   }
   stream << "\r\n";
-  stream << payload.data();
+
+  if (payload.size() > 0) {
+    stream << payload.data();
+  }
 
   request_string_ = stream.str();
 }
