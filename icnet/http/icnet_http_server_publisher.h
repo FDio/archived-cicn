@@ -22,6 +22,10 @@
 #include <vector>
 #include <functional>
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 #define HTTP_VERSION "1.0"
 
 namespace icnet {

@@ -66,7 +66,7 @@ HTTPServerPublisher &HTTPServerPublisher::setTimeout(uint32_t timeout) {
 void HTTPServerPublisher::publishContent(const uint8_t *buf, size_t buffer_size, const int response_id, bool is_last) {
   if (producer_) {
 #ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_DEBUG, "HTTP_SERVER_PUBLISHER", "Replying to %s", const_cast<core::Name &>(content_name_).toString().c_str());
+    __android_log_print(ANDROID_LOG_DEBUG, "HTTP_SERVER_PUBLISHER", "Replying to %s", const_cast<transport::Name &>(content_name_).toString().c_str());
 #else
     std::cout << "Replying to " << content_name_ << std::endl;
 #endif
