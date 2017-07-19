@@ -16,11 +16,15 @@
 # limitations under the License.
 #
 
+import math
+
 from vicn.core.address_mgr              import AddressManager
-from vicn.core.resource_mgr             import wait_resources
-from vicn.core.task                     import run_task
+from vicn.core.resource_mgr             import wait_resources, wait_resource_task
+from vicn.core.task                     import run_task, EmptyTask
 from vicn.resource.ns3.emulated_channel import EmulatedChannel
 from vicn.resource.linux.net_device     import NetDevice
+from vicn.core.attribute                import Attribute
+from netmodel.model.type                import Integer
 
 DEFAULT_FADING_ENABLED = True
 DEFAULT_TW_BUFFER = 800000
@@ -48,13 +52,24 @@ class EmulatedLteChannel(EmulatedChannel):
     __package_names__ = ['lte-emulator']
     __app_name__ = 'lte_emulator'
 
+    nb_base_stations = Attribute(Integer, description='Number of nodes emulated by the AP',
+            default=8)
+
+    def __create__(self):
+        task = EmptyTask()
+        for group in self.groups:
+            ip4_assigns = group.iter_by_type_str("ipv4assignment")
+            for ip4_assign in ip4_assigns:
+                task = task | wait_resource_task(ip4_assign)
+
+        return task > super().__create__()
     #---------------------------------------------------------------------------
     # Attribute handlers
     #---------------------------------------------------------------------------
 
     async def _add_station(self, station):
         from vicn.resource.lxd.lxc_container    import LxcContainer
-        from vicn.resource.linux.veth_pair      import VethPair
+        from vicn.resource.linux.veth_pair_lxc  import VethPairLxc
         from vicn.resource.linux.tap_device     import TapChannel
 
         interfaces = list()
@@ -66,9 +81,9 @@ class EmulatedLteChannel(EmulatedChannel):
                 host = NetDevice(node = station.node,
                     device_name='vhh-' + station.name + '-' + self.name,
                     managed = False)
-                sta_if = VethPair(node = station,
+                sta_if = VethPairLxc(node = station,
                         name          = 'vh-' + station.name + '-' + self.name,
-                        device_name   = 'vh-' + station.name + '-' + self.name, 
+                        device_name   = 'vh-' + station.name + '-' + self.name,
                         host          = host,
                         owner = self)
                 bridged_sta = sta_if.host
@@ -104,31 +119,24 @@ class EmulatedLteChannel(EmulatedChannel):
             task = self.node.bridge._remove_interface(bridged_sta)
             await run_task(task, self._state.manager)
 
-            task = self.node.bridge._add_interface(bridged_sta,
-                    vlan = vlan)
+            task = self.node.bridge._add_interface(bridged_sta, vlan = vlan)
             await run_task(task, self._state.manager)
 
+        task = self.node.bridge._remove_interface(sta_tap)
+        await run_task(task, self._state.manager)
         task = self.node.bridge._add_interface(sta_tap, vlan = vlan)
         await run_task(task, self._state.manager)
 
     def _get_cmdline_params(self):
 
-        # IP have not been assign, use AddressManager for simplicity since it
-        # will remember the assignment
-        # NOTE: here the IP address passed to emulator program is hardcoded with
-        # a /24 mask(even if the associated IP with the station does not have a
-        # /24 mask). This is not a problem at all because the netmask passed to
-        # the emulator program has no impact on configuration in the emulator
-        # program. Indeed, the IP routing table in the emulator program are
-        # configured on a per address basis(one route per IP address) instead of
-        # on a per prefix basis(one route per prefix). This guarantees the IP
-        # routing will not change regardless of what netmask is. That is why we
-        # can always safely pass a hardcoded /24 mask to the emulator program.
-
         sta_list = list() # list of identifiers
         sta_macs = list() # list of macs
         sta_taps = list()
         sta_ips = list()
+
+        bs_ip_addr = self._ap_if.ip4_address
+        bs_ip = str(bs_ip_addr) + '/' + str(bs_ip_addr.prefix_len)
+
         for station in self.stations:
             if not station.managed:
                 interface = [i for i in station.interfaces if i.channel == self]
@@ -137,17 +145,15 @@ class EmulatedLteChannel(EmulatedChannel):
 
                 sta_list.append(interface.name)
                 sta_macs.append(interface.mac_address)
-                sta_ips.append(interface.ip4_address + '/24')
+                sta_ips.append(str(interface.ip4_address)+'/'+str(prefix_len))
             else:
                 identifier = self._sta_ifs[station]._state.uuid._uuid
                 sta_list.append(identifier)
 
                 mac = self._sta_ifs[station].mac_address
                 sta_macs.append(mac)
-
-                # Preallocate IP address
-                ip = AddressManager().get_ip(self._sta_ifs[station]) + '/24'
-                sta_ips.append(ip)
+                ip = self._sta_ifs[station].ip4_address
+                sta_ips.append(str(ip)+'/'+str(ip.prefix_len))
 
             tap = self._sta_taps[station].device_name
             sta_taps.append(tap)
@@ -178,8 +184,7 @@ class EmulatedLteChannel(EmulatedChannel):
             # Coma-separated list of stations' IP/netmask len
             'sta-ips'       : ','.join(sta_ips),
             # Base station IP/netmask len
-            'bs-ip'         : AddressManager().get_ip(self._ap_if) + '/' +
-                str(DEFAULT_NETMASK),
+            'bs-ip'         : bs_ip,
             'txBuffer'      : '800000',
             'isFading'      : 'true' if DEFAULT_FADING_ENABLED else 'false',
         }

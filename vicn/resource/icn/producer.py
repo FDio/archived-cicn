@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 
+from netmodel.model.key                 import Key
 from netmodel.model.type                import String
 from vicn.resource.icn.icn_application  import ICNApplication
 from vicn.core.attribute                import Attribute, Multiplicity
@@ -33,5 +34,6 @@ class Producer(ICNApplication):
             description = 'Node on which the producer is installed',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne,
-            reverse_name = 'producers',
-            key = True)
+            reverse_name = 'producers')
+
+    __key__ = Key(node)

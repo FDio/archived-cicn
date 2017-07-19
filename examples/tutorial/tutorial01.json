@@ -9,49 +9,44 @@
             "name": "server",
             "hostname": "localhost"
         },
-        {
-            "type": "NetDevice",
-            "device_name": "eth0",
-            "node": "server",
-            "managed": false
-        },
-        {
+	{
             "type": "LxcImage",
-            "name": "ubuntu1604-cicnsuite-rc3",
+            "name": "cicn-image",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "groups": ["topology"],
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "groups": ["topology"],
             "name": "prod1",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "groups": ["topology"],
             "name": "prod2",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "groups": ["topology"],
             "name": "core2",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "groups": ["topology"],
             "name": "core1",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "groups": ["topology"],
             "name": "cons1",
             "node": "server"
@@ -61,7 +56,7 @@
             "name": "cons2",
             "groups": ["topology"],
             "node": "server",
-            "image": "ubuntu1604-cicnsuite-rc3"
+            "image": "cicn-image"
         },
         {
             "type": "MetisForwarder",

@@ -46,7 +46,7 @@ FUNCTION2STR = {
 STR2FUNCTION = dict((v, k) for k, v in FUNCTION2STR.items())
 
 class Query:
-    def __init__(self, action, object_name, filter = None, params = None, 
+    def __init__(self, action, object_name, filter = None, params = None,
             field_names = None, aggregate = None, last = False, reply = False):
         self.action      = action
         self.object_name = object_name
@@ -64,13 +64,13 @@ class Query:
         if field_names:
             if isinstance(field_names, FieldNames):
                 self.field_names = field_names
-            else: 
+            else:
                 self.field_names = FieldNames(field_names)
         else:
             self.field_names = FieldNames()
 
         self.aggregate = aggregate
-            
+
         self.last = last
         self.reply = reply
 
@@ -100,7 +100,7 @@ class Query:
             field_names = FieldNames(star = True)
         last = dic.get('last', False)
         reply = dic.get('reply', False)
-        return Query(action, object_name, filter, params, field_names, 
+        return Query(action, object_name, filter, params, field_names,
                 aggregate, last)
 
     def to_sql(self, multiline = False):
@@ -140,8 +140,7 @@ class Query:
 
         return strmap[self.action] % locals()
 
-    def __str__(self):
-        return self.to_sql() 
-
     def __repr__(self):
         return self.to_sql()
+
+    __str__ = __repr__

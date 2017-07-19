@@ -1,0 +1,98 @@
+{
+    "resources": [
+    {
+        "type": "Group",
+        "name": "virtual"
+    },
+    {
+        "type": "Physical",
+            "name": "server",
+            "hostname": "localhost"
+    },
+    {
+        "type": "GUI",
+	"groups": ["virtual"]
+    },
+    {
+        "type": "LxcImage",
+        "name": "cicn-image",
+        "node": "server",
+        "image": "ubuntu1604-cicnsuite-rc3"
+    },
+    {
+        "type" : "LxcContainer",
+        "image": "cicn-image",
+        "name" : "cons",
+        "groups": [ "virtual" ],
+        "node" : "server",
+	"category": "smartphone"
+    },
+    {
+        "type" : "LxcContainer",
+        "image": "cicn-image",
+        "name" : "prod",
+        "groups": [ "virtual" ],
+	"category": "video-server",
+        "node" : "server"
+    },
+    {
+        "type" : "LxcContainer",
+        "image": "cicn-image",
+        "name" : "relay",
+        "groups": [ "virtual" ],
+        "node" : "server",
+	"category": "lte-antenna"
+    },
+    {
+        "type": "EmulatedLteChannel",
+        "name": "lch",
+        "ap": "relay",
+        "stations": [ "cons" ],
+        "control_port": 30002,
+        "node": "server",
+        "groups": [ "virtual" ]
+    },
+    {
+        "type": "Link",
+        "src_node": "relay",
+        "dst_node": "prod",
+        "groups": [ "virtual" ]
+    },
+    {
+        "type": "CentralIP",
+        "ip4_data_prefix": "192.168.42.0/23",
+        "ip6_data_prefix": "9002::/16",
+        "ip_routing_strategy": "spt",
+        "groups": [
+            "virtual"
+        ]
+    },
+    {
+        "type": "MetisForwarder",
+        "cache_size": 0,
+        "node": "cons"
+    },
+    {
+        "type": "MetisForwarder",
+        "cache_size": 2000,
+        "node": "relay"
+    },
+    {
+        "type": "MetisForwarder",
+        "cache_size": 0,
+        "node": "prod"
+    },
+    {
+        "type": "WebServer",
+        "prefixes": [
+            "/webserver"
+        ],
+        "node": "prod"
+    },
+    {
+        "type": "CentralICN",
+        "groups": [ "virtual" ],
+        "face_protocol": "udp4"
+    }
+    ]
+}

@@ -16,5 +16,7 @@
 # limitations under the License.
 #
 
-class ObjectSpecification: 
+import sys
+
+class ObjectSpecification:
     pass

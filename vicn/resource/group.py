@@ -36,3 +36,12 @@ class Group(Resource):
         if not cls:
             return list()
         return self.iter_by_type(cls)
+
+#    def get_tuple(self):
+#        return (self.name,)
+#
+#    def hash(self):
+#        return hash(self.get_tuple())
+#
+#    def __eq__(self, other):
+#        return self.get_tuple() == other.get_tuple()

@@ -24,6 +24,7 @@ from string                         import Template
 from netmodel.model.type            import String, Bool
 from vicn.core.attribute            import Attribute
 from vicn.core.resource             import EmptyResource
+from vicn.core.task                 import inherit_parent, override_parent
 from vicn.resource.dns_server       import DnsServer
 from vicn.resource.interface        import Interface
 from vicn.resource.linux.file       import TextFile
@@ -72,15 +73,16 @@ class DnsMasq(Service, DnsServer):
     log_dhcp = Attribute(Bool, description = 'Flag: log DHCP queries',
             default = True)
 
-    #--------------------------------------------------------------------------
-    # Resource lifecycle
-    #--------------------------------------------------------------------------
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.interface:
             raise Exception("Cannot initialize bridge without interface")
 
+    #--------------------------------------------------------------------------
+    # Resource lifecycle
+    #--------------------------------------------------------------------------
+
+    @inherit_parent
     def __subresources__(self):
         # Overwrite configuration file
         flags = list()
@@ -112,3 +114,7 @@ class DnsMasq(Service, DnsServer):
 
         return TextFile(node = self.node, owner = self, filename = FN_CONF,
                 content = conf, overwrite = True)
+
+    @override_parent
+    def __create__(self):
+        return self.__method_stop_start()

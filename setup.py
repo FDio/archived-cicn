@@ -36,8 +36,16 @@ with open('README.md') as f:
 # XXX TODO
 required_modules = list()
 
+data_files = list()
+
+data_files.extend([
+    ("/lib/systemd/system/", ["etc/netmon.service"]),
+    ("/etc/init/", ["etc/netmon.conf"]),
+])
+
+
 setup(
-    name                = 'vICN',
+    name                = 'vicn',
     version             = version,
     description         = 'vICN experiment controller',
     long_description    = long_description,
@@ -61,6 +69,7 @@ setup(
     keywords                = 'Experiment Controller; Orchestrator; ICN; LXC; Containers',
     platforms               = "Linux, OSX",
     packages                = find_packages(),
+    data_files              = data_files,
 
     install_requires        = required_modules,
 
@@ -73,3 +82,43 @@ setup(
 	],
     },
 )
+
+setup(
+    name = 'netmon',
+    version             = version,
+    description         = 'Netmon',
+    long_description    = long_description,
+    license             = 'Apache 2.0',
+
+    download_url        = 'https://gerrit.fd.io/r/cicn',
+    url                 = 'https://wiki.fd.io/view/Vicn',
+
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[
+	'Development Status :: 3 - Alpha',
+	'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+	'Topic :: Software Development :: Build Tools',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS :: MacOS X',
+        'License :: OSI Approved :: Apache Software License',
+	'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ],
+    keywords                = 'Experiment Controller; Orchestrator; ICN; LXC; Containers',
+    platforms               = "Linux, OSX",
+    packages                = find_packages(),
+    data_files              = data_files,
+
+    install_requires        = required_modules,
+
+    # To provide executable scripts, use entry points in preference to the
+    # "scripts" keyword. Entry points provide cross-platform support and allow
+    # pip to create the appropriate form of executable for the target platform.
+    entry_points = {
+	'console_scripts': [
+            'netmon  = netmon.bin.netmon:main',
+	],
+    },
+)
+

@@ -68,7 +68,7 @@ class Router:
     #--------------------------------------------------------------------------
 
     def register_local_collection(self, cls):
-        self.get_interface(LOCAL_NAMESPACE).register_collection(cls, 
+        self.get_interface(LOCAL_NAMESPACE).register_collection(cls,
                 LOCAL_NAMESPACE)
 
     def register_collection(self, cls, namespace=None):
@@ -97,7 +97,7 @@ class Router:
         interface.set_state(InterfaceState.PendingUp)
 
         for prefix in interface.get_prefixes():
-            self._fib.add(prefix, [interface])
+            self._fib.add(prefix, set([interface]))
 
         return interface
 
@@ -112,8 +112,8 @@ class Router:
 
     def on_interface_up(self, interface):
         """
-        This callback is triggered when an interface becomes up. 
-        
+        This callback is triggered when an interface becomes up.
+
         The router will request metadata.
         The flow table is notified.
         """
@@ -139,7 +139,7 @@ class Router:
     # Public API
     #---------------------------------------------------------------------------
 
-    def add_interface(self, interface_type, name=None, namespace=None, 
+    def add_interface(self, interface_type, name=None, namespace=None,
             **platform_config):
         """
         namespace is used to force appending of a namespace to the tables.
@@ -161,7 +161,7 @@ class Router:
             interface = interface_cls(self, **platform_config)
         except Exception as e:
             traceback.print_exc()
-            raise Exception("Cannot create interface %s of type %s with parameters %r: %s" 
+            raise Exception("Cannot create interface %s of type %s with parameters %r: %s"
                     % (name, interface_type,
                     platform_config, e))
         self._register_interface(interface, name)
@@ -231,9 +231,10 @@ class Router:
            interface flow table
          - using the FIB if no match is found
         """
-        orig_interface = self._flow_table.match(packet, ingress_interface)
-        if orig_interface:
-            orig_interface.send(packet)
+        orig_interfaces = self._flow_table.match(packet, ingress_interface)
+        if orig_interfaces:
+            for orig_interface in orig_interfaces:
+                orig_interface.send(packet)
             return
 
         if isinstance(packet, str):
@@ -247,11 +248,17 @@ class Router:
             return
 
         # Get route from FIB
-        interface = self._fib.get(packet.destination.object_name)
-        if not interface:
+        if packet.destination is None:
+            log.warning("Ignored reply packet with no match in flow table {}".format(
+                        packet.to_query()))
+            return
+        interfaces = self._fib.get(packet.destination.object_name)
+        if not interfaces:
+            log.error('No match in FIB for {}'.format(
+                        packet.destination.object_name))
             return
 
         # Update flow table before sending
-        self._flow_table.add(packet, ingress_interface, interface)
-
-        interface.send(packet)
+        self._flow_table.add(packet, ingress_interface, interfaces)
+        for interface in interfaces:
+            interface.send(packet)

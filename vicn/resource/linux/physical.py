@@ -29,6 +29,7 @@ from vicn.core.attribute            import Attribute
 from vicn.core.commands             import Command, ReturnValue
 from vicn.core.exception            import ResourceNotFound, VICNException
 from vicn.core.task                 import Task, task, EmptyTask
+from vicn.core.task                 import inherit_parent
 from vicn.resource.linux.keypair    import Keypair
 from vicn.resource.node             import Node, DEFAULT_USERNAME
 from vicn.resource.node             import DEFAULT_SSH_PUBLIC_KEY
@@ -71,14 +72,16 @@ class Physical(Node):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __subresources__(self):
         """
         Require a SSH keypair to be present for authentication on nodes
         """
         return Keypair(node = self, key = FN_KEY)
 
+    @inherit_parent
     def __initialize__(self):
-        if not is_local_host(self.hostname):
+        if self.managed and not is_local_host(self.hostname):
             """
             Initialization require the ssh port to be open on the node, and the ssh
             public key to be copied on the remote node.
@@ -124,6 +127,7 @@ class Physical(Node):
         p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
         if output:
             out, err = p.communicate()
+            #print('error {}, output {}'.format(err,out))
             return ReturnValue(p.returncode, stdout=out, stderr=err)
 
         p.wait()

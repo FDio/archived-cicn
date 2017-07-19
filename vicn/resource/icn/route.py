@@ -25,12 +25,10 @@ from vicn.resource.node     import Node
 class Route(Resource):
     node = Attribute(Node, mandatory = True)
     prefix = Attribute(String, mandatory = True)
-    face = Attribute(Face, description = "face used to forward interests", 
+    face = Attribute(Face, description = "face used to forward interests",
             mandatory=True)
     cost = Attribute(Integer, default=1)
 
     def __repr__(self):
-        return '<Route {} {} on node {}>'.format(self.prefix, self.face, 
+        return '<Route {} {} on node {}>'.format(self.prefix, self.face,
                 self.node.name)
-    
-    __str__ = __repr__

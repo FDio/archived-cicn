@@ -16,9 +16,10 @@
 # limitations under the License.
 #
 
-from netmodel.model.filter      import Filter
+from netmodel.model.sa_collections  import InstrumentedList
+from netmodel.model.filter          import Filter
 
-class Collection(list):
+class Collection(InstrumentedList):
     """
     A collection corresponds to a list of objects, and includes processing functionalities to
     manipulate them.

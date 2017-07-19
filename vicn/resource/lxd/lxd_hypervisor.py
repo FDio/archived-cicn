@@ -16,15 +16,6 @@
 # limitations under the License.
 #
 
-#-------------------------------------------------------------------------------
-# NOTES
-#-------------------------------------------------------------------------------
-#  - lxd >= 2.0.4 is required
-#      daemon/container: Remember the return code in the non wait-for-websocket
-#      case (Issue #2243)
-#  - Reference: https://github.com/lxc/lxd/tree/master/doc
-#-------------------------------------------------------------------------------
-
 import logging
 import os
 from pylxd                            import Client
@@ -34,7 +25,8 @@ from netmodel.model.type              import String, Integer
 from vicn.core.attribute              import Attribute, Multiplicity, Reference
 from vicn.core.exception              import ResourceNotFound
 from vicn.core.resource               import Resource
-from vicn.core.task                   import BashTask, task
+from vicn.core.task                   import EmptyTask, BashTask, task
+from vicn.core.task                   import inherit_parent, override_parent
 from vicn.resource.linux.application  import LinuxApplication as Application
 from vicn.resource.linux.service      import Service
 from vicn.resource.linux.certificate  import Certificate
@@ -74,10 +66,12 @@ CMD_LXD_NETWORK_SET = 'lxc network create {lxd_hypervisor.network} || true'
 class LxdInit(Application):
     __package_names__ = ['lxd', 'zfsutils-linux', 'lsof']
 
+    @inherit_parent
     def __get__(self):
         return BashTask(self.owner.node, CMD_LXD_CHECK_INIT,
                 {'lxd': self.owner})
 
+    @inherit_parent
     def __create__(self):
         cmd_params = {
             'storage-backend'       : self.owner.storage_backend,
@@ -107,12 +101,14 @@ class LxdInit(Application):
         # zfs-dkms in the host
         return BashTask(self.owner.node, cmd, as_root = True)
 
+    @inherit_parent
     def __delete__(self):
         raise NotImplementedError
 
 class LxdInstallCert(Resource):
     certificate = Attribute(Certificate, mandatory = True)
 
+    @inherit_parent
     @task
     def __get__(self):
         try:
@@ -126,6 +122,7 @@ class LxdInstallCert(Resource):
             raise ResourceNotFound
 
 
+    @inherit_parent
     @task
     def __create__(self):
         """
@@ -140,6 +137,8 @@ class LxdInstallCert(Resource):
 
 #------------------------------------------------------------------------------
 
+LxdStorageType = String.restrict(choices=('zfs'))
+
 class LxdHypervisor(Service):
     """
     Resource: LxdHypervisor
@@ -150,9 +149,8 @@ class LxdHypervisor(Service):
 
     lxd_port = Attribute(Integer, description = 'LXD REST API port',
             default = 8443)
-    storage_backend = Attribute(String, description = 'Storage backend',
-            default = 'zfs',
-            choices = ['zfs'])
+    storage_backend = Attribute(LxdStorageType, description = 'Storage backend',
+            default = 'zfs')
     storage_size = Attribute(Integer, description = 'Storage size',
             default = LXD_STORAGE_SIZE_DEFAULT) # GB
     zfs_pool = Attribute(String, description = 'ZFS pool',
@@ -190,6 +188,7 @@ class LxdHypervisor(Service):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __subresources__(self):
         lxd_init = LxdInit(owner=self, node = self.node)
         lxd_local_cert = Certificate(node = Reference(self, 'node'),
@@ -207,6 +206,11 @@ class LxdHypervisor(Service):
                                       pool=self.zfs_pool)
 
         return (lxd_init | lxd_local_cert) > (lxd_vicn_profile | lxd_cert_install)
+
+    @override_parent
+    def __create__(self):
+        log.warning('Not restarting LXD')
+        return EmptyTask()
 
     #--------------------------------------------------------------------------
     # Private methods

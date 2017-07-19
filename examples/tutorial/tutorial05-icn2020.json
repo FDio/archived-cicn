@@ -1,0 +1,96 @@
+{
+    "resources": [
+   {
+        "type": "Group",
+        "name": "virtual"
+    },
+    {
+        "type": "Physical",
+            "name": "server",
+            "hostname": "localhost"
+    },
+    {
+        "type": "LxcImage",
+        "name": "cicn-image",
+        "node": "server",
+        "image": "ubuntu1604-cicnsuite-rc3"
+    },
+    {
+        "type": "GUI",
+        "port": 8000,
+	"groups": ["virtual"]
+    },
+    {
+        "type" : "LxcContainer",
+        "image": "cicn-image",
+        "name" : "cons",
+        "groups": [ "virtual" ],
+	"category": "pc-video-client",
+        "node" : "server"
+    },
+    {
+        "type" : "LxcContainer",
+        "image": "cicn-image",
+        "name" : "prod",
+        "groups": [ "virtual" ],
+	"category": "video-server",
+        "node" : "server"
+    },
+    {
+        "type" : "LxcContainer",
+        "image": "cicn-image",
+        "name" : "relay",
+        "groups": [ "virtual" ],
+	"category": "icn-router",
+        "node" : "server"
+    },
+    {
+        "type": "Link",
+        "src_node": "cons",
+        "dst_node": "relay",
+        "groups": [ "virtual" ]
+    },
+    {
+        "type": "Link",
+        "src_node": "relay",
+        "dst_node": "prod",
+        "groups": [ "virtual" ]
+    },
+    {
+        "type": "CentralIP",
+        "ip4_data_prefix": "192.168.42.0/24",
+        "ip6_data_prefix": "9002::/16",
+        "ip_routing_strategy": "spt",
+        "groups": [
+            "virtual"
+        ]
+    },
+    {
+        "type": "MetisForwarder",
+        "cache_size": 0,
+        "node": "cons"
+    },
+    {
+        "type": "MetisForwarder",
+        "cache_size": 2000,
+        "node": "relay"
+    },
+    {
+        "type": "MetisForwarder",
+        "cache_size": 0,
+        "node": "prod"
+    },
+    {
+        "type": "WebServer",
+        "prefixes": [
+            "/webserver"
+        ],
+        "node": "prod"
+    },
+    {
+        "type": "CentralICN",
+        "groups": [ "virtual" ],
+        "face_protocol": "udp4"
+    }
+    ]
+}

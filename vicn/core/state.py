@@ -17,17 +17,9 @@
 #
 
 import asyncio
-import random
-import string
 
-class NEVER_SET:
-    pass
-
-# Separator for components of the UUID
-UUID_SEP = '-'
-
-# Length of the random component of the UUID
-UUID_LEN = 5
+from netmodel.model.uuid            import UUID
+from vicn.core.attribute            import NEVER_SET
 
 class ResourceState:
     UNINITIALIZED       = 'UNINITIALIZED'
@@ -63,31 +55,6 @@ class Operations:
     LIST_ADD = 'add'
     LIST_REMOVE = 'remove'
     LIST_CLEAR = 'clear'
-
-class UUID:
-    def __init__(self, name, cls):
-        self._uuid = self._make_uuid(name, cls)
-
-    def _make_uuid(self, name, cls):
-        """Generate a unique resource identifier
-
-        The UUID consists in the type of the resource, to which is added a
-        random identifier of length UUID_LEN. Components of the UUID are
-        separated by UUID_SEP.
-        """
-        uuid = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                for _ in range(UUID_LEN))
-        if name:
-            uuid = name # + UUID_SEP + uuid
-        return UUID_SEP.join([cls.__name__, uuid])
-
-    def __repr__(self):
-        return '<UUID {}>'.format(self._uuid)
-
-    def __lt__(self, other):
-        return self._uuid < other._uuid
-
-    __str__ = __repr__
 
 class PendingValue:
     def __init__(self, value = None):

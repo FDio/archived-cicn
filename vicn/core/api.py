@@ -19,6 +19,7 @@
 import asyncio
 import json
 import logging
+import os
 import resource as ulimit
 import sys
 
@@ -51,6 +52,7 @@ class API(metaclass = Singleton):
     def terminate(self):
         # XXX not valid if nothing has been initialized
         ResourceManager().terminate()
+        os._exit(0)
 
     def parse_topology_file(self, topology_fn, resources, settings):
         log.info("Parsing topology file %(topology_fn)s" % locals())
@@ -87,7 +89,7 @@ class API(metaclass = Singleton):
         if nofile is not None and nofile > 0:
             if nofile < 1024:
                 log.error('Too few allowed open files for the process')
-                import os; os._exit(1)
+                os._exit(1)
 
             log.info('Setting open file descriptor limit to {}'.format(
                         nofile))
@@ -95,15 +97,18 @@ class API(metaclass = Singleton):
                     ulimit.RLIMIT_NOFILE,
                     (nofile, nofile))
 
-        ResourceManager(base=scenario[-1], settings=settings)
+        base = os.path.dirname(scenario_list[-1])
+        base = os.path.abspath(base)
+        ResourceManager(base = base, settings = settings)
 
         for resource in resources:
             try:
                 ResourceManager().create_from_dict(**resource)
             except Exception as e:
+                import traceback; traceback.print_exc()
                 log.error("Could not create resource '%r': %r" % \
                         (resource, e,))
-                import os; os._exit(1)
+                os._exit(1)
 
         self._configured = True
 

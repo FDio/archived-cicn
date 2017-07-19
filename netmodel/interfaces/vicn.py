@@ -16,15 +16,19 @@
 # limitations under the License.
 #
 
+import logging
+
 from vicn.core.task                import BashTask
 from netmodel.model.object         import Object
 from netmodel.model.attribute      import Attribute
-from netmodel.model.query          import Query, ACTION_INSERT
+from netmodel.model.query          import Query, ACTION_INSERT, ACTION_SELECT
 from netmodel.model.type           import String
 from netmodel.network.interface    import Interface, InterfaceState
 from netmodel.network.packet       import Packet
 from netmodel.network.prefix       import Prefix
 from netmodel.util.misc            import lookahead
+
+log = logging.getLogger(__name__)
 
 class VICNBaseResource(Object):
     __type__ = 'vicn/'
@@ -50,18 +54,27 @@ class VICNBaseResource(Object):
         elif query.object_name == 'resource':
             resources = interface._manager.get_resources()
         else:
-            resources = interface._manager.by_type_str(query.object_name)
+            _resources = interface._manager.by_type_str(query.object_name)
+            resources = list()
+            for resource in _resources:
+                group_names = [r.name for r in resource.groups]
+                resources.append(resource)
 
-        for resource, last in lookahead(resources):
-            params = resource.get_attribute_dict(aggregates = True)
-            params['id'] = resource._state.uuid._uuid
-            params['type'] = resource.get_types()
-            params['state'] = resource._state.state
-            params['log'] = resource._state.log
-            reply = Query(ACTION_INSERT, query.object_name, params = params)
-            reply.last = last
-            packet = Packet.from_query(reply, reply = True)
-            cb(packet, ingress_interface = interface)
+        if query.action == ACTION_SELECT:
+            for resource, last in lookahead(resources):
+                params = resource.get_attribute_dict(aggregates = True)
+                params['id'] = resource._state.uuid._uuid
+                params['type'] = resource.get_types()
+                params['state'] = resource._state.state
+                params['log'] = resource._state.log
+                reply = Query(ACTION_INSERT, query.object_name, params = params)
+                reply.last = last
+                packet = Packet.from_query(reply, reply = True)
+                cb(packet, ingress_interface = interface)
+        else:
+            log.warning("Unknown action in query {}".format(query))
+
+        interface._manager._broadcast(query)
 
 class L2Graph(Object):
     __type__ = 'vicn/l2graph'

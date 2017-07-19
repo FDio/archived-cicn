@@ -22,18 +22,15 @@ from vicn.core.address_mgr          import AddressManager
 from vicn.core.attribute            import Attribute, Multiplicity
 from vicn.core.exception            import ResourceNotFound
 from vicn.core.requirement          import Requirement
-from vicn.core.task                 import inline_task
+from vicn.core.task                 import inline_task, inherit
 from vicn.resource.channel          import Channel
+from vicn.resource.interface        import Interface
 from vicn.resource.linux.bridge_mgr import BridgeManager
-from vicn.resource.linux.net_device import BaseNetDevice
+from vicn.resource.linux.net_device import NetDevice
 
 log = logging.getLogger(__name__)
 
-# FIXME This should use the AddressManager to get allocated a name that does
-# not exist
-DEFAULT_BRIDGE_NAME = 'br0'
-
-class Bridge(Channel, BaseNetDevice):
+class Bridge(Channel, NetDevice):
     """
     Resource: Bridge
     """
@@ -62,20 +59,9 @@ class Bridge(Channel, BaseNetDevice):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
-    @inline_task
-    def __get__(self):
-        # FIXME we currently force the recreation of the bridge, delegating the
-        # check to the creation function
-        raise ResourceNotFound
-
+    @inherit(Channel, Interface)
     def __create__(self):
-        # FIXME : reserves .1 IP address for the bridge, provided no other
-        # class uses this trick
-        AddressManager().get_ip(self)
         return self.node.bridge_manager.add_bridge(self.device_name)
-
-    # Everything should be handled by BaseNetDevice
-    __delete__ = None 
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
@@ -86,7 +72,7 @@ class Bridge(Channel, BaseNetDevice):
         Returns:
             Task
         """
-        return self.node.bridge_manager.add_interface(self.device_name, 
+        return self.node.bridge_manager.add_interface(self.device_name,
                 interface.device_name, vlan)
 
     def __method_add_interface__(self, interface, vlan=None):
@@ -99,6 +85,6 @@ class Bridge(Channel, BaseNetDevice):
         """
         log.info('Removing interface {} from bridge {}'.format(
                 interface.device_name, self.name))
-        return self.node.bridge_manager.del_interface(self.device_name, 
+        return self.node.bridge_manager.del_interface(self.device_name,
                 interface.device_name)
 

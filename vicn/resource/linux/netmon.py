@@ -25,5 +25,5 @@ class NetMon(Service):
     Generic network monitoring daemon, used internally by VICN for resource
     monitoring.
     """
-    __package_names__ = ['netmon']
+    __package_names__ = [] # XXX transition 'netmon']
     __service_name__ = 'netmon'

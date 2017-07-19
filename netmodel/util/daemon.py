@@ -231,7 +231,7 @@ class Daemon:
         """
         Overload this method if you use twisted (see xmlrpc.py)
         """
-        sys.exit(0)
+        os._exit(0)
 
     # Overload these...
 

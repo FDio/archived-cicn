@@ -22,115 +22,42 @@ import logging
 import operator
 import types
 
-from netmodel.model.mapper         import ObjectSpecification
-from netmodel.model.type           import Type, Self
-from netmodel.util.meta            import inheritors
-from netmodel.util.misc            import is_iterable
-from vicn.core.exception           import VICNListException
-from vicn.core.requirement         import Requirement, RequirementList
-from vicn.core.sa_collections      import InstrumentedList
-from vicn.core.state               import UUID, NEVER_SET, Operations
+from netmodel.model.attribute       import Attribute as BaseAttribute, NEVER_SET
+from netmodel.model.attribute       import Multiplicity, DEFAULT
+from netmodel.model.type            import Self
+from netmodel.model.uuid            import UUID
+from netmodel.util.misc             import is_iterable
+from vicn.core.requirement          import Requirement, RequirementList
+from vicn.core.state                import Operations
 
 log = logging.getLogger(__name__)
-
-#------------------------------------------------------------------------------
-# Attribute Multiplicity
-#------------------------------------------------------------------------------
-
-class Multiplicity:
-    OneToOne = '1_1'
-    OneToMany = '1_N'
-    ManyToOne = 'N_1'
-    ManyToMany = 'N_N'
-
-    @staticmethod
-    def reverse(value):
-        reverse_map = {
-            Multiplicity.OneToOne: Multiplicity.OneToOne,
-            Multiplicity.OneToMany: Multiplicity.ManyToOne,
-            Multiplicity.ManyToOne: Multiplicity.OneToMany,
-            Multiplicity.ManyToMany: Multiplicity.ManyToMany,
-        }
-        return reverse_map[value]
-
-
-# Default attribute properties values (default to None)
-DEFAULT = {
-    'multiplicity'  :  Multiplicity.OneToOne,
-    'mandatory'     : False,
-}
 
 #------------------------------------------------------------------------------
 # Attribute
 #------------------------------------------------------------------------------
 
-class Attribute(abc.ABC, ObjectSpecification):
-    properties = [
-        'name',
-        'type',
-        'key',
-        'description',
-        'default',
-        'choices',
-        'mandatory',
-        'multiplicity',
-        'ro',
-        'auto',
-        'func',
+class Attribute(BaseAttribute):
+    properties = BaseAttribute.properties
+    properties.extend([
         'requirements',
-        'reverse_name',
-        'reverse_description',
-        'reverse_auto'
-    ]
+        'remote_default'
+    ])
 
     def __init__(self, *args, **kwargs):
-        for key in Attribute.properties:
-            value = kwargs.pop(key, NEVER_SET)
-            setattr(self, key, value)
-
-        if len(args) == 1:
-            self.type, = args
-        elif len(args) == 2:
-            self.name, self.type = args
-
-        # self.type is optional since the type can be inherited. Although we
-        # will have to verify the attribute is complete at some point
-        if self.type:
-            if isinstance(self.type, str):
-                self.type = Type.from_string(self.type)
-            assert self.type is Self or Type.exists(self.type)
+        super().__init__(*args, **kwargs)
 
         # Post processing attribute properties
         if self.requirements is not NEVER_SET:
             self.requirements = RequirementList(self.requirements)
 
-        self.is_aggregate = False
-
-        self._reverse_attributes = list()
-
-    #--------------------------------------------------------------------------
-    # Display
-    #--------------------------------------------------------------------------
-
-    def __repr__(self):
-        return '<Attribute {}>'.format(self.name)
-
-    __str__ = __repr__
-
-    # The following functions are required to allow comparing attributes, and
-    # using them as dict keys
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __hash__(self):
-        return hash(self.name)
 
     #--------------------------------------------------------------------------
     # Descriptor protocol
     #
     # see. https://docs.python.org/3/howto/descriptor.html
     #--------------------------------------------------------------------------
+
+    # XXX Overloaded & simpler
 
     def __get__(self, instance, owner=None):
         if not instance:
@@ -143,9 +70,6 @@ class Attribute(abc.ABC, ObjectSpecification):
             raise NotImplementedError('Setting default value not implemented')
 
         instance.set(self.name, value, blocking=False)
-
-    def __delete__(self, instance):
-        raise NotImplementedError
 
     #--------------------------------------------------------------------------
 
@@ -170,7 +94,7 @@ class Attribute(abc.ABC, ObjectSpecification):
                     value, cur_value)
 
             # prevent instrumented list to perform operation
-            raise VICNListException
+            raise InstrumentedListException
 
     def do_list_remove(self, instance, value):
         if instance.is_local_attribute(self.name):
@@ -187,7 +111,7 @@ class Attribute(abc.ABC, ObjectSpecification):
                     value, cur_value)
 
             # prevent instrumented list to perform operation
-            raise VICNListException
+            raise InstrumentedListException
 
     def do_list_clear(self, instance):
         if instance.is_local_attribute(self.name):
@@ -201,36 +125,13 @@ class Attribute(abc.ABC, ObjectSpecification):
                     value, cur_value)
 
             # prevent instrumented list to perform operation
-            raise VICNListException
+            raise InstrumentedListException
 
     def handle_getitem(self, instance, item):
         if isinstance(item, UUID):
             from vicn.core.resource_mgr import ResourceManager
             return ResourceManager().by_uuid(item)
         return item
-
-    #--------------------------------------------------------------------------
-    # Accessors
-    #--------------------------------------------------------------------------
-
-    def __getattribute__(self, name):
-        value = super().__getattribute__(name)
-        if value is NEVER_SET:
-            if name == 'default':
-                return list() if self.is_collection else None
-            return DEFAULT.get(name, None)
-        return value
-
-    def has_reverse_attribute(self):
-        return self.reverse_name and self.multiplicity
-
-    @property
-    def is_collection(self):
-        return self.multiplicity in (Multiplicity.OneToMany,
-                Multiplicity.ManyToMany)
-
-    def is_set(self, instance):
-        return instance.is_set(self.name)
 
     #--------------------------------------------------------------------------
     # Operations
@@ -256,6 +157,7 @@ class Attribute(abc.ABC, ObjectSpecification):
 
 #------------------------------------------------------------------------------
 
+# XXX Move this to object, be careful of access to self._reference !
 class Reference:
     """
     Value reference.

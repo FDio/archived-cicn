@@ -109,7 +109,7 @@ class VICNTLV:
 
     @staticmethod
     def get_type(buf):
-        (typelen, ) = struct.unpack(NETMODEL_TLV_TYPELEN_STR, 
+        (typelen, ) = struct.unpack(NETMODEL_TLV_TYPELEN_STR,
                 buf[:NETMODEL_TLV_SIZE])
         return (typelen & NETMODEL_TLV_TYPE_MASK) >> NETMODEL_TLV_TYPE_SHIFT
 
@@ -179,7 +179,7 @@ class VICNTLV:
 class ObjectName(VICNTLV): pass
 
 @VICNTLV.set_tlv_type(NETMODEL_TLV_FIELD)
-class Field(VICNTLV): 
+class Field(VICNTLV):
     """Field == STR
     """
 
@@ -217,7 +217,7 @@ class Prefix(Object, Prefix_, VICNTLV):
 
     def __hash__(self):
         return hash(self.get_tuple())
-    
+
 @VICNTLV.set_tlv_type(NETMODEL_TLV_SRC)
 class Source(Prefix):
     """Source address
@@ -251,12 +251,12 @@ class Packet(Object, VICNTLV):
     source = Source()
     destination = Destination(Prefix)
     protocol = Protocol(String, default = 'query')
-    flags = Flags()
-    payload = Payload()
+    flags = Flags(String)
+    payload = Payload(String)
 
     # This should be dispatched across L3 L4 L7
 
-    def __init__(self, source = None, destination = None, protocol = None, 
+    def __init__(self, source = None, destination = None, protocol = None,
             flags = 0, payload = None):
         self.source         = source
         self.destination    = destination
@@ -272,8 +272,8 @@ class Packet(Object, VICNTLV):
         packet = Packet()
         if src_query:
             address = Prefix(
-                    object_name = src_query.object_name, 
-                    filter = src_query.filter, 
+                    object_name = src_query.object_name,
+                    filter = src_query.filter,
                     field_names = src_query.field_names,
                     aggregate = src_query.aggregate)
             if reply:
@@ -283,8 +283,8 @@ class Packet(Object, VICNTLV):
 
         if query:
             address = Prefix(
-                    object_name = query.object_name, 
-                    filter = query.filter, 
+                    object_name = query.object_name,
+                    filter = query.filter,
                     field_names = query.field_names,
                     aggregate = query.aggregate)
 
@@ -310,7 +310,7 @@ class Packet(Object, VICNTLV):
         field_names = address.field_names
         aggregate = address.aggregate
 
-        return Query(action, object_name, filter, params, field_names, 
+        return Query(action, object_name, filter, params, field_names,
                 aggregate = aggregate, last = self.last, reply = self.reply)
 
     @property
@@ -335,6 +335,16 @@ class Packet(Object, VICNTLV):
         else:
             self.flags &= ~FLAG_REPLY
 
+    def get_tuple(self):
+        return (self.source, self.destination, self.protocol, self.flags,
+                self.payload)
+
+    def __eq__(self, other):
+        return self.get_tuple() == other.get_tuple()
+
+    def __hash__(self):
+        return hash(self.get_tuple())
+
 class ErrorPacket(Packet):
     """
     Analog with ICMP errors packets in IP networks
@@ -344,7 +354,7 @@ class ErrorPacket(Packet):
     # Constructor
     #--------------------------------------------------------------------------
 
-    def __init__(self, type = ERROR, code = ERROR, message = None, 
+    def __init__(self, type = ERROR, code = ERROR, message = None,
             traceback = None, **kwargs):
         assert not traceback or isinstance(traceback, str)
 

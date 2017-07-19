@@ -16,7 +16,8 @@
 # limitations under the License.
 #
 
-from netmodel.model.type            import String
+from netmodel.model.type            import String, Integer
+from netmodel.model.type            import Inet4Address, Inet6Address
 from vicn.core.attribute            import Attribute
 from vicn.core.resource             import BaseResource
 from vicn.resource.interface        import Interface
@@ -34,17 +35,6 @@ class PhyInterface(Interface):
             mandatory = True)
     pci_address = Attribute(String, description = "Device's PCI bus address",
             mandatory = True)
-    mac_address = Attribute(String, description = "Device's MAC address",
-            mandatory=True)
-    ip4_address = Attribute(String, description = "Device's IP address")
-    ip6_address = Attribute(String, description = "Device's IP address")
-
-    #--------------------------------------------------------------------------
-    # Constructor and Accessors
-    #--------------------------------------------------------------------------
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if not self.name:
-            self.name = self.node.name + '-' + self.device_name
+    mac_address = Attribute(String, description = "Device's MAC address")
+    ip4_address = Attribute(Inet4Address, description = "Device's IP address")
+    ip6_address = Attribute(Inet6Address, description = "Device's IP address")

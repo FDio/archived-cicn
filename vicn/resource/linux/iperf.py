@@ -16,12 +16,10 @@
 # limitations under the License.
 #
 
-from abc                                import ABC
-
 from netmodel.model.type                import Integer
 from vicn.core.attribute                import Attribute
 from vicn.resource.linux.application    import LinuxApplication
 
-class Iperf3(LinuxApplication, ABC):
+class Iperf3(LinuxApplication):
     __package_names__ = ['iperf3']
 

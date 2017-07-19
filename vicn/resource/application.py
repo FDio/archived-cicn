@@ -16,9 +16,10 @@
 # limitations under the License.
 #
 
-from vicn.core.attribute       import Attribute, Multiplicity
-from vicn.core.resource        import Resource
-from vicn.resource.node        import Node
+from netmodel.model.key         import Key
+from vicn.core.attribute        import Attribute, Multiplicity
+from vicn.core.resource         import Resource
+from vicn.resource.node         import Node
 
 class Application(Resource):
     node = Attribute(Node,
@@ -26,5 +27,5 @@ class Application(Resource):
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'applications',
-            key = True,
             reverse_description = 'Applications installed on node')
+    __key__ = Key(node)

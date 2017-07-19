@@ -54,7 +54,7 @@ class NDNPingServerBase(Producer):
             default = lambda self: self._default_prefixes())
 
     node = Attribute(requirements = [
-            Requirement("forwarder", 
+            Requirement("forwarder",
                 capabilities = set(['ICN_SUITE_NDN_1_0'])) ])
 
     __package_names__ = ['ndnping']

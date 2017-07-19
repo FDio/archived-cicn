@@ -35,6 +35,30 @@ python3-pylxd (>=2.2.2, use pip3 if necessary, depends on libssl-dev)
   python3-requests-unixsocket
 
 
+== Installation
+
+Install vICN from either a debian package or by cloning the git repositoy.
+
+Add the image server certificate to your trusted certificates:
+
+    sudo apt-get install ca-certificates
+    wget https://46.105.122.213/cicn.crt
+    sudo cp cicn.crt /usr/share/ca-certificates
+    sudo dpkg-reconfigure ca-certificates
+
+    # This should be done by the LXD remote add
+    cp /usr/share/ca-certificates/cicn.crt ~/.config/lxc/servercerts/
+
+    lxc remote add cicn https://46.105.122.213  --protocol=simplestreams
+
+You can now list image with:
+
+    lxc image list cicn:
+
+or run containers:
+
+    lxc launch cicn:cicn/1.0 test
+
 == Getting started
 
 You can have a look at the tutorials available in the fd.io wiki:

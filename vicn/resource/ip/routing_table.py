@@ -20,28 +20,31 @@ from vicn.core.attribute            import Attribute, Multiplicity
 from vicn.core.exception            import ResourceNotFound
 from vicn.core.resource             import Resource
 from vicn.core.task                 import EmptyTask, BashTask
+from vicn.core.task                 import inherit_parent
 from vicn.resource.ip.route         import IPRoute
 from vicn.resource.node             import Node
 from vicn.resource.vpp.vpp_commands import CMD_VPP_ADD_ROUTE
 from vicn.resource.vpp.vpp_commands import CMD_VPP_ADD_ROUTE_GW
 
-CMD_ADD_ROUTE = ('ip -{route.ip_version} route add {route.ip_address} '
-        'dev {route.interface.device_name} || true')
-CMD_ADD_ROUTE_GW = ('ip -{route.ip_version} route add {route.ip_address} '
-        'dev {route.interface.device_name} via {route.gateway} || true')
-CMD_DEL_ROUTE = ('ip -{route.ip_version} route del {route.ip_address} '
+CMD_ADD_ROUTE = ('ip -{route.ip_version} route add {route.ip_address}/{route.ip_address.prefix_len} '
+        'dev {route.interface.device_name}')
+CMD_ADD_ROUTE_GW = ('ip -{route.ip_version} route add {route.ip_address}/{route.ip_address.prefix_len} '
+        'dev {route.interface.device_name} via {route.gateway}')
+CMD_ADD_ROUTE_GWM = ('ip -{route.ip_version} route add {route.ip_address}/{route.ip_address.prefix_len} '
+        'dev {route.interface.device_name} via {route.gateway} metric {route.metric}')
+CMD_DEL_ROUTE = ('ip -{route.ip_version} route del {route.ip_address}/{route.ip_address.prefix_len} '
         'dev {route.interface.device_name}')
 CMD_SHOW_ROUTES = 'ip route show'
 
-CMD_ADD_ARP_ENTRY = 'arp -s {route.ip_address} {route.mac_address}'
-CMD_ADD_NDB_ENTRY = ('ip -6 neigh add {route.ip_address} lladr {route.mac_address} '
-        'dev {route.interface.device_name}')
+#CMD_ADD_ARP_ENTRY = 'arp -s {route.ip_address} {route.mac_address}'
+#CMD_ADD_NDB_ENTRY = ('ip -6 neigh add {route.ip_address} lladr {route.mac_address} '
+#        'dev {route.interface.device_name}')
 
 # Populate arp table too. The current configuration with one single bridge
 # connecting every container and vpp nodes seem to create loops that prevent
 # vpp from netmodel.network.interface for routing ip packets.
 
-VPP_ARP_FIX = True
+#VPP_ARP_FIX = True
 
 def _iter_routes(out):
     for line in out.splitlines():
@@ -97,6 +100,7 @@ class RoutingTable(Resource):
     def __after__(self):
         return ('CentralIP', 'VPPInterface', 'ContainerSetup')
 
+    @inherit_parent
     def __get__(self):
         def cache(rv):
             for route in _iter_routes(rv.stdout):
@@ -106,6 +110,7 @@ class RoutingTable(Resource):
             raise ResourceNotFound
         return BashTask(self.node, CMD_SHOW_ROUTES, parse=cache)
 
+    @inherit_parent
     def __create__(self):
         """
         Create a single BashTask for all routes
@@ -114,7 +119,6 @@ class RoutingTable(Resource):
         done = set()
         routes_cmd = list()
         routes_via_cmd = list()
-        arp_cmd = list()
 
         # vppctl lock
         # NOTE: we currently lock vppctl during the whole route update
@@ -122,7 +126,7 @@ class RoutingTable(Resource):
         routes_via_lock = None
 
         for route in self.routes:
-            if route.ip_address in self._routes:
+            if str(route.ip_address) in self._routes:
                 continue
             if route.ip_address in done:
                 continue
@@ -135,21 +139,22 @@ class RoutingTable(Resource):
                     cmd = CMD_ADD_ROUTE.format(route = route)
                     routes_cmd.append(cmd)
                 else:
-                    cmd = CMD_ADD_ROUTE_GW.format(route = route)
-                    routes_via_cmd.append(cmd)
-                if VPP_ARP_FIX and route.mac_address:
-                    if route.ip_address != "default":
-                        cmd = CMD_ADD_ARP_ENTRY.format(route = route)
-                        arp_cmd.append(cmd)
+                    if route.metric is None:
+                        cmd = CMD_ADD_ROUTE_GW.format(route = route)
+                        routes_via_cmd.append(cmd)
+                    else:
+                        cmd = CMD_ADD_ROUTE_GWM.format(route = route)
+                        routes_via_cmd.append(cmd)
             else:
+                if route.metric == 1025:
+                    continue
                 if route.gateway is None:
                     cmd = CMD_VPP_ADD_ROUTE.format(route = route)
-                    routes_cmd.append(cmd)
                     routes_lock = route.node.vpp.vppctl_lock
                 else:
                     cmd = CMD_VPP_ADD_ROUTE_GW.format(route = route)
-                    routes_via_cmd.append(cmd)
                     routes_via_lock = route.node.vpp.vppctl_lock
+                routes_via_cmd.append(cmd)
 
         # TODO: checks
         clean_routes_task = EmptyTask()
@@ -166,12 +171,8 @@ class RoutingTable(Resource):
         else:
             routes_via_task = EmptyTask()
 
-        if len(arp_cmd) > 0:
-            arp_task = BashTask(self.node, '\n'.join(arp_cmd))
-        else:
-            arp_task = EmptyTask()
+        return ((clean_routes_task > routes_task) > routes_via_task)
 
-        return ((clean_routes_task > routes_task) > routes_via_task) > arp_task
-
+    @inherit_parent
     def __delete__(self):
         raise NotImplementedError

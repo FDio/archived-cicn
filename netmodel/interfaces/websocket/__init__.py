@@ -97,7 +97,7 @@ class ClientProtocol(WebSocketClientProtocol):
         Websocket opening handshake has completed.
         """
         self.factory.interface._on_client_open(self)
-    
+
     def onMessage(self, payload, isBinary):
         self.factory.interface._on_client_message(self, payload, isBinary)
 
@@ -109,7 +109,7 @@ class ClientProtocol(WebSocketClientProtocol):
 class WebSocketClientInterface(Interface):
     """
     All messages are exchanged using text (non-binary) mode.
-    """   
+    """
     __interface__ = 'websocketclient'
 
     def __init__(self, *args, **kwargs):
@@ -149,6 +149,11 @@ class WebSocketClientInterface(Interface):
         # Holds the instance of the connect client protocol
         self._client = None
 
+    def __repr__(self):
+        return '<WebSocketClientInterface {}>'.format(self._client)
+
+    __str__ =  __repr__
+
     #--------------------------------------------------------------------------
     # Interface API
     #--------------------------------------------------------------------------
@@ -168,10 +173,10 @@ class WebSocketClientInterface(Interface):
     async def _connect(self):
         loop = asyncio.get_event_loop()
         try:
-            self._instance = await loop.create_connection(self._factory, 
+            self._instance = await loop.create_connection(self._factory,
                     self._address, self._port)
         except Exception as e:
-            log.warning('Connect failed : {}'.format(e))
+            log.warning('Connect failed on {} : {}'.format(self, e))
             self._instance = None
             # don't await for retry, since it cause an infinite recursion...
             asyncio.ensure_future(self._retry())
@@ -206,7 +211,7 @@ class WebSocketClientInterface(Interface):
             query, record = args
         else:
             query = args
-        
+
         if isinstance(query, dict):
             query = Query.from_dict(query)
         else:
@@ -226,7 +231,7 @@ class WebSocketClientInterface(Interface):
         asyncio.ensure_future(self._retry())
 
 #------------------------------------------------------------------------------
-        
+
 class ServerProtocol(WebSocketServerProtocol, Interface):
     """
     Default WebSocket server protocol.
@@ -244,7 +249,7 @@ class ServerProtocol(WebSocketServerProtocol, Interface):
         Constructor.
 
         Args:
-            callback (Function[ -> ]) : 
+            callback (Function[ -> ]) :
             hook (Function[->]) : Hook method to be called for every packet to
                 be sent on the interface. Processing continues with the packet
                 returned by this function, or is interrupted in case of a None
@@ -252,6 +257,12 @@ class ServerProtocol(WebSocketServerProtocol, Interface):
         """
         WebSocketServerProtocol.__init__(self)
         Interface.__init__(self, callback=callback, hook=hook)
+        self._last_peer = None
+
+    def __repr__(self):
+        return '<WebSocketInterface {}>'.format(self._last_peer if self._last_peer else 'N/A')
+
+    __str__ = __repr__
 
     #--------------------------------------------------------------------------
     # Interface API
@@ -272,9 +283,10 @@ class ServerProtocol(WebSocketServerProtocol, Interface):
     # Websocket events
 
     def onConnect(self, request):
+        self._last_peer = request.peer
         self.factory._instances.append(self)
         self.set_state(InterfaceState.Up)
-        
+
     def onOpen(self):
         #print("WebSocket connection open.")
         pass
@@ -305,7 +317,7 @@ class WebSocketServerInterface(Interface):
     It is also used to broadcast packets to all connected clients.
 
     All messages are exchanged using text (non-binary) mode.
-    """   
+    """
 
     __interface__ = 'websocketserver'
 
@@ -331,6 +343,12 @@ class WebSocketServerInterface(Interface):
         # packets.
         self._factory._instances = list()
 
+    def __repr__(self):
+        return '<WebSocketServerInterface ws://{}:{}'.format(
+                self._address, self._port)
+
+    __str__ = __repr__
+
     #--------------------------------------------------------------------------
     # Interface API
     #--------------------------------------------------------------------------
@@ -343,7 +361,7 @@ class WebSocketServerInterface(Interface):
         loop = asyncio.get_event_loop()
         # Websocket server
         log.info('WebSocket server started')
-        self._server = await loop.create_server(self._factory, self._address, 
+        self._server = await loop.create_server(self._factory, self._address,
                 self._port)
         await self._set_state(InterfaceState.Up)
 

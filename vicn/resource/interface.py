@@ -16,8 +16,9 @@
 # limitations under the License.
 #
 
-from vicn.core.attribute        import Attribute, Multiplicity
+from netmodel.model.key         import Key
 from netmodel.model.type        import Bool
+from vicn.core.attribute        import Attribute, Multiplicity
 from vicn.core.resource         import Resource
 from vicn.resource.node         import Node
 from vicn.resource.channel      import Channel
@@ -30,8 +31,7 @@ class Interface(Resource):
     node = Attribute(Node, description = 'Node to which the interface belongs',
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'interfaces',
-            mandatory = True,
-            key = True)
+            mandatory = True)
     channel = Attribute(Channel, description = 'Channel to which the interface is attached',
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'interfaces')
@@ -40,6 +40,8 @@ class Interface(Resource):
     up = Attribute(Bool, description = 'Interface up/down status',
                 default = True)
     monitored = Attribute(Bool, default = True)
+
+    __key__ = Key(node, Resource.name)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

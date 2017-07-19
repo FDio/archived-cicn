@@ -3,51 +3,58 @@
         {
             "type": "Physical",
             "name": "server",
-            "hostname": "MY-SERVER"
+            "hostname": "localhost"
         },
-        {
-            "type": "NetDevice",
-            "device_name": "br0",
-            "node": "server",
-            "managed": false
-        },
+	{
+            "type": "Group",
+	    "name": "routed"
+	},
+	{
+	    "type": "GUI",
+	    "groups": [ "routed" ]
+	},
         {
             "type": "LxcImage",
-            "name": "ubuntu1604-cicnsuite-rc3",
+	    "name": "cicn-image",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "node": "server"
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "name": "cons",
             "node": "server",
+	    "groups": [ "routed" ],
             "category": "tablet",
             "x": 1,
             "y": 2
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "name": "wifi",
             "node": "server",
+	    "groups": [ "routed" ],
             "category": "wifi",
             "x": 2,
             "y": 1
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "name": "lte",
             "node": "server",
+	    "groups": [ "routed" ],
             "category": "lte",
             "x": 2,
             "y": 3
         },
         {
             "type": "LxcContainer",
-            "image": "ubuntu1604-cicnsuite-rc3",
+            "image": "cicn-image",
             "name": "prod",
             "node": "server",
+	    "groups": [ "routed" ],
             "category": "video-server",
             "x": 3,
             "y": 2
@@ -77,11 +84,13 @@
         },
         {
             "type": "Link",
+	    "groups": [ "routed" ],
             "src_node": "wifi",
             "dst_node": "prod"
         },
         {
             "type": "Link",
+	    "groups": [ "routed" ],
             "src_node": "lte",
             "dst_node": "prod"
         },
@@ -91,6 +100,7 @@
           "node": "server",
           "ap": "wifi",
           "stations": ["cons"],
+	  "groups": [ "routed" ],
           "control_port": 30001
         },
         {
@@ -98,20 +108,21 @@
           "name": "lch",
           "node": "server",
           "ap": "lte",
+	  "groups": [ "routed" ],
           "stations": ["cons"],
           "control_port": 30002
         },
         {
             "type": "CentralIP",
-            "ip_routing_strategy": "spt"
+            "ip_routing_strategy": "spt",
+	    "groups": [ "routed" ],
+	    "ip4_data_prefix": "192.168.42.0/23",
+	    "ip6_data_prefix": "9002::/16"
         },
         {
             "type": "CentralICN",
-            "icnip_routing_strategy": "spt",
+	    "groups": [ "routed" ],
             "face_protocol": "udp4"
         }
-    ],
-    "settings": {
-        "network": "192.168.2.0/24"
-    }
+    ]
 }

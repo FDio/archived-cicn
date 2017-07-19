@@ -16,11 +16,12 @@
 # limitations under the License.
 #
 
+from netmodel.model.key     import Key
 from netmodel.model.type    import String, Bool
 from vicn.core.attribute    import Attribute, Multiplicity
 from vicn.core.exception    import ResourceNotFound
 from vicn.core.resource     import Resource
-from vicn.core.task         import BashTask, inline_task
+from vicn.core.task         import BashTask, inline_task, inherit_parent
 from vicn.resource.node     import Node
 
 CREATE_DIR_CMD  = "mkdir -p {dir}"
@@ -38,22 +39,23 @@ class File(Resource):
     Resource: File
     """
     filename = Attribute(String, description = 'Path to the file',
-            key = True,
             mandatory = True)
     node = Attribute(Node, description = 'Node on which the file is created',
             mandatory = True,
             multiplicity = Multiplicity.ManyToOne,
             reverse_name = 'files',
-            key = True,
             reverse_description = 'Files created on the node')
     overwrite = Attribute(Bool,
             description = 'Determines whether an existing file is overwritten',
             default = False)
 
+    __key__ = Key(node, filename)
+
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __get__(self):
         # UGLY
         @inline_task
@@ -72,12 +74,14 @@ class File(Resource):
         test = BashTask(self.node, GET_FILE_CMD, {"file": self}, parse=is_path)
         return test
 
+    @inherit_parent
     def __create__(self):
         ctask = BashTask(self.node, CREATE_FILE_CMD, {"file": self})
         if self.overwrite:
             ctask = BashTask(self.node, DELETE_FILE_CMD, {'file': self}) > ctask
         return ctask
 
+    @inherit_parent
     def __delete__(self):
         return BashTask(self.node, DELETE_FILE_CMD, { "file" : self})
 
@@ -96,6 +100,8 @@ class TextFile(File):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    # XXX REDUNDANT !!!
+    @inherit_parent
     def __create__(self):
         return BashTask(self.node, CMD_PRINT_TO_FILE, {'file': self})
 

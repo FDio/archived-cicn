@@ -18,7 +18,7 @@
 
 from netmodel.model.type                    import String, Integer
 from vicn.core.attribute	            import Attribute, Reference
-from vicn.core.task                         import BashTask
+from vicn.core.task                         import BashTask, inherit_parent
 from vicn.resource.linux.file               import File
 from vicn.resource.linux.package_manager    import Packages
 
@@ -39,13 +39,13 @@ class MetisKeystore(File):
 
     filename = Attribute(String, description = "File containing the keystore",
             default = DEFAULT_KEYSTORE_FILE, mandatory=False)
-    password = Attribute(String, 
+    password = Attribute(String,
             description = "Password for the keystore file",
             default = DEFAULT_KEYSTORE_PASSWD)
-    subject_name = Attribute(String, 
+    subject_name = Attribute(String,
             description = "Subject name for the keystore",
             default = DEFAULT_KEYSTORE_SUBJ)
-    validity = Attribute(String, 
+    validity = Attribute(String,
             description = "Validity period of the keystore",
             default = DEFAULT_KEYSTORE_VALIDITY)
     size = Attribute(Integer, description = 'Length of the keys',
@@ -62,6 +62,7 @@ class MetisKeystore(File):
                 names=self._get_package_names(), owner=self)
         return packages
 
+    @inherit_parent
     def __create__(self):
         args = {'filename' : self.filename, 'password' : self.password,
                 'subject_name' : self.subject_name, 'validity' : self.validity,

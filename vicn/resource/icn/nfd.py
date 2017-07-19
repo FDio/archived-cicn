@@ -22,6 +22,7 @@ import re
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.task                     import inline_task, BashTask
 from vicn.core.task                     import ParseRegexTask
+from vicn.core.task                     import inherit_parent
 from vicn.resource.icn.forwarder        import Forwarder
 from vicn.resource.icn.icn_application  import ICN_SUITE_NDN
 
@@ -74,17 +75,20 @@ class NFD(Forwarder):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     @inline_task
     def __get__(self):
         # NFD is assumed not to exist
         raise ResourceNotFound
 
+    @inherit_parent
     def __create__(self):
         # Modify the configuration file before running the forwarder service
         conf = BashTask(self.node, CMD_SET_STRATEGY_CACHE, {'nfd': self})
-        forwarder = Forwarder.__create__(self)
-        return conf.then(forwarder)
+        forwarder = super().__create__()
+        return conf > forwarder
 
+    @inherit_parent
     def __delete__(self):
         raise NotImplementedError
 

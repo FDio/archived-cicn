@@ -65,7 +65,7 @@ class ReturnValue:
     def _clean(self, value):
         if value is None or isinstance(value, str):
             return value
-        return value.decode('utf-8')
+        return value.decode('utf-8').strip()
 
     def _set_stdout(self, value):
         self._stdout = self._clean(value)

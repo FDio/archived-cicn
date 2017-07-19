@@ -39,7 +39,10 @@ class FIB:
         self._entries = dict()
 
     def add(self, prefix, next_hops = None):
-        self._entries[prefix] = FIBEntry(prefix, next_hops)
+        if prefix not in self._entries:
+            self._entries[prefix] = FIBEntry(prefix, next_hops)
+        else:
+            self._entries[prefix].update(next_hops)
 
     def update(self, prefix, next_hops = None):
         entry = self._entries.get(prefix)
@@ -54,10 +57,11 @@ class FIB:
                 raise Exception('prefix not found')
             entry.remove(next_hops)
             return
-        
+
         del self._entries[prefix]
 
     def get(self, object_name):
         for entry in self._entries.values():
             if entry._prefix.object_name == object_name:
-                return next(iter(entry._next_hops))
+                return entry._next_hops
+        return None

@@ -24,15 +24,17 @@ from vicn.core.exception            import ResourceNotFound
 from vicn.core.requirement          import Requirement
 from vicn.core.resource_mgr         import wait_resource_task
 from vicn.core.task                 import async_task, task, BashTask, EmptyTask
+from vicn.core.task                 import inherit_parent
 from vicn.resource.icn.forwarder    import Forwarder
 from vicn.resource.node             import Node
 from vicn.resource.vpp.vpp_commands import CMD_VPP_ENABLE_PLUGIN
-from vicn.resource.vpp.vpp_commands import CMD_VPP_CICN_GET
-from vicn.resource.vpp.vpp_commands import CMD_VPP_ADD_ICN_FACE
-from vicn.resource.vpp.vpp_commands import CMD_VPP_ADD_ICN_ROUTE
-from vicn.resource.vpp.vpp_commands import CMD_VPP_CICN_GET_CACHE_SIZE
-from vicn.resource.vpp.vpp_commands import CMD_VPP_CICN_SET_CACHE_SIZE
 
+CMD_VPP_CICN_GET = "vppctl_wrapper cicn show"
+CMD_VPP_ADD_ICN_ROUTE = 'vppctl_wrapper cicn cfg fib add prefix {route.prefix} face {route.face.id}'
+CMD_VPP_ADD_ICN_FACE = 'vppctl_wrapper cicn cfg face add local {face.src_ip}:{face.src_port} remote {face.dst_ip}:{face.dst_port}'
+
+CMD_VPP_CICN_GET_CACHE_SIZE = 'vppctl_wrapper cicn show | grep "CS entries" | grep -Eo "[0-9]+"'
+CMD_VPP_CICN_SET_CACHE_SIZE = 'vppctl_wrapper cicn control param cs size {self.cache_size}'
 _ADD_FACE_RETURN_FORMAT = "Face ID: [0-9]+"
 
 def check_face_id_return_format(data):
@@ -66,6 +68,7 @@ class CICNForwarder(Forwarder):
     def __after__(self):
         return ['CentralICN']
 
+    @inherit_parent
     def __get__(self):
         def parse(rv):
             if rv.return_value > 0 or 'cicn: not enabled' in rv.stdout:
@@ -73,6 +76,7 @@ class CICNForwarder(Forwarder):
         return BashTask(self.node, CMD_VPP_CICN_GET,
                 lock = self.node.vpp.vppctl_lock, parse=parse)
 
+    @inherit_parent
     def __create__(self):
 
         #self.node.vpp.plugins.append("cicn")
@@ -103,9 +107,6 @@ class CICNForwarder(Forwarder):
                     CMD_VPP_ADD_ICN_ROUTE, {'route' : route}, lock = lock)
 
         return (wait_resource_task(self.node.vpp) > create_task) > (face_task > route_task)
-
-    # Nothing to do
-    __delete__ = None
 
     #--------------------------------------------------------------------------
     # Attributes

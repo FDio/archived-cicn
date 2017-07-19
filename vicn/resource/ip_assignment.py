@@ -20,10 +20,12 @@ import math
 import logging
 
 from vicn.core.resource                 import Resource
-from netmodel.model.type                import String
+from netmodel.model.type                import String, Bool
 from vicn.core.attribute                import Attribute
 from vicn.resource.ip.prefix_tree       import Inet6Prefix, PrefixTree, Inet4Prefix
+from netmodel.model.type                import Inet4Address, Inet6Address
 from vicn.core.task                     import inline_task, async_task, EmptyTask
+from vicn.core.task                     import inherit_parent
 from vicn.core.exception                import ResourceNotFound
 
 log = logging.getLogger(__name__)
@@ -31,8 +33,9 @@ log = logging.getLogger(__name__)
 class IpAssignment(Resource):
     prefix = Attribute(String, mandatory=True)
     control_prefix = Attribute(String, description="prefix for control plane")
-    max_prefix_size = Attribute(String,
+    max_prefix_len = Attribute(String,
             description="Maximum assigned prefix size for a link")
+    disjoint_addresses = Attribute(Bool, default=False)
 
     PrefixClass = None
 
@@ -41,20 +44,20 @@ class IpAssignment(Resource):
         self._prefix = self.PrefixClass(self.prefix)
         self._prefix_tree = PrefixTree(self._prefix)
         self._assigned_prefixes = {}
-        if not self.max_prefix_size:
-            self.max_prefix_size = self.PrefixClass.MAX_PREFIX_SIZE
+        if not self.max_prefix_len:
+            self.max_prefix_len = self.PrefixClass.MAX_PREFIX_SIZE
         if self.control_prefix:
             self._ctrl_prefix = self.PrefixClass(self.control_prefix)
             self._ctrl_prefix_it = iter(self._ctrl_prefix)
             next(self._ctrl_prefix_it) #Removes internet address
             self._assigned_addresses = {}
 
-    def get_prefix(self, obj, prefix_size):
+    def get_prefix(self, obj, prefix_len):
         ret = None
         if obj in self._assigned_prefixes:
             ret = self._assigned_prefixes[obj]
         else:
-            ret = self._prefix_tree.get_prefix(prefix_size)
+            ret = self._prefix_tree.get_prefix(prefix_len)
             self._assigned_prefixes[obj] = ret
         return ret
 
@@ -69,10 +72,12 @@ class IpAssignment(Resource):
             self._assigned_addresses[obj] = ret
         return ret
 
+    @inherit_parent
     @inline_task
     def __get__(self):
         raise ResourceNotFound
 
+    @inherit_parent
     #@inline_task
     def __create__(self):
         # XXX code from Channel.__create__, until Events are properly implemented.
@@ -80,38 +85,77 @@ class IpAssignment(Resource):
         task = EmptyTask()
         for group in self.groups:
             for channel in group.iter_by_type_str('channel'):
-                interfaces = sorted(channel.interfaces, key = lambda x : x.device_name)
-                if not interfaces:
-                    continue
+                if channel.has_type("emulatedchannel"):
+                    interfaces = [channel._ap_if]
+                    interfaces.extend(channel._sta_ifs.values())
+                else:
+                    interfaces = sorted(channel.interfaces, key = lambda x : x.device_name)
+                    if not interfaces:
+                        continue
 
-                min_prefix_size = math.ceil(math.log(len(channel.interfaces), 2))
-                prefix_size = min(self.max_prefix_size,
-                        self.PrefixClass.MAX_PREFIX_SIZE - min_prefix_size)
-                prefix = self.get_prefix(channel, prefix_size)
+                if self.PrefixClass is Inet6Prefix:
+                    # 0 is forbidden
+                    num_required_ip = len(interfaces) + 1
+                elif channel.has_type("emulatedchannel"): #EmulatedChannel + IPv4
+                    num_required_ip = len(interfaces) + 2 + channel.nb_base_stations #Internet address + bcast
+                else:
+                    num_required_ip = len(interfaces)
+                min_prefix_len = math.ceil(math.log(num_required_ip, 2))
 
-                it = prefix.get_iterator()
+                prefix_len = min(self.max_prefix_len,
+                        self.PrefixClass.MAX_PREFIX_SIZE - min_prefix_len)
+
+                #XXX lte-emulator expects /24
+                if channel.has_type("emulatedltechannel") and self.PrefixClass is Inet4Prefix:
+                    prefix_len = 24
+
+                # Retrieve a prefix for the whole channel
+                prefix = self.get_prefix(channel, prefix_len)
+
+                # by default iterate on /32 or /128, unless we require to
+                # iterate on less specific
+                it_prefix_len = self.PrefixClass.MAX_PREFIX_SIZE
+
+                if self.disjoint_addresses and prefix_len+min_prefix_len <= self.PrefixClass.MAX_PREFIX_SIZE:
+                    it_prefix_len = min_prefix_len + prefix_len
+
+                # Use an iterator to assign IPs from the prefix to the
+                # interfaces
+                it = prefix.get_iterator(it_prefix_len)
+                # XXX MACCHA it is a prefix
+
+                if channel.has_type("emulatedchannel"):
+                    #Internet address
+                    next(it)
 
                 for interface in interfaces:
-                    ip = next(it)
-                    interface.set(self.ATTR_PREFIX, prefix_size)
-                    #XXX Why do we need to create that async task?
-                    #XXX Probably because the PendingValue is not created
-                    #XXX in the main thread
+                    if_prefix = next(it)
+                    #XXX We cannot assign prefix::0 as a valid address to an interface.
+                    #XXX For each interface with an ip6 address belonging to prefix,
+                    #XXX linux add prefix::0 to the local routing table. Therefore prefix::0 cannot be
+                    #XXX the address of a non local interface
+                    ip = if_prefix.ip_address
+                    if ip == prefix.first_prefix_address() and self.PrefixClass is Inet6Prefix:
+                        if if_prefix.prefix_len < if_prefix.MAX_PREFIX_SIZE:
+                            if_prefix.ip_address = ip+1
+                        else:
+                            if_prefix = next(it)
+
+                    if_prefix.prefix_len = prefix_len
+                    if self.PrefixClass is Inet6Prefix:
+                        address = Inet6Address(if_prefix.ip_address, prefix_len)
+                    else:
+                        address = Inet4Address(if_prefix.ip_address, prefix_len)
                     @async_task
-                    async def set_ip(interface, ip):
-                        await interface.async_set(self.ATTR_ADDRESS, self.PrefixClass.ntoa(ip.ip_address))
-                    task = task | set_ip(interface, ip)
-
+                    async def set_ip(interface, address):
+                        await interface.async_set(self.ATTR_ADDRESS, address)
+                    task = task | set_ip(interface, address)
         return task
-
-    __delete__ = None
 
 class Ipv6Assignment(IpAssignment):
     PrefixClass = Inet6Prefix
-    ATTR_ADDRESS = 'ip6_address'
-    ATTR_PREFIX  = 'ip6_prefix'
+    ATTR_ADDRESS  = 'ip6_address'
 
 class Ipv4Assignment(IpAssignment):
     PrefixClass = Inet4Prefix
-    ATTR_ADDRESS = 'ip4_address'
-    ATTR_PREFIX  = 'ip4_prefix'
+    ATTR_ADDRESS  = 'ip4_address'

@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-from netmodel.model.type        import String, Integer
+from netmodel.model.type        import String, Integer, InetAddress
 from vicn.resource.node         import Node
 from vicn.core.attribute        import Attribute
 from vicn.core.resource         import Resource
@@ -24,10 +24,8 @@ from vicn.resource.interface    import Interface
 
 class IPRoute(Resource):
     node = Attribute(Node, mandatory = True)
-    ip_address = Attribute(String, mandatory = True)
+    ip_address = Attribute(InetAddress, mandatory = True)
     interface = Attribute(Interface, mandatory = True)
-    gateway = Attribute(String)
+    gateway = Attribute(InetAddress)
     ip_version = Attribute(Integer, default=4)
-
-    # FIXME Temp hack for VPP, migrate this to an ARP table resource
-    mac_address = Attribute(String)
+    metric = Attribute(Integer)

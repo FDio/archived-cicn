@@ -32,6 +32,10 @@ DEFAULT_SSH_PRIVATE_KEY = os.path.expanduser(os.path.join(
 DEFAULT_SSH_PUBLIC_KEY = os.path.expanduser(os.path.join(
         '~', '.vicn', 'ssh_client_cert', 'ssh_client_key.pub'))
 
+OS = String.restrict(choices=('debian', 'ubuntu'))
+Distribution = String.restrict(choices=('trusty', 'xenial', 'sid'))
+Architecture = String.restrict(choices=('amd64'))
+
 class Node(Resource):
     """
     Resource: Node
@@ -42,15 +46,13 @@ class Node(Resource):
     y = Attribute(Double, description = 'Y coordinate',
             default = 0.0)
     category = Attribute(String)
-    os = Attribute(String, description = 'OS',
-            default = 'ubuntu',
-            choices = ['debian', 'ubuntu'])
-    dist = Attribute(String, description = 'Distribution name',
-            default = 'xenial',
-            choices = ['trusty', 'xenial', 'sid'])
-    arch = Attribute(String, description = 'Architecture',
-            default = 'amd64',
-            choices = ['amd64'])
+    scale = Attribute(Double, default = 1)
+    os = Attribute(OS, description = 'OS',
+            default = 'ubuntu')
+    dist = Attribute(Distribution, description = 'Distribution name',
+            default = 'xenial')
+    arch = Attribute(Architecture, description = 'Architecture',
+            default = 'amd64')
     node_with_kernel = Attribute(Self,
             description = 'Node on which the kernel sits',
             ro = True)

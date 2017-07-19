@@ -24,6 +24,7 @@ from vicn.core.requirement              import Requirement
 from vicn.core.resource_mgr             import wait_resource_task
 from vicn.core.resource                 import Resource
 from vicn.core.task                     import task, BashTask, EmptyTask
+from vicn.core.task                     import inherit_parent
 from vicn.resource.channel              import Channel
 from vicn.resource.linux.application    import LinuxApplication
 from vicn.resource.linux.sym_veth_pair  import SymVethPair
@@ -33,7 +34,7 @@ from vicn.resource.vpp.dpdk_device      import DpdkDevice
 from vicn.resource.vpp.interface        import VPPInterface
 from vicn.resource.vpp.vpp              import VPP
 
-CMD_ADD_INTERFACE_TO_BR = ('vppctl set interface l2 bridge '
+CMD_ADD_INTERFACE_TO_BR = ('vppctl_wrapper set interface l2 bridge '
         '{interface.device_name} {br_domain}')
 
 class VPPBridge(Channel, LinuxApplication):
@@ -69,6 +70,7 @@ class VPPBridge(Channel, LinuxApplication):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __subresources__ (self):
         # We don't need any reference to the list of SymVethPair because each
         # side of a veth will be included in the node.interfaces list
@@ -77,12 +79,14 @@ class VPPBridge(Channel, LinuxApplication):
 
         return Resource.__concurrent__(*self._veths)
 
+    @inherit_parent
     @task
     def __initialize__ (self):
         # Add the veth side on the connected_nodes to the set of interfaces of
         # the channel
         self.interfaces.extend([veth.side2 for veth in self._veths])
 
+    @inherit_parent
     @task
     def __get__(self):
         # Forces creation
@@ -91,6 +95,7 @@ class VPPBridge(Channel, LinuxApplication):
     # Nothing to do
     __delete__ = None
 
+    @inherit_parent
     def __create__(self):
         manager = self._state.manager
 

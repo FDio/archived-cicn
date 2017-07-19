@@ -44,7 +44,7 @@ class InterfaceState(enum.Enum):
 
 def register_interfaces():
     Interface._factory = dict()
-    for loader, module_name, is_pkg in pkgutil.walk_packages(interfaces.__path__, 
+    for loader, module_name, is_pkg in pkgutil.walk_packages(interfaces.__path__,
             interfaces.__name__ + '.'):
         # Note: we cannot skip files using is_pkg otherwise it will ignore
         # interfaces defined outside of __init__.py
@@ -95,12 +95,12 @@ class Interface:
 
         self._tx_buffer = list()
         self._state    = InterfaceState.Down
-        self._error    = None 
+        self._error    = None
         self._reconnecting = True
         self._reconnection_delay = RECONNECTION_DELAY
 
         self._registered_objects = dict()
-    
+
         # Callbacks
         self._up_callbacks   = list()
         self._down_callbacks = list()
@@ -119,7 +119,7 @@ class Interface:
     def __hash__(self):
         return hash(self._name)
 
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
 
     def register_object(self, obj):
         self._registered_objects[obj.__type__] = obj
@@ -127,9 +127,9 @@ class Interface:
     def get_prefixes(self):
         return [ Prefix(v.__type__) for v in self._registered_objects.values() ]
 
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
     # State management, callbacks
-    #--------------------------------------------------------------------------- 
+    #---------------------------------------------------------------------------
 
     def set_state(self, state):
         asyncio.ensure_future(self._set_state(state))
@@ -170,7 +170,7 @@ class Interface:
         for cb, args, kwargs in self._delete_callbacks:
             cb(interface, *args, **kwargs)
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     def set_reconnecting(self, reconnecting):
         self._reconnecting = reconnecting
@@ -253,12 +253,12 @@ class Interface:
     def receive_impl(self, packet):
         ingress_interface = self
         cb = self._callback
-        if cb is None:
-            return
         if self._hook:
             new_packet = self._hook(packet)
-            if new_packet is not None:
+            if cb is not None and new_packet is not None:
                 cb(new_packet, ingress_interface=ingress_interface)
+            return
+        if cb is None:
             return
         cb(packet, ingress_interface=ingress_interface)
 

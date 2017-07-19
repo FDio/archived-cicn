@@ -24,7 +24,8 @@ import sys
 PATH=os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir)
 sys.path.insert(0, os.path.abspath(PATH))
 
-import netmodel.network.interfaces
+import netmodel.interfaces
+from netmodel.network.interface   import register_interfaces
 from netmodel.network.router      import Router
 from netmodel.model.query         import Query, ACTION_SELECT, ACTION_SUBSCRIBE
 from netmodel.util.daemon         import Daemon
@@ -44,6 +45,7 @@ class RouterDaemon(Daemon):
 
         self._router.add_interface('websocketserver')
         self._router.add_interface('bwm')
+        self._router.add_interface('vppctl')
         self._router.add_interface('local', router = self._router)
 
 

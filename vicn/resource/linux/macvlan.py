@@ -18,14 +18,15 @@
 
 from netmodel.model.type            import String
 from vicn.core.attribute            import Attribute
-from vicn.core.task                 import BashTask
-from vicn.resource.linux.net_device import SlaveBaseNetDevice
+from vicn.core.task                 import BashTask, inherit
+from vicn.resource.interface        import Interface
+from vicn.resource.linux.net_device import SlaveNetDevice
 
 CMD_CREATE_PARENT = 'ip link add name {netdevice.device_name} ' \
                     'link {netdevice.parent.device_name} '      \
                     'type {netdevice.netdevice_type} mode {netdevice.mode}'
 
-class MacVlan(SlaveBaseNetDevice):
+class MacVlan(SlaveNetDevice):
     """
     Resource: MacVlan
 
@@ -48,5 +49,6 @@ class MacVlan(SlaveBaseNetDevice):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit(Interface)
     def __create__(self):
         return BashTask(self.node, CMD_CREATE_PARENT, {'netdevice': self})

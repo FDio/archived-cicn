@@ -19,6 +19,7 @@
 from netmodel.model.type                import Integer, String
 from vicn.core.attribute                import Attribute
 from vicn.resource.linux.phy_interface  import PhyInterface
+from vicn.core.task                     import BashTask, task
 
 class DpdkDevice(PhyInterface):
     """
@@ -32,4 +33,3 @@ class DpdkDevice(PhyInterface):
     socket_mem = Attribute(Integer,
             description = 'Memory used by the vpp forwarder',
             default = 512)
-    mac_address = Attribute(String)

@@ -19,7 +19,7 @@
 from netmodel.model.type                import String
 from vicn.core.attribute                import Attribute, Multiplicity
 from vicn.core.resource                 import Resource, EmptyResource
-from vicn.core.task                     import EmptyTask
+from vicn.core.task                     import EmptyTask, inherit_parent
 from vicn.resource.icn.icn_application  import ICN_SUITE_CCNX_1_0
 from vicn.resource.node                 import Node
 
@@ -28,7 +28,7 @@ from vicn.resource.icn.ccnx_consumer_producer_test  import CcnxProducerTest
 
 class CcnxSimpleTrafficGenerator(Resource):
 
-    prefix = Attribute(String, 
+    prefix = Attribute(String,
             description = "Routable prefix for the applications",
             default = lambda self: self.default_name(),
             mandatory = False)
@@ -44,11 +44,12 @@ class CcnxSimpleTrafficGenerator(Resource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._sr = None
-    
+
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __subresources__(self):
         """
         Create the list of consumers and producers.
@@ -57,7 +58,7 @@ class CcnxSimpleTrafficGenerator(Resource):
 
         sr = EmptyResource()
         for producer in self.producers:
-            producer = CcnxProducerTest(node = producer, 
+            producer = CcnxProducerTest(node = producer,
                     owner = self,
                     prefixes = [self.prefix])
             sr = sr | producer

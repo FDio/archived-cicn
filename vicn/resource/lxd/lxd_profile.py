@@ -19,7 +19,7 @@
 from vicn.core.resource                 import Resource
 from netmodel.model.type                import String
 from vicn.core.attribute                import Attribute, Multiplicity
-from vicn.core.task                     import BashTask
+from vicn.core.task                     import BashTask, inherit_parent
 from vicn.core.exception              import ResourceNotFound
 
 CMD_LXD_PROFILE_CREATE = '''
@@ -41,18 +41,20 @@ LXD_PROFILE_DEFAULT_IFNAME = 'vicn_mgmt'
 
 class LxdProfile(Resource):
 
-    description = Attribute(String, descr="profile description", mandatory=True)
-    pool = Attribute(String, descr="ZFS pool used by the containers", mandatory=True)
-    network = Attribute(String, description='Network on which to attach', mandatory=True)
-    iface_name = Attribute(String, description='Default interface name',
+    description = Attribute(String, description = "profile description", mandatory=True)
+    pool = Attribute(String, description = "ZFS pool used by the containers", mandatory=True)
+    network = Attribute(String, description = 'Network on which to attach', mandatory=True)
+    iface_name = Attribute(String, description = 'Default interface name',
             default = LXD_PROFILE_DEFAULT_IFNAME)
     node = Attribute(Resource, mandatory=True)
 
+    @inherit_parent
     def __get__(self):
         def parse(rv):
             if not rv.stdout:
                 raise ResourceNotFound
         return BashTask(self.node, CMD_LXD_PROFILE_GET, {'profile':self}, parse=parse)
 
+    @inherit_parent
     def __create__(self):
         return BashTask(self.node, CMD_LXD_PROFILE_CREATE, {'profile':self})

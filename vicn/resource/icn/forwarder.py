@@ -30,7 +30,7 @@ DEFAULT_CACHE_SIZE = 1000 # pk
 DEFAULT_CACHE_POLICY = 'LRU'
 DEFAULT_STRATEGY = 'best-route'
 
-class Forwarder(ICNApplication, ABC):
+class Forwarder(ICNApplication):
     """
     Resource: Forwarder
     """

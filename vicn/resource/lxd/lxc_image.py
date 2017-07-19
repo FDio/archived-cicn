@@ -24,7 +24,7 @@ from vicn.core.attribute                import Attribute, Multiplicity
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.requirement              import Requirement
 from vicn.core.resource                 import Resource
-from vicn.core.task                     import task, inline_task
+from vicn.core.task                     import task, inline_task, inherit_parent
 from vicn.resource.linux.application    import LinuxApplication as Application
 from vicn.resource.node                 import Node
 
@@ -56,8 +56,11 @@ class LxcImage(Resource):
     # Resource lifecycle
     #---------------------------------------------------------------------------
 
+    @inherit_parent
     @task
     def __get__(self):
+        log.warning('Image test is currently disabled')
+        return
         aliases = [alias['name'] for images in self.node.lxd_hypervisor.client.images.all()
                          for alias in images.aliases]
         if not self.image in aliases:
@@ -69,6 +72,7 @@ class LxcImage(Resource):
         return
 
 
+    @inherit_parent
     @task
     def __create_DISABLED__(self):
         """
@@ -97,6 +101,7 @@ class LxcImage(Resource):
 
         tmp_container.delete()
 
+    @inherit_parent
     @task
     def __delete__(self):
         self.node.lxd_hypervisor.client.images.delete(self.name)

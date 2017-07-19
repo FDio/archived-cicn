@@ -1,6 +1,10 @@
 {
   "resources": [
     {
+      "type": "Group",
+      "name": "topology"
+    },
+    {
       "type": "Physical",
       "name": "server",
       "hostname": "localhost",
@@ -15,7 +19,8 @@
     },
     {
       "type": "LxcImage",
-      "name": "ubuntu1604-cicnsuite-rc3",
+      "name": "lxcimage",
+      "image": "ubuntu1604-cicnsuite-rc3",
       "node": "server",
       "managed": false
     },
@@ -23,7 +28,8 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "bridge1",
-      "image": "ubuntu1604-cicnsuite-rc3"
+      "groups": ["topology"],
+      "image": "lxcimage"
     },
     {
       "type": "VPP",
@@ -34,7 +40,7 @@
       "type": "DpdkDevice",
       "node": "bridge1",
       "device_name": "GigabitEthernet0/8/0",
-      "pci_address" : "0000:00:08.0",
+      "pci_address": "0000:00:08.0",
       "ip_address" : "172.17.1.20",
       "mac_address": "08:00:27:b8:f3:a3",
       "name": "bridge1-dpdk1"
@@ -43,7 +49,8 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "core1",
-      "image": "ubuntu1604-cicnsuite-rc3"
+      "groups": ["topology"],
+      "image": "lxcimage"
     },
     {
       "type": "VPP",
@@ -93,7 +100,8 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "core2",
-      "image": "ubuntu1604-cicnsuite-rc3"
+      "groups": ["topology"],
+      "image": "lxcimage"
     },
     {
       "type": "VPP",
@@ -143,7 +151,8 @@
       "type": "LxcContainer",
       "node": "server",
       "name": "bridge2",
-      "image": "ubuntu1604-cicnsuite-rc3"
+      "groups": ["topology"],
+      "image": "lxcimage"
     },
     {
       "type": "VPP",
@@ -162,7 +171,7 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
       "name": "cons1"
     },
     {
@@ -174,7 +183,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "cons2"
     },
     {
@@ -186,7 +196,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "cons3"
     },
     {
@@ -198,7 +209,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "cons4"
     },
     {
@@ -210,7 +222,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "cons5"
     },
     {
@@ -222,7 +235,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "prod1"
     },
     {
@@ -234,7 +248,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "prod2"
     },
     {
@@ -246,7 +261,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "prod3"
     },
     {
@@ -258,7 +274,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "prod4"
     },
     {
@@ -270,7 +287,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "lxcimage",
+      "groups": ["topology"],
       "name": "prod5"
     },
     {
@@ -304,15 +322,19 @@
     },
     {
       "type": "CentralIP",
-      "ip_routing_strategy" : "spt"
+      "ip_routing_strategy" : "spt",
+      "ip6_data_prefix": "2001::/50",
+      "ip4_data_prefix": "192.168.128.0/24",
+      "groups": ["topology"]
     },
     {
       "type" : "CentralICN",
-      "face_protocol": "udp4"
+      "face_protocol": "udp4",
+      "groups": ["topology"]
     }
   ],
    "settings": {
-        "network": "192.168.133.0/24",
+        "network": "192.168.128.0/24",
         "ulimit-n": 10000
     }
 }

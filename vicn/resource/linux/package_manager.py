@@ -19,13 +19,14 @@
 import asyncio
 import logging
 
+from netmodel.model.key         import Key
 from netmodel.model.type        import String, Bool
 from vicn.core.attribute        import Attribute, Multiplicity
 from vicn.core.exception        import ResourceNotFound
 from vicn.core.requirement      import Requirement
 from vicn.core.resource         import Resource
 from vicn.core.task             import BashTask, EmptyTask, async_task
-from vicn.core.task             import inline_task, run_task
+from vicn.core.task             import inline_task, run_task, inherit_parent
 from vicn.resource.node         import Node
 
 log = logging.getLogger(__name__)
@@ -78,11 +79,12 @@ class PackageManager(Resource):
             reverse_name = 'package_manager',
             reverse_auto = True,
             mandatory = True,
-            key = True,
             multiplicity = Multiplicity.OneToOne)
     trusted = Attribute(Bool,
             description="Force repository trust",
             default=False)
+
+    __key__ = Key(node)
 
     #--------------------------------------------------------------------------
     # Constructor and Accessors
@@ -100,6 +102,7 @@ class PackageManager(Resource):
     def __after__(self):
         return ('Repository',)
 
+    @inherit_parent
     @inline_task
     def __get__(self):
         raise ResourceNotFound
@@ -182,21 +185,25 @@ class Package(Resource):
     package_name = Attribute(String, mandatory = True)
     node = Attribute(Node,
             mandatory = True,
-            key = True,
             requirements=[
                 Requirement('package_manager')
             ])
+
+    __key__ = Key(node)
 
     #---------------------------------------------------------------------------
     # Resource lifecycle
     #---------------------------------------------------------------------------
 
+    @inherit_parent
     def __get__(self):
         return BashTask(self.node, CMD_PKG_TEST, {'self': self})
 
+    @inherit_parent
     def __create__(self):
         return self.node.package_manager.__method_install__(self.package_name)
 
+    @inherit_parent
     @async_task
     async def __delete__(self):
         with await self.node.package_manager._lock:
@@ -218,15 +225,17 @@ class Packages(Resource):
     names = Attribute(String, multiplicity = Multiplicity.OneToMany)
     node = Attribute(Node,
             mandatory = True,
-            key = True,
             requirements=[
                 Requirement('package_manager')
             ])
+
+    __key__ = Key(node)
 
     #---------------------------------------------------------------------------
     # Resource lifecycle
     #---------------------------------------------------------------------------
 
+    @inherit_parent
     def __subresources__(self):
         """
         Note: Although packages are (rightfully) specified concurrent, apt tasks

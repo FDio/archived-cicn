@@ -34,8 +34,6 @@ class InitializeException(VICNException): pass
 class CheckException(VICNException): pass
 class SetupException(VICNException): pass
 
-class VICNListException(VICNException): pass
-
 class ResourceNotFound(VICNException): pass
 
 class VICNWouldBlock(VICNException):

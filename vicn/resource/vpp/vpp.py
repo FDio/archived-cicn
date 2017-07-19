@@ -23,6 +23,7 @@ from vicn.core.attribute                import Attribute, Multiplicity
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.resource                 import Resource
 from vicn.core.task                     import BashTask, task, inline_task
+from vicn.core.task                     import inherit_parent, EmptyTask
 from vicn.resource.lxd.lxc_container    import LxcContainer
 from vicn.resource.node                 import Node
 from vicn.resource.linux.application    import LinuxApplication
@@ -33,6 +34,7 @@ from vicn.resource.vpp.scripts          import TPL_VPP_DPDK_DAEMON_SCRIPT
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_DISABLE, CMD_VPP_STOP
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_START
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_ENABLE_PLUGIN
+from vicn.resource.vpp.vpp_commands     import CMD_REMOVE_DPDK_PLUGIN
 from vicn.resource.vpp.vpp_host         import VPPHost
 
 #------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ class VPP(LinuxApplication):
      start and stop commands
     """
 
-    __package_names__ = ['vpp', 'vpp-dbg', 'vpp-dpdk-dev']
+    __package_names__ = ['vpp', 'vpp-dpdk-dev']
 
     plugins = Attribute(String,
             multiplicity = Multiplicity.OneToMany)
@@ -72,12 +74,15 @@ class VPP(LinuxApplication):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.vppctl_lock = asyncio.Lock()
+        self.vppctl_lock =  asyncio.Lock()
 
-        self.dpdk_setup_file = None
+        # needed by "lxc config device add"
+        self.memif_lock = asyncio.Lock()
+
         if isinstance(self.node, LxcContainer):
             if not 'vpp' in self.node.profiles:
                 self.node.profiles.append('vpp')
+        self.dpdk_setup_file = None
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
@@ -86,16 +91,14 @@ class VPP(LinuxApplication):
     def __after__(self):
         return ['BaseNetDevice']
 
+    @inherit_parent
+    @task
     def __get__(self):
+        raise ResourceNotFound
         return BashTask(self.node, CMD_GET)
 
+    @inherit_parent
     def __subresources__(self):
-        self.dpdk_setup_file = TextFile(node = self.node,
-                filename = FN_VPP_DPDK_SCRIPT,
-                overwrite = True)
-        return self.dpdk_setup_file
-
-    def __create__(self):
         socket_mem = dict()
         numa_mgr = self.node.node_with_kernel.numa_mgr
 
@@ -117,25 +120,6 @@ class VPP(LinuxApplication):
             self.numa_node, self.core = \
                     numa_mgr.get_numa_core(numa_node = self.numa_node)
 
-        dpdk_list = list()
-
-        # On numa architecture socket-mem requires to set the amount of memory
-        # to be reserved on each numa node
-        socket_mem_str = 'socket-mem '
-        for numa in range (0,numa_mgr.get_number_of_numa()):
-            if numa in socket_mem:
-                socket_mem_str = socket_mem_str + str(socket_mem[numa])
-            else:
-                socket_mem_str = socket_mem_str + '0'
-
-            if numa < numa_mgr.get_number_of_numa()-1:
-                socket_mem_str = socket_mem_str + ','
-
-        dpdk_list.append(socket_mem_str)
-
-        for interface in self.node.interfaces:
-            if isinstance(interface, DpdkDevice):
-                dpdk_list.append('dev ' + interface.pci_address)
 
         # Add the core on which running vpp and the dpdk parameters
         setup = TPL_VPP_DPDK_DAEMON_SCRIPT + 'cpu {'
@@ -146,19 +130,42 @@ class VPP(LinuxApplication):
             self.numa_node, cpu_worker =numa_mgr.get_numa_core(self.numa_node)
             setup = setup + '''\n  corelist-workers ''' + str(cpu_worker)
 
-        setup = setup + '''\n}\n\n  dpdk { '''
+        dpdk_list = list()
+        for interface in self.node.interfaces:
+            if isinstance(interface, DpdkDevice):
+                dpdk_list.append('dev ' + interface.pci_address)
 
-        for dpdk_dev in dpdk_list:
-            setup = setup + ''' \n  ''' + dpdk_dev
+        setup = setup + '''\n}\n\n'''
+        if dpdk_list:
+            setup = setup + 'dpdk {'
+            # add socket_mem
+            # On numa architecture socket-mem requires to set the amount of memory
+            # to be reserved on each numa node
+            socket_mem_str = 'socket-mem '
+            for numa in range (0,numa_mgr.get_number_of_numa()):
+                if numa in socket_mem:
+                    socket_mem_str = socket_mem_str + str(socket_mem[numa])
+                else:
+                    socket_mem_str = socket_mem_str + '0'
 
-        setup = setup + '\n}'
+                if numa < numa_mgr.get_number_of_numa()-1:
+                    socket_mem_str = socket_mem_str + ','
 
+            dpdk_list.append(socket_mem_str)
 
-        if any([isinstance(interface,DpdkDevice) for interface in self.node.interfaces]):
-                self.dpdk_setup_file.content = setup
-        else:
-                self.dpdk_setup_file.content = TPL_VPP_DPDK_DAEMON_SCRIPT
+            for dpdk_dev in dpdk_list:
+                setup = setup + ''' \n  ''' + dpdk_dev
+            setup = setup + '''\n}'''
 
+        dpdk_setup_file = TextFile(node = self.node,
+                filename = FN_VPP_DPDK_SCRIPT,
+                content = setup,
+                overwrite = True)
+
+        return dpdk_setup_file
+
+    @inherit_parent
+    def __create__(self):
         lock = self.node.node_with_kernel.vpp_host.vppstart_lock
 
         vpp_disable = BashTask(self.node, CMD_VPP_DISABLE, lock = lock)
@@ -166,8 +173,19 @@ class VPP(LinuxApplication):
         enable_ip_forward = BashTask(self.node, CMD_DISABLE_IP_FORWARD)
         start_vpp = BashTask(self.node, CMD_VPP_START, lock = lock)
 
-        return ((vpp_disable > vpp_stop) | enable_ip_forward) > start_vpp
+        found = False
+        for iface in self.interfaces:
+            if isinstance(iface.parent, DpdkDevice):
+                found = True
+                break
 
+        remove_dpdk_plugin = EmptyTask()
+        if (not found):
+            remove_dpdk_plugin = BashTask(self.node, CMD_REMOVE_DPDK_PLUGIN, lock = lock)
+
+        return (((vpp_disable > vpp_stop) | enable_ip_forward) > (remove_dpdk_plugin > start_vpp))
+
+    @inherit_parent
     def __delete__(self):
         return BashTask(self.node, CMD_VPP_STOP)
 

@@ -38,7 +38,7 @@ class EmulatedWiFiChannel(EmulatedChannel):
 
     async def _add_station(self, station):
         from vicn.resource.lxd.lxc_container    import LxcContainer
-        from vicn.resource.linux.veth_pair      import VethPair
+        from vicn.resource.linux.veth_pair_lxc  import VethPairLxc
         from vicn.resource.linux.tap_device     import TapChannel
         from vicn.resource.linux.macvlan        import MacVlan
 
@@ -46,18 +46,21 @@ class EmulatedWiFiChannel(EmulatedChannel):
         if not station.managed:
             sta_if = None
         else:
+            # To connect a container to the EmulatedWifiChannel, we use a
+            # VethPairLxc connected to the bridge, that will be in the same VLAN as
+            # the station TAP entering the emulator
             if isinstance(station, LxcContainer):
                 host = NetDevice(node = station.node,
                     device_name='vhh-' + station.name + '-' + self.name,
                     managed = False)
-                sta_if = VethPair(node = station,
+                sta_if = VethPairLxc(node = station,
                         name          = 'vh-' + station.name + '-' + self.name,
-                        device_name   = 'vh-' + station.name + '-' + self.name, 
+                        device_name   = 'vh-' + station.name + '-' + self.name,
                         host          = host,
                         owner = self)
                 bridged_sta = sta_if.host
             else:
-                raise NotImplementedError 
+                raise NotImplementedError
 
         if sta_if:
             self._sta_ifs[station] = sta_if
@@ -65,7 +68,7 @@ class EmulatedWiFiChannel(EmulatedChannel):
             interfaces.append(sta_if)
             self._state.manager.commit_resource(sta_if)
 
-        sta_tap = TapChannel(node = self.node, 
+        sta_tap = TapChannel(node = self.node,
                 owner = self,
                 device_name = 'tap-' + station.name + '-' + self.name,
                 up = True,
@@ -81,23 +84,23 @@ class EmulatedWiFiChannel(EmulatedChannel):
 
         # Add interfaces to bridge
         # One vlan per station is needed to avoid broadcast loops
-        vlan = AddressManager().get('vlan', sta_tap) 
+        vlan = AddressManager().get('vlan', sta_tap)
         # sta_tap choosen because always there
         if sta_if:
             sta_if.set('channel', self)
 
             task = self.node.bridge._remove_interface(bridged_sta)
             await run_task(task, self._state.manager)
-            task = self.node.bridge._add_interface(bridged_sta,
-                    vlan = vlan)
+            task = self.node.bridge._add_interface(bridged_sta, vlan = vlan)
             await run_task(task, self._state.manager)
 
+        task = self.node.bridge._remove_interface(sta_tap)
+        await run_task(task, self._state.manager)
         task = self.node.bridge._add_interface(sta_tap, vlan = vlan)
         await run_task(task, self._state.manager)
 
 
     def _get_cmdline_params(self, ):
-
         # sta-macs and sta-list for unmanaged stations
         sta_list = list() # list of identifiers
         sta_macs = list() # list of macs
@@ -136,7 +139,7 @@ class EmulatedWiFiChannel(EmulatedChannel):
             # Y position of the Base Station
             'bs-y'          : 0, #self.ap.y,
             # Experiment ID
-            'experiment-id' : 'vicn', 
+            'experiment-id' : 'vicn',
             # Index of the base station
             'bs-name'       : self._ap_tap.device_name,
             # Base station MAC address

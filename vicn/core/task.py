@@ -24,11 +24,12 @@ import shlex
 import subprocess
 import os
 
-from vicn.core.scheduling_algebra   import SchedulingAlgebra
-from vicn.core.commands             import ReturnValue
-from vicn.core.exception            import ResourceNotFound
-from vicn.core.commands             import Command, SequentialCommands
 from netmodel.util.process          import execute_local
+
+from vicn.core.commands             import ReturnValue
+from vicn.core.commands             import Command, SequentialCommands
+from vicn.core.exception            import ResourceNotFound
+from vicn.core.scheduling_algebra   import SchedulingAlgebra
 
 log = logging.getLogger(__name__)
 
@@ -149,6 +150,86 @@ async def wait_concurrent_tasks(tasks):
     await wait_task(Task.__concurrent__(*tasks))
 
 wait_task_task = async_task(wait_task)
+
+#------------------------------------------------------------------------------
+# Task inheritance
+#------------------------------------------------------------------------------
+
+# NOTES:
+# - delete is a special case where we have to reverse operations
+# - subresources is also a special case, since it deals with resources, but it
+# works the same since the algebra is similar
+
+def inherit_parent(fn):
+    def f(self, *args, **kwargs):
+        # Break loops
+        if fn.__name__ not in vars(self.__class__):
+            return fn(self, *args, **kwargs)
+
+        parent_tasks = EmptyTask()
+        for parent in self.__class__.__bases__:
+            if not fn.__name__ in vars(parent):
+                continue
+            for cls in self.__class__.__mro__:
+                  if cls.__dict__.get(fn.__name__) is fn:
+                      break
+
+            parent_task = getattr(super(cls, self), fn.__name__, None)
+            if not parent_task:
+                continue
+            parent_tasks = parent_tasks | parent_task(self)
+        if fn.__name__ == 'delete':
+            return fn(*args, **kwargs) > parent_tasks
+        else:
+            return parent_tasks > fn(self, *args, **kwargs)
+    return f
+
+def override_parent(fn):
+    def f(self, *args, **kwargs):
+        # Break loops
+        if fn.__name__ not in vars(self.__class__):
+            return fn(self, *args, **kwargs)
+
+        bases = set([ancestor for parent in self.__class__.__bases__
+                for ancestor in parent.__bases__])
+
+        ancestor_tasks = EmptyTask()
+        for base in bases:
+            if not fn.__name__ in vars(base):
+                continue
+            ancestor_task = getattr(base, fn.__name__, None)
+            if not ancestor_task:
+                continue
+            ancestor_tasks = ancestor_tasks | ancestor_task(self)
+        if fn.__name__ == 'delete':
+            return fn(*args, **kwargs) > ancestor_tasks
+        else:
+            return ancestor_tasks > fn(self, *args, **kwargs)
+    return f
+
+def inherit(*classes):
+    def decorator(fn):
+        def f(self, *args, **kwargs):
+            # Break loops
+            if fn.__name__ not in vars(self.__class__):
+                return fn(self, *args, **kwargs)
+
+            parent_tasks = EmptyTask()
+            for parent in classes:
+                if not fn.__name__ in vars(parent):
+                    continue
+                parent_task = getattr(parent, fn.__name__, None)
+                if not parent_task:
+                    continue
+                parent_tasks = parent_tasks | parent_task(self)
+            if fn.__name__ == 'delete':
+                return fn(*args, **kwargs) > parent_tasks
+            else:
+                return parent_tasks > fn(self, *args, **kwargs)
+        return f
+    return decorator
+
+#------------------------------------------------------------------------------
 
 def get_attribute_task(resource, attribute_name):
     @async_task
@@ -308,7 +389,10 @@ class BashTask(Task):
     def get_full_cmd(self):
         c = SequentialCommands()
         desc = None
-        for line in self._cmd.splitlines():
+        cmd = self._cmd
+        if callable(cmd):
+            cmd = cmd()
+        for line in cmd.splitlines():
             line = line.strip()
             if not line:
                 continue
@@ -341,10 +425,10 @@ class BashTask(Task):
         # executed, so that any object passed as parameters is deferenced right
         # on time.
         cmd = self.get_full_cmd()
-        partial = functools.partial(func, cmd, output = bool(self._parse))
+        partial = functools.partial(func, cmd, output = self._output or bool(self._parse))
 
         node_str = self._node.name if self._node else '(LOCAL)'
-        cmd_str = cmd[:77] + '...' if len(cmd) > 80 else cmd
+        cmd_str = cmd#[:77] + '...' if len(cmd) > 80 else cmd
         log.info('Execute: {} - {}'.format(node_str, cmd_str))
 
         if self._lock:

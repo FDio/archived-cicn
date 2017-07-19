@@ -23,9 +23,9 @@ from vicn.core.attribute                import Attribute
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.resource_mgr             import wait_resource_task
 from vicn.core.task                     import BashTask, EmptyTask, task
+from vicn.core.task                     import inherit_parent
 from vicn.resource.icn.ccnx_keystore    import MetisKeystore
-from vicn.resource.icn.face             import L2Face, L4Face, FaceProtocol
-from vicn.resource.icn.face             import DEFAULT_ETHER_PROTO
+from vicn.resource.icn.face             import L2Face, L4Face
 from vicn.resource.icn.forwarder        import Forwarder
 from vicn.resource.linux.file           import TextFile
 from vicn.resource.linux.service        import Service
@@ -37,10 +37,12 @@ CMD_ADD_LISTENER_ETHER = (
         'add listener ether ether{conn_id} {listener.src_nic.device_name} '
         '{listener.ether_proto}')
 CMD_ADD_LISTENER_L4 = 'add listener {protocol} transport{conn_id} {infos}'
-CMD_ADD_CONNECTION_ETHER = ('add connection ether {face.id} {face.dst_mac} '
+CMD_ADD_CX_ETHER = ('add connection ether {face.id} {face.dst_mac} '
         '{face.src_nic.device_name}')
-CMD_ADD_CONNECTION_L4 = ('add connection {protocol} {face.id} {face.dst_ip} '
-        '{face.dst_port} {face.src_ip} {face.src_port}')
+CMD_ADD_CX_L4_IPV4 = ('add connection {protocol} {face.id} {face.dst.ip4_address} '
+        '{face.dst_port} {face.src.ip4_address} {face.src_port}')
+CMD_ADD_CX_L4_IPV6 = ('add connection {protocol} {face.id} {face.dst.ip6_address} '
+        '{face.dst_port} {face.src.ip6_address} {face.src_port}')
 CMD_ADD_ROUTE = 'add route {route.face.id} ccnx:{route.prefix} {route.cost}'
 METIS_DAEMON_BOOTSTRAP = (
     'metis_daemon --port {port} --daemon --log-file {log_file} '
@@ -64,24 +66,25 @@ class MetisListener:
 
     @staticmethod
     def listener_from_face(face):
-        if face.protocol is FaceProtocol.ether:
-            return MetisEtherListener(face.protocol, face.src_nic, 
+        if face.protocol == 'ether':
+            return MetisEtherListener(face.protocol, face.src_nic,
                     face.ether_proto)
-        elif face.protocol in [FaceProtocol.tcp4, FaceProtocol.tcp6, 
-        FaceProtocol.udp4, FaceProtocol.udp6]:
-            return MetisL4Listener(face.protocol, face.src_ip, face.src_port)
+        elif face.protocol in ('tcp4', 'udp4'):
+            return MetisL4Listener(face.protocol, face.src.ip4_address, face.src_port)
+        elif face.protocol in ('tcp6', 'udp6'):
+            return MetisL4Listener(face.protocol, face.src.ip6_address, face.src_port)
         else:
             raise ValueError("Metis only supports Ethernet and TCP/UDP faces")
 
 class MetisEtherListener(MetisListener):
 
-    def __init__(self, protocol, src_nic, ether_proto=DEFAULT_ETHER_PROTO):
+    def __init__(self, protocol, src_nic, ether_proto):
         super().__init__(protocol)
         self.src_nic = src_nic
         self.ether_proto = ether_proto
 
     def get_setup_command(self, conn_id):
-        return CMD_ADD_LISTENER_ETHER.format(listener = self, 
+        return CMD_ADD_LISTENER_ETHER.format(listener = self,
                 conn_id = conn_id)
 
     def __eq__(self, other):
@@ -102,9 +105,9 @@ class MetisL4Listener(MetisListener):
         self.src_port = src_port
 
     def _get_proto_as_str(self):
-        if self.protocol in (FaceProtocol.tcp4, FaceProtocol.tcp6):
+        if self.protocol in ('tcp4', 'tcp6'):
             return "tcp"
-        elif self.protocol in (FaceProtocol.udp4, FaceProtocol.udp6):
+        elif self.protocol in ('udp4', 'udp6'):
             return "udp"
 
     def get_setup_command(self, conn_id):
@@ -126,14 +129,14 @@ class MetisForwarder(Forwarder, Service):
     __package_names__ = ['metis-forwarder']
     __service_name__ = "metis-forwarder"
 
-    log_file = Attribute(String, description = 'File for metis logging', 
+    log_file = Attribute(String, description = 'File for metis logging',
             default = '/tmp/ccnx-metis.log') # '/dev/null')
-    port = Attribute(Integer, description = 'TCP port for metis', 
+    port = Attribute(Integer, description = 'TCP port for metis',
             default = 9695)
-    gen_config = Attribute(Bool, 
+    gen_config = Attribute(Bool,
             description = 'Set to record all metis commands in a config file',
             default = True)
-    config_file = Attribute(String, default = '/root/.ccnx_metis.conf') 
+    config_file = Attribute(String, default = '/root/.ccnx_metis.conf')
 
     #--------------------------------------------------------------------------
     # Constructor and Accessors
@@ -160,15 +163,18 @@ class MetisForwarder(Forwarder, Service):
     def __after__(self):
         return ('CentralICN',)
 
+    @inherit_parent
     def __subresources__(self):
         self.keystore = MetisKeystore(node = self.node, owner = self)
         self.env_file = self._write_environment_file()
         return self.keystore | self.env_file
 
+    @inherit_parent
     @task
     def __get__(self):
         raise ResourceNotFound
 
+    @inherit_parent
     def __create__(self):
 
         # Alternatively, we might put all commands in a configuration file
@@ -222,7 +228,7 @@ class MetisForwarder(Forwarder, Service):
         """
 
         command = METIS_DAEMON_BOOTSTRAP
-        args = {'port' : self.port, 'log_file' : self.log_file, 
+        args = {'port' : self.port, 'log_file' : self.log_file,
             'cs_size' : self.cache_size, 'config' : self.config_file}
         return BashTask(self.node, command, parameters = args)
 
@@ -232,7 +238,7 @@ class MetisForwarder(Forwarder, Service):
         """
 
         command = METIS_DAEMON_STOP + '; ' + METIS_DAEMON_BOOTSTRAP
-        args = {'port' : self.port, 'log_file' : self.log_file, 
+        args = {'port' : self.port, 'log_file' : self.log_file,
             'cs_size' : self.cache_size, 'config' : self.config_file}
         return BashTask(self.node, command, parameters = args)
 
@@ -287,23 +293,16 @@ class MetisForwarder(Forwarder, Service):
             face.id = 'conn{}'.format(self._nb_conn)
             self._nb_conn += 1
 
-            if face.protocol is FaceProtocol.ether:
-                assert isinstance(face, L2Face), \
-                       'Ethernet face should be instance of L2Face'
-                cmd = CMD_ADD_CONNECTION_ETHER.format(face = face)
-
-            elif face.protocol in (FaceProtocol.tcp4, FaceProtocol.tcp6):
-                assert isinstance(face, L4Face), \
-                        "TCP/UDP face should be instance of L4Face"
-                cmd = CMD_ADD_CONNECTION_L4.format(face = face, 
-                        protocol = 'tcp')
-
-            elif face.protocol in (FaceProtocol.udp4, FaceProtocol.udp6):
-                assert isinstance(face, L4Face), \
-                        'TCP/UDP face should be instance of L4Face'
-                cmd = CMD_ADD_CONNECTION_L4.format(face = face, 
-                        protocol = 'udp')
-
+            if face.protocol == 'ether':
+                cmd = CMD_ADD_CX_ETHER.format(face = face)
+            elif face.protocol == 'tcp4':
+                cmd = CMD_ADD_CX_L4_IPV4.format(face = face, protocol = 'tcp')
+            elif face.protocol == 'tcp6':
+                cmd = CMD_ADD_CX_L4_IPV6.format(face = face, protocol = 'tcp')
+            elif face.protocol == 'udp4':
+                cmd = CMD_ADD_CX_L4_IPV4.format(face = face, protocol = 'udp')
+            elif face.protocol == 'udp6':
+                cmd = CMD_ADD_CX_L4_IPV6.format(face = face, protocol = 'udp')
             else:
                 raise ValueError('Unsupported face type for Metis')
 
@@ -324,13 +323,13 @@ class MetisForwarder(Forwarder, Service):
 
         delete_task = EmptyTask()
         if len(delete_cmds) > 0:
-            cmds = '\n'.join('{} {}'.format(self._baseline, command) 
+            cmds = '\n'.join('{} {}'.format(self._baseline, command)
                     for command in delete_cmds)
             delete_task = BashTask(self.node, cmds)
 
         create_task = EmptyTask()
         if len(create_cmds) > 0:
-            cmds = '\n'.join('{} {}'.format(self._baseline, command) 
+            cmds = '\n'.join('{} {}'.format(self._baseline, command)
                     for command in create_cmds)
             create_task = BashTask(self.node, cmds)
 
@@ -348,16 +347,16 @@ class MetisForwarder(Forwarder, Service):
             create_task = BashTask(self.node, '\n'.join(create_cmds))
 
         return delete_task > create_task
-  
+
     def _write_environment_file(self):
         param_port = "PORT={port}"
         param_log_file = "LOG_FILE={log_file}"
         param_cs_capacity = "CS_SIZE={cs_size}"
         param_config = "CONFIG={config}"
 
-        env = [param_port.format(port = self.port), 
+        env = [param_port.format(port = self.port),
                param_log_file.format(log_file = self.log_file),
-               param_cs_capacity.format(cs_size = self.cache_size), 
+               param_cs_capacity.format(cs_size = self.cache_size),
                param_config.format(config = self.config_file)]
 
         environment_file = TextFile(filename = METIS_ETC_DEFAULT,

@@ -23,6 +23,7 @@ from vicn.core.attribute        import Attribute, Multiplicity, Reference
 from vicn.core.exception        import ResourceNotFound
 from vicn.core.resource         import Resource
 from vicn.core.task             import task, inline_task, BashTask
+from vicn.core.task             import inherit_parent
 from vicn.resource.linux.file   import File
 from vicn.resource.node         import Node
 
@@ -49,29 +50,40 @@ class Certificate(Resource):
             multiplicity = Multiplicity.ManyToOne)
     cert = Attribute(String, description = 'Certificate path',
             mandatory = True)
-    key = Attribute(String, description = 'Key path',
-            mandatory = True)
+    key = Attribute(String, description = 'Key path')
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
-    @inline_task
-    def __initialize__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._cert_file = File(node = Reference(self, 'node'),
                 filename = Reference(self, 'cert'),
                 managed = False)
-        self._key_file = File(node = Reference(self, 'node'),
-                filename = Reference(self, 'key'),
-                managed = False)
+        if self.key:
+            self._key_file = File(node = Reference(self, 'node'),
+                    filename = Reference(self, 'key'),
+                    managed = False)
+        else:
+            self._key_file = None
 
+    @inherit_parent
     def __get__(self):
-        return self._cert_file.__get__() | self._key_file.__get__()
+        if self.key:
+            return self._cert_file.__get__() | self._key_file.__get__()
+        else:
+            return self._cert_file.__get__()
 
+    @inherit_parent
     def __create__(self):
         return BashTask(self.node, CMD_CREATE, {'self': self})
 
+    @inherit_parent
     def __delete__(self):
-        return self._cert_file.__delete__() | self._key_file.__delete__()
+        if self.key:
+            return self._cert_file.__delete__() | self._key_file.__delete__()
+        else:
+            return self._cert_file.__delete__()
 
 

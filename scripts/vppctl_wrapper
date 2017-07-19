@@ -1,0 +1,4 @@
+#!/bin/bash
+TIMEOUT=5
+
+flock /tmp/vppctl.lock -c "timeout $TIMEOUT vppctl $*"

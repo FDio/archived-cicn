@@ -20,12 +20,14 @@ import random
 import string
 import logging
 
+from netmodel.model.key             import Key
 from netmodel.model.type            import Integer, String
 from vicn.core.attribute            import Attribute, Reference
 from vicn.core.exception            import ResourceNotFound
 from vicn.core.state                import ResourceState, AttributeState
 from vicn.core.task                 import inline_task, async_task, run_task
 from vicn.core.task                 import get_attributes_task, BashTask
+from vicn.core.task                 import inherit_parent
 from vicn.resource.channel          import Channel
 from vicn.resource.interface        import Interface
 from vicn.resource.linux.net_device import NonTapBaseNetDevice
@@ -53,7 +55,7 @@ ip link set dev {tmp_src} netns {pid} name {interface.device_name}
 ip link set dev {tmp_dst} up
 ovs-vsctl add-port {host.bridge.device_name} {tmp_dst}'''
 
-CMD_UP='''
+CMD_SET_UP='''
 ip link set dev {interface.device_name} up
 '''
 
@@ -73,11 +75,11 @@ class Link(Channel):
     delay = Attribute(String, description = 'Link propagation delay')
 
     src_node = Attribute(Node, description = 'Source node',
-            key = True,
             mandatory = True)
     dst_node = Attribute(Node, description = 'Destination node',
-            key = True,
             mandatory = True)
+
+    __key__ = Key(src_node, dst_node)
 
     def __init__(self, *args, **kwargs):
         assert 'src_node' in kwargs and 'dst_node' in kwargs
@@ -85,6 +87,7 @@ class Link(Channel):
         self._dst = None
         super().__init__(*args, **kwargs)
 
+    @inherit_parent
     @inline_task
     def __initialize__(self):
         # We create two managed net devices that are pre-setup
@@ -124,23 +127,27 @@ class Link(Channel):
             vpp_src = VPPInterface(parent = self._src,
                     vpp = self.src_node.vpp,
                     ip4_address = Reference(self._src, 'ip4_address'),
-                    device_name = 'vpp' + self._src.device_name)
+                    ip6_address = Reference(self._src, 'ip6_address'),
+                    device_name = 'host-' + self._src.device_name)
             manager.commit_resource(vpp_src)
 
         if hasattr(self.dst_node, 'vpp') and not self.dst_node.vpp is None:
             vpp_dst = VPPInterface(parent = self._dst,
                     vpp = self.dst_node.vpp,
                     ip4_address = Reference(self._dst, 'ip4_address'),
-                    device_name = 'vpp' + self._dst.device_name)
+                    ip6_address = Reference(self._dst, 'ip6_address'),
+                    device_name = 'host-' + self._dst.device_name)
             manager.commit_resource(vpp_dst)
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __get__(self):
         return (self._src.__get__() | self._dst.__get__()) > async_task(self._commit)()
 
+    @inherit_parent
     def __create__(self):
         assert self.src_node.get_type() == 'lxccontainer'
         assert self.dst_node.get_type() == 'lxccontainer'
@@ -168,8 +175,8 @@ class Link(Channel):
             host = src_host
             create = BashTask(host, CMD_CREATE, {'interface': self,
                 'tmp_src': tmp_src, 'tmp_dst': tmp_dst})
-            up_src = BashTask(self.src_node, CMD_UP, {'interface': self._src})
-            up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self._dst})
+            up_src = BashTask(self.src_node, CMD_SET_UP, {'interface': self._src})
+            up_dst = BashTask(self.dst_node, CMD_SET_UP, {'interface': self._dst})
             up    = up_src | up_dst
             delif = delif_src | delif_dst
             return ((delif > (pid @ create)) > up) > async_task(self._commit)()
@@ -178,10 +185,11 @@ class Link(Channel):
                 'tmp_src': tmp_src, 'tmp_dst': tmp_dst, 'host' : src_host})
             create2 = BashTask(dst_host, CMD_CREATE_BR_TO_LXC, {'interface': self._dst,
                 'tmp_src': tmp_dst, 'tmp_dst': tmp_src, 'host' : dst_host})
-            up_src = BashTask(self.src_node, CMD_UP, {'interface': self._src})
-            up_dst = BashTask(self.dst_node, CMD_UP, {'interface': self._dst})
+            up_src = BashTask(self.src_node, CMD_SET_UP, {'interface': self._src})
+            up_dst = BashTask(self.dst_node, CMD_SET_UP, {'interface': self._dst})
             return (((pid_src @ create) | (pid_dst @ create2)) > (up_src | up_dst))  > async_task(self._commit)()
 
 
+    @inherit_parent
     def __delete__(self):
         return self._src.__delete__() | self._dst.__delete__()

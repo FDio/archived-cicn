@@ -17,19 +17,22 @@
 #
 
 class Prefix:
-    def __init__(self, object_name = None, filter = None, field_names = None, 
+    def __init__(self, object_name = None, filter = None, field_names = None,
             aggregate = None):
         self.object_name = object_name
         self.filter = filter
         self.field_names = field_names
         self.aggregate = aggregate
 
+    def get_tuple(self):
+        return (self.object_name, self.filter, self.field_names,
+                self.aggregate)
+
+    def __eq__(self, other):
+        return self.get_tuple() == other.get_tuple()
+
     def __hash__(self):
         return hash(self.get_tuple())
-
-    def get_tuple(self):
-        return (self.object_name, self.filter, self.field_names, 
-                self.aggregate)
 
     def __repr__(self):
         return '<Prefix {}>'.format(self.get_tuple())

@@ -23,11 +23,13 @@ import random
 import string
 
 from netmodel.model.type                import Integer, String, Bool
+from netmodel.model.type                import Inet4Address, Inet6Address
 from vicn.core.address_mgr              import AddressManager
 from vicn.core.attribute                import Attribute
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.resource                 import BaseResource
-from vicn.core.task                     import BashTask, task, EmptyTask
+from vicn.core.task                     import BashTask, task, EmptyTask, inherit
+from vicn.core.task                     import inherit_parent, override_parent
 from vicn.resource.linux.application    import LinuxApplication as Application
 from vicn.resource.interface            import Interface
 
@@ -59,11 +61,11 @@ CMD_SET_MAC_ADDRESS = 'ip link set dev {netdevice.device_name} ' \
                       'address {netdevice.mac_address}'
 CMD_GET_IP_ADDRESS = 'ip addr show {netdevice.device_name}'
 CMD_SET_IP4_ADDRESS = 'ip addr add dev {netdevice.device_name} ' \
-                     '{netdevice.ip4_address} brd + || true'
+                     '{netdevice.ip4_address}/{netdevice.ip4_address.prefix_len} brd + || true'
 CMD_SET_IP6_ADDRESS = 'ip addr add dev {netdevice.device_name} ' \
-                     '{netdevice.ip6_address}/{netdevice.ip6_prefix} || true'
+                     '{netdevice.ip6_address}/{netdevice.ip6_address.prefix_len} || true'
 CMD_SET_PROMISC = 'ip link set dev {netdevice.device_name} promisc {on_off}'
-CMD_SET_UP = 'ip link set {netdevice.device_name} {up_down}'
+CMD_SET_UP = 'ip link set {netdevice.device_name} {state}'
 CMD_SET_CAPACITY='\n'.join([
     'tc qdisc del dev {netdevice.device_name} root || true',
     'tc qdisc add dev {netdevice.device_name} root handle 1: tbf rate '
@@ -92,6 +94,10 @@ CMD_UNSET_IP6_FWD = 'sysctl -w net.ipv6.conf.{netdevice.device_name}.forwarding=
 CMD_SET_IP6_FWD = 'sysctl -w net.ipv6.conf.{netdevice.device_name}.forwarding=1'
 CMD_GET_IP6_FWD = 'sysctl -n net.ipv6.conf.{netdevice.device_name}.forwarding'
 
+DEFAULT_IP4_PREFIX_LEN = 31
+DEFAULT_IP6_PREFIX_LEN = 64
+
+NetDeviceName = String.restrict(max_size = MAX_DEVICE_NAME_SIZE)
 
 #-------------------------------------------------------------------------------
 
@@ -265,22 +271,20 @@ def parse_ip_addr(data):
 
 #------------------------------------------------------------------------------
 
-class BaseNetDevice(Interface, Application):
+class NetDevice(Interface, Application):
     __type__ = BaseResource
 
     # XXX note: ethtool only required if we need to get the pci address
     __package_names__ = ['ethtool']
 
-    device_name = Attribute(String, description = 'Name of the NetDevice',
-            default = lambda x : x._default_device_name(),
-            max_size = MAX_DEVICE_NAME_SIZE)
+    device_name = Attribute(NetDeviceName, description = 'Name of the NetDevice',
+            default = lambda x : x._default_device_name())
     capacity = Attribute(Integer,
-            description = 'Capacity for interface shaping (Mb/s)')
+            description = 'Capacity for interface shaping (Mb/s)',
+            default = None)
     mac_address = Attribute(String, description = 'Mac address of the device')
-    ip4_address = Attribute(String, description = 'IP address of the device')
-    ip4_prefix = Attribute(Integer, description = 'Prefix for the IPv4link', default=31) #XXX 31?
-    ip6_address = Attribute(String, description = 'IPv6 address of the device')
-    ip6_prefix = Attribute(Integer, description = 'Prefix for the IPv6 link', default=64)
+    ip4_address = Attribute(Inet4Address, description = 'IP address of the device')
+    ip6_address = Attribute(Inet6Address, description = 'IPv6 address of the device')
     ip6_forwarding = Attribute(Bool, description = 'IPv6 forwarding', default = True)
     pci_address = Attribute(String,
             description = 'PCI bus address of the device',
@@ -308,6 +312,7 @@ class BaseNetDevice(Interface, Application):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __get__(self):
         def check(rv):
             if not bool(rv):
@@ -315,8 +320,11 @@ class BaseNetDevice(Interface, Application):
         return BashTask(self.node, CMD_GET, {'netdevice' : self}, output=True,
                 parse=check)
 
-    __create__ = None
+    @inherit_parent
+    def __create__(self):
+        return BashTask(self.node, CMD_CREATE, {'netdevice': self})
 
+    @inherit_parent
     def __delete__(self):
         return BashTask(self.node, CMD_DELETE, {'netdevice': self})
 
@@ -369,7 +377,7 @@ class BaseNetDevice(Interface, Application):
                 if len(ips) > 1:
                     log.warning('Keeping only first of many IP addresses...')
                 ip = ips[0]
-                attrs['ip4_address'] = ip['ip-address']
+                attrs['ip4_address'] = Inet4Address(ip['ip-address'], DEFAULT_IP4_PREFIX_LEN)
             else:
                 attrs['ip4_address'] = None
             return attrs
@@ -413,8 +421,7 @@ class BaseNetDevice(Interface, Application):
                 if len(ips) > 1:
                     log.warning('Keeping only first of many IPv6 addresses...')
                 ip = ips[0]
-                attrs['ip6_address'] = ip['ip-address']
-                attrs['ip6_prefix']  = ip['prefix']
+                attrs['ip6_address'] = Inet6Address(ip_address = ip['ip-address'], prefix_len = ip['prefix'])
             else:
                 attrs['ip6_address'] = None
             return attrs
@@ -457,9 +464,9 @@ class BaseNetDevice(Interface, Application):
         return {'up': False}
 
     def _set_up(self):
-        up_down = 'up' if self.up else 'down'
+        state = 'up' if self.up else 'down'
         return BashTask(self.node, CMD_SET_UP,
-                {'netdevice': self, 'up_down': up_down})
+                {'netdevice': self, 'state': state})
 
     @task
     def _get_capacity(self):
@@ -526,7 +533,7 @@ class BaseNetDevice(Interface, Application):
 
 #------------------------------------------------------------------------------
 
-class NonTapBaseNetDevice(BaseNetDevice):
+class NonTapBaseNetDevice(NetDevice):
     # Tap devices for instance don't have offload
     offload = Attribute(Bool, description = 'Offload', default=True)
 
@@ -534,59 +541,34 @@ class NonTapBaseNetDevice(BaseNetDevice):
     # Attributes
     #--------------------------------------------------------------------------
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def _get_offload(self):
         return BashTask(self.node, CMD_GET_OFFLOAD, {'netdevice': self},
                 parse = lambda rv : rv.stdout.strip() == 'on')
 
     def _set_offload(self):
-        cmd = None
-        if self.offload:
-            cmd = CMD_SET_OFFLOAD
-        else:
-            cmd = CMD_UNSET_OFFLOAD
+        cmd = CMD_SET_OFFLOAD if self.offload else CMD_UNSET_OFFLOAD
         return BashTask(self.node, cmd, {'netdevice' : self})
 
 #------------------------------------------------------------------------------
 
-class NetDevice(NonTapBaseNetDevice):
-
-    #--------------------------------------------------------------------------
-    # Resource lifecycle
-    #--------------------------------------------------------------------------
-
-    def __create__(self):
-        return BashTask(self.node, CMD_CREATE, {'netdevice': self})
-
-#------------------------------------------------------------------------------
-
-class SlaveBaseNetDevice(BaseNetDevice):
+class SlaveNetDevice(NetDevice):
     parent = Attribute(NetDevice, description = 'Parent NetDevice')
 
-    host = Attribute(NetDevice, description = 'Host interface',
-            default = lambda x : x._default_host())
+#    host = Attribute(NetDevice, description = 'Host interface',
+#            default = lambda x : x._default_host())
+#
+#    def _default_host(self):
+#        if self.node.__class__.__name__ == 'LxcContainer':
+#            host = self.node.node
+#        else:
+#            host = self.node
+#        max_len = MAX_DEVICE_NAME_SIZE - len(self.node.name) - 1
+#        device_name = self.device_name[:max_len]
+#
+#        return NetDevice(node = host,
+#                device_name = '{}-{}'.format(self.node.name, device_name),
+#                managed = False)
 
-    def _default_host(self):
-        if self.node.__class__.__name__ == 'LxcContainer':
-            host = self.node.node
-        else:
-            host = self.node
-        max_len = MAX_DEVICE_NAME_SIZE - len(self.node.name) - 1
-        device_name = self.device_name[:max_len]
-
-        return NetDevice(node = host,
-                device_name = '{}-{}'.format(self.node.name, device_name),
-                managed = False)
-
-#------------------------------------------------------------------------------
-
-class SlaveNetDevice(SlaveBaseNetDevice):
-
-    #--------------------------------------------------------------------------
-    # Resource lifecycle
-    #--------------------------------------------------------------------------
-
+    @override_parent
     def __create__(self):
         return BashTask(self.node, CMD_CREATE_PARENT, {'netdevice': self})

@@ -23,6 +23,7 @@ from vicn.core.attribute            import Attribute, Multiplicity
 from vicn.core.exception            import ResourceNotFound
 from vicn.core.requirement          import Requirement
 from vicn.core.task                 import BashTask, task, EmptyTask
+from vicn.core.task                 import inherit_parent
 from vicn.resource.linux.application import LinuxApplication
 from vicn.resource.linux.file       import TextFile
 from vicn.resource.node             import Node
@@ -41,7 +42,7 @@ CMD_APP_ARMOR_RELOAD = '''
 CMD_SYSCTL_HUGEPAGES = 'sysctl -w vm.nr_hugepages={nb_hp}'
 DEFAULT_NB_HUGEPAGES = 1024
 CMD_GREP_UIO_DEV = 'ls /dev | grep uio'
-CMD_CREATE_UIO_DEVICES = "dpdk_nic_bind --bind=igb_uio {pci_address}"
+CMD_CREATE_UIO_DEVICES = "dpdk-devbind --bind=igb_uio {pci_address}"
 
 class VPPHost(LinuxApplication):
     """
@@ -75,7 +76,7 @@ class VPPHost(LinuxApplication):
             description = 'Dpdk devices on the node',
             multiplicity = Multiplicity.OneToMany)
 
-    __package_names__ = ['dpdk', 'vpp-dpdk-dkms']
+    __package_names__ = ['vpp-dpdk-dkms', 'vpp-dpdk-dev']
 
     #--------------------------------------------------------------------------
     # Constructor and Accessors
@@ -89,6 +90,7 @@ class VPPHost(LinuxApplication):
     # Resource lifecycle
     #--------------------------------------------------------------------------
 
+    @inherit_parent
     def __subresources__(self):
         app_armor_file = TextFile(node = self.node,
                 filename = FN_APPARMOR_DPDK_SCRIPT,
@@ -100,6 +102,7 @@ class VPPHost(LinuxApplication):
                 overwrite = True)
         return app_armor_file | startup_conf
 
+    @inherit_parent
     @task
     def __get__(self):
         """
@@ -108,6 +111,7 @@ class VPPHost(LinuxApplication):
         """
         raise ResourceNotFound
 
+    @inherit_parent
     def __create__(self):
         modules = BashTask(self.node, CMD_INSERT_MODULES)
         app_armor_reload = BashTask(self.node, CMD_APP_ARMOR_RELOAD)
@@ -131,8 +135,6 @@ class VPPHost(LinuxApplication):
 
         return ((modules | app_armor_reload) | sysctl_hugepages) > \
             (disable_vpp > create_uio)
-
-    __delete__ = None
 
     #--------------------------------------------------------------------------
     # Attributes

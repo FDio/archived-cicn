@@ -32,14 +32,17 @@ from threading                      import Event as ThreadEvent
 # LXD workaround
 from pylxd.exceptions import NotFound as LXDAPIException
 
+from netmodel.model.collection      import Collection
+from netmodel.model.key             import Key
 from netmodel.model.mapper          import ObjectSpecification
+from netmodel.model.object          import Object
 from netmodel.model.type            import String, Bool, Integer, Dict
 from netmodel.model.type            import BaseType, Self
+from netmodel.model.uuid            import UUID
 from netmodel.util.deprecated       import deprecated
 from netmodel.util.singleton        import Singleton
 from vicn.core.attribute            import Attribute, Multiplicity, Reference
 from vicn.core.attribute            import NEVER_SET
-from vicn.core.collection           import Collection
 from vicn.core.commands             import ReturnValue
 from vicn.core.event                import Event, AttributeChangedEvent
 from vicn.core.exception            import VICNException, ResourceNotFound
@@ -47,7 +50,7 @@ from vicn.core.exception            import VICNWouldBlock
 from vicn.core.resource_factory     import ResourceFactory
 from vicn.core.requirement          import Requirement, Property
 from vicn.core.scheduling_algebra   import SchedulingAlgebra
-from vicn.core.state                import ResourceState, UUID
+from vicn.core.state                import ResourceState
 from vicn.core.state                import Operations, InstanceState
 from vicn.core.task                 import run_task, BashTask
 
@@ -73,29 +76,29 @@ class TopLevelResource: pass
 class FactoryResource(TopLevelResource): pass
 class CategoryResource(TopLevelResource): pass
 
+##------------------------------------------------------------------------------
+#
+#class ResourceMetaclass(ABCMeta, ObjectSpecification):
+#    def __init__(cls, class_name, parents, attrs):
+#        """
+#        Args:
+#            cls: The class type we're registering.
+#            class_name: A String containing the class_name.
+#            parents: The parent class types of 'cls'.
+#            attrs: The attribute (members) of 'cls'.
+#        """
+#        super().__init__(class_name, parents, attrs)
+#
+#        # We use the metaclass to create attributes for instance, even before
+#        # the Resource Factory is called. They are needed both for initializing
+#        # attributes and reverse attributes, in whatever order. Only class
+#        # creation allow us to clear _attributes, otherwise, we will just add
+#        # those from the parent, siblings, etc...
+#        cls._sanitize()
+
 #------------------------------------------------------------------------------
 
-class ResourceMetaclass(ABCMeta):
-    def __init__(cls, class_name, parents, attrs):
-        """
-        Args:
-            cls: The class type we're registering.
-            class_name: A String containing the class_name.
-            parents: The parent class types of 'cls'.
-            attrs: The attribute (members) of 'cls'.
-        """
-        super().__init__(class_name, parents, attrs)
-
-        # We use the metaclass to create attributes for instance, even before
-        # the Resource Factory is called. They are needed both for initializing
-        # attributes and reverse attributes, in whatever order. Only class
-        # creation allow us to clear _attributes, otherwise, we will just add
-        # those from the parent, siblings, etc...
-        cls._sanitize()
-
-#------------------------------------------------------------------------------
-
-class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
+class BaseResource(Object):  #, ABC, metaclass=ResourceMetaclass):
     """Base Resource class
 
     The base Resource class implements all the logic related to resource
@@ -409,6 +412,12 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
             if isinstance(value, UUID):
                 value = self.from_uuid(value)
 
+        # XXX XXX quick fix
+        from netmodel.model.type import InetAddress
+        if issubclass(attribute.type, InetAddress) and value is not None \
+                and not isinstance(value, InetAddress) and not isinstance(value, Reference):
+            value = attribute.type(value)
+
         if set_reverse and attribute.reverse_name:
             for base in self.__class__.mro():
                 if not hasattr(base, '_reverse_attributes'):
@@ -420,7 +429,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
                             value.set(ra.name, self, set_reverse = False)
                     elif ra.multiplicity == Multiplicity.ManyToOne:
                         for element in value:
-                            value.set(ra.name, self, set_reverse = False)
+                            element.set(ra.name, self, set_reverse = False)
                     elif ra.multiplicity == Multiplicity.OneToMany:
                         if value is not None:
                             collection = value.get(ra.name)
@@ -445,7 +454,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         return value
 
     def set(self, attribute_name, value, current=False, set_reverse=True,
-            blocking = True):
+            blocking = None):
         value = self._set(attribute_name, value, current=current,
                 set_reverse=set_reverse)
         if self.is_local_attribute(attribute_name) or current:
@@ -455,11 +464,10 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
             vars(self)[attribute_name] = value
 
         else:
-            fut = self._state.manager.attribute_set(self, attribute_name, value)
-            asyncio.ensure_future(fut)
+            self._state.manager.attribute_set(self, attribute_name, value)
 
     async def async_set(self, attribute_name, value, current=False,
-            set_reverse=True, blocking=True):
+            set_reverse=True, blocking=None):
         """
         Example:
          - setting the ip address on a node's interface
@@ -470,8 +478,7 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         """
         value = self._set(attribute_name, value, current=current,
                 set_reverse=set_reverse)
-        await self._state.manager.attribute_set(self, attribute_name, value,
-                blocking=blocking)
+        await self._state.manager.attribute_set_async(self, attribute_name, value)
 
     def set_many(self, attribute_dict, current=False):
         if not attribute_dict:
@@ -541,101 +548,101 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
         except AttributeError:
             return None
 
-    @classmethod
-    def _sanitize(cls):
-        """
-        This methods performs sanitization of the object declaration.
-
-        More specifically:
-         - it goes over all attributes and sets their name based on the python
-           object attribute name.
-         - it establishes mutual object relationships through reverse attributes.
-
-        """
-        cls._reverse_attributes = dict()
-        cur_reverse_attributes = dict()
-        for name, obj in vars(cls).items():
-            if not isinstance(obj, ObjectSpecification):
-                continue
-
-            # XXX it seems obj should always be an attribute, confirm !
-            if isinstance(obj, Attribute):
-                obj.name = name
-
-            # Remember whether a reverse_name is defined before loading
-            # inherited properties from parent
-            has_reverse = bool(obj.reverse_name)
-
-            # Handle overloaded attributes
-            # By recursion, it is sufficient to look into the parent
-            for base in cls.__bases__:
-                if hasattr(base, name):
-                    parent_attribute = getattr(base, name)
-                    obj.merge(parent_attribute)
-                    assert obj.type
-
-            # Handle reverse attribute
-            #
-            # NOTE: we need to do this after merging to be sure we get all
-            #   properties inherited from parent (eg. multiplicity)
-            #
-            # See "Reverse attributes" section in BaseResource docstring.
-            #
-            # Continueing with the same example, let's detail how it is handled:
-            #
-            # Original declaration:
-            # >>>
-            # class Group(Resource):
-            #     resources = Attribute(Resource, description = 'Resources belonging to the group',
-            # 	    multiplicity = Multiplicity.ManyToMany,
-            #             default = [],
-            #             reverse_name = 'groups',
-            #             reverse_description = 'Groups to which the resource belongs')
-            # <<<
-            #
-            # Local variables:
-            #   cls = <class 'vicn.resource.group.Group'>
-            #   obj = <Attribute resources>
-            #   obj.type = <class 'vicn.core.Resource'>
-            #   reverse_attribute = <Attribute groups>
-            #
-            # Result:
-            #    1) Group._reverse_attributes =
-            #       { <Attribute resources> : [<Attribute groups>, ...], ...}
-            #    2) Add attribute <Attribute groups> to class Resource
-            #    3) Resource._reverse_attributes =
-            #       { <Attribute groups> : [<Attribute resources], ...], ...}
-            #
-            if has_reverse:
-                a = {
-                    'name'                  : obj.reverse_name,
-                    'description'           : obj.reverse_description,
-                    'multiplicity'          : Multiplicity.reverse(obj.multiplicity),
-                    'reverse_name'          : obj.name,
-                    'reverse_description'   : obj.description,
-                    'auto'                  : obj.reverse_auto,
-                }
-                reverse_attribute = Attribute(cls,  **a)
-                reverse_attribute.is_aggregate = True
-
-                # 1) Store the reverse attributes to be later inserted in the
-                # remote class, at the end of the function
-                # TODO : clarify the reasons to perform this in two steps
-                cur_reverse_attributes[obj.type] = reverse_attribute
-
-                # 2)
-                if not obj in cls._reverse_attributes:
-                    cls._reverse_attributes[obj] = list()
-                cls._reverse_attributes[obj].append(reverse_attribute)
-
-                # 3)
-                if not reverse_attribute in obj.type._reverse_attributes:
-                    obj.type._reverse_attributes[reverse_attribute] = list()
-                obj.type._reverse_attributes[reverse_attribute].append(obj)
-
-        # Insert newly created reverse attributes in the remote class
-        for kls, a in cur_reverse_attributes.items():
-            setattr(kls, a.name, a)
+#######    @classmethod
+#######    def _sanitize(cls):
+#######        """
+#######        This methods performs sanitization of the object declaration.
+#######
+#######        More specifically:
+#######         - it goes over all attributes and sets their name based on the python
+#######           object attribute name.
+#######         - it establishes mutual object relationships through reverse attributes.
+#######
+#######        """
+#######        cls._reverse_attributes = dict()
+#######        cur_reverse_attributes = dict()
+#######        for name, obj in vars(cls).items():
+#######            if not isinstance(obj, ObjectSpecification):
+#######                continue
+#######
+#######            # XXX it seems obj should always be an attribute, confirm !
+#######            if isinstance(obj, Attribute):
+#######                obj.name = name
+#######
+#######            # Remember whether a reverse_name is defined before loading
+#######            # inherited properties from parent
+#######            has_reverse = bool(obj.reverse_name)
+#######
+#######            # Handle overloaded attributes
+#######            # By recursion, it is sufficient to look into the parent
+#######            for base in cls.__bases__:
+#######                if hasattr(base, name):
+#######                    parent_attribute = getattr(base, name)
+#######                    obj.merge(parent_attribute)
+#######                    assert obj.type
+#######
+#######            # Handle reverse attribute
+#######            #
+#######            # NOTE: we need to do this after merging to be sure we get all
+#######            #   properties inherited from parent (eg. multiplicity)
+#######            #
+#######            # See "Reverse attributes" section in BaseResource docstring.
+#######            #
+#######            # Continueing with the same example, let's detail how it is handled:
+#######            #
+#######            # Original declaration:
+#######            # >>>
+#######            # class Group(Resource):
+#######            #     resources = Attribute(Resource, description = 'Resources belonging to the group',
+#######            # 	    multiplicity = Multiplicity.ManyToMany,
+#######            #             default = [],
+#######            #             reverse_name = 'groups',
+#######            #             reverse_description = 'Groups to which the resource belongs')
+#######            # <<<
+#######            #
+#######            # Local variables:
+#######            #   cls = <class 'vicn.resource.group.Group'>
+#######            #   obj = <Attribute resources>
+#######            #   obj.type = <class 'vicn.core.Resource'>
+#######            #   reverse_attribute = <Attribute groups>
+#######            #
+#######            # Result:
+#######            #    1) Group._reverse_attributes =
+#######            #       { <Attribute resources> : [<Attribute groups>, ...], ...}
+#######            #    2) Add attribute <Attribute groups> to class Resource
+#######            #    3) Resource._reverse_attributes =
+#######            #       { <Attribute groups> : [<Attribute resources], ...], ...}
+#######            #
+#######            if has_reverse:
+#######                a = {
+#######                    'name'                  : obj.reverse_name,
+#######                    'description'           : obj.reverse_description,
+#######                    'multiplicity'          : Multiplicity.reverse(obj.multiplicity),
+#######                    'reverse_name'          : obj.name,
+#######                    'reverse_description'   : obj.description,
+#######                    'auto'                  : obj.reverse_auto,
+#######                }
+#######                reverse_attribute = Attribute(cls,  **a)
+#######                reverse_attribute.is_aggregate = True
+#######
+#######                # 1) Store the reverse attributes to be later inserted in the
+#######                # remote class, at the end of the function
+#######                # TODO : clarify the reasons to perform this in two steps
+#######                cur_reverse_attributes[obj.type] = reverse_attribute
+#######
+#######                # 2)
+#######                if not obj in cls._reverse_attributes:
+#######                    cls._reverse_attributes[obj] = list()
+#######                cls._reverse_attributes[obj].append(reverse_attribute)
+#######
+#######                # 3)
+#######                if not reverse_attribute in obj.type._reverse_attributes:
+#######                    obj.type._reverse_attributes[reverse_attribute] = list()
+#######                obj.type._reverse_attributes[reverse_attribute].append(obj)
+#######
+#######        # Insert newly created reverse attributes in the remote class
+#######        for kls, a in cur_reverse_attributes.items():
+#######            setattr(kls, a.name, a)
 
     @classmethod
     def iter_attributes(cls, aggregates = False):
@@ -648,13 +655,54 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
             yield attribute
 
-    def iter_keys(self):
-        for attribute in self.iter_attributes():
-            if attribute.key == True:
-                yield attribute
+    @classmethod
+    def iter_keys(cls):
+        for name in dir(cls):
+            key = getattr(cls, name)
+            if not isinstance(key, Key):
+                continue
+            yield key
 
-    def get_keys(self):
-        return list(self.iter_keys())
+    def get_attributes(self, aggregates = False):
+        return list(self.iter_attributes(aggregates = aggregates))
+
+    @classmethod
+    def has_attribute(cls, name):
+        return name in [a.name for a in cls.attributes()]
+
+    def get_attribute_names(self, aggregates = False):
+        return set(a.name
+                for a in self.iter_attributes(aggregates = aggregates))
+
+    def get_attribute_dict(self, field_names = None, aggregates = False,
+            uuid = True):
+        assert not field_names or field_names.is_star()
+        attributes = self.get_attributes(aggregates = aggregates)
+
+        ret = dict()
+        for a in attributes:
+            if not a.is_set(self):
+                continue
+            value = getattr(self, a.name)
+            if a.is_collection:
+                ret[a.name] = list()
+                for x in value:
+                    if uuid and isinstance(x, Resource):
+                        x = x._state.uuid._uuid
+                    ret[a.name].append(x)
+            else:
+                if uuid and isinstance(value, Resource):
+                    value = value._state.uuid._uuid
+                ret[a.name] = value
+        return ret
+
+    @classmethod
+    def get_keys(cls):
+        return list(cls.iter_keys())
+
+    @classmethod
+    def has_key_attribute(cls, attribute):
+        return any(attribute in key for key in cls.iter_keys())
 
     def auto_instanciate(self, attribute):
         if self.managed is False:
@@ -693,35 +741,6 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
 
         self._state.manager.commit_resource(resource)
         return resource
-
-    def get_attributes(self, aggregates = False):
-        return list(self.iter_attributes(aggregates = aggregates))
-
-    def get_attribute_names(self, aggregates = False):
-        return set(a.name
-                for a in self.iter_attributes(aggregates = aggregates))
-
-    def get_attribute_dict(self, field_names = None, aggregates = False,
-            uuid = True):
-        assert not field_names or field_names.is_star()
-        attributes = self.get_attributes(aggregates = aggregates)
-
-        ret = dict()
-        for a in attributes:
-            if not a.is_set(self):
-                continue
-            value = getattr(self, a.name)
-            if a.is_collection:
-                ret[a.name] = list()
-                for x in value:
-                    if uuid and isinstance(x, Resource):
-                        x = x._state.uuid._uuid
-                    ret[a.name].append(x)
-            else:
-                if uuid and isinstance(value, Resource):
-                    value = value._state.uuid._uuid
-                ret[a.name] = value
-        return ret
 
     def get_tuple(self):
         return (self.__class__, self._get_attribute_dict())
@@ -876,10 +895,6 @@ class BaseResource(BaseType, ABC, metaclass=ResourceMetaclass):
     #---------------------------------------------------------------------------
     # Accessors
     #---------------------------------------------------------------------------
-
-    @classmethod
-    def has_attribute(cls, name):
-        return name in [a.name for a in cls.attributes()]
 
     def has_callback(self, action, attribute):
         return hasattr(self, '_{}_{}'.format(action, attribute.name))

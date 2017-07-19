@@ -11,19 +11,30 @@
         },
         {
             "type": "NetDevice",
-            "device_name": "eth0",
+            "device_name": "enp16s0f0",
             "managed": false,
             "node": "server"
         },
         {
+            "type": "Group",
+            "name": "routed"
+        },
+        {
+            "type": "GUI",
+            "groups": ["routed"],
+            "port": 8000
+        },
+        {
             "type": "LxcImage",
             "name": "ubuntu1604-cicnsuite-rc3",
+            "image": "ubuntu1604-cicnsuite-rc3",
             "node": "server"
         },
         {
             "name": "u1core",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
-            "category": "asr",
+            "category": "ip-router",
             "type": "LxcContainer",
             "y": 10,
             "x": 5,
@@ -31,6 +42,7 @@
         },
         {
             "name": "u1srv1",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
             "category": "user",
             "type": "LxcContainer",
@@ -40,6 +52,7 @@
         },
         {
             "name": "u1srv2",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
             "category": "user",
             "type": "LxcContainer",
@@ -49,8 +62,9 @@
         },
         {
             "name": "u2core",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
-            "category": "asr",
+            "category": "ip-router",
             "type": "LxcContainer",
             "y": 6,
             "x": 9,
@@ -58,6 +72,7 @@
         },
         {
             "name": "u2srv1",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
             "category": "user",
             "type": "LxcContainer",
@@ -67,8 +82,9 @@
         },
         {
             "name": "u3core",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
-            "category": "asr",
+            "category": "ip-router",
             "type": "LxcContainer",
             "y": 12,
             "x": 13,
@@ -76,8 +92,9 @@
         },
         {
             "name": "u3srv1",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
-            "category": "serverDemo",
+            "category": "server",
             "type": "LxcContainer",
             "y": 10,
             "x": 16,
@@ -85,8 +102,9 @@
         },
         {
             "name": "u3srv2",
+            "groups": [ "routed" ],
             "image": "ubuntu1604-cicnsuite-rc3",
-            "category": "serverDemo",
+            "category": "server",
             "type": "LxcContainer",
             "y": 14,
             "x": 16,
@@ -148,58 +166,70 @@
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "dst_node": "u1srv1",
             "capacity": 200,
             "src_node": "u1core"
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "dst_node": "u1srv2",
             "capacity": 200,
             "src_node": "u1core"
         },
        {
             "type": "Link",
+            "groups": [ "routed" ],
             "dst_node": "u2srv1",
             "capacity": 200,
             "src_node": "u2core"
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "dst_node": "u3srv1",
             "capacity": 100,
             "src_node": "u3core"
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "dst_node": "u3srv2",
             "capacity": 100,
             "src_node": "u3core"
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "capacity": 200,
             "dst_node": "u2core",
             "src_node": "u1core"
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "capacity": 200,
             "dst_node": "u3core",
             "src_node": "u1core"
         },
         {
             "type": "Link",
+            "groups": [ "routed" ],
             "capacity": 200,
             "dst_node": "u2core",
             "src_node": "u3core"
         },
         {
             "type": "CentralIP",
-            "ip_routing_strategy": "spt"
+            "groups": [ "routed" ],
+            "ip_routing_strategy": "spt",
+            "ip6_data_prefix": "9002::/16",
+            "ip4_data_prefix": "192.168.15.0/24"
         },
         {
             "type": "CentralICN",
+            "groups": [ "routed" ],
             "face_protocol": "udp4"
         }
     ]

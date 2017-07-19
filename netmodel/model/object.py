@@ -18,7 +18,10 @@
 
 from abc                        import ABCMeta
 
-from netmodel.model.attribute   import Attribute
+import sys
+
+from netmodel.model.attribute   import Attribute, Multiplicity
+from netmodel.model.key         import Key
 from netmodel.model.type        import BaseType
 from netmodel.model.mapper      import ObjectSpecification
 
@@ -26,10 +29,20 @@ from netmodel.model.mapper      import ObjectSpecification
 
 E_UNK_RES_NAME = 'Unknown resource name for attribute {} in {} ({}) : {}'
 
-class ObjectMetaclass(ABCMeta):
+class ObjectMetaclass(type):
     """
     Object metaclass allowing non-uniform attribute declaration.
     """
+
+    def __new__(mcls, name, bases, attrs):
+        cls = super(ObjectMetaclass, mcls).__new__(mcls, name, bases, attrs)
+        if (sys.version_info < (3, 6)):
+            # Before Python 3.6, descriptor protocol does not include __set_name__.
+            # We use a metaclass to emulate the functionality.
+            for attr, obj in attrs.items():
+                if isinstance(obj, ObjectSpecification):
+                    obj.__set_name__(cls, attr)
+        return cls
 
     def __init__(cls, class_name, parents, attrs):
         """
@@ -67,19 +80,19 @@ class Object(BaseType, metaclass = ObjectMetaclass):
                         else:
                             resource = x
                         if not resource:
-                            raise LurchException(E_UNK_RES_NAME.format(key, 
+                            raise LurchException(E_UNK_RES_NAME.format(key,
                                     self.name, self.__class__.__name__, x))
                         new_value.append(resource._state.uuid)
                     value = new_value
                 else:
                     if isinstance(value, str):
-                        resource = self._state.manager.by_name(value) 
+                        resource = self._state.manager.by_name(value)
                     elif isinstance(value, UUID):
-                        resource = self._state.manager.by_uuid(value) 
+                        resource = self._state.manager.by_uuid(value)
                     else:
                         resource = value
                     if not resource:
-                        raise LurchException(E_UNK_RES_NAME.format(key, 
+                        raise LurchException(E_UNK_RES_NAME.format(key,
                                 self.name, self.__class__.__name__, value))
                     value = resource._state.uuid
             setattr(self, key, value)
@@ -111,19 +124,20 @@ class Object(BaseType, metaclass = ObjectMetaclass):
 
     @classmethod
     def _sanitize(cls):
-        """Sanitize the object model to accomodate for multiple declaration
-            styles
+        """
+        This methods performs sanitization of the object declaration.
 
-        In particular, this method:
-          - set names to all attributes
+        More specifically:
+         - it goes over all attributes and sets their name based on the python
+           object attribute name.
+         - it establishes mutual object relationships through reverse attributes.
+
         """
         cls._reverse_attributes = dict()
         cur_reverse_attributes = dict()
         for name, obj in vars(cls).items():
-            if not isinstance(obj, ObjectSpecification):
+            if not isinstance(obj, Attribute):
                 continue
-            if isinstance(obj, Attribute):
-                obj.name = name
 
             # Remember whether a reverse_name is defined before loading
             # inherited properties from parent
@@ -135,30 +149,72 @@ class Object(BaseType, metaclass = ObjectMetaclass):
                 if hasattr(base, name):
                     parent_attribute = getattr(base, name)
                     obj.merge(parent_attribute)
-                    assert obj.type
+            assert obj.type, "No type for obj={} cls={}, base={}".format(obj, cls, base)
 
             # Handle reverse attribute
             #
             # NOTE: we need to do this after merging to be sure we get all
             #   properties inherited from parent (eg. multiplicity)
+            #
+            # See "Reverse attributes" section in BaseResource docstring.
+            #
+            # Continueing with the same example, let's detail how it is handled:
+            #
+            # Original declaration:
+            # >>>
+            # class Group(Resource):
+            #     resources = Attribute(Resource, description = 'Resources belonging to the group',
+            # 	    multiplicity = Multiplicity.ManyToMany,
+            #             default = [],
+            #             reverse_name = 'groups',
+            #             reverse_description = 'Groups to which the resource belongs')
+            # <<<
+            #
+            # Local variables:
+            #   cls = <class 'vicn.resource.group.Group'>
+            #   obj = <Attribute resources>
+            #   obj.type = <class 'vicn.core.Resource'>
+            #   reverse_attribute = <Attribute groups>
+            #
+            # Result:
+            #    1) Group._reverse_attributes =
+            #       { <Attribute resources> : [<Attribute groups>, ...], ...}
+            #    2) Add attribute <Attribute groups> to class Resource
+            #    3) Resource._reverse_attributes =
+            #       { <Attribute groups> : [<Attribute resources], ...], ...}
+            #
             if has_reverse:
                 a = {
-                    'name'          : obj.reverse_name,
-                    'description'   : obj.reverse_description,
-                    'multiplicity'  : Multiplicity.reverse(obj.multiplicity),
-                    'auto'          : obj.reverse_auto,
+                    'name'                  : obj.reverse_name,
+                    'description'           : obj.reverse_description,
+                    'multiplicity'          : Multiplicity.reverse(obj.multiplicity),
+                    'reverse_name'          : obj.name,
+                    'reverse_description'   : obj.description,
+                    'auto'                  : obj.reverse_auto,
                 }
-                reverse_attribute = Attribute(cls,  **a)
+
+                # We need to use the same class as the Attribute !
+                reverse_attribute = obj.__class__(cls,  **a)
                 reverse_attribute.is_aggregate = True
 
+                # 1) Store the reverse attributes to be later inserted in the
+                # remote class, at the end of the function
+                # TODO : clarify the reasons to perform this in two steps
                 cur_reverse_attributes[obj.type] = reverse_attribute
 
+                # 2)
                 if not obj in cls._reverse_attributes:
                     cls._reverse_attributes[obj] = list()
                 cls._reverse_attributes[obj].append(reverse_attribute)
 
-        for cls, a in cur_reverse_attributes.items():
-            setattr(cls, a.name, a)
+                # 3)
+                if not reverse_attribute in obj.type._reverse_attributes:
+                    obj.type._reverse_attributes[reverse_attribute] = list()
+                obj.type._reverse_attributes[reverse_attribute].append(obj)
+
+        # Insert newly created reverse attributes in the remote class
+        for kls, a in cur_reverse_attributes.items():
+            setattr(kls, a.name, a)
 
     @classmethod
     def iter_attributes(cls, aggregates = False):
@@ -168,7 +224,7 @@ class Object(BaseType, metaclass = ObjectMetaclass):
                 continue
             if attribute.is_aggregate and not aggregates:
                 continue
-                
+
             yield attribute
 
     def get_attributes(self, aggregates = False):
@@ -178,7 +234,7 @@ class Object(BaseType, metaclass = ObjectMetaclass):
         return set(a.name for a in self.iter_attributes(aggregates = \
                     aggregates))
 
-    def get_attribute_dict(self, field_names = None, aggregates = False, 
+    def get_attribute_dict(self, field_names = None, aggregates = False,
             uuid = True):
         assert not field_names or field_names.is_star()
         attributes = self.get_attributes(aggregates = aggregates)
@@ -192,13 +248,28 @@ class Object(BaseType, metaclass = ObjectMetaclass):
                 ret[a.name] = list()
                 for x in value:
                     if uuid and isinstance(x, Object):
-                        x = x._state.uuid._uuid 
+                        x = x._state.uuid._uuid
                     ret[a.name].append(x)
             else:
                 if uuid and isinstance(value, Object):
-                    value = value._state.uuid._uuid 
+                    value = value._state.uuid._uuid
                 ret[a.name] = value
         return ret
+
+    @classmethod
+    def iter_keys(cls):
+        for name in dir(cls):
+            key = getattr(cls, name)
+            if not isinstance(key, Key):
+                continue
+            yield key
+
+    @classmethod
+    def get_keys(cls):
+        return list(cls.iter_keys())
+
+    def get_key_dicts(self):
+        return [{attribute: self.get(attribute.name) for attribute in key} for key in self.iter_keys()]
 
     def get_tuple(self):
         return (self.__class__, self._get_attribute_dict())
@@ -229,3 +300,8 @@ class Object(BaseType, metaclass = ObjectMetaclass):
     def has_attribute(cls, name):
         return name in [a.name for a in cls.attributes()]
 
+    def get(self, attribute_name):
+        raise NotImplementedError
+
+    def set(self, attribute_name, value):
+        raise NotImplementedError

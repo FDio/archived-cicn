@@ -12,9 +12,10 @@
 
 import logging
 
-from vicn.core.exception    import VICNListException
-from vicn.core.sa_compat    import py2k
-from vicn.core.state        import UUID
+from netmodel.model.sa_compat   import py2k
+from netmodel.model.uuid        import UUID
+
+class InstrumentedListException(Exception): pass
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ def _list_decorators():
             try:
                 item = self._attribute.do_list_add(self._instance, item)
                 fn(self, item)
-            except VICNListException as e:
+            except InstrumentedListException as e:
                 pass
         _tidy(append)
         return append

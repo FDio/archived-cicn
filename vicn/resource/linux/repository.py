@@ -31,14 +31,14 @@ class Repository(Application):
     part of any basic distribution install.
     """
 
-    repo_name = Attribute(String, description = 'Name of the repository', 
+    repo_name = Attribute(String, description = 'Name of the repository',
             default = 'vicn')
-    directory = Attribute(String, description = 'Directory holding packages', 
+    directory = Attribute(String, description = 'Directory holding packages',
             default = '')
     sections = Attribute(String, description = 'Sections',
             multiplicity = Multiplicity.OneToMany,
             default = [])
-    distributions = Attribute(String, 
+    distributions = Attribute(String,
             description = 'List of distributions served by this repository',
             multiplicity = Multiplicity.ManyToMany,
             default = ['sid', 'trusty', 'xenial'])

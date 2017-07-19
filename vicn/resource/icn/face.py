@@ -16,36 +16,31 @@
 # limitations under the License.
 #
 
-from enum                       import Enum
-
-from netmodel.model.type        import Integer, String, Bool
-from vicn.core.attribute        import Attribute
-from vicn.core.requirement      import Requirement
-from vicn.core.resource         import Resource
-from vicn.resource.node         import Node
-from vicn.resource.interface    import Interface
+from netmodel.model.type            import Integer, String, Bool, InetAddress
+from netmodel.model.object          import ObjectMetaclass
+from vicn.core.attribute            import Attribute
+from vicn.core.requirement          import Requirement
+from vicn.core.resource             import Resource
+from vicn.resource.interface        import Interface
+from vicn.resource.node             import Node
 
 DEFAULT_ETHER_PROTO = 0x0801
-FMT_L4FACE = '{protocol.name}://{dst_ip}:{dst_port}/'
-FMT_L2FACE = '{protocol.name}://[{dst_mac}]/{src_nic.device_name}'
+DEFAULT_PORT = 6363
 
-class FaceProtocol(Enum):
-    ether = 0
-    ip4 = 1
-    ip6 = 2
-    tcp4 = 3
-    tcp6 = 4
-    udp4 = 5
-    udp6 = 7
-    app = 8
-
-    @staticmethod
-    def from_string(protocol):
-        return getattr(FaceProtocol, protocol)
+FMT_L4FACE_IPV4 = '{protocol}://{dst.ip4_address}:{dst_port}/'
+FMT_L4FACE_IPV6 = '{protocol}://{dst.ip6_address}:{dst_port}/'
+FMT_L2FACE = '{protocol}://[{dst.mac_address}]/{src.device_name}'
 
 #------------------------------------------------------------------------------
 
-class Face(Resource):
+class FaceMetaclass(ObjectMetaclass):
+    def __new__(mcls, name, bases, attrs):
+        cls = super(FaceMetaclass, mcls).__new__(mcls, name, bases, attrs)
+        if name != 'Face':
+            cls.register()
+        return cls
+
+class Face(Resource, metaclass=FaceMetaclass):
     """
     Resource: Face
     """
@@ -57,6 +52,10 @@ class Face(Resource):
     protocol = Attribute(String,
             description = 'Face underlying protocol',
             mandatory = True)
+
+    src = Attribute(Interface, mandatory = True)
+    dst = Attribute(Interface, mandatory = True)
+
     id = Attribute(String, description = 'Local face ID',
             ro = True)
 
@@ -74,6 +73,18 @@ class Face(Resource):
     nfdc_flags = Attribute(String,
             description = 'Flags for face creation with NFDC',
             func = lambda self : self._lambda_nfdc_flags())
+
+    # map protocol -> face class
+    _map_protocol = dict()
+
+    @classmethod
+    def register(cls):
+        for protocol in cls.__protocols__:
+            Face._map_protocol[protocol] = cls
+
+    @classmethod
+    def from_protocol(cls, protocol):
+        return cls._map_protocol.get(protocol)
 
     def __repr__(self):
         flags = ''
@@ -95,7 +106,7 @@ class Face(Resource):
     # NFD specifics
 
     def _lambda_nfd_uri(self):
-        raise NotImplementedError
+        return 'N/A' # raise NotImplementedError
 
     def _lambda_nfdc_flags(self):
         flags = ''
@@ -111,14 +122,11 @@ class Face(Resource):
 
 class L2Face(Face):
 
-    src_nic = Attribute(Interface,
-            description = "Name of the network interface linked to the face",
-            mandatory=True)
-    dst_mac = Attribute(String, description = "destination MAC address",
-            mandatory=True)
+    __protocols__ = ['ether']
+
     ether_proto = Attribute(String,
             description = "Ethernet protocol number used by the face",
-            default=DEFAULT_ETHER_PROTO)
+            default = DEFAULT_ETHER_PROTO)
 
     def _lambda_nfd_uri(self):
         return self.format(FMT_L2FACE)
@@ -127,14 +135,13 @@ class L2Face(Face):
 
 class L4Face(Face):
 
-    ip_version = Attribute(Integer, description = "IPv4 or IPv6", default = 4)
-    src_ip = Attribute(String, description = "local IP address",
-            mandatory = True)
-    src_port = Attribute(Integer, description = "local TCP/UDP port")
-    dst_ip = Attribute(String, descrition = "remote IP address",
-            mandatory=True)
+    __protocols__ = ['tcp4', 'tcp6', 'udp4', 'udp6']
+
+    src_port = Attribute(Integer, description = "local TCP/UDP port",
+            default = DEFAULT_PORT)
     dst_port = Attribute(Integer, description = "remote TCP/UDP port",
-            mandatory=True)
+            default = DEFAULT_PORT)
 
     def _lambda_nfd_uri(self):
-        return self.format(FMT_L4FACE)
+        fmt = FMT_L4FACE_IPV4 if self.protocol in ['tcp4', 'udp4'] else FMT_L4FACE_IPV6
+        return self.format(fmt)

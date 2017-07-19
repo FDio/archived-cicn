@@ -21,6 +21,7 @@ import logging
 from vicn.core.exception                import ResourceNotFound
 from vicn.core.resource                 import CategoryResource
 from vicn.core.task                     import inline_task, BashTask, EmptyTask
+from vicn.core.task                     import inherit_parent
 from vicn.resource.linux.application    import LinuxApplication
 
 log = logging.getLogger(__name__)
@@ -51,33 +52,33 @@ class Service(LinuxApplication):
     __type__ = CategoryResource
 
 
-
+    @inherit_parent
     @inline_task
     def __get__(self):
         raise ResourceNotFound
-    
+
     def __method_restart__(self):
-        return BashTask(self.node, CMD_RESTART, 
+        return BashTask(self.node, CMD_RESTART,
                         {'service_name': self.__service_name__})
-    
+
     def __method_start__(self):
         return BashTask(self.node, CMD_START,
                         {'service_name': self.__service_name__})
-    
 
+    def __method_stop__(self):
+        return BashTask(self.node, CMD_STOP,
+                        {'service_name': self.__service_name__})
+
+    def __method_stop_start(self):
+        return BashTask(self.node, CMD_STOP_START,
+                {'service_name': self.__service_name__})
+
+    @inherit_parent
     def __create__(self):
-        if self.__service_name__ == 'lxd':
-            log.warning('Not restarting LXD')
-            return EmptyTask()
-
-        if self.__service_name__ == 'dnsmasq':
-            return BashTask(self.node, CMD_STOP_START, 
-                    {'service_name': self.__service_name__})
-
         return self.__method_restart__()
 
-
+    @inherit_parent
     def __delete__(self):
-        return BashTask(self.node, CMD_STOP, 
+        return BashTask(self.node, CMD_STOP,
                 {'service_name': self.__service_name__})
 

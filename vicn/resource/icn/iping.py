@@ -36,28 +36,28 @@ class IPing(ICNApplication):
 
     __package_names__ = ["libicnet"]
 
-    prefixes = Attribute(String, 
+    prefixes = Attribute(String,
             description = "name served by the ping server",
             default = lambda self: self.default_name(),
             mandatory = False,
             multiplicity = Multiplicity.OneToMany)
     node = Attribute(Node,
             requirements=[
-                Requirement("forwarder", 
-                    capabilities = set(['ICN_SUITE_CCNX_1_0']), 
+                Requirement("forwarder",
+                    capabilities = set(['ICN_SUITE_CCNX_1_0']),
                     properties = {"protocol_suites" : ICN_SUITE_CCNX_1_0})
             ])
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
     # Methods
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     def __method_start__(self):
         return self._build_command()
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
     # Internal methods
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     def default_name(self):
         return ['/iping']
@@ -72,16 +72,16 @@ class IPingClient(IPing, Producer):
     Resource: IPingClient
     """
 
-    flood = Attribute(Bool, description = 'enable flood mode', 
+    flood = Attribute(Bool, description = 'enable flood mode',
             default = False)
     count = Attribute(Integer, description = 'number of ping to send')
-    interval = Attribute(Integer, 
+    interval = Attribute(Integer,
             description = 'interval between interests in ping mode')
     size = Attribute(Integer, description = 'size of the interests')
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
     # Internal methods
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     def _build_command(self):
         template = ["iPing_Client", "-l ccnx:{prefix}"]
@@ -110,9 +110,9 @@ class IPingServer(IPing, Consumer):
 
     size = Attribute(Integer, description = "size of the payload")
 
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
     # Internal methods
-    #-------------------------------------------------------------------------- 
+    #--------------------------------------------------------------------------
 
     def _build_command(self):
         template = ["iPing_Server", "-l ccnx:{prefix}"]

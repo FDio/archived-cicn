@@ -46,12 +46,12 @@ class OVS(BridgeManager):
     #---------------------------------------------------------------------------
 
     def add_bridge(self, bridge_name):
-        return BashTask(self.node, CMD_ADD_BRIDGE, 
+        return BashTask(self.node, CMD_ADD_BRIDGE,
                 {'bridge_name': bridge_name},
                 output = False, as_root = True)
 
     def del_bridge(self, bridge_name):
-        return BashTask(self.node, CMD_DEL_BRIDGE, 
+        return BashTask(self.node, CMD_DEL_BRIDGE,
                 {'bridge_name': bridge_name},
                 output = False, as_root = True)
 
@@ -62,7 +62,7 @@ class OVS(BridgeManager):
                 output = False, as_root = True)
 
     def del_interface(self, bridge_name, interface_name, vlan=None):
-        return BashTask(self.node, CMD_DEL_INTERFACE, 
+        return BashTask(self.node, CMD_DEL_INTERFACE,
                 {'bridge_name': bridge_name, 'interface_name': interface_name,
                  'vlan': vlan},
                 output = False, as_root = True)
