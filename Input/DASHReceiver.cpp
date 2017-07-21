@@ -355,7 +355,9 @@ void*					DASHReceiver::DoMPDFetching				(void* receiver)
 {
     DASHReceiver* dashReceiver = (DASHReceiver*) receiver;
     uint32_t currTime = TimeResolver::getCurrentTimeInSec();
-    uint32_t publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
+    uint32_t publishedTime = dashReceiver->mpdWrapper->getFetchTime();
+//    To avoid clock synchronisation issues: using fetching time instead of publish time
+//    uint32_t publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
     uint32_t period = TimeResolver::getDurationInSec(dashReceiver->mpdWrapper->getMinimumUpdatePeriod());
    while(dashReceiver->isBuffering)
     {
@@ -365,7 +367,8 @@ void*					DASHReceiver::DoMPDFetching				(void* receiver)
         currTime = TimeResolver::getCurrentTimeInSec();
     }
  	dashReceiver->observer->fetchMPD();
-	publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
+	publishedTime = dashReceiver->mpdWrapper->getFetchTime();
+//	publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
 	period = TimeResolver::getDurationInSec(dashReceiver->mpdWrapper->getMinimumUpdatePeriod());
     }
 }
@@ -397,5 +400,3 @@ void					DASHReceiver::SetDrop	(float drop)
 {
     this->drop = drop;
 }
-
-
