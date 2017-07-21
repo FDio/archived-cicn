@@ -219,7 +219,7 @@ uint64_t SegmentTemplateStream::getTime(size_t segmentNumber)
     if(segmentNumber < this->segmentStartTimes.size())
 	return this->segmentStartTimes.at(segmentNumber);
     else
-	return 0;
+	return this->segmentStartTimes.at(this->segmentStartTimes.size()-1);
 }
 
 size_t SegmentTemplateStream::getSegmentNumber(uint64_t time)

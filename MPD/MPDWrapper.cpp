@@ -46,9 +46,9 @@ IMPD*	MPDWrapper::getMPD	()
 }
 
 void	MPDWrapper::updateMPD	(IMPD* mpd)
-{ 
-//Assumptions here: 
-//    *only one period in the MPD 
+{
+//Assumptions here:
+//    *only one period in the MPD
 //    *only triggered if using SegmentTimeline dynamic MPD
     EnterCriticalSection(&this->monitorMutex);
     this->period = mpd->GetPeriods().at(0);
@@ -75,8 +75,8 @@ void	MPDWrapper::findVideoAdaptationSet	(IMPD* mpd)
                 return;
             }
         }
-        //Not found in the new set of adaptation logc => select the first one 
-        this->videoAdaptationSet = adaptationSets.at(0);    
+        //Not found in the new set of adaptation logc => select the first one
+        this->videoAdaptationSet = adaptationSets.at(0);
     }
     else
     {
@@ -568,7 +568,7 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
 {
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
-    
+
     EnterCriticalSection(&this->monitorMutex);
     switch(type)
     {
@@ -625,17 +625,19 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
                 LeaveCriticalSection(&this->monitorMutex);
                 return NULL;
             }
-            
+
             //Need to update representationStream here as it was updated with the mpd:
             switch(type)
             {
                 case viper::managers::StreamType::AUDIO:
                     representation = this->audioRepresentation;
                     representations = this->audioRepresentations;
+                    segmentNumber = this->audioSegmentNumber;
                     break;
                 case viper::managers::StreamType::VIDEO:
                     representation = this->videoRepresentation;
                     representations = this->videoRepresentations;
+                    segmentNumber = this->videoSegmentNumber;
                     break;
                 default:
                     break;
@@ -646,7 +648,7 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
     seg = representationStream->getMediaSegment(segmentNumber);
     if(seg != NULL)
     {
-        MediaObject *media = new MediaObject(seg, representation, withFeedBack); 
+        MediaObject *media = new MediaObject(seg, representation, withFeedBack);
         segmentNumber++;
         switch(type)
         {
