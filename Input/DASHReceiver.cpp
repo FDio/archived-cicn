@@ -42,8 +42,7 @@ DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrappe
     isLooping                   (false),
     beta                        (beta),
     drop                        (drop),
-    bufferingThread             (NULL),
-    mpdFetcherThread            (NULL)
+    bufferingThread             (NULL)
 {
     readMax = 32768;
     readBuffer = (uint8_t*)malloc(sizeof(uint8_t)*readMax);
@@ -96,15 +95,6 @@ bool			DASHReceiver::Start						()
         this->isBuffering = false;
         return false;
     }
-    //if dynamic, set up the fetching loop
-    if(!strcmp(this->mpdWrapper->getType().c_str(), "dynamic"))
-    {
-	    this->mpdFetcherThread = createThreadPortable(DoMPDFetching, this);
-	    if(this->mpdFetcherThread == NULL)
-	    {
-	        std::cout << "mpd Fetcher thread is NULL. Need to think of how to handle this?" << std::endl;
-	    }
-	}
     return true;
 }
 void DASHReceiver::Stop()
@@ -119,11 +109,6 @@ void DASHReceiver::Stop()
     {
         JoinThread(this->bufferingThread);
         destroyThreadPortable(this->bufferingThread);
-    }
-    if(this->mpdFetcherThread != NULL)
-    {
-	JoinThread(this->mpdFetcherThread);
-	destroyThreadPortable(this->mpdFetcherThread);
     }
 }
 
@@ -349,28 +334,6 @@ void*                       DASHReceiver::DoBuffering               (void *recei
     dashReceiver->buffer->setEOS(true);
     dashReceiver->threadComplete = true;
     return NULL;
-}
-
-void*					DASHReceiver::DoMPDFetching				(void* receiver)
-{
-    DASHReceiver* dashReceiver = (DASHReceiver*) receiver;
-    uint32_t currTime = TimeResolver::getCurrentTimeInSec();
-    uint32_t publishedTime = dashReceiver->mpdWrapper->getFetchTime();
-//    To avoid clock synchronisation issues: using fetching time instead of publish time
-//    uint32_t publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
-    uint32_t period = TimeResolver::getDurationInSec(dashReceiver->mpdWrapper->getMinimumUpdatePeriod());
-   while(dashReceiver->isBuffering)
-    {
-    while(dashReceiver->isBuffering && currTime < publishedTime + period)
-    {
-        usleep(((publishedTime + period) - currTime) * 1000000);
-        currTime = TimeResolver::getCurrentTimeInSec();
-    }
- 	dashReceiver->observer->fetchMPD();
-	publishedTime = dashReceiver->mpdWrapper->getFetchTime();
-//	publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
-	period = TimeResolver::getDurationInSec(dashReceiver->mpdWrapper->getMinimumUpdatePeriod());
-    }
 }
 
 //can Push video to buffer in the renderer

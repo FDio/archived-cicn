@@ -61,7 +61,6 @@ public:
     void setTargetDownloadingTime(double);
     MediaObject* getSegment();
     void onBufferStateChanged(BufferType type, uint32_t fillstateInPercent, int maxC);
-    void fetchMPD();
 
 private:
     float                                               beta;

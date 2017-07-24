@@ -38,7 +38,6 @@ public:
     virtual void notifyQualityDownloading(uint32_t quality) = 0;
     virtual bool canPush() = 0;
     virtual int  getBufferLevel() = 0;
-    virtual void fetchMPD() = 0;
 };
 }
 }

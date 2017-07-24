@@ -59,7 +59,7 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
 	libl4::transport::ConsumerSocket &c = this->hTTPClientConnection->getConsumer();
     bool configFile = false;
     //CHECK if we are not going to override the configuration file. (if !autotune)
-    if(FILE *fp = fopen("/usr/local/etc/hicn-consumer.conf", "r"))
+    if(FILE *fp = fopen("/usr/etc/consumer.conf", "r"))
     {
         fclose(fp);
         configFile = true;
