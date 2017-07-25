@@ -706,7 +706,7 @@ float MultimediaManager::getSegmentDuration()
     return this->segmentDuration;
 }
 
-static void*					MultimediaManager::DoMPDFetching				(void* data)
+void*					MultimediaManager::DoMPDFetching				(void* data)
 {
     MultimediaManager *manager = (MultimediaManager*) data;
     uint32_t currTime = TimeResolver::getCurrentTimeInSec();

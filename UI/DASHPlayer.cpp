@@ -296,16 +296,16 @@ void DASHPlayer::notifyStatistics(int segNum, uint32_t bitrate, int fps, uint32_
 void DASHPlayer::updateSlider(qint64 value)
 {
     this->position = this->offset + (uint64_t)value;
-    if (this->position <= this->gui->getDurationMilliseconds()){
-        this->segment = (this->offset + value)/this->segmentDuration;
-        this->gui->setAnaliticsValues(std::get<0>(this->mStats[segment])/1000000,
-                                      std::get<2>(this->mStats[segment]),
-                                      (uint32_t)this->qualityDownloading,
-                                      (double)this->multimediaManager->getBufferLevel());
-        this->gui->getProgressBar()->setProperty("value", 1.0*(this->position)/(1.0*this->gui->getDurationMilliseconds()));
-        this->gui->getNowLabel()->setProperty("text", QVariant(msec2string(this->position).c_str()));
-        this->gui->pauseIfBuffering(this->offset + value);
+    this->segment = (this->offset + value)/this->segmentDuration;
+    this->gui->setAnaliticsValues(std::get<0>(this->mStats[segment])/1000000,
+                                  std::get<2>(this->mStats[segment]),
+                                  (uint32_t)this->qualityDownloading,
+                                  (double)this->multimediaManager->getBufferLevel());
+        if (this->gui->getDurationMilliseconds() && this->position <= this->gui->getDurationMilliseconds()){
+            this->gui->getProgressBar()->setProperty("value", 1.0*(this->position)/(1.0*this->gui->getDurationMilliseconds()));
     }
+    this->gui->getNowLabel()->setProperty("text", QVariant(msec2string(this->position).c_str()));
+    this->gui->pauseIfBuffering(this->offset + value);
 }
 
 void DASHPlayer::initSlider()
