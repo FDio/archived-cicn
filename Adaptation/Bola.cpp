@@ -50,7 +50,8 @@ using duration_in_seconds = std::chrono::duration<double, std::ratio<1, 1> >;
 BolaAdaptation::BolaAdaptation(viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
                   AbstractAdaptationLogic   (type, mpdWrapper)
 {
-	this->bufferMaxSizeSeconds =(double) params->segmentBufferSize * params->segmentDuration;
+    this->segmentDuration = params->segmentDuration;
+	this->bufferMaxSizeSeconds =(double) params->segmentBufferSize * this->segmentDuration;
 	this->alphaRate = params->Bola_Alpha;
 	this->bufferTargetSeconds = params->Bola_bufferTargetSeconds;
 
@@ -86,10 +87,9 @@ BolaAdaptation::BolaAdaptation(viper::managers::StreamType type, MPDWrapper *mpd
 	    // return 0;   // Check if exit with a message is necessary
 	}
 
-	// Check if the following is correct XXX Maybe useless
     this->totalDuration = TimeResolver::getDurationInSec(this->mpdWrapper->getMediaPresentationDuration());
-//	this->segmentDuration = (double) (representations.at(0)->GetSegmentTemplate()->GetDuration() / representations.at(0)->GetSegmentTemplate()->GetTimescale() );
-	this->segmentDuration = 2.0;
+	if(!(this->segmentDuration))
+	    this->segmentDuration = 2.0;
 	Debug("Total Duration - BOLA:\t%f\nSegment Duration - BOLA:\t%f\n",this->totalDuration, this->segmentDuration);
 	// if not correct --> segmentDuration = 2.0;
 

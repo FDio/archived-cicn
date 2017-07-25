@@ -645,10 +645,13 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
             representationStream = representations->find(representation)->second;
         }
     }
-    seg = representationStream->getMediaSegment(segmentNumber);
+    uint64_t segDuration = 0;
+    //Returns the segmentDuration in milliseconds
+    seg = representationStream->getMediaSegment(segmentNumber, segDuration);
     if(seg != NULL)
     {
         MediaObject *media = new MediaObject(seg, representation, withFeedBack);
+        media->SetSegmentDuration(segDuration);
         segmentNumber++;
         switch(type)
         {
@@ -696,10 +699,12 @@ MediaObject*	MPDWrapper::getSegment	(viper::managers::StreamType type, uint32_t 
         LeaveCriticalSection(&this->monitorMutex);
         return NULL;
     }
-    seg = representationStream->getMediaSegment(segNum);
+    uint64_t segDuration =0;
+    seg = representationStream->getMediaSegment(segNum, segDuration);
     if(seg != NULL)
     {
         MediaObject *media = new MediaObject(seg, representation);
+        media->SetSegmentDuration(segDuration);
         LeaveCriticalSection(&this->monitorMutex);
         return media;
     }

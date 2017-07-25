@@ -28,7 +28,7 @@ MediaObject::MediaObject(ISegment *segment, IRepresentation *rep, bool withFeedB
     InitializeCriticalSection   (&this->stateLock);
     this->representationBandwidth = rep->GetBandwidth();
     this->representationHeight = rep->GetHeight();
-    this->representationId = atoi(rep->GetId().c_str());
+    this->representationId = rep->GetId();
 }
 
 MediaObject::~MediaObject()
@@ -57,12 +57,22 @@ uint32_t MediaObject::GetRepresentationHeight()
     return this->representationHeight;
 }
 
-int MediaObject::GetRepresentationID()
+std::string MediaObject::GetRepresentationID()
 {
     return this->representationId;
 }
 
-void MediaObject::SetFeedBack(bool flag)
+uint64_t    MediaObject::GetSegmentDuration()
+{
+    return this->segmentDuration;
+}
+
+void    MediaObject::SetSegmentDuration(uint64_t segDuration)
+{
+    this->segmentDuration = segDuration;
+}
+
+void    MediaObject::SetFeedBack(bool flag)
 {
     this->withFeedBack = flag;
 }

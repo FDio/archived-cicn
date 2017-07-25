@@ -43,7 +43,7 @@ public:
 
     virtual dash::mpd::ISegment* getInitializationSegment() = 0;
     virtual dash::mpd::ISegment* getIndexSegment(size_t segmentNumber) = 0;
-    virtual dash::mpd::ISegment* getMediaSegment(size_t segmentNumber) = 0;
+    virtual dash::mpd::ISegment* getMediaSegment(size_t segmentNumber, uint64_t& segmentDuration) = 0;
     virtual dash::mpd::ISegment* getBitstreamSwitchingSegment() = 0;
     virtual RepresentationStreamType getStreamType() = 0;
 

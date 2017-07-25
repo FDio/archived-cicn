@@ -64,16 +64,19 @@ ISegment* SegmentTemplateStream::getIndexSegment(size_t segmentNumber)
                                                             this->segmentTemplate->GetStartNumber() + segmentNumber);
 }
 
-ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber)
+ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber, uint64_t& segmentDuration)
 {
     /* time-based template */
     if (this->segmentTemplate->GetSegmentTimeline())
     {//Get the one at segmentNumber
-    	if(this->segmentStartTimes.size() > segmentNumber)
-	    return this->segmentTemplate->GetMediaSegmentFromTime(baseUrls, representation->GetId(), representation->GetBandwidth(), this->segmentStartTimes.at(segmentNumber));
-    	else
-	    return NULL;
-	
+        if(this->segmentStartTimes.size() > segmentNumber)
+        {
+            segmentDuration = (uint64_t)(((float)this->segmentDurationTimes.at(segmentNumber)/(float)this->getTimescale()) * 1000);
+            return this->segmentTemplate->GetMediaSegmentFromTime(baseUrls, representation->GetId(), representation->GetBandwidth(), this->segmentStartTimes.at(segmentNumber));
+        }
+        else
+            return NULL;
+
 //The following is to be used if you wish to start directly from the right time
 /*  {
         if(this->inSync)
@@ -110,6 +113,9 @@ ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber)
     }
 
     /* number-based template */
+    uint32_t duration = representation->GetSegmentTemplate()->GetDuration();
+    uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
+    segmentDuration = (uint64_t)(((float)duration/(float)timescale) * 1000);
     return this->segmentTemplate->GetMediaSegmentFromNumber(baseUrls, representation->GetId(), representation->GetBandwidth(),
                                                             this->segmentTemplate->GetStartNumber() + segmentNumber);
 
@@ -199,6 +205,7 @@ void SegmentTemplateStream::calculateSegmentStartTimes()
                 if (segStartTime > 0)
                 {
                     this->segmentStartTimes.push_back(segStartTime + segDuration * j);
+                    this->segmentDurationTimes.push_back(segDuration);
                 }
                 else
                 {
@@ -209,6 +216,7 @@ void SegmentTemplateStream::calculateSegmentStartTimes()
         else
         {
             this->segmentStartTimes.push_back(segStartTime);
+            this->segmentDurationTimes.push_back(segDuration);
         }
     }
     this->averageDuration = totalDuration / numOfTimelines;
@@ -227,7 +235,7 @@ size_t SegmentTemplateStream::getSegmentNumber(uint64_t time)
     size_t i;
     for(i = 0; i < this->segmentStartTimes.size(); i ++)
     {
-	if(time <= this->segmentStartTimes.at(i))
+	if(time < this->segmentStartTimes.at(i))
 	{
 	    break;
 	}

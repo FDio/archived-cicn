@@ -89,6 +89,8 @@ DASHPlayerNoGUI::DASHPlayerNoGUI(int argc, char ** argv, pthread_cond_t *mainCon
             webSocketService.start();
             this->parameterAdaptation->segmentDuration = this->mpdWrapper->onFirstDownloadMPD(NULL);
             this->multimediaManager->setSegmentDuration(this->parameterAdaptation->segmentDuration);
+            //should be in seconds
+            this->parameterAdaptation->segmentDuration = this->parameterAdaptation->segmentDuration / 1000.0;
             this->onStartButtonPressed(0,0,0,0,0);
             this->multimediaManager->setLooping(this->repeat);
         }

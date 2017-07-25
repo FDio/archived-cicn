@@ -53,11 +53,15 @@ ISegment* SegmentListStream::getIndexSegment(size_t segmentNumber)
     return NULL;
 }
 
-ISegment* SegmentListStream::getMediaSegment(size_t segmentNumber)
+ISegment* SegmentListStream::getMediaSegment(size_t segmentNumber, uint64_t& segmentDuration)
 {
     if (this->segmentList->GetSegmentURLs().size() > segmentNumber)
+    {
+        uint32_t duration = representation->GetSegmentList()->GetDuration();
+        uint32_t timescale = representation->GetSegmentList()->GetTimescale();
+        segmentDuration = (uint64_t)(((float)duration/(float)timescale) * 1000);
         return this->segmentList->GetSegmentURLs().at(segmentNumber)->ToMediaSegment(this->baseUrls);
-
+    }
     return NULL;
 }
 
@@ -91,6 +95,11 @@ ISegmentList* SegmentListStream::findSegmentList()
         return this->period->GetSegmentList();
 
     return NULL;
+}
+
+uint32_t		    SegmentListStream::getTimescale			()
+{
+    return this->segmentList->GetTimescale();
 }
 
 uint32_t SegmentListStream::getAverageSegmentDuration()

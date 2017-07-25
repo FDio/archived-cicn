@@ -659,7 +659,6 @@ void* MultimediaManager::pushVideo(void *data)
 {
     MultimediaManager *manager = (MultimediaManager*) data;
     libdash::framework::input::MediaObject *segment = manager->videoStream->getSegment();
-    int segmentDurationInMs = (int)manager->getSegmentDuration();
     while(manager->isVideoRendering)
     {
         if (segment)

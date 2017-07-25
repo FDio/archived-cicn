@@ -141,7 +141,7 @@ MediaObject*	DASHReceiver::GetInitSegmentWithoutLock	()
     return this->mpdWrapper->getInitSegmentWithoutLock(type);
 }
 
-MediaObject*	DASHReceiver::FindInitSegment	(int representation)
+MediaObject*	DASHReceiver::FindInitSegment	(std::string representation)
 {
     if (!this->InitSegmentExists(representation))
         return NULL;
@@ -192,7 +192,7 @@ void                        DASHReceiver::NotifySegmentDownloaded   ()
 
 void                        DASHReceiver::DownloadInitSegmentWithoutLock    ()
 {
-    int rep = atoi(this->mpdWrapper->getRepresentationIDWithoutLock(type).c_str());
+    std::string rep = this->mpdWrapper->getRepresentationIDWithoutLock(type);
     if (this->InitSegmentExists(rep))
         return;
 
@@ -209,7 +209,7 @@ void                        DASHReceiver::DownloadInitSegmentWithoutLock    ()
 
 void                        DASHReceiver::DownloadInitSegment    ()
 {
-    int rep = atoi(this->mpdWrapper->getRepresentationID(type).c_str());
+    std::string rep = this->mpdWrapper->getRepresentationID(type);
     if (this->InitSegmentExists(rep))
         return;
 
@@ -224,7 +224,7 @@ void                        DASHReceiver::DownloadInitSegment    ()
     }
 }
 
-bool                        DASHReceiver::InitSegmentExists      (int rep)
+bool                        DASHReceiver::InitSegmentExists      (std::string rep)
 {
     if (this->initSegments.find(rep) != this->initSegments.end())
         return true;
@@ -310,7 +310,6 @@ void*                       DASHReceiver::DoBuffering               (void *recei
         }
         m_start_time = std::chrono::system_clock::now();
         media->StartDownload(dashReceiver->conn);
-
         media->WaitFinished();
         bool canPush = dashReceiver->CanPush();
         if (canPush && !dashReceiver->PushBack(media))

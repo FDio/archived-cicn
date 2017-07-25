@@ -57,7 +57,7 @@ public:
     input::MediaObject* GetSegment(uint32_t segmentNumber);
     input::MediaObject* GetInitSegment();
     input::MediaObject* GetInitSegmentWithoutLock();
-    input::MediaObject* FindInitSegment(int representation);
+    input::MediaObject* FindInitSegment(std::string representation);
     uint32_t GetPosition();
     void SetPosition(uint32_t segmentNumber);
     void SetLooping(bool isLoopinp);
@@ -86,7 +86,7 @@ private:
     float                                               drop;
     bool                                                withFeedBack;
     bool                                                isBufferBased;
-    std::map<int, MediaObject*>                         initSegments;
+    std::map<std::string, MediaObject*>                 initSegments;
     libdash::framework::buffer::Buffer<MediaObject>     *buffer;
     IDASHReceiverObserver                               *observer;
     libdash::framework::mpd::MPDWrapper                 *mpdWrapper;
@@ -120,7 +120,7 @@ private:
     void NotifySegmentDownloaded();
     void DownloadInitSegment();
     void DownloadInitSegmentWithoutLock();
-    bool InitSegmentExists(int rep);
+    bool InitSegmentExists(std::string rep);
     static void* DoBuffering(void *receiver);
 };
 }

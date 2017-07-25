@@ -59,23 +59,26 @@ public:
     void SetDASHReceiver(input::DASHReceiver *_dashReceiver);
     uint32_t GetRepresentationBandwidth();
     uint32_t GetRepresentationHeight();
-    int GetRepresentationID();
+    std::string GetRepresentationID();
+    uint64_t GetSegmentDuration();
+    void SetSegmentDuration(uint64_t segmentDuration);
 
 private:
     dash::mpd::ISegment             *segment;
     MediaObject                     *initSeg;
     dash::mpd::IRepresentation      *rep;
     dash::network::DownloadState    state;
-    uint64_t						bps;
-    bool							withFeedBack;
+    uint64_t                        bps;
+    bool                            withFeedBack;
     double                          dnltime;
     input::DASHReceiver             *dashReceiver;
     adaptation::IAdaptationLogic    *adaptationLogic;
     mutable CRITICAL_SECTION        stateLock;
     mutable CONDITION_VARIABLE      stateChanged;
-    uint32_t			    representationBandwidth;
-    uint32_t			    representationHeight;
-    int				    representationId;
+    uint32_t                        representationBandwidth;
+    uint32_t                        representationHeight;
+    std::string                     representationId;
+    uint64_t                        segmentDuration;
 };
 }
 }

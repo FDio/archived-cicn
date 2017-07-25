@@ -33,11 +33,12 @@ public:
 
     virtual dash::mpd::ISegment* getInitializationSegment();
     virtual dash::mpd::ISegment* getIndexSegment(size_t segmentNumber);
-    virtual dash::mpd::ISegment* getMediaSegment(size_t segmentNumber);
+    virtual dash::mpd::ISegment* getMediaSegment(size_t segmentNumber, uint64_t& segmentDuration);
     virtual dash::mpd::ISegment* getBitstreamSwitchingSegment();
     virtual RepresentationStreamType getStreamType();
     virtual uint32_t getSize();
     virtual uint32_t getAverageSegmentDuration();
+    virtual uint32_t getTimescale();
 
 private:
     dash::mpd::ISegmentList  *findSegmentList();
