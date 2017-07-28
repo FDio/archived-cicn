@@ -226,7 +226,7 @@ void ProducerSocket::produce(Name name, const uint8_t *buf, size_t buffer_size, 
       Name full_name = name;
 
       content_object_segment = std::make_shared<ContentObject>(std::move(full_name.appendSegment(current_segment)));
-      // content_object_segment->setExpiryTime((uint64_t) m_dataFreshness);
+      content_object_segment->setExpiryTime((uint64_t) content_object_expiry_time_);
 
       if (packaged_segments == number_of_segments - 1) {
         content_object_segment->setContent(&buf[bytes_segmented], buffer_size - bytes_segmented);
@@ -277,7 +277,7 @@ void ProducerSocket::produce(Name name, const uint8_t *buf, size_t buffer_size, 
           content_object = std::make_shared<ContentObject>(std::move(fullName.appendSegment(current_segment)));
 
       // TODO If we set the throughput will decrease.. to investigate
-      //      content_object->setExpiryTime((uint64_t)m_dataFreshness);
+      content_object->setExpiryTime((uint64_t)content_object_expiry_time_);
 
       if (is_last) {
         content_object->setFinalChunkNumber(current_segment + number_of_segments - packaged_segments - 1);

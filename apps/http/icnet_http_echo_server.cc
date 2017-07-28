@@ -26,11 +26,17 @@ void onPayload(std::shared_ptr<HTTPServerPublisher> &publisher, const uint8_t *b
   std::cout << string << std::endl;
 
   std::stringstream response;
-  response << "HTTP/1.0 200 OK\r\n" << "Content-Length: " << size << "\r\n\r\n" << string;
+  response << "HTTP/1.1 200 OK\r\n" << "Content-Length: " << size << "\r\n\r\n" << string;
   std::string response_string = response.str();
+  std::chrono::milliseconds expiry_time(std::chrono::milliseconds(4000 * 1000));
+
 
   std::thread t([publisher, response_string]() {
-    publisher->publishContent((uint8_t *) response_string.data(), response_string.size(), 0, true);
+    publisher->publishContent((uint8_t *) response_string.data(),
+                              response_string.size(),
+                              std::chrono::milliseconds(transport::default_values::content_object_expiry_time),
+                              0,
+                              true);
     publisher->serveClients();
   });
 

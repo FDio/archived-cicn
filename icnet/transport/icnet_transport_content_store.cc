@@ -28,17 +28,21 @@ ContentStore::~ContentStore() {
 }
 
 void ContentStore::insert(const std::shared_ptr<ContentObject> &content_object) {
-  std::unique_lock<std::mutex> lock(cs_mutex_);
-  if (content_store_hash_table_.size() >= max_content_store_size_) {
-    // Evict item
-    content_store_hash_table_.erase(lru_list_.back());
-    lru_list_.pop_back();
-  }
+  // Check if the content can be cached
+  if (content_object->getExpiryTime() > 0) {
+    std::unique_lock<std::mutex> lock(cs_mutex_);
+    if (content_store_hash_table_.size() >= max_content_store_size_) {
+      // Evict item
+      content_store_hash_table_.erase(lru_list_.back());
+      lru_list_.pop_back();
+    }
 
-  // Insert new item
-  lru_list_.push_back(std::cref(content_object->getName()));
-  LRUList::iterator pos = lru_list_.end();
-  content_store_hash_table_[content_object->getName()] = CcnxContentStoreEntry(content_object, pos);
+    // Insert new item
+    lru_list_.push_back(std::cref(content_object->getName()));
+    LRUList::iterator pos = lru_list_.end();
+    content_store_hash_table_[content_object->getName()] = ContentStoreEntry(ObjectTimeEntry(content_object,
+                                                                                             std::chrono::steady_clock::now()), pos);
+  }
 
 }
 
@@ -47,13 +51,20 @@ const std::shared_ptr<ContentObject> &ContentStore::find(const Interest &interes
   ContentStoreHashTable::iterator it = content_store_hash_table_.find(interest.getName());
   if (it != content_store_hash_table_.end()) {
     if (it->second.second != lru_list_.begin()) {
-      // Move element to the top of the LRU list
-      lru_list_.splice(lru_list_.begin(), lru_list_, it->second.second);
+      if (std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::steady_clock::now().time_since_epoch()).count()
+          < it->second.first.first->getExpiryTime()) {
+        // Move element to the top of the LRU list
+        lru_list_.splice(lru_list_.begin(), lru_list_, it->second.second);
+        return it->second.first.first;
+      } else {
+        // Stale content
+        content_store_hash_table_.erase(interest.getName());
+      }
     }
-    return it->second.first;
-  } else {
-    return empty_reference_;
   }
+
+  return empty_reference_;
 }
 
 void ContentStore::erase(const Name &exact_name) {

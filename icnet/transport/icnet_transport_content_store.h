@@ -24,10 +24,11 @@ namespace icnet {
 
 namespace transport {
 
-typedef std::pair<std::shared_ptr<ContentObject>, std::list<std::reference_wrapper<const Name>>::iterator>
-    CcnxContentStoreEntry;
+typedef std::pair<std::shared_ptr<ContentObject>, std::chrono::steady_clock::time_point> ObjectTimeEntry;
+typedef std::pair<ObjectTimeEntry, std::list<std::reference_wrapper<const Name>>::iterator>
+    ContentStoreEntry;
 typedef std::list<std::reference_wrapper<const Name>> LRUList;
-typedef std::unordered_map<Name, CcnxContentStoreEntry> ContentStoreHashTable;
+typedef std::unordered_map<Name, ContentStoreEntry> ContentStoreHashTable;
 
 class ContentStore {
  public:

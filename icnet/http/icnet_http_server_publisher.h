@@ -43,6 +43,7 @@ class HTTPServerPublisher {
 
   void publishContent(const uint8_t *buf,
                       size_t buffer_size,
+                      std::chrono::milliseconds content_lifetime,
                       const int response_id,
                       bool is_last);
 
