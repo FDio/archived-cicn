@@ -39,10 +39,16 @@ class Response
 
   void setResponseLength(std::size_t length);
 
+  const std::chrono::milliseconds &getResponseLifetime() const;
+
+  void setResponseLifetime(const std::chrono::milliseconds &response_lifetime);
+
+
  protected:
   boost::asio::streambuf streambuf_;
   bool is_last_;
   std::size_t response_length_;
+  std::chrono::milliseconds response_lifetime_; 
 };
 
 } // end namespace icn_httpserver

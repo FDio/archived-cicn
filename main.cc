@@ -67,7 +67,7 @@ void afterSignal(HttpServer *webServer, const boost::system::error_code &errorCo
 }
 
 void usage(const char *programName) {
-  cerr << programName << " [-p PATH_TO_ROOT_FOOT_FOLDER] [-l WEBSERVER_PREFIX] [-x PROXY_ADDRESS]\n"
+  cerr << programName << " [-p PATH_TO_ROOT_FOOT_FOLDER] [-o TCP_LISTEN_PORT] [-l WEBSERVER_PREFIX] [-x PROXY_ADDRESS]\n"
        << "Web server able to publish content and generate http responses over TCP/ICN\n" << endl;
 
   exit(1);
@@ -186,6 +186,10 @@ int main(int argc, char **argv) {
 
             if (socket_request) {
               *response << "HTTP/1.0 200 OK\r\nContent-Length: " << length << "\r\n\r\n";
+            }
+
+            if (path.extension().string() == ".mpd") {
+              response->setResponseLifetime(std::chrono::milliseconds(1000));
             }
 
             default_resource_send(server, response, ifs, buffer, length);

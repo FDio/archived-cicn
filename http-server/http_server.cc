@@ -71,7 +71,11 @@ void HttpServer::onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher> 
       std::cout << "Received request for: " << request->getPath() << std::endl;
       icn_publishers_[request_id] = publisher;
       icn_publishers_[request_id]->attachPublisher();
-      icn_publishers_[request_id]->setTimeout(5);
+      if (request->getPath().substr(request->getPath().find_last_of(".") + 1) == "mpd") {
+        icn_publishers_[request_id]->setTimeout(1);
+      } else {
+        icn_publishers_[request_id]->setTimeout(5);
+      }
       std::cout << "Starting new thread" << std::endl;
       io_service_.dispatch([this, request, request_id]() {
         find_resource(nullptr, request);

@@ -16,10 +16,15 @@
 #include "common.h"
 #include "response.h"
 
+#define DEFAULT_LIFETIME 1024 * 1024
+
 namespace icn_httpserver {
 
 Response::Response()
-    : std::ostream(&streambuf_), is_last_(false) {
+    : std::ostream(&streambuf_),
+      is_last_(false),
+      response_length_(0),
+      response_lifetime_(DEFAULT_LIFETIME) {
 }
 
 Response::~Response() {
@@ -35,6 +40,13 @@ bool Response::isIsLast() const {
 
 void Response::setIsLast(bool is_last) {
   Response::is_last_ = is_last;
+}
+
+const std::chrono::milliseconds &Response::getResponseLifetime() const {
+  return response_lifetime_;
+}
+void Response::setResponseLifetime(const std::chrono::milliseconds &response_lifetime) {
+  Response::response_lifetime_ = response_lifetime_;
 }
 
 void Response::setResponseLength(std::size_t length) {
