@@ -157,6 +157,10 @@ int main(int argc, char **argv) {
 
       path = boost::filesystem::canonical(path);
 
+      if (path.extension().string() == ".mpd") {
+        response->setResponseLifetime(std::chrono::milliseconds(1000));
+      }
+
       //Check if path is within web_root_path
       if (distance(web_root_path.begin(), web_root_path.end()) <= distance(path.begin(), path.end())
           && equal(web_root_path.begin(), web_root_path.end(), path.begin())) {

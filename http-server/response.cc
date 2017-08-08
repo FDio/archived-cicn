@@ -16,7 +16,7 @@
 #include "common.h"
 #include "response.h"
 
-#define DEFAULT_LIFETIME 1024 * 1024
+#define DEFAULT_LIFETIME 1000 * 1000
 
 namespace icn_httpserver {
 

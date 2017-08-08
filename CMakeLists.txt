@@ -39,7 +39,7 @@ endif()
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
         "${CMAKE_BINARY_DIR}/config.h")
 
-include_directories(${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIRS})
+include_directories(${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIRS} http-server http-client)
 
 find_package(Threads REQUIRED)
 
