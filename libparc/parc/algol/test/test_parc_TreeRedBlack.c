@@ -248,7 +248,6 @@ rbCheckTree(const PARCTreeRedBlack *tree)
 {
     assertNotNull(tree, "Tree can't be NULL");
     //printf("--- TREE ---\n");
-    _rbNodeAssertTreeInvariants(tree);
     if (tree->size > 0) {
         //_rbNodeRecursiveRun((PARCTreeRedBlack *)tree,tree->root,rbCheckNode,(void *)tree);
         recursiveCheckBlackDepth(tree, tree->root);

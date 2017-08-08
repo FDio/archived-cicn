@@ -28,8 +28,6 @@
 #define RED   1
 #define BLACK 0
 
-#define ASSERT_INVARIANTS
-
 struct redblack_node;
 typedef struct redblack_node Node;
 
@@ -251,49 +249,11 @@ _rbNodeFix(PARCTreeRedBlack *tree, Node *startNode)
 }
 
 static void
-_rbNodeAssertNodeInvariants(Node *node, void *data)
-{
-    PARCTreeRedBlack *tree = (PARCTreeRedBlack *) data;
-    assertNotNull(node->parent, "Node has NULL parent");
-    assertNotNull(node->left_child, "Left child NULL");
-    assertNotNull(node->right_child, "Richt child NULL");
-    if (node != tree->root) {
-        assertTrue(node->parent != tree->nil, "Paren't can't be nill for node!");
-        // Don't need to compare to parent, they compared to us
-    }
-    assertNotNull(node->key, "We have a null key!!");
-    assertNotNull(node->value, "We have a null value!!");
-    if (node->left_child != tree->nil) {
-        assertTrue(tree->keyCompare(node->key, node->left_child->key) > 0, "Left child not smaller?");
-    }
-    if (node->right_child != tree->nil) {
-        assertTrue(tree->keyCompare(node->key, node->right_child->key) < 0, "Right child not bigger?");
-    }
-}
-
-static
-void
-_rbNodeAssertTreeInvariants(const PARCTreeRedBlack *tree)
-{
-    assertNotNull(tree, "Tree is null!");
-    assertTrue(tree->size >= 0, "Tree has negative size");
-    assertNotNull(tree->keyCompare, "No key compare function");
-    if (tree->size != 0) {
-        assertTrue(tree->root != tree->nil, "Tree size = %d > 0 but root is nil", tree->size);
-        assertNotNull(tree->root, "Tree size > 0 but root is NULL");
-#ifdef ASSERT_INVARIANTS
-        _rbNodeRecursiveRun((PARCTreeRedBlack *) tree, tree->root, _rbNodeAssertNodeInvariants, (void *) tree);
-#endif
-    }
-}
-
-static void
 _rbNodeFixDelete(PARCTreeRedBlack *tree, Node *node)
 {
     Node *fixNode;
 
     while ((node != tree->root) && (_rbNodeColor(node) == BLACK)) {
-        _rbNodeAssertTreeInvariants(tree);
         if (node == node->parent->left_child) {
             fixNode = node->parent->right_child;
             if (_rbNodeColor(fixNode) == RED) {
@@ -355,7 +315,6 @@ _rbNodeFixDelete(PARCTreeRedBlack *tree, Node *node)
 static void
 _rbNodeRemove(PARCTreeRedBlack *tree, Node *node)
 {
-    _rbNodeAssertTreeInvariants(tree);
     Node *fixupNode;
     int deleteNodeColor = _rbNodeColor(node);
     if (node->left_child == tree->nil) {
@@ -441,11 +400,9 @@ _rbNodeRemove(PARCTreeRedBlack *tree, Node *node)
     tree->size--;
 
     // Fix the red-blackness
-    _rbNodeAssertTreeInvariants(tree);
     if (deleteNodeColor == BLACK) {
         _rbNodeFixDelete(tree, fixupNode);
     }
-    _rbNodeAssertTreeInvariants(tree);
 }
 
 
@@ -480,7 +437,6 @@ parcTreeRedBlack_Destroy(PARCTreeRedBlack **treePointer)
 {
     assertNotNull(treePointer, "pointer to pointer to tree can't be null");
     assertNotNull(*treePointer, "pointer to tree can't be null");
-    _rbNodeAssertTreeInvariants(*treePointer);
 
     if ((*treePointer)->size > 0) {
         // If we have any elements in the tree, free them
@@ -549,7 +505,6 @@ parcTreeRedBlack_Insert(PARCTreeRedBlack *tree, void *key, void *value)
     // We have a correct tree. But we need to regain the red-black property.
     _rbNodeFix(tree, newNode);
 
-    _rbNodeAssertTreeInvariants(tree);
 }
 
 // Return value
@@ -557,7 +512,6 @@ void *
 parcTreeRedBlack_Get(PARCTreeRedBlack *tree, const void *key)
 {
     assertNotNull(tree, "Tree can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
 
     Node *node = tree->root;
 
@@ -583,7 +537,6 @@ parcTreeRedBlack_Remove(PARCTreeRedBlack *tree, const void *key)
 {
     assertNotNull(tree, "Tree can't be NULL");
     assertNotNull(key, "Key can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
 
     Node *node = tree->root;
 
@@ -596,7 +549,6 @@ parcTreeRedBlack_Remove(PARCTreeRedBlack *tree, const void *key)
                 tree->keyFree(&node->key);
             }
             parcMemory_Deallocate((void **) &node);
-            _rbNodeAssertTreeInvariants(tree);
             return value;
         } else {
             if (_rbNodeIsGreaterThan(tree, node, key)) {
@@ -609,7 +561,6 @@ parcTreeRedBlack_Remove(PARCTreeRedBlack *tree, const void *key)
 
     // We didn't find the node
 
-    _rbNodeAssertTreeInvariants(tree);
     return NULL;
 }
 
@@ -626,7 +577,6 @@ parcTreeRedBlack_RemoveAndDestroy(PARCTreeRedBlack *tree, const void *key)
         if (_rbNodeIsEqual(tree, node, key)) {
             _rbNodeRemove(tree, node);
             _rbNodeFree(tree, node);
-            _rbNodeAssertTreeInvariants(tree);
             return;
         } else {
             if (_rbNodeIsGreaterThan(tree, node, key)) {
@@ -636,14 +586,12 @@ parcTreeRedBlack_RemoveAndDestroy(PARCTreeRedBlack *tree, const void *key)
             }
         }
     }
-    _rbNodeAssertTreeInvariants(tree);
 }
 
 void *
 parcTreeRedBlack_LastKey(const PARCTreeRedBlack *tree)
 {
     assertNotNull(tree, "Tree can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
     Node *node = tree->root;
 
     if (tree->size == 0) {
@@ -663,7 +611,6 @@ void *
 parcTreeRedBlack_FirstKey(const PARCTreeRedBlack *tree)
 {
     assertNotNull(tree, "Tree can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
     Node *node = tree->root;
 
 
@@ -684,7 +631,6 @@ size_t
 parcTreeRedBlack_Size(const PARCTreeRedBlack *tree)
 {
     assertNotNull(tree, "Tree can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
 
     return tree->size;
 }
@@ -700,7 +646,6 @@ PARCArrayList *
 parcTreeRedBlack_Keys(const PARCTreeRedBlack *tree)
 {
     assertNotNull(tree, "Tree can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
 
     PARCArrayList *keys = parcArrayList_Create(NULL);
 
@@ -721,7 +666,6 @@ PARCArrayList *
 parcTreeRedBlack_Values(const PARCTreeRedBlack *tree)
 {
     assertNotNull(tree, "Tree can't be NULL");
-    _rbNodeAssertTreeInvariants(tree);
 
     PARCArrayList *values = parcArrayList_Create(NULL);
 
@@ -734,8 +678,6 @@ parcTreeRedBlack_Values(const PARCTreeRedBlack *tree)
 int
 parcTreeRedBlack_Equals(const PARCTreeRedBlack *tree1, const PARCTreeRedBlack *tree2)
 {
-    _rbNodeAssertTreeInvariants(tree1);
-    _rbNodeAssertTreeInvariants(tree2);
     assertNotNull(tree1, "Tree can't be NULL");
     assertNotNull(tree2, "Tree can't be NULL");
 
@@ -794,7 +736,6 @@ parcTreeRedBlack_Equals(const PARCTreeRedBlack *tree1, const PARCTreeRedBlack *t
 PARCTreeRedBlack *
 parcTreeRedBlack_Copy(const PARCTreeRedBlack *source_tree)
 {
-    _rbNodeAssertTreeInvariants(source_tree);
     assertNotNull(source_tree, "Tree can't be NULL");
 
     void *key_source;
