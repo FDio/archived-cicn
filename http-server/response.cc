@@ -46,7 +46,7 @@ const std::chrono::milliseconds &Response::getResponseLifetime() const {
   return response_lifetime_;
 }
 void Response::setResponseLifetime(const std::chrono::milliseconds &response_lifetime) {
-  Response::response_lifetime_ = response_lifetime_;
+  Response::response_lifetime_ = response_lifetime;
 }
 
 void Response::setResponseLength(std::size_t length) {
