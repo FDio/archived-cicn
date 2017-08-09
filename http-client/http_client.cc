@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include "response.h"
 #include "http_client.h"
 
 #include <curl/curl.h>
@@ -21,11 +20,9 @@
 #include <iostream>
 
 using namespace std;
-using namespace icn_httpserver;
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
-  ((Response*) stream)->write((const char*)ptr, size * nmemb);
-  ((Response*) stream)->send();
+  ((ostream*) stream)->write((const char*)ptr, size * nmemb);
   return size * nmemb;
 }
 
