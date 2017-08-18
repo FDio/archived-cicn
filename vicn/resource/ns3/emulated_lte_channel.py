@@ -145,7 +145,7 @@ class EmulatedLteChannel(EmulatedChannel):
 
                 sta_list.append(interface.name)
                 sta_macs.append(interface.mac_address)
-                sta_ips.append(str(interface.ip4_address)+'/'+str(prefix_len))
+                sta_ips.append(str(interface.ip4_address)+'/'+str(interface.ip4_address.prefix_len))
             else:
                 identifier = self._sta_ifs[station]._state.uuid._uuid
                 sta_list.append(identifier)
