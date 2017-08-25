@@ -172,6 +172,13 @@ void DASHPlayerNoGUI::parseArgs(int argc, char ** argv)
                 i++;
                 continue;
             }
+            if(!strcmp(argv[i],"-buffersize"))
+            {
+                this->parameterAdaptation->segmentBufferSize = atoi(argv[i+1]);
+                i++;
+                i++;
+                continue;
+            }
             if(!strcmp(argv[i],"-n"))
             {
                 this->isICN = true;
