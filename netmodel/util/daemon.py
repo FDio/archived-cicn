@@ -53,10 +53,10 @@ class Daemon:
             ret = True
         except AttributeError as e:
             # daemon and python-daemon conflict with each other
-            log.critical("Please install python-daemon instead of daemon." \
+            log.critical("Please install python3-daemon instead of daemon." \
                     "Remove daemon first.")
         except ImportError:
-            log.critical("Please install python-daemon.")
+            log.critical("Please install python3-daemon.")
         return ret
 
     #--------------------------------------------------------------------------
