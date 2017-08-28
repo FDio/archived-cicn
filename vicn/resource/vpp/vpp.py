@@ -31,10 +31,11 @@ from vicn.resource.linux.file           import TextFile
 from vicn.resource.vpp.dpdk_device      import DpdkDevice
 from vicn.resource.vpp.scripts          import FN_VPP_DPDK_SCRIPT
 from vicn.resource.vpp.scripts          import TPL_VPP_DPDK_DAEMON_SCRIPT
+from vicn.resource.vpp.scripts          import FN_VPPCTL_WRAPPER_SCRIPT
+from vicn.resource.vpp.scripts          import TPL_VPPCTL_WRAPPER_SCRIPT
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_DISABLE, CMD_VPP_STOP
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_START
 from vicn.resource.vpp.vpp_commands     import CMD_VPP_ENABLE_PLUGIN
-from vicn.resource.vpp.vpp_commands     import CMD_REMOVE_DPDK_PLUGIN
 from vicn.resource.vpp.vpp_host         import VPPHost
 
 #------------------------------------------------------------------------------
@@ -136,8 +137,8 @@ class VPP(LinuxApplication):
                 dpdk_list.append('dev ' + interface.pci_address)
 
         setup = setup + '''\n}\n\n'''
+        setup = setup + 'dpdk {'
         if dpdk_list:
-            setup = setup + 'dpdk {'
             # add socket_mem
             # On numa architecture socket-mem requires to set the amount of memory
             # to be reserved on each numa node
@@ -156,13 +157,21 @@ class VPP(LinuxApplication):
             for dpdk_dev in dpdk_list:
                 setup = setup + ''' \n  ''' + dpdk_dev
             setup = setup + '''\n}'''
+        else:
+            setup = setup + '''\n no-pci \n}'''
 
         dpdk_setup_file = TextFile(node = self.node,
                 filename = FN_VPP_DPDK_SCRIPT,
                 content = setup,
                 overwrite = True)
 
-        return dpdk_setup_file
+        vppctl_wrapper_file = TextFile(node = self.node,
+                filename = FN_VPPCTL_WRAPPER_SCRIPT,
+                content = TPL_VPPCTL_WRAPPER_SCRIPT,
+                executable = True,
+                overwrite = True)
+
+        return dpdk_setup_file | vppctl_wrapper_file
 
     @inherit_parent
     def __create__(self):
@@ -179,11 +188,7 @@ class VPP(LinuxApplication):
                 found = True
                 break
 
-        remove_dpdk_plugin = EmptyTask()
-        if (not found):
-            remove_dpdk_plugin = BashTask(self.node, CMD_REMOVE_DPDK_PLUGIN, lock = lock)
-
-        return (((vpp_disable > vpp_stop) | enable_ip_forward) > (remove_dpdk_plugin > start_vpp))
+        return (((vpp_disable > vpp_stop) | enable_ip_forward) > start_vpp)
 
     @inherit_parent
     def __delete__(self):

@@ -34,6 +34,10 @@ GREP_FILE_CMD   = "cat {file.filename}"
 
 CMD_PRINT_TO_FILE = 'echo -n "{file.content}" > {file.filename}'
 
+GET_FILE_EXEC_CMD = 'test -x {file.filename} && echo True || echo False'
+
+CMD_MAKE_FILE_EXEC = 'chmod +x {file.filename}'
+
 class File(Resource):
     """
     Resource: File
@@ -95,6 +99,9 @@ class TextFile(File):
     """
 
     content = Attribute(String, default='')
+    executable = Attribute(Bool,
+            description = 'Determines whether the file has to be set as an executable',
+            default = False)
 
     #--------------------------------------------------------------------------
     # Resource lifecycle
@@ -115,3 +122,10 @@ class TextFile(File):
     def _get_content(self):
         return BashTask(self.node, GREP_FILE_CMD, {'file': self},
                 parse =( lambda x : x.stdout))
+
+    def _get_executable(self):
+        return BashTask(self.node, GET_FILE_EXEC_CMD, {'file': self},
+                parse =( lambda x : x.stdout))
+
+    def _set_executable(self):
+        return BashTask(self.node, CMD_MAKE_FILE_EXEC, {'file':self})

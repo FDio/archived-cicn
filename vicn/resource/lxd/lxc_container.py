@@ -18,6 +18,7 @@
 
 import logging
 import shlex
+import time
 
 # Suppress logging from pylxd dependency on ws4py
 # (this needs to be included before pylxd)
@@ -251,7 +252,7 @@ class LxcContainer(Node):
         Method: Start the container
         """
         self._container.start(wait = True)
-        import time; time.sleep(1)
+        time.sleep(1)
 
     @task
     def __method_stop__(self):

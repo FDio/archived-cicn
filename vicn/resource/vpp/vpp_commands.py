@@ -13,11 +13,6 @@ flock /tmp/vppctl.lock -c "systemctl stop vpp"
 #killall -9 vpp_main || true
 CMD_VPP_ENABLE_PLUGIN = 'vppctl_wrapper {plugin} control start'
 
-CMD_REMOVE_DPDK_PLUGIN = '''
-rm /usr/lib/vpp_api_test_plugins/dpdk_test_plugin.so
-rm /usr/lib/vpp_plugins/dpdk_plugin.so
-'''
-
 ##### VPP INTERFACES #####
 
 CMD_VPP_CREATE_IFACE = '''

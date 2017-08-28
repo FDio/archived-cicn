@@ -151,8 +151,6 @@ class VPPInterface(Resource):
                     {'vpp_interface': self},
                     lock = self.vpp.vppctl_lock)
 
-            self.parent.set('ip4_address', None)
-            self.parent.set('ip6_address', None)
             self.parent.set('offload', False)
             self.parent.remote.set('offload', False)
 

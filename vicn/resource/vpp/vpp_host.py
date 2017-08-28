@@ -96,11 +96,7 @@ class VPPHost(LinuxApplication):
                 filename = FN_APPARMOR_DPDK_SCRIPT,
                 content = TPL_APPARMOR_DPDK_SCRIPT,
                 overwrite = True)
-        startup_conf = TextFile(node = self.node,
-                filename = FN_VPP_DPDK_SCRIPT,
-                content = TPL_VPP_DPDK_DAEMON_SCRIPT,
-                overwrite = True)
-        return app_armor_file | startup_conf
+        return app_armor_file
 
     @inherit_parent
     @task
@@ -118,23 +114,13 @@ class VPPHost(LinuxApplication):
         sysctl_hugepages = BashTask(self.node, CMD_SYSCTL_HUGEPAGES,
                 {'nb_hp': DEFAULT_NB_HUGEPAGES})
 
-        # Hook
-        # The following is needed to create uio devices in /dev. They are
-        # required to let vpp to use dpdk (or other compatibles) nics. From a
-        # container, vpp cannot create those devices, therefore we need to
-        # create them in the host and then mount them on each container running
-        # vpp (and using a physical nic)
-        stop_vpp = BashTask(self.node, CMD_VPP_STOP_SERVICE + " || true")
-        disable_vpp = BashTask(self.node, CMD_VPP_DISABLE + " || true")
-        disable_vpp = stop_vpp > disable_vpp
-
         create_uio = EmptyTask()
         for device in self.dpdk_devices:
             create_uio = create_uio > BashTask(self.node,
                     CMD_CREATE_UIO_DEVICES, {'pci_address' : device})
 
         return ((modules | app_armor_reload) | sysctl_hugepages) > \
-            (disable_vpp > create_uio)
+            create_uio
 
     #--------------------------------------------------------------------------
     # Attributes

@@ -285,3 +285,11 @@ APPARMOR_VPP_PROFILE = '''
 lxc.aa_profile = lxc-dpdk
 lxc.mount.entry = hugetlbfs dev/hugepages hugetlbfs rw,relatime,create=dir 0 0
 lxc.mount.auto = sys:rw'''
+
+FN_VPPCTL_WRAPPER_SCRIPT='/usr/bin/vppctl_wrapper'
+
+TPL_VPPCTL_WRAPPER_SCRIPT='''#!/bin/bash
+TIMEOUT=5
+
+flock /tmp/vppctl.lock -c \\"timeout \\$TIMEOUT vppctl \\$*\\"
+'''

@@ -31,7 +31,7 @@ from vicn.resource.vpp.vpp_commands import CMD_VPP_ENABLE_PLUGIN
 
 CMD_VPP_CICN_GET = "vppctl_wrapper cicn show"
 CMD_VPP_ADD_ICN_ROUTE = 'vppctl_wrapper cicn cfg fib add prefix {route.prefix} face {route.face.id}'
-CMD_VPP_ADD_ICN_FACE = 'vppctl_wrapper cicn cfg face add local {face.src_ip}:{face.src_port} remote {face.dst_ip}:{face.dst_port}'
+CMD_VPP_ADD_ICN_FACE = 'vppctl_wrapper cicn cfg face add local {face.src.ip4_address}:{face.src_port} remote {face.dst.ip4_address}:{face.dst_port}'
 
 CMD_VPP_CICN_GET_CACHE_SIZE = 'vppctl_wrapper cicn show | grep "CS entries" | grep -Eo "[0-9]+"'
 CMD_VPP_CICN_SET_CACHE_SIZE = 'vppctl_wrapper cicn control param cs size {self.cache_size}'
@@ -95,7 +95,7 @@ class CICNForwarder(Forwarder):
         for face in self.faces:
             face_task = face_task > BashTask(self.node, CMD_VPP_ADD_ICN_FACE,
                     {'face':face},
-                    parse = (lambda x : parse_face(x, face)), lock = lock)
+                    parse = (lambda x, y=face : parse_face(x, y)), lock = lock)
 
         if not self.routes:
             from vicn.resource.icn.route import Route
