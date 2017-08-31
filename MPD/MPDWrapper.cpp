@@ -617,33 +617,31 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
     else
     {
         while((this->isStopping == false) && segmentNumber >= representationStream->getSize())
-        {
             SleepConditionVariableCS(&this->mpdUpdate, &this->monitorMutex, INFINITE);
 
-            if(this->isStopping)
-            {
-                LeaveCriticalSection(&this->monitorMutex);
-                return NULL;
-            }
-
-            //Need to update representationStream here as it was updated with the mpd:
-            switch(type)
-            {
-                case viper::managers::StreamType::AUDIO:
-                    representation = this->audioRepresentation;
-                    representations = this->audioRepresentations;
-                    segmentNumber = this->audioSegmentNumber;
-                    break;
-                case viper::managers::StreamType::VIDEO:
-                    representation = this->videoRepresentation;
-                    representations = this->videoRepresentations;
-                    segmentNumber = this->videoSegmentNumber;
-                    break;
-                default:
-                    break;
-            }
-            representationStream = representations->find(representation)->second;
+        if(this->isStopping)
+        {
+            LeaveCriticalSection(&this->monitorMutex);
+            return NULL;
         }
+
+        //Need to update representationStream here as it was updated with the mpd:
+        switch(type)
+        {
+            case viper::managers::StreamType::AUDIO:
+                representation = this->audioRepresentation;
+                representations = this->audioRepresentations;
+                segmentNumber = this->audioSegmentNumber;
+                break;
+            case viper::managers::StreamType::VIDEO:
+                representation = this->videoRepresentation;
+                representations = this->videoRepresentations;
+                segmentNumber = this->videoSegmentNumber;
+                break;
+            default:
+                break;
+        }
+        representationStream = representations->find(representation)->second;
     }
     uint64_t segDuration = 0;
     //Returns the segmentDuration in milliseconds
