@@ -149,12 +149,16 @@ class Prefix(BaseType, metaclass=ABCMeta):
         return self.get_iterator()
 
     #Iterates by steps of prefix_len, e.g., on all available /31 in a /24
-    def get_iterator(self, prefix_len=None):
+    def get_iterator(self, prefix_len=None, skip_internet_address=False):
         if prefix_len is None:
             prefix_len=self.MAX_PREFIX_SIZE
         assert (prefix_len >= self.prefix_len and prefix_len<=self.MAX_PREFIX_SIZE)
         step = 2**(self.MAX_PREFIX_SIZE - prefix_len)
-        for ip in range(self.first_prefix_address(), self.last_prefix_address()+1, step):
+
+        start = self.first_prefix_address()
+        if skip_internet_address:
+            start = start+1
+        for ip in range(start, self.last_prefix_address()+1, step):
             yield type(self)(ip, prefix_len)
 
 class Inet4Prefix(Prefix):
@@ -189,20 +193,6 @@ class Inet6Prefix(Prefix):
     @classmethod
     def ntoa (cls, address):
         return inet_ntop(AF_INET6, pack(">QQ", address >> 64, address & ((1 << 64) -1)))
-
-    #skip_internet_address: skip a:b::0, as v6 often use default /64 prefixes
-    def get_iterator(self, prefix_len=None, skip_internet_address=None):
-        if skip_internet_address is None:
-            #We skip the internet address if we iterate over Addresses
-            if prefix_len is None:
-                skip_internet_address = True
-            #But not if we iterate over prefixes
-            else:
-                skip_internet_address = False
-        it = super().get_iterator(prefix_len)
-        if skip_internet_address:
-            next(it)
-        return it
 
 class InetAddress(Prefix):
 
