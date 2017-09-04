@@ -93,13 +93,14 @@ class IpAssignment(Resource):
                     if not interfaces:
                         continue
 
-                if self.PrefixClass is Inet6Prefix:
-                    # 0 is forbidden
-                    num_required_ip = len(interfaces) + 1
-                elif channel.has_type("emulatedchannel"): #EmulatedChannel + IPv4
-                    num_required_ip = len(interfaces) + 2 + channel.nb_base_stations #Internet address + bcast
-                else:
-                    num_required_ip = len(interfaces)
+                num_required_ip = len(interfaces)
+                if num_required_ip > 2:
+                    # We must reserve the first IP (the internet address) and the last one (the broadcast address)
+                    # It does not apply in the case of 2 addresses as you do not need broadcast on the point2point link
+                    num_required_ip = num_required_ip + 2
+                if channel.has_type("emulatedchannel"):
+                    num_required_ip = num_required_ip + channel.nb_base_stations
+
                 min_prefix_len = math.ceil(math.log(num_required_ip, 2))
 
                 prefix_len = min(self.max_prefix_len,
@@ -121,26 +122,12 @@ class IpAssignment(Resource):
 
                 # Use an iterator to assign IPs from the prefix to the
                 # interfaces
-                it = prefix.get_iterator(it_prefix_len)
-                # XXX MACCHA it is a prefix
-
-                if channel.has_type("emulatedchannel"):
-                    #Internet address
-                    next(it)
+                # Skip internet address if necessary, i.e., if prefix contains more than 2 addresses
+                skip_internet_address = (prefix_len < self.PrefixClass.MAX_PREFIX_SIZE -1)
+                it = prefix.get_iterator(it_prefix_len, skip_internet_address = skip_internet_address)
 
                 for interface in interfaces:
                     if_prefix = next(it)
-                    #XXX We cannot assign prefix::0 as a valid address to an interface.
-                    #XXX For each interface with an ip6 address belonging to prefix,
-                    #XXX linux add prefix::0 to the local routing table. Therefore prefix::0 cannot be
-                    #XXX the address of a non local interface
-                    ip = if_prefix.ip_address
-                    if ip == prefix.first_prefix_address() and self.PrefixClass is Inet6Prefix:
-                        if if_prefix.prefix_len < if_prefix.MAX_PREFIX_SIZE:
-                            if_prefix.ip_address = ip+1
-                        else:
-                            if_prefix = next(it)
-
                     if_prefix.prefix_len = prefix_len
                     if self.PrefixClass is Inet6Prefix:
                         address = Inet6Address(if_prefix.ip_address, prefix_len)
