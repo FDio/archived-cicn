@@ -1,6 +1,8 @@
-= vICN
+vICN
+=========
 
-== Description
+Description
+-------------
 
 This application is an ICN experimental testbed orchestrator. It allows to
 quickly deploy experiments in a cluster using linux containers, IP tunnels and
@@ -18,48 +20,40 @@ The master, vICN, controls the whole cluster of servers, by means of HTTPS REST
 APIs and remote SSH.
 
 
-== Dependencies
+Dependencies
+-------------
 
 vICN requires a version of Python >= 3.5, and has the following dependendies.
 We refer to them using the name of debian/ubuntu packages:
 
-python3 (>= 3.5)
-python3-sympy
-python3-requests
-python3-websockets
-python3-networkx
-python3-pyparsing
-python3-autobahn
-python3-pylxd (>=2.2.2, use pip3 if necessary, depends on libssl-dev)
-  python3-pbr
-  python3-requests-unixsocket
+- python3 (>= 3.5)
+- libssl-dev
+- python3-pip
+- python3-daemon
 
+Installation on Ubuntu
+-------------
 
-== Installation
+Download vICN by cloning the git repositoy.
 
-Install vICN from either a debian package or by cloning the git repositoy.
+    git clone -b vicn/master https://gerrit.fd.io/r/cicn vicn
 
-Add the image server certificate to your trusted certificates:
+If you plan to use vICN with Linux Containers, get the latest version of lxd from the LXD ppa:
 
-    sudo apt-get install ca-certificates
-    wget https://46.105.122.213/cicn.crt
-    sudo cp cicn.crt /usr/share/ca-certificates
-    sudo dpkg-reconfigure ca-certificates
+   sudo add-apt-repository ppa:ubuntu-lxc/lxd-stable
+   sudo apt-get update
 
-    # This should be done by the LXD remote add
-    cp /usr/share/ca-certificates/cicn.crt ~/.config/lxc/servercerts/
+Install the dependencies. Beware to install the daemon module of python through repositories as the pip version is broken.
 
-    lxc remote add cicn https://46.105.122.213  --protocol=simplestreams
+    sudo apt-get install python3-pip libssl-dev python3-daemon
 
-You can now list image with:
+You can now install vICN:
 
-    lxc image list cicn:
+    cd vicn
+    sudo ./setup.py install
 
-or run containers:
-
-    lxc launch cicn:cicn/1.0 test
-
-== Getting started
+Getting started
+--------------
 
 You can have a look at the tutorials available in the fd.io wiki:
 

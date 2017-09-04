@@ -34,13 +34,17 @@ with open('README.md') as f:
     long_description = f.read()
 
 # XXX TODO
-required_modules = list()
+required_modules = ["pylxd (>=2.2.2)",
+                    "pyparsing",
+                    "networkx (==1.11)",
+                    "autobahn",
+                    "pyOpenSSL"]
 
 data_files = list()
 
 data_files.extend([
-    ("/lib/systemd/system/", ["etc/netmon.service"]),
-    ("/etc/init/", ["etc/netmon.conf"]),
+    ("/lib/systemd/system", ["etc/netmon.service"]),
+    ("/etc/init", ["etc/netmon.conf"]),
 ])
 
 
@@ -71,7 +75,7 @@ setup(
     packages                = find_packages(),
     data_files              = data_files,
 
-    install_requires        = required_modules,
+    requires        = required_modules,
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
