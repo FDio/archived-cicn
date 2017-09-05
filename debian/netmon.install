@@ -1,0 +1,5 @@
+/etc/init/netmon.conf
+/lib/systemd/system/netmon.service
+/usr/lib/python3*/dist-packages/netmon
+/usr/lib/python3*/dist-packages/netmon-*.egg-info
+/usr/bin/netmon

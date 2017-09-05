@@ -1,0 +1,5 @@
+vicn (1.0-25~g009e5b9~b1) UNRELEASED; urgency=medium
+
+  * Initial release (Closes: #nnnn)
+
+ -- Mauro Sardara <mauro.sardara@cisco.com>  Tue, 18 Oct 2016 12:10:07 +0200
