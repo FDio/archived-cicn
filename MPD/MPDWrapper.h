@@ -125,6 +125,7 @@ private:
     size_t                                                              videoSegmentNumber;
     size_t                                                              audioSegmentNumber;
     bool                                                                isStopping;
+    bool                                                                hasReachedEndOfList;
 };
 }
 }

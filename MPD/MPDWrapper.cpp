@@ -28,7 +28,9 @@ MPDWrapper::MPDWrapper(IMPD *mpd):
     videoSegmentOffset	(0),
     audioSegmentOffset	(0),
     videoSegmentNumber	(0),
-    audioSegmentNumber	(0)
+    audioSegmentNumber	(0),
+    hasReachedEndOfList (false)
+
 {
     InitializeConditionVariable (&this->mpdUpdate);
     InitializeCriticalSection(&this->monitorMutex);
@@ -125,7 +127,6 @@ void	MPDWrapper::findVideoRepresentation	(IMPD* mpd)
         if(this->videoRepresentation)
         {
             uint32_t time = this->videoRepresentations->find(this->videoRepresentation)->second->getTime(this->videoSegmentNumber);
-
             uint32_t id = atoi(this->videoRepresentation->GetId().c_str());
             for(size_t i = 0; i < representations.size(); i++)
             {
@@ -281,7 +282,7 @@ void	MPDWrapper::initializeAdaptationSetStream	(viper::managers::StreamType type
     IAdaptationSet *adaptationSet = NULL;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations = NULL;
     EnterCriticalSection(&this->monitorMutex);
-    
+
     switch(type)
     {
     case viper::managers::StreamType::AUDIO:
@@ -303,7 +304,7 @@ void	MPDWrapper::initializeAdaptationSetStream	(viper::managers::StreamType type
     default:
         return;
     }
-    
+
     for (size_t i = 0; i < adaptationSet->GetRepresentation().size(); i++)
     {
         IRepresentation *representation = adaptationSet->GetRepresentation().at(i);
@@ -531,7 +532,7 @@ std::vector<dash::mpd::IBaseUrl *>	MPDWrapper::resolveBaseUrl	(viper::managers::
     {
         urls.push_back(mpd->GetMPDPathBaseUrl());
     }
-    
+
     return urls;
 }
 
@@ -620,20 +621,25 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
         while((this->isStopping == false) && segmentNumber >= representationStream->getSize())
         {
             SleepConditionVariableCS(&this->mpdUpdate, &this->monitorMutex, INFINITE);
+            this->hasReachedEndOfList = true;
             switch(type)
             {
                 case viper::managers::StreamType::AUDIO:
                     representation = this->audioRepresentation;
                     representations = this->audioRepresentations;
+                    segmentNumber = this->audioSegmentNumber;
                     break;
                 case viper::managers::StreamType::VIDEO:
                     representation = this->videoRepresentation;
                     representations = this->videoRepresentations;
+                    segmentNumber = this->videoSegmentNumber;
                     break;
                 default:
                     break;
             }
             representationStream = representations->find(representation)->second;
+            if(this->hasReachedEndOfList)
+                segmentNumber += 1;
         }
         if(this->isStopping)
         {
@@ -653,6 +659,11 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
             default:
                 break;
         }
+        if(this->hasReachedEndOfList)
+        {
+            segmentNumber += 1;
+            this->hasReachedEndOfList = false;
+        }
     }
     uint64_t segDuration = 0;
     //Returns the segmentDuration in milliseconds
@@ -662,6 +673,7 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
         MediaObject *media = new MediaObject(seg, representation, withFeedBack);
         media->SetSegmentDuration(segDuration);
         segmentNumber++;
+
         switch(type)
         {
         case viper::managers::StreamType::AUDIO:
@@ -726,7 +738,7 @@ MediaObject*	MPDWrapper::getInitSegment	(viper::managers::StreamType type)
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
     EnterCriticalSection(&this->monitorMutex);
-        
+
     switch(type)
     {
     case viper::managers::StreamType::AUDIO:
@@ -828,7 +840,7 @@ uint32_t	MPDWrapper::calculateSegmentOffset	(viper::managers::StreamType type, u
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
     EnterCriticalSection(&this->monitorMutex);
-    
+
     switch(type)
     {
     case viper::managers::StreamType::AUDIO:
@@ -862,7 +874,7 @@ std::string	MPDWrapper::getRepresentationID	(viper::managers::StreamType type)
 {
     std::string id = "";
     EnterCriticalSection(&this->monitorMutex);
-    
+
     switch(type)
     {
     case viper::managers::StreamType::AUDIO:
