@@ -235,7 +235,7 @@ size_t SegmentTemplateStream::getSegmentNumber(uint64_t time)
     size_t i;
     for(i = 0; i < this->segmentStartTimes.size(); i ++)
     {
-	if(time < this->segmentStartTimes.at(i))
+	if(time <= this->segmentStartTimes.at(i))
 	{
 	    break;
 	}
