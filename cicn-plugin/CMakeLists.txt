@@ -67,10 +67,24 @@ set(CICN_API_TEST_SOURCE_FILES
 set(CICN_API_TEST_HEADER_FILES
         cicn/cicn_api.h)
 
+if (NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE "Release")
+endif (NOT CMAKE_BUILD_TYPE)
+
+
+SET(CICN_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/lib CACHE STRING "cicn_install_prefix")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall  -march=native -O3")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -march=native -O0 -g")
+  add_definitions(-DCLIB_DEBUG -fPIC -fstack-protector-all)
+endif()
+
 execute_process(COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/cicn)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cicn/cicn.api.h
         COMMAND
-        $ENV{CC} $ENV{CPPFLAGS} -E -P -x c-header ${CMAKE_CURRENT_SOURCE_DIR}/cicn/cicn.api |
+        ${CMAKE_C_COMPILER} $ENV{CPPFLAGS} -E -P -x c-header ${CMAKE_CURRENT_SOURCE_DIR}/cicn/cicn.api |
         vppapigen --input - --output ${CMAKE_CURRENT_BINARY_DIR}/cicn/cicn.api.h
         --show-name ${CMAKE_CURRENT_BINARY_DIR}/cicn/cicn.api.h
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cicn/cicn.api)
@@ -102,8 +116,8 @@ set_target_properties(cicn_api_test_plugin
 target_link_libraries(cicn_plugin)
 target_link_libraries(cicn_api_test_plugin)
 
-set(VPP_INSTALL_PLUGIN ${CMAKE_INSTALL_PREFIX}/lib/vpp_plugins)
-set(VPP_INSTALL_API_TEST_PLUGIN ${CMAKE_INSTALL_PREFIX}/lib/vpp_api_test_plugins)
+set(VPP_INSTALL_PLUGIN ${CICN_INSTALL_PREFIX}/vpp_plugins)
+set(VPP_INSTALL_API_TEST_PLUGIN ${CICN_INSTALL_PREFIX}/vpp_api_test_plugins)
 
 install(DIRECTORY DESTINATION ${VPP_INSTALL_PLUGIN})
 install(TARGETS cicn_plugin
