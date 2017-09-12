@@ -167,6 +167,9 @@ void*   AbstractChunk::DownloadInternalConnection   (void *abstractchunk)
     curl_easy_getinfo(chunk->curl, CURLINFO_SPEED_DOWNLOAD,&speed);
     curl_easy_getinfo(chunk->curl, CURLINFO_SIZE_DOWNLOAD, &size);
     curl_easy_getinfo(chunk->curl, CURLINFO_TOTAL_TIME, &time);
+    
+    std::cout << "Download " << chunk->AbsoluteURI() << " duration: " << (time * 1000000) << " [usec] size " << size << 
+            " [bytes] speed " << (speed*8)/1000 << " [kbps] " << std::endl;
 
     //Speed is in Bps ==> *8 for the bps
     speed = 8*speed;
