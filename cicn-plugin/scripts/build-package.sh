@@ -9,12 +9,13 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential cmake"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU="vpp-dev vpp-lib"
+DEPS_UBUNTU_16="vpp-dev=17.04.2-release vpp-lib=17.04.2-release"
+DEPS_UBUNTU_14="vpp-dev=17.04-release vpp-lib=17.04-release"
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 BUILD_TOOLS_SINGLE_CENTOS="cmake"
 LIBSSL_LIBEVENT_CENTOS="libevent-devel openssl-devel"
-DEPS_CENTOS="vpp-devel"
+DEPS_CENTOS="vpp-devel-17.04.2-release vpp-lib-17.04.2-release"
 
 # Parameters:
 # $1 = Distribution [Trusty / CentOS]
@@ -175,7 +176,11 @@ build_package() {
 
     # Install package dependencies
     if [ $DISTRIB_ID == "Ubuntu" ]; then
-        echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU | xargs sudo ${apt_get} install -y --allow-unauthenticated
+        if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+            echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU_16 | xargs sudo ${apt_get} install -y --allow-unauthenticated
+        elif [ "$DISTRIB_CODENAME" == "trusty"  ]; then
+            echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU_14 | xargs sudo ${apt_get} install -y --allow-unauthenticated
+        fi
     elif [ $DISTRIB_ID == "CentOS" ]; then
         echo $BUILD_TOOLS_GROUP_CENTOS | xargs sudo yum groupinstall -y --nogpgcheck
         echo $BUILD_TOOLS_SINGLE_CENTOS | xargs sudo yum install -y --nogpgcheck
