@@ -9,7 +9,7 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential cmake"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU="vpp-dev vpp-lib vpp-plugins"
+DEPS_UBUNTU="vpp-dev vpp-lib"
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 BUILD_TOOLS_SINGLE_CENTOS="cmake"
