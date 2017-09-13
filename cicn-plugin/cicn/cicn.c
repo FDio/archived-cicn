@@ -430,8 +430,11 @@ icn_process_fn (vlib_main_t * vm, vlib_node_runtime_t * rt, vlib_frame_t * f)
 
 VLIB_REGISTER_NODE (icn_process_node, static) =
 {
-.function = icn_process_fn,.type = VLIB_NODE_TYPE_PROCESS,.name =
-    "icn-process",.process_log2_n_stack_bytes = 16};
+  .function = icn_process_fn,
+  .type = VLIB_NODE_TYPE_PROCESS,
+  .name = "icn-process",
+  .process_log2_n_stack_bytes = 16
+};
 
 /*
  * Init entry-point for the icn plugin

@@ -1485,17 +1485,19 @@ cicn_trim_cs_lru (vlib_main_t * vm, vlib_node_runtime_t * node,
  */
 VLIB_REGISTER_NODE (icnfwd_node) =
 {
-  .function = icnfwd_node_fn,.name = "icnfwd",.vector_size =
-    sizeof (u32),.runtime_data_bytes =
-    sizeof (icnfwd_runtime_t),.format_trace = icnfwd_format_trace,.type =
-    VLIB_NODE_TYPE_INTERNAL,.n_errors =
-    ARRAY_LEN (icnfwd_error_strings),.error_strings =
-    icnfwd_error_strings,.n_next_nodes = ICNFWD_N_NEXT,
-    /* edit / add dispositions here */
-    .next_nodes =
-  {
-  [ICNFWD_NEXT_LOOKUP] = "ip4-lookup",
-      [ICNFWD_NEXT_ERROR_DROP] = "error-drop",}
+  .function = icnfwd_node_fn,
+  .name = "icnfwd",
+  .vector_size = sizeof (u32),
+  .runtime_data_bytes = sizeof (icnfwd_runtime_t),
+  .format_trace = icnfwd_format_trace,
+  .type = VLIB_NODE_TYPE_INTERNAL,
+  .n_errors = ARRAY_LEN (icnfwd_error_strings),
+  .error_strings = icnfwd_error_strings,
+  .n_next_nodes = ICNFWD_N_NEXT,
+  .next_nodes = {
+    [ICNFWD_NEXT_LOOKUP] = "ip4-lookup",
+    [ICNFWD_NEXT_ERROR_DROP] = "error-drop",
+  }
 ,};
 
 /*
@@ -1948,15 +1950,18 @@ icndist_node_fn (vlib_main_t * vm,
  */
 VLIB_REGISTER_NODE (icndist_node) =
 {
-  .function = icndist_node_fn,.name = "icndist",.vector_size =
-    sizeof (u32),.runtime_data_bytes =
-    sizeof (icndist_runtime_t),.format_trace = icndist_format_trace,.type =
-    VLIB_NODE_TYPE_INTERNAL,.n_errors =
-    ARRAY_LEN (icndist_error_strings),.error_strings =
-    icndist_error_strings,.n_next_nodes = ICNDIST_N_NEXT,
-    /* edit / add dispositions here */
-    .next_nodes =
-  {
-  [ICNDIST_NEXT_FWD] = "icnfwd",[ICNDIST_NEXT_ERROR_DROP] = "error-drop",}
+  .function = icndist_node_fn,
+  .name = "icndist",
+  .vector_size = sizeof (u32),
+  .runtime_data_bytes = sizeof (icndist_runtime_t),
+  .format_trace = icndist_format_trace,
+  .type = VLIB_NODE_TYPE_INTERNAL,
+  .n_errors = ARRAY_LEN (icndist_error_strings),
+  .error_strings = icndist_error_strings,
+  .n_next_nodes = ICNDIST_N_NEXT,
+  .next_nodes = {
+    [ICNDIST_NEXT_FWD] = "icnfwd",
+    [ICNDIST_NEXT_ERROR_DROP] = "error-drop",
+  }
 ,};
 #endif // CICN_FEATURE_MULTITHREAD
