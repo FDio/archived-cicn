@@ -74,7 +74,6 @@ cicn_api_test_plugin_la_CPPFLAGS = \
 	-DCICN_VPP_CLIENTLIB=1
 cicn_api_test_plugin_la_LDFLAGS = -module
 
-if WITH_PLUGIN_TOOLKIT
 install-data-hook:
 	mkdir -p /usr/lib/vpp_plugins
 	mkdir -p /usr/lib/vpp_api_test_plugins
@@ -84,4 +83,3 @@ install-data-hook:
 		/usr/lib/vpp_api_test_plugins/cicn_api_test_plugin.so
 	rm -f $(prefix)/lib/cicn_plugin.*
 	rm -f $(prefix)/lib/cicn_api_test_plugin.*
-endif

@@ -230,10 +230,6 @@ icnfwd_node_fn (vlib_main_t * vm,
 
       vlib_get_next_frame (vm, node, next_index, to_next, n_left_to_next);
 
-      /* TODO -- just doing 1-at-a-time for now, to simplify things a bit. */
-
-      /* TODO -- more interesting stats and trace */
-
       while (n_left_from > 0 && n_left_to_next > 0)
 	{
 	  u32 bi0;
@@ -280,7 +276,6 @@ icnfwd_node_fn (vlib_main_t * vm,
 
 	  /* Dequeue a packet buffer */
 	  bi0 = from[0];
-	  BUFTRC ("CICN-SW", bi0);
 	  from += 1;
 	  n_left_from -= 1;
 
@@ -1350,8 +1345,6 @@ icnfwd_node_fn (vlib_main_t * vm,
 	  /* Incr packet counter */
 	  pkts_processed += 1;
 
-	  BUFTRC ((next0 == ICNFWD_NEXT_ERROR_DROP) ? "DROPTX1" : "ICN-TX1",
-		  bi0);
 	  /* Verify speculative enqueue, maybe switch current next frame */
 	  vlib_validate_buffer_enqueue_x1 (vm, node, next_index,
 					   to_next, n_left_to_next,
