@@ -279,6 +279,11 @@ icnfwd_node_fn (vlib_main_t * vm,
 	  from += 1;
 	  n_left_from -= 1;
 
+          /* Enqueue packet to next graph node */
+          to_next[0] = bi0;
+          to_next += 1;
+          n_left_to_next -= 1;
+
 	  b0 = vlib_get_buffer (vm, bi0);
 
 	  if (PREDICT_FALSE ((node->flags & VLIB_NODE_FLAG_TRACE) &&
@@ -544,6 +549,10 @@ icnfwd_node_fn (vlib_main_t * vm,
 
 		  if (cicn_cs_enabled (&rt->pitcs))
 		    {
+                      /* Remove b0 from the frame, we hold it in the CS */
+		      to_next -= 1;
+		      n_left_to_next += 1;
+                      
 		      /* At this point we think we're safe to proceed.
 		       * Store the CS buf in the PIT/CS hashtable entry
 		       */
@@ -591,6 +600,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 
 		      /* Store the original packet buffer in the CS node */
 		      pitp->u.cs.cs_pkt_buf = vlib_get_buffer_index (vm, b0);
+                      
 
 		      /* Add to CS LRU */
 		      cicn_cs_lru_insert (&rt->pitcs, nodep, pitp);
@@ -1334,13 +1344,6 @@ icnfwd_node_fn (vlib_main_t * vm,
 	      t->sw_if_index = sw_if_index0;
 	      t->next_index = next0;
 	    }
-
-	  /* Speculatively enqueue packet b0 (index in bi0)
-	   * to the current next frame
-	   */
-	  to_next[0] = bi0;
-	  to_next += 1;
-	  n_left_to_next -= 1;
 
 	  /* Incr packet counter */
 	  pkts_processed += 1;
