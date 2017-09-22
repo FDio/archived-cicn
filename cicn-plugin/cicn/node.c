@@ -675,14 +675,6 @@ icnfwd_node_fn (vlib_main_t * vm,
 
 		      vnet_buffer (b0)->sw_if_index[VLIB_TX] = ~0;
 
-		      if (i == (clone_count - 1))
-			{
-			  /* Last packet - drop out of the loop, let the
-			   * transit path finish with 'b0' now
-			   */
-			  break;
-			}
-
 		      /* Rewrite ip and udp headers */
 
 		      ip0->src_address.as_u32 =
