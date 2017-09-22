@@ -37,8 +37,8 @@ with open('README.md') as f:
 required_modules = ["pylxd (>=2.2.2)",
                     "pyparsing",
                     "networkx (==1.11)",
-                    "autobahn",
-                    "pyOpenSSL"]
+                    "autobahn"]
+#                    "pyOpenSSL"]
 
 data_files = list()
 
