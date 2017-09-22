@@ -183,6 +183,7 @@ void ProducerSocket::produce(Name name, const uint8_t *buf, size_t buffer_size, 
     seq_number_map_[name.toString()][response_id] = current_segment;
   }
 
+
   if (making_manifest_) {
 
     std::shared_ptr<ContentObject> content_object_segment;

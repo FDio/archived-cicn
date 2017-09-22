@@ -39,9 +39,7 @@ HTTPServerPublisher& HTTPServerPublisher::attachPublisher() {
 HTTPServerPublisher &HTTPServerPublisher::setTimeout(uint32_t timeout) {
   std::shared_ptr<transport::Portal> portal;
   producer_->getSocketOption(transport::GeneralTransportOptions::PORTAL, portal);
-  timer_ = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(portal->getIoService(),
-                                                                                        boost::posix_time::seconds(
-                                                                                            timeout)));
+  timer_ = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(portal->getIoService(), boost::posix_time::seconds(timeout)));
 
   wait_callback_ = [this](const boost::system::error_code e) {
     if (!e) {

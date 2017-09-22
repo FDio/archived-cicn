@@ -44,7 +44,7 @@ class ProducerSocket : public Socket {
 
   void dispatch();
 
-  void produce(Name name, const uint8_t *buffer, size_t buffer_size, const int request_id = 0, bool is_last = false);
+  void produce(Name name, const uint8_t *buffer, size_t buffer_size, const int request_id = 0, bool is_last = true);
 
   void produce(ContentObject &content_object);
 

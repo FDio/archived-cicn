@@ -14,8 +14,14 @@
 cmake_minimum_required(VERSION 3.2)
 
 set(CONSUMER_SOURCE_FILES icnet_consumer_test.cc)
+set(CONSUMER__HELLO_WORLD_SOURCE_FILES icnet_consumer_hello_world.cc)
 
 add_executable(consumer-test ${CONSUMER_SOURCE_FILES})
 
 target_link_libraries(consumer-test icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 install(TARGETS consumer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
+
+add_executable(consumer-hello-world ${CONSUMER__HELLO_WORLD_SOURCE_FILES})
+
+target_link_libraries(consumer-hello-world icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+install(TARGETS consumer-hello-world DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
