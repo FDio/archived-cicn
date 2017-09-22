@@ -552,7 +552,7 @@ icnfwd_node_fn (vlib_main_t * vm,
                       /* Remove b0 from the frame, we hold it in the CS */
 		      to_next -= 1;
 		      n_left_to_next += 1;
-                      
+
 		      /* At this point we think we're safe to proceed.
 		       * Store the CS buf in the PIT/CS hashtable entry
 		       */
@@ -600,7 +600,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 
 		      /* Store the original packet buffer in the CS node */
 		      pitp->u.cs.cs_pkt_buf = vlib_get_buffer_index (vm, b0);
-                      
+
 
 		      /* Add to CS LRU */
 		      cicn_cs_lru_insert (&rt->pitcs, nodep, pitp);
