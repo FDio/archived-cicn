@@ -7,7 +7,7 @@ cd "$path"
 
 git rev-parse 2> /dev/null
 if [ $? == 0 ]; then
-    vstring=$(git describe --dirty --match "$version_prefix*" | sed "s/$version_prefix//")
+    vstring=$(git describe --match "$version_prefix*" | sed "s/$version_prefix//")
 elif [ -f .version ]; then
     vstring=$(cat .version)
 else
@@ -23,7 +23,7 @@ ADD=$(echo ${vstring} | cut -s -d- -f2)
 
 git rev-parse 2> /dev/null
 if [ $? == 0 ]; then
-    CMT=$(git describe --dirty --match "$version_prefix*" | sed "s/$version_prefix//" | cut -s -d- -f3,4)
+    CMT=$(git describe --match "$version_prefix*" | sed "s/$version_prefix//" | cut -s -d- -f3,4)
 else
     CMT=$(echo ${vstring} | cut -s -d- -f3,4)
 fi

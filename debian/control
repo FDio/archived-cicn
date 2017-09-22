@@ -1,5 +1,4 @@
 Source: vicn
-Version: 3.23
 Section: python
 Priority: optional
 Maintainer: Jordan Augé <jordan.auge@cisco.com>
@@ -11,7 +10,6 @@ Vcs-Browser: https://gerrit.fd.io/r/gitweb?p=cicn.git
 X-Python3-Version: >= 3.5
 
 Package: python3-netmodel
-Version: 3.23
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}, python3-daemon, python3-lockfile, python3-setuptools, python3-pip
 Suggests: python-netmodel-doc
@@ -19,15 +17,13 @@ Description: Netmodel
  Netmodel
 
 Package: netmon
-Version: 3.23
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-netmodel
+Depends: ${python3:Depends}, ${misc:Depends}, python3-netmodel, bwm-ng
 Suggests: netmon-doc
 Description: Monitoring
  Monitoring daemon
 
 Package: vicn
-Version: 3.23
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}, python3-netmodel
 Suggests: vicn-doc
@@ -50,10 +46,4 @@ Description: vICN experiment controller
  The architecture of this orchestrator is basically a master-slave architecture.
  The master, vICN, controls the whole cluster of servers, by means of HTTPS REST
  APIs and remote SSH.
-
-#Package: vicn-resource-hicn
-#Architecture: all
-#Depends: vicn
-#Description: TODO
-# TODO
 
