@@ -72,6 +72,7 @@ EOF
     debuild --no-lintian --no-tgz-check -i -us -uc -b
 
     cd $SCRIPT_PATH/..
+    rm -rf vicn_build_root
     mkdir build
     mv *.deb build
 
