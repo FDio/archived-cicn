@@ -1,0 +1,48 @@
+Packet generator for ICN
+
+The packet generator for ICN requires at least 3 vpp nodes: an icn packet generator
+client, an icn packet generator server and a third vpp node running the
+cicn-plugin. Both icn packet generator client and server are are part of the
+cicn-plugin for vpp. The topology should be similar to the following:
+
+vpp1 (PG client) <--> vpp2 (cicn-plugin) <--> vpp3 (PG server)
+
+vpp2 is the node that we are going to benchmark.
+
+The current packet generator client requests subsequent content to the packet
+generator server. Interest and content name is the following:
+
+ccnx:/ccnxpg/<Chunk_number>
+
+The Chunk number (u64) is iteratively incremented after an interest is issued.
+
+
+CONFIGURATION
+Vpp1 must contain a pg interface (e.g., pg0) configured
+with the IP address 192.168.128.245 and be able to forward packet to
+192.168.128.1. The following configuration takes care of setting the pg
+interface, setting 192.168.128.1 reachable through the pg interface and the icn
+pg client. It assume that the next cicn hop answer to the ip 192.168.128.2 and
+it is reachable through a local interface with the ip address
+192.168.128.3. There ip addresses can be set arbitrarily, modifications must be
+done in both vpp1 and vpp2. IMPORTANT: In the following example, the port 33301
+is used to pass packets to the icn pg client plugin. Modification to such port 
+requires to change the packet definition on the icn-pg file.
+
+vpp# exec <path-to>/icn-pg
+vpp# set int ip addr pg0 192.168.128.245/24
+vpp# cicn pgen client port 33301 src 192.168.128.3:33301 dest 192.168.128.2:6363
+
+To run the icn_pg packet generator script configure vpp as follows.
+
+vpp# packet-generator enable
+
+Following the example, Vpp2 must be set to be reachable to the ip address
+192.168.128.2 and have a face
+192.168.128.2:6363<-->192.168.128.3:33301. Moreover vpp2 must be able to forward
+packets (and interest) to the packet generator server.
+
+Vpp3 configuration is simple. It must be configured to accept packets from
+vpp2. The cicn packet generator plugin can be configured in this way:
+
+vpp# cicn pgen server port 6363 size 1200

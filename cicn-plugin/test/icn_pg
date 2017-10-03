@@ -1,0 +1,11 @@
+packet-generator new {
+    name icn-pg
+    limit 1
+    size 72-72
+    node ip4-input
+    no-recycle
+    data {
+        UDP: 192.168.128.1 -> 192.168.128.245
+        hex 0x18db821500341b930100002cff00000e0001000203e90001001a000000160001000663636e787067001000088000000000000000
+ }
+}

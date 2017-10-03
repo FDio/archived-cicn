@@ -93,6 +93,7 @@ include_directories(SYSTEM)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(./)
 include_directories(cicn/test)
+include_directories(${VPP_INCLUDE_DIR})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -march=native -O3")
 add_library(cicn_api_test_plugin SHARED
