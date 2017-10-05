@@ -68,6 +68,15 @@ typedef struct
   u16 msg_type;
 } icnpg_trace_t;
 
+typedef struct icnpg_main_s
+{
+  uint64_t namecounter;
+} icnpg_main_t;
+
+icnpg_main_t icnpg_main = {
+  .namecounter = 0ULL
+};
+
 /* packet trace format function */
 static u8 *
 format_icnpg_trace (u8 * s, va_list * args)
@@ -96,7 +105,6 @@ icnpg_client_node_fn (vlib_main_t * vm, vlib_node_runtime_t * node,
   u32 pkts_processed = 0, pkts_dropped = 0;
   u32 interest_msgs_generated = 0, content_msgs_received = 0;
   u32 nacks_received = 0;
-  uint64_t namecounter = 1LL;
   u32 bi0, bi1;
   vlib_buffer_t *b0, *b1;
   u8 pkt_type0 = 0, pkt_type1 = 0;
@@ -109,6 +117,7 @@ icnpg_client_node_fn (vlib_main_t * vm, vlib_node_runtime_t * node,
   uint8_t *name0, *name1;
   uint32_t namelen0, namelen1;
   cicn_main_t *sm = &cicn_main;
+  icnpg_main_t *ipgm = &icnpg_main;
 
   from = vlib_frame_vector_args (frame);
   n_left_from = frame->n_vectors;
@@ -191,8 +200,8 @@ icnpg_client_node_fn (vlib_main_t * vm, vlib_node_runtime_t * node,
 		  interest_msgs_generated++;
 
 		  /* Stuff the counter value into the last name-comp */
-		  C_PUTINT64 ((name0 + namelen0 - 8), namecounter);
-		  namecounter += 1LL;
+		  C_PUTINT64 ((name0 + namelen0 - 8), ipgm->namecounter);
+		  ipgm->namecounter += 1ULL;
 
 		  /* Rewrite and send */
 
@@ -231,8 +240,8 @@ icnpg_client_node_fn (vlib_main_t * vm, vlib_node_runtime_t * node,
 		  interest_msgs_generated++;
 
 		  /* Stuff the counter value into the last name-comp */
-		  C_PUTINT64 ((name1 + namelen1 - 8), namecounter);
-		  namecounter += 1LL;
+		  C_PUTINT64 ((name1 + namelen1 - 8), ipgm->namecounter);
+		  ipgm->namecounter += 1ULL;
 
 		  /* Rewrite and send */
 
@@ -347,8 +356,8 @@ icnpg_client_node_fn (vlib_main_t * vm, vlib_node_runtime_t * node,
 		  interest_msgs_generated++;
 
 		  /* Stuff the counter value into the last name-comp */
-		  C_PUTINT64 ((name0 + namelen0 - 8), namecounter);
-		  namecounter += 1ULL;
+		  C_PUTINT64 ((name0 + namelen0 - 8), ipgm->namecounter);
+		  ipgm->namecounter += 1ULL;
 
 		  /* Rewrite and send */
 		  ip0->src_address.as_u32 = sm->pgen_clt_src_addr;
@@ -421,18 +430,24 @@ icnpg_client_node_fn (vlib_main_t * vm, vlib_node_runtime_t * node,
 }
 
 
+/* *INDENT-OFF* */
 VLIB_REGISTER_NODE (icn_pg_node) =
 {
-  .function = icnpg_client_node_fn,.name = "icnpg",.vector_size =
-    sizeof (u32),.format_trace = format_icnpg_trace,.type =
-    VLIB_NODE_TYPE_INTERNAL,.n_errors =
-    ARRAY_LEN (icnpg_error_strings),.error_strings =
-    icnpg_error_strings,.n_next_nodes = ICNPG_N_NEXT,
-    /* edit / add dispositions here */
-    .next_nodes =
-  {
-  [ICNPG_NEXT_LOOKUP] = "ip4-lookup",[ICNPG_NEXT_DROP] = "ip4-drop",}
+  .function = icnpg_client_node_fn,
+  .name = "icnpg",
+  .vector_size = sizeof (u32),
+  .format_trace = format_icnpg_trace,
+  .type = VLIB_NODE_TYPE_INTERNAL,
+  .n_errors = ARRAY_LEN (icnpg_error_strings),
+  .error_strings = icnpg_error_strings,
+  .n_next_nodes = ICNPG_N_NEXT,
+  /* edit / add dispositions here */
+  .next_nodes = {
+    [ICNPG_NEXT_LOOKUP] = "ip4-lookup",
+    [ICNPG_NEXT_DROP] = "ip4-drop",
+  }
 ,};
+/* *INDENT-ON* */
 
 /*
  * End of packet-generator client node
@@ -624,8 +639,8 @@ icnpg_node_server_fn (vlib_main_t * vm,
 		  b0 = vlib_get_buffer (vm, index);
 		  body0 = vlib_buffer_get_current (b0);
 
-                  // Update interest lifetime to cache time
-                  C_PUTINT16 (body0 + 8, CICN_HDR_TLV_CACHE_TIME);
+		  // Update interest lifetime to cache time
+		  C_PUTINT16 (body0 + 8, CICN_HDR_TLV_CACHE_TIME);
 
 		  // Update the length of the message
 		  uint16_t msg_len;
@@ -705,8 +720,8 @@ icnpg_node_server_fn (vlib_main_t * vm,
 		  b1 = vlib_get_buffer (vm, index);
 		  body1 = vlib_buffer_get_current (b1);
 
-                  // Update interest lifetime to cache time
-                  C_PUTINT16 (body1 + 8, CICN_HDR_TLV_CACHE_TIME);
+		  // Update interest lifetime to cache time
+		  C_PUTINT16 (body1 + 8, CICN_HDR_TLV_CACHE_TIME);
 
 		  // Update the length of the message
 		  uint16_t msg_len;
@@ -932,20 +947,35 @@ icnpg_node_server_fn (vlib_main_t * vm,
   return (frame->n_vectors);
 }
 
+/* *INDENT-OFF* */
 VLIB_REGISTER_NODE (icn_pg_server_node) =
 {
-  .function = icnpg_node_server_fn,.name = "icnpg-server",.vector_size =
-    sizeof (u32),.format_trace = format_icnpg_server_trace,.type =
-    VLIB_NODE_TYPE_INTERNAL,.n_errors =
-    ARRAY_LEN (icnpg_server_error_strings),.error_strings =
-    icnpg_server_error_strings,.n_next_nodes = ICNPG_SERVER_N_NEXT,
-    /* edit / add dispositions here */
-    .next_nodes =
-  {
-  [ICNPG_SERVER_NEXT_LOOKUP] = "ip4-lookup",
-      [ICNPG_SERVER_NEXT_DROP] = "ip4-drop",}
+  .function = icnpg_node_server_fn,
+  .name = "icnpg-server",
+  .vector_size = sizeof (u32),
+  .format_trace = format_icnpg_server_trace,
+  .type =VLIB_NODE_TYPE_INTERNAL,
+  .n_errors = ARRAY_LEN (icnpg_server_error_strings),
+  .error_strings = icnpg_server_error_strings,
+  .n_next_nodes = ICNPG_SERVER_N_NEXT,
+  /* edit / add dispositions here */
+  .next_nodes = {
+    [ICNPG_SERVER_NEXT_LOOKUP] = "ip4-lookup",
+    [ICNPG_SERVER_NEXT_DROP] = "ip4-drop",
+  }
 ,};
+
+/* *INDENT-ON* */
 
 /*
  * End of packet-generator server node
+ */
+
+
+/*
+ * fd.io coding-style-patch-verification: ON
+ *
+ * Local Variables:
+ * eval: (c-set-style "gnu")
+ * End:
  */
