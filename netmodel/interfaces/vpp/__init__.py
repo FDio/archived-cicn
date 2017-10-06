@@ -43,6 +43,7 @@ def parse(s):
     kw_ip6 = pp.CaselessKeyword('ip6')
     kw_tx_error = pp.CaselessKeyword('tx-error')
     kw_rx_miss = pp.CaselessKeyword('rx-miss')
+    kw_punts = pp.CaselessKeyword('punts')
 
     header = kw_name + kw_idx + kw_state + kw_counter + kw_count
 
@@ -54,6 +55,7 @@ def parse(s):
              pp.Optional(kw_tx_packets + pp.Word(pp.nums).setResultsName('tx_packets')) + \
              pp.Optional(kw_tx_bytes + pp.Word(pp.nums).setResultsName('tx_bytes')) + \
              pp.Optional(kw_drops + pp.Word(pp.nums).setResultsName('drops')) + \
+             pp.Optional(kw_punts + pp.Word(pp.nums).setResultsName('punts')) + \
              pp.Optional(kw_ip4 + pp.Word(pp.nums).setResultsName('ip4')) + \
              pp.Optional(kw_ip6 + pp.Word(pp.nums).setResultsName('ip6')) + \
              pp.Optional(kw_rx_miss + pp.Word(pp.nums).setResultsName('rx_miss')) + \
