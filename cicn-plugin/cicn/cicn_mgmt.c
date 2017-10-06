@@ -251,20 +251,14 @@ cicn_cli_node_ctl_start_set_command_fn (vlib_main_t * vm,
    * [i.e. on "cicn control start\n", don't consume the following line (cmd)
    *  while catching unexpected extra arguments on "cicn control start XXX"]
    */
-  if (main_input->index > 0 &&
-      main_input->buffer[main_input->index - 1] != '\n')
+  unformat_input_t _line_input, *line_input = &_line_input;
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      unformat_input_t _line_input, *line_input = &_line_input;
-      if (!unformat_user (main_input, unformat_line_input, line_input))
-	{
-	  return (0);
-	}
-
       while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-	{
-	  return clib_error_return (0, "Unknown argument '%U'",
-				    format_unformat_error, line_input);
-	}
+        {
+          return clib_error_return (0, "Unknown argument '%U'",
+                                    format_unformat_error, line_input);
+        }
     }
 
   ux_rc = cicn_infra_plugin_enable_disable (1 /*enable */ ,
@@ -299,15 +293,9 @@ cicn_cli_node_ctl_stop_set_command_fn (vlib_main_t * vm,
   /* Catch unexpected extra arguments on this line.
    * See comment on cicn_cli_node_ctrl_start_set_command_fn
    */
-  if (main_input->index > 0 &&
-      main_input->buffer[main_input->index - 1] != '\n')
+  unformat_input_t _line_input, *line_input = &_line_input;
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      unformat_input_t _line_input, *line_input = &_line_input;
-      if (!unformat_user (main_input, unformat_line_input, line_input))
-	{
-	  return (0);
-	}
-
       while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
 	{
 	  return clib_error_return (0, "Unknown argument '%U'",
@@ -366,7 +354,8 @@ cicn_cli_node_ctl_param_set_command_fn (vlib_main_t * vm,
   unformat_input_t _line_input, *line_input = &_line_input;
   if (!unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
+      return (clib_error_return
+	      (0, "Missing argument"));
     }
 
   while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
@@ -492,22 +481,20 @@ cicn_cli_node_enable_disable_set_command_fn (vlib_main_t * vm,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "disable"))
-	{
-	  enable_disable = 0;
-	}
-      else
-	{
-	  return clib_error_return (0, "Unknown argument '%U'",
-				    format_unformat_error, line_input);
-	}
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "disable"))
+            {
+              enable_disable = 0;
+            }
+          else
+            {
+              return clib_error_return (0, "Unknown argument '%U'",
+                                        format_unformat_error, line_input);
+            }
+        }
     }
 
   ux_rc = cicn_infra_plugin_enable_disable (enable_disable,
@@ -546,26 +533,24 @@ cicn_cli_node_name_set_command_fn (vlib_main_t * vm,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "delete"))
-	{
-	  delete = 1;
-	}
-      else if (unformat (line_input, "%s", &fwdr_name))
-	{
-	  ;
-	}
-      else
-	{
-	  return clib_error_return (0, "Unknown argument '%U'",
-				    format_unformat_error, line_input);
-	}
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "delete"))
+            {
+              delete = 1;
+            }
+          else if (unformat (line_input, "%s", &fwdr_name))
+            {
+              ;
+            }
+          else
+            {
+              return clib_error_return (0, "Unknown argument '%U'",
+                                        format_unformat_error, line_input);
+            }
+        }
     }
 
   /* Verify that the given name is not empty */
@@ -1185,82 +1170,80 @@ cicn_cli_face_set_command_fn (vlib_main_t * vm, unformat_input_t * main_input,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "id %d", &faceid))
-	{
-	  if (unformat (line_input, "delete"))
-	    {
-	      /* TODO -- handle delete case... */
-	      face_op = CICN_MGMT_FACE_OP_DELETE;
-	    }
-	  else if (unformat (line_input, "admin %s", &cfg_admin_str))
-	    {
-	      face_op = CICN_MGMT_FACE_OP_ADMIN;
-	      if (strcmp (cfg_admin_str, "up") == 0)
-		{
-		  cfg_admin_up = 1;
-		}
-	      else if (strcmp (cfg_admin_str, "down") == 0)
-		{
-		  cfg_admin_up = 0;
-		}
-	      else
-		{
-		  return (clib_error_return
-			  (0, "Unknown face state %s", cfg_admin_str));
-		}
-	    }
-	  else if (unformat (line_input, "hello %s", &cfg_hello_str))
-	    {
-	      face_op = CICN_MGMT_FACE_OP_HELLO;
-	      if (strcmp (cfg_hello_str, "enable") == 0)
-		{
-		  cfg_hello_enable = 1;
-		}
-	      else if (strcmp (cfg_hello_str, "disable") == 0)
-		{
-		  cfg_hello_enable = 0;
-		}
-	      else
-		{
-		  return (clib_error_return
-			  (0, "Unknown hello option (%s)", cfg_hello_str));
-		}
-	    }
-	  else
-	    {
-	      return clib_error_return (0, "Please specify face operation");
-	    }
-	}
-      else if (unformat (line_input, "add"))
-	{
-	  face_op = CICN_MGMT_FACE_OP_CREATE;
-	  if (unformat (line_input, "local %U:%d",
-			unformat_ip4_address, &local_addr4, &local_port))
-	    {
-	      if (unformat (line_input, "remote %U:%d",
-			    unformat_ip4_address, &remote_addr4,
-			    &remote_port))
-		{
-		  if (unformat (line_input, "app_face"))
-		    {
-		      app_face = 1;
-		    }
-		}
-	    }
-	}
-      else
-	{
-	  return clib_error_return (0, "Unknown input '%U'",
-				    format_unformat_error, line_input);
-	  break;
-	}
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "id %d", &faceid))
+            {
+              if (unformat (line_input, "delete"))
+                {
+                  /* TODO -- handle delete case... */
+                  face_op = CICN_MGMT_FACE_OP_DELETE;
+                }
+              else if (unformat (line_input, "admin %s", &cfg_admin_str))
+                {
+                  face_op = CICN_MGMT_FACE_OP_ADMIN;
+                  if (strcmp (cfg_admin_str, "up") == 0)
+                    {
+                      cfg_admin_up = 1;
+                    }
+                  else if (strcmp (cfg_admin_str, "down") == 0)
+                    {
+                      cfg_admin_up = 0;
+                    }
+                  else
+                    {
+                      return (clib_error_return
+                              (0, "Unknown face state %s", cfg_admin_str));
+                    }
+                }
+              else if (unformat (line_input, "hello %s", &cfg_hello_str))
+                {
+                  face_op = CICN_MGMT_FACE_OP_HELLO;
+                  if (strcmp (cfg_hello_str, "enable") == 0)
+                    {
+                      cfg_hello_enable = 1;
+                    }
+                  else if (strcmp (cfg_hello_str, "disable") == 0)
+                    {
+                      cfg_hello_enable = 0;
+                    }
+                  else
+                    {
+                      return (clib_error_return
+                              (0, "Unknown hello option (%s)", cfg_hello_str));
+                    }
+                }
+              else
+                {
+                  return clib_error_return (0, "Please specify face operation");
+                }
+            }
+          else if (unformat (line_input, "add"))
+            {
+              face_op = CICN_MGMT_FACE_OP_CREATE;
+              if (unformat (line_input, "local %U:%d",
+                            unformat_ip4_address, &local_addr4, &local_port))
+                {
+                  if (unformat (line_input, "remote %U:%d",
+                                unformat_ip4_address, &remote_addr4,
+                                &remote_port))
+                    {
+                      if (unformat (line_input, "app_face"))
+                        {
+                          app_face = 1;
+                        }
+                    }
+                }
+            }
+          else
+            {
+              return clib_error_return (0, "Unknown input '%U'",
+                                        format_unformat_error, line_input);
+              break;
+            }
+        }
     }
 
   if (faceid != -1)
@@ -1479,38 +1462,36 @@ cicn_cli_fib_set_command_fn (vlib_main_t * vm, unformat_input_t * main_input,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (addpfx == -1 && unformat (line_input, "add"))
-	{
-	  addpfx = 1;
-	}
-      else if (addpfx == -1 && unformat (line_input, "delete"))
-	{
-	  addpfx = 0;
-	}
-      else if (addpfx != -1 && unformat (line_input, "prefix %s", &prefix))
-	{
-	  ;
-	}
-      else if (addpfx != -1 && unformat (line_input, "face %d", &faceid))
-	{
-	  ;
-	}
-      else if (addpfx == 1 && unformat (line_input, "weight %d", &weight))
-	{
-	  ;
-	}
-      else
-	{
-	  return clib_error_return (0, "Unknown input '%U'",
-				    format_unformat_error, line_input);
-	}
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (addpfx == -1 && unformat (line_input, "add"))
+            {
+              addpfx = 1;
+            }
+          else if (addpfx == -1 && unformat (line_input, "delete"))
+            {
+              addpfx = 0;
+            }
+          else if (addpfx != -1 && unformat (line_input, "prefix %s", &prefix))
+            {
+              ;
+            }
+          else if (addpfx != -1 && unformat (line_input, "face %d", &faceid))
+            {
+              ;
+            }
+          else if (addpfx == 1 && unformat (line_input, "weight %d", &weight))
+            {
+              ;
+            }
+          else
+            {
+              return clib_error_return (0, "Unknown input '%U'",
+                                        format_unformat_error, line_input);
+            }
+        }
     }
 
   /* Check parse */
@@ -1558,24 +1539,22 @@ cicn_cli_hello_protocol_set_command_fn (vlib_main_t * vm,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "interval %d", &interval))
-	{
-	  ;
-	}
-      else
-	{
-	  return (clib_error_return
-		  (0, "Unknown input '%U'", format_unformat_error,
-		   line_input));
-	  break;
-	}
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "interval %d", &interval))
+            {
+              ;
+            }
+          else
+            {
+              return (clib_error_return
+                      (0, "Unknown input '%U'", format_unformat_error,
+                       line_input));
+              break;
+            }
+        }
     }
 
   /* Check that hello protocol interval > 0 */
@@ -1607,39 +1586,37 @@ cicn_cli_show_command_fn (vlib_main_t * vm, unformat_input_t * main_input,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  /* TODO -- support specific args */
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "face all"))
-	{
-	  face_p = 1;
-	}
-      else if (unformat (line_input, "fib all"))
-	{
-	  fib_p = 1;
-	}
-      else if (unformat (line_input, "detail"))
-	{
-	  detail_p = 1;
-	}
-      else if (unformat (line_input, "internal"))
-	{
-	  /* We consider 'internal' a superset, so include 'detail' too */
-	  internal_p = 1;
-	  detail_p = 1;
-	}
-      else
-	{
-	  return (clib_error_return
-		  (0, "Unknown input '%U'", format_unformat_error,
-		   line_input));
-	  break;
-	}
+      /* TODO -- support specific args */
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "face all"))
+            {
+              face_p = 1;
+            }
+          else if (unformat (line_input, "fib all"))
+            {
+              fib_p = 1;
+            }
+          else if (unformat (line_input, "detail"))
+            {
+              detail_p = 1;
+            }
+          else if (unformat (line_input, "internal"))
+            {
+              /* We consider 'internal' a superset, so include 'detail' too */
+              internal_p = 1;
+              detail_p = 1;
+            }
+          else
+            {
+              return (clib_error_return
+                      (0, "Unknown input '%U'", format_unformat_error,
+                       line_input));
+              break;
+            }
+        }
     }
 
   /* If nothing specified, show everything */
@@ -1815,34 +1792,32 @@ cicn_cli_pgen_client_set_command_fn (vlib_main_t * vm,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "port %d", &local_port))
-	{
-	  ;
-	}
-      else if (unformat (line_input, "dest %U:%d",
-			 unformat_ip4_address, &dest_addr, &dest_port))
-	{
-	  ;
-	}
-      else if (unformat (line_input, "src %U:%d",
-			 unformat_ip4_address, &src_addr, &src_port))
-	{
-	  ;
-	}
-      else
-	{
-	  return (clib_error_return
-		  (0, "Unknown input '%U'", format_unformat_error,
-		   line_input));
-	  break;
-	}
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "port %d", &local_port))
+            {
+              ;
+            }
+          else if (unformat (line_input, "dest %U:%d",
+                             unformat_ip4_address, &dest_addr, &dest_port))
+            {
+              ;
+            }
+          else if (unformat (line_input, "src %U:%d",
+                             unformat_ip4_address, &src_addr, &src_port))
+            {
+              ;
+            }
+          else
+            {
+              return (clib_error_return
+                      (0, "Unknown input '%U'", format_unformat_error,
+                       line_input));
+              break;
+            }
+        }
     }
 
   /* Attach our packet-gen node for ip4 udp local traffic */
@@ -1901,33 +1876,31 @@ cicn_cli_pgen_server_set_command_fn (vlib_main_t * vm,
 
   /* Get a line of input. */
   unformat_input_t _line_input, *line_input = &_line_input;
-  if (!unformat_user (main_input, unformat_line_input, line_input))
+  if (unformat_user (main_input, unformat_line_input, line_input))
     {
-      return (0);
-    }
-
-  /* Parse the arguments */
-  while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (line_input, "port %d", &local_port))
-	{
-	  ;
-	}
-      else if (unformat (line_input, "size %d", &payload_size))
-	{
-	  if (payload_size > 1200)
-	    {
-	      return (clib_error_return (0,
-					 "Payload size must be <= 1200 bytes..."));
-	    }
-	}
-      else
-	{
-	  return (clib_error_return
-		  (0, "Unknown input '%U'", format_unformat_error,
-		   line_input));
-	  break;
-	}
+      /* Parse the arguments */
+      while (unformat_check_input (line_input) != UNFORMAT_END_OF_INPUT)
+        {
+          if (unformat (line_input, "port %d", &local_port))
+            {
+              ;
+            }
+          else if (unformat (line_input, "size %d", &payload_size))
+            {
+              if (payload_size > 1200)
+                {
+                  return (clib_error_return (0,
+                                             "Payload size must be <= 1200 bytes..."));
+                }
+            }
+          else
+            {
+              return (clib_error_return
+                      (0, "Unknown input '%U'", format_unformat_error,
+                       line_input));
+              break;
+            }
+        }
     }
 
   /* Attach our packet-gen node for ip4 udp local traffic */

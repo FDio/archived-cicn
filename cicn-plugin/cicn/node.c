@@ -211,9 +211,9 @@ icnfwd_node_fn (vlib_main_t * vm,
    * number has changed
    */
   if (cicn_infra_gshard.cfg_generation !=
-      cicn_infra_shards[vm->cpu_index].cfg_generation)
+      cicn_infra_shards[vm->thread_index].cfg_generation)
     {
-      cicn_infra_shards[vm->cpu_index].cfg_generation =
+      cicn_infra_shards[vm->thread_index].cfg_generation =
 	cicn_infra_gshard.cfg_generation;
     }
 
@@ -375,7 +375,7 @@ icnfwd_node_fn (vlib_main_t * vm,
 	      goto trace_single;
 	    }
 
-	  cicn_infra_shard_t *wshard = &cicn_infra_shards[vm->cpu_index];
+	  cicn_infra_shard_t *wshard = &cicn_infra_shards[vm->thread_index];
 	  inface_stats = &wshard->face_stats[cicn_face_db_index (inface)];
 
 	  /* If content, use PIT info to determine egress face */
@@ -1786,7 +1786,7 @@ icndist_node_fn (vlib_main_t * vm,
        * using the forwarding node on the current thread; that'd
        * save some work.
        */
-      if (next_worker_index == vm->cpu_index)
+      if (next_worker_index == vm->thread_index)
 	{
 	  if (n_left_to_next == 0)
 	    {

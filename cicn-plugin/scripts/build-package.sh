@@ -9,25 +9,21 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential cmake"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU_16="vpp-dev=17.04.2-release vpp-lib=17.04.2-release"
-DEPS_UBUNTU_14="vpp-dev=17.04-release vpp-lib=17.04-release"
+DEPS_UBUNTU_16="vpp-dev=17.07.01-release vpp-lib=17.07.01-release"
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 BUILD_TOOLS_SINGLE_CENTOS="cmake"
 LIBSSL_LIBEVENT_CENTOS="libevent-devel openssl-devel"
-DEPS_CENTOS="vpp-devel-17.04.2-release vpp-lib-17.04.2-release"
+DEPS_CENTOS="vpp-devel-17.07.01-release vpp-lib-17.07.01-release"
 
 # Parameters:
-# $1 = Distribution [Trusty / CentOS]
+# $1 = Distribution [CentOS]
 #
 update_cmake_repo() {
 
     DISTRIBUTION=$1
 
-    if [ "$DISTRIBUTION" == "trusty" ]; then
-        sudo ${apt_get} install -y --allow-unauthenticated software-properties-common
-        sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
-    elif [ "$DISTRIBUTION" == "CentOS" ]; then
+    if [ "$DISTRIBUTION" == "CentOS" ]; then
         sudo cat << EOF > cmake.repo
 [cmake-repo]
 name=Repo for cmake3
@@ -53,7 +49,7 @@ EOF
 update_qt_repo() {
     DISTRIBUTION_CODENAME=$1
 
-    if [ "$DISTRIBUTION_CODENAME" != "trusty" ] && [ "$DISTRIBUTION_CODENAME" != "xenial" ]; then
+    if [ "$DISTRIBUTION_CODENAME" != "xenial" ]; then
         echo "No valid distribution specified when calling 'update_qt_repo'. Exiting.."
         exit -1
     fi
@@ -82,9 +78,7 @@ update_fdio_repo() {
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
 
         if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1704.ubuntu.xenial.main/"
-        elif [ "$DISTRIB_CODENAME" == "trusty" ]; then
-            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1704.ubuntu.trusty.main/"
+            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1707.ubuntu.xenial.main/"
         else
             echo "Distribution $DISTRIB_CODENAME is not supported"
             exit -1
@@ -93,7 +87,7 @@ update_fdio_repo() {
         echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
 
     elif [ "$DISTRIB_ID" == "CentOS" ]; then
-        REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1704.centos7/"
+        REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1707.centos7/"
         REPO=${REPO_NAME:-"master.centos7"}
         REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
 
@@ -117,10 +111,6 @@ setup() {
     DISTRIB_CODENAME=$2
 
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
-        if [ "$DISTRIB_CODENAME" == "trusty" ]; then
-            update_cmake_repo $DISTRIB_CODENAME
-        fi
-
         update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
 
         sudo ${apt_get} update || true
@@ -178,8 +168,6 @@ build_package() {
     if [ $DISTRIB_ID == "Ubuntu" ]; then
         if [ "$DISTRIB_CODENAME" == "xenial" ]; then
             echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU_16 | xargs sudo ${apt_get} install -y --allow-unauthenticated
-        elif [ "$DISTRIB_CODENAME" == "trusty"  ]; then
-            echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU_14 | xargs sudo ${apt_get} install -y --allow-unauthenticated
         fi
     elif [ $DISTRIB_ID == "CentOS" ]; then
         echo $BUILD_TOOLS_GROUP_CENTOS | xargs sudo yum groupinstall -y --nogpgcheck

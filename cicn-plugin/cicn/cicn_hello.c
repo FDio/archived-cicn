@@ -280,7 +280,7 @@ cicn_hello_periodic (vlib_main_t * vm, vlib_node_runtime_t * node)
       /* Create the icn hello packet in bi0 */
       cicn_hello_packet_build (bi0, &sm->cicn_hello_adjs[j], face_entry);
 
-      cicn_infra_shard_t *wshard = &cicn_infra_shards[vm->cpu_index];
+      cicn_infra_shard_t *wshard = &cicn_infra_shards[vm->thread_index];
       cicn_face_stats_t *outface_stats =
 	&wshard->face_stats[cicn_face_db_index (face_entry)];
       outface_stats->orig_interests++;
