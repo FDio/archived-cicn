@@ -587,7 +587,7 @@ class ResourceManager(metaclass=Singleton):
         await self.wait_attr_init(resource, attribute)
         return resource.get(attribute)
 
-    async def _attribute_set(self, resource, attribute_name, value):
+    async def _attribute_set(self, resource, attribute_name, value, blocking=False):
         with await resource._state.write_lock:
 
             attr_state = resource._state.attr_state[attribute_name]
@@ -632,8 +632,8 @@ class ResourceManager(metaclass=Singleton):
                 raise RuntimeError("Resource cannot be in state".format(
                             resource_state))
 
-#        if blocking:
-#            await self.wait_attr_clean(resource, attribute_name)
+        if blocking:
+            await self.wait_attr_clean(resource, attribute_name)
 
     def attribute_set(self, resource, attribute_name, value):
         # Add the current operation to the pending list
@@ -643,15 +643,13 @@ class ResourceManager(metaclass=Singleton):
                 value)
         asyncio.ensure_future(self._attribute_set(resource, attribute_name, value))
 
-    async def attribute_set_async(self, resource, attribute_name, value):
+    async def attribute_async_set(self, resource, attribute_name, value):
         # Add the current operation to the pending list
         # NOTE: collections are unordered and can be updated concurrently
         #self._attribute_set_pending_value(resource, attribute_name)
         resource._state.dirty[attribute_name].trigger(Operations.SET,
                 value)
-        await self._attribute_set(resource, attribute_name, value)
-
-
+        await self._attribute_set(resource, attribute_name, value, blocking=True)
 
     #---------------------------------------------------------------------------
     # Resource dependency management

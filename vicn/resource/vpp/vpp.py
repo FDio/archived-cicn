@@ -147,7 +147,10 @@ class VPP(LinuxApplication):
                 if numa in socket_mem:
                     socket_mem_str = socket_mem_str + str(socket_mem[numa])
                 else:
-                    socket_mem_str = socket_mem_str + '0'
+                    if None in socket_mem: #No numa nodes on machine but DpdkDevice has socket mem
+                        socket_mem_str = socket_mem_str+str(socket_mem[None])
+                    else:
+                        socket_mem_str = socket_mem_str + '0'
 
                 if numa < numa_mgr.get_number_of_numa()-1:
                     socket_mem_str = socket_mem_str + ','

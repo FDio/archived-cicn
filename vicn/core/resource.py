@@ -467,7 +467,7 @@ class BaseResource(Object):  #, ABC, metaclass=ResourceMetaclass):
             self._state.manager.attribute_set(self, attribute_name, value)
 
     async def async_set(self, attribute_name, value, current=False,
-            set_reverse=True, blocking=None):
+            set_reverse=True):
         """
         Example:
          - setting the ip address on a node's interface
@@ -478,7 +478,12 @@ class BaseResource(Object):  #, ABC, metaclass=ResourceMetaclass):
         """
         value = self._set(attribute_name, value, current=current,
                 set_reverse=set_reverse)
-        await self._state.manager.attribute_set_async(self, attribute_name, value)
+        if self.is_local_attribute(attribute_name) or current:
+              if value is None:
+                  attribute = self.get_attribute(attribute_name)
+              vars(self)[attribute_name] = value
+        else:
+            await self._state.manager.attribute_async_set(self, attribute_name, value)
 
     def set_many(self, attribute_dict, current=False):
         if not attribute_dict:

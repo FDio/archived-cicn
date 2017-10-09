@@ -81,6 +81,8 @@ class ICNFaces(Resource):
     def __delete__(self):
         raise NotImplementedError
 
+    def __after__(self):
+        return ("VPPInterface",)
     #--------------------------------------------------------------------------
     # Internal methods
     #--------------------------------------------------------------------------
@@ -102,7 +104,11 @@ class ICNFaces(Resource):
 
             map_ = data['map_node_interface']
             src = self._state.manager.by_uuid(map_[src_node_uuid])
+            if src.has_vpp_child:
+                src = src.vppinterface
             dst = self._state.manager.by_uuid(map_[dst_node_uuid])
+            if dst.has_vpp_child:
+                dst = dst.vppinterface
 
             log.debug('{} -> {} ({} -> {})'.format(src_node_uuid,
                         dst_node_uuid, src.device_name, dst.device_name))

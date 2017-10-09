@@ -71,7 +71,7 @@ class CICNForwarder(Forwarder):
     @inherit_parent
     def __get__(self):
         def parse(rv):
-            if rv.return_value > 0 or 'cicn: not enabled' in rv.stdout:
+            if rv.return_value > 0 or 'cicn: not enabled' in rv.stdout or "Forwarder : disabled" in rv.stdout:
                 raise ResourceNotFound
         return BashTask(self.node, CMD_VPP_CICN_GET,
                 lock = self.node.vpp.vppctl_lock, parse=parse)
@@ -134,6 +134,9 @@ class CICNForwarder(Forwarder):
 
     def _get_cache_size(self):
         def parse(rv):
-            return int(rv.stdout)
+            if not rv.stdout:
+                return 0
+            else:
+                return int(rv.stdout)
         return BashTask(self.node, CMD_VPP_CICN_GET_CACHE_SIZE, parse=parse,
                 lock = self.node.vpp.vppctl_lock)

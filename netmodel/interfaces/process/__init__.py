@@ -90,7 +90,7 @@ class BWMThread(Process):
             if line:
                 record = self._parse_line(line.strip())
                 # We use 'total' to push the statistics back to VICN
-                if record['iface_name'] == 'total':
+                if record.get('iface_name') == 'total':
                     for interfaces in self.groups_of_interfaces:
                         if not len(interfaces) > 1:
                             # If the tuple contains only one interface, grab

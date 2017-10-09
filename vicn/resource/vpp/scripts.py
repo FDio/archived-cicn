@@ -282,7 +282,7 @@ api-segment {
 '''
 
 APPARMOR_VPP_PROFILE = '''
-lxc.aa_profile = lxc-dpdk
+lxc.apparmor.profile = lxc-dpdk
 lxc.mount.entry = hugetlbfs dev/hugepages hugetlbfs rw,relatime,create=dir 0 0
 lxc.mount.auto = sys:rw'''
 

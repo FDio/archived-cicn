@@ -19,6 +19,7 @@
 import logging
 import shlex
 import time
+import requests
 
 # Suppress logging from pylxd dependency on ws4py
 # (this needs to be included before pylxd)

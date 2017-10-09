@@ -1,0 +1,141 @@
+{
+	"resources": [
+	{
+		"type": "Group",
+			"name": "virtual"
+	},
+	{
+		"type": "Physical",
+		"name": "server",
+		"hostname": "localhost"
+	},
+	{
+		"type": "LxcImage",
+		"name": "cicn-image",
+		"node": "server",
+		"image": "ubuntu1604-cicnsuite-rc4"
+	},
+	{
+		"type": "GUI",
+		"port": 8000,
+		"groups": ["virtual"]
+	},
+	{
+		"type" : "LxcContainer",
+		"image": "cicn-image",
+		"name" : "cons",
+		"groups": [ "virtual" ],
+		"category": "user",
+		"node" : "server"
+	},
+	{
+		"type" : "LxcContainer",
+		"image": "cicn-image",
+		"name" : "prod",
+		"groups": [ "virtual" ],
+		"category": "video-server",
+		"node" : "server"
+	},
+	{
+		"type" : "LxcContainer",
+		"image": "cicn-image",
+		"name" : "core1",
+		"groups": [ "virtual" ],
+		"category": "icn-router-vpp",
+		"node" : "server"
+	},
+	{
+		"type" : "LxcContainer",
+		"image": "cicn-image",
+		"name" : "core2",
+		"groups": [ "virtual" ],
+		"category": "icn-router-vpp",
+		"node" : "server"
+	},
+	{
+		"type": "DpdkDevice",
+		"name": "core1-dpdk1",
+		"mac_address": "08:00:27:5c:5b:f1",
+		"node": "core1",
+		"device_name": "GigabitEthernet0/9/0",
+		"pci_address": "0000:00:09.0"
+	},
+	{
+		"type": "DpdkDevice",
+		"name": "core2-dpdk1",
+		"mac_address": "08:00:27:8c:e3:49",
+		"node": "core2",
+		"device_name": "GigabitEthernet0/a/0",
+		"pci_address": "0000:00:0a.0"
+	},
+	{
+		"type": "VPP",
+		"node": "core1",
+		"name": "vpp-core1"
+	},
+	{
+		"type": "VPP",
+		"node": "core2",
+		"name": "vpp-core2"
+	},
+	{
+		"type": "Link",
+		"src_node": "cons",
+		"dst_node": "core1",
+		"groups": [ "virtual" ]
+	},
+	{
+		"type": "PhyLink",
+		"src": "core1-dpdk1",
+		"dst": "core2-dpdk1",
+		"groups": [ "virtual" ]
+	},
+	{
+		"type": "Link",
+		"src_node": "core2",
+		"dst_node": "prod",
+		"groups": [ "virtual" ]
+	},
+	{
+		"type": "CentralIP",
+		"ip4_data_prefix": "192.168.42.0/24",
+		"ip6_data_prefix": "9002::/16",
+		"ip_routing_strategy": "spt",
+		"groups": [
+			"virtual"
+		]
+	},
+	{
+		"type": "MetisForwarder",
+		"cache_size": 0,
+		"node": "cons"
+	},
+	{
+		"type": "CICNForwarder",
+           	"node": "core1",
+		"name": "vpp_core1"
+	},
+	{
+		"type": "CICNForwarder",
+           	"node": "core2",
+           	"name": "vpp_core2"
+	},
+	{
+		"type": "MetisForwarder",
+		"cache_size": 0,
+		"node": "prod"
+	},
+	{
+		"type": "WebServer",
+		"prefixes": [
+			"/webserver"
+		],
+		"node": "prod"
+	},
+	{
+		"type": "CentralICN",
+		"groups": [ "virtual" ],
+		"face_protocol": "udp4"
+	}
+	]
+}

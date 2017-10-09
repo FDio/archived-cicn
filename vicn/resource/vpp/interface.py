@@ -34,11 +34,18 @@ from vicn.resource.vpp.vpp_commands import CMD_VPP_CREATE_IFACE, CMD_VPP_CREATE_
 from vicn.resource.vpp.vpp_commands import CMD_VPP_SET_IP, CMD_VPP_SET_UP
 from vicn.resource.vpp.memif_device import MemifDevice
 
+VPP_vers = (17, 7)
+
 GREP_MEMIF_INFO = 'vppctl_wrapper show memif | grep interface --no-group-separator -A 1'
 
 def parse_memif(rv, vppinterface):
     kw_interface = pp.CaselessKeyword('interface')
     kw_key = pp.CaselessKeyword('key')
+    kw_remote_name =  pp.CaselessKeyword('remote-name')
+    kw_remote_if =  pp.CaselessKeyword('remote-interface')
+    kw_id = pp.CaselessKeyword('id')
+    kw_mode = pp.CaselessKeyword('mode')
+    kw_ethernet = pp.CaselessKeyword('ethernet')
     kw_file = pp.CaselessKeyword('file')
     kw_listener = pp.CaselessKeyword('listener')
     kw_connfd = pp.CaselessKeyword('conn-fd')
@@ -51,20 +58,41 @@ def parse_memif(rv, vppinterface):
     r_path = ' *(/[a-zA-Z0-9_\-]*)*\.[a-zA-Z0-9_\-]*'
     r_id = ' *-+[0-9]*'
 
-    single = kw_interface.suppress() + pp.Word(pp.alphanums).setResultsName('interface') + \
-             kw_key.suppress() + pp.Word(pp.alphanums).setResultsName('key') + \
-             kw_file.suppress() + pp.Regex(r_path).setResultsName('path')  # + \
-             # kw_listener.suppress() + pp.Word(pp.alphanums).setResultsName('listener') + \
-             # kw_connfd.suppress() + pp.Regex(r_id).setResultsName('conn-fd') + \
-             # kw_intfd.suppress() + pp.Regex(r_id).setResultsName('int-fd') + \
-             # kw_ringsize.suppress() + pp.Word(pp.nums).setResultsName('ring-size') + \
-             # kw_numc2srings.suppress() + pp.Word(pp.nums).setResultsName('num-c2s-rings') + \
-             # kw_nums2crings.suppress() + pp.Word(pp.nums).setResultsName('num-s2c-rings') + \
-             # kw_buffersize.suppress() + pp.Word(pp.nums).setResultsName('buffer-size')
+    r_remote_name = '"[A-Z]+ [0-9\.]+-[a-z]+"'
+    r_remote_if   = '"[a-zA-Z0-9_\-]+"'
+
+    if VPP_vers >= (17, 7):
+        single = kw_interface.suppress() + pp.Word(pp.alphanums).setResultsName('interface') + \
+                 pp.Optional(kw_remote_name.suppress() + pp.Regex(r_remote_name).setResultsName('remote_name') + \
+                 kw_remote_if.suppress() + pp.Regex(r_remote_if).setResultsName('remote_if')) + \
+                 kw_id.suppress() + pp.Word(pp.alphanums).setResultsName('key') + \
+                 kw_mode.suppress() + kw_ethernet.suppress() + \
+                 kw_file.suppress() + pp.Regex(r_path).setResultsName('path')  # + \
+                 # kw_listener.suppress() + pp.Word(pp.alphanums).setResultsName('listener') + \
+                 # kw_connfd.suppress() + pp.Regex(r_id).setResultsName('conn-fd') + \
+                 # kw_intfd.suppress() + pp.Regex(r_id).setResultsName('int-fd') + \
+                 # kw_ringsize.suppress() + pp.Word(pp.nums).setResultsName('ring-size') + \
+                 # kw_numc2srings.suppress() + pp.Word(pp.nums).setResultsName('num-c2s-rings') + \
+                 # kw_nums2crings.suppress() + pp.Word(pp.nums).setResultsName('num-s2c-rings') + \
+                 # kw_buffersize.suppress() + pp.Word(pp.nums).setResultsName('buffer-size')
+    else:
+        single = kw_interface.suppress() + pp.Word(pp.alphanums).setResultsName('interface') + \
+                 kw_key.suppress() + pp.Word(pp.alphanums).setResultsName('key') + \
+                 kw_file.suppress() + pp.Regex(r_path).setResultsName('path')  # + \
+                 # kw_listener.suppress() + pp.Word(pp.alphanums).setResultsName('listener') + \
+                 # kw_connfd.suppress() + pp.Regex(r_id).setResultsName('conn-fd') + \
+                 # kw_intfd.suppress() + pp.Regex(r_id).setResultsName('int-fd') + \
+                 # kw_ringsize.suppress() + pp.Word(pp.nums).setResultsName('ring-size') + \
+                 # kw_numc2srings.suppress() + pp.Word(pp.nums).setResultsName('num-c2s-rings') + \
+                 # kw_nums2crings.suppress() + pp.Word(pp.nums).setResultsName('num-s2c-rings') + \
+                 # kw_buffersize.suppress() + pp.Word(pp.nums).setResultsName('buffer-size')
 
     multiple = pp.OneOrMore(pp.Group(single))
 
-    results = multiple.parseString(rv.stdout)
+    try:
+         results = multiple.parseString(rv.stdout)
+    except Exception as e:
+         import pdb; pdb.set_trace()
 
     for interface in results:
         if interface['path'] == vppinterface.parent.path_unix_socket + vppinterface.parent.socket_name:
@@ -108,7 +136,7 @@ class VPPInterface(Resource):
         """
         We need CentralIP to get the parent interface IP address
         """
-        return ['CentralIP']
+        return ['CentralIP', 'IpAssignment']
 
     @inherit_parent
     @inline_task
@@ -126,9 +154,23 @@ class VPPInterface(Resource):
         self.parent.has_vpp_child = True
         self.up = True
 
+        self.ip4_address = self.parent.ip4_address
+        self.ip6_address = self.parent.ip6_address
+
         if isinstance(self.parent, MemifDevice):
+            self.device_name = self.parent.device_name
+
             #TODO: add output parsing to get the interface name
-            create_task = BashTask(self.vpp.node, CMD_VPP_CREATE_MEMIFACE, {
+            if VPP_vers >= (17, 7):
+                create_task = BashTask(self.vpp.node, CMD_VPP_CREATE_MEMIFACE, {
+                    'key_label': 'id',
+                    'key': self.parent.key,
+                    'vpp_interface': self,
+                    'master_slave': 'master' if self.parent.master else 'slave'},
+                    lock = self.vpp.vppctl_lock)
+            else:
+                create_task = BashTask(self.vpp.node, CMD_VPP_CREATE_MEMIFACE, {
+                    'key_label': 'key',
                     'key': hex(self.parent.key),
                     'vpp_interface': self,
                     'master_slave': 'master' if self.parent.master else 'slave'},
@@ -143,8 +185,8 @@ class VPPInterface(Resource):
             # Remove ip address in the parent device, it must only be set in
             # the vpp interface otherwise vpp and the linux kernel will reply
             # to non-icn request (e.g., ARP replies, port ureachable etc)
-            self.ip4_address = self.parent.ip4_address
-            self.ip6_address = self.parent.ip6_address
+            self.parent.ip4_address = None
+            self.parent.ip6_address = None
 
             self.device_name = 'host-' + self.parent.device_name
             create_task = BashTask(self.vpp.node, CMD_VPP_CREATE_IFACE,
@@ -155,8 +197,6 @@ class VPPInterface(Resource):
             self.parent.remote.set('offload', False)
 
         elif self.parent.get_type() == 'dpdkdevice':
-            self.ip4_address = self.parent.ip4_address
-            self.ip6_address = self.parent.ip6_address
             self.device_name = self.parent.device_name
         else :
             # Currently assume naively that everything else will be a physical

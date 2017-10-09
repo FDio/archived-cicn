@@ -90,7 +90,7 @@ class MemifLink(Channel):
                 foldername = SHARED_FOLDER_PATH.format(self.src_node.name + '-' + self.dst_node.name),
                 permission = 777)
 
-        self.key = random.randint(0, 2**64)
+        self.key = random.randint(0, 2**31)
 
         self._src = MemifDevice(node = self.src_node,
                 channel = self,

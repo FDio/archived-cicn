@@ -82,7 +82,8 @@ class IPRoutes(Resource):
                     node_uuid = interface.node._state.uuid
                     if not node_uuid in origins:
                         origins[node_uuid] = list()
-                    origins[node_uuid].append(interface.ip4_address.canonical_prefix())
+                    if interface.ip4_address:
+                        origins[node_uuid].append(interface.ip4_address.canonical_prefix())
                     if interface.ip6_address:
                         origins[node_uuid].append(interface.ip6_address.canonical_prefix())
         return origins
@@ -113,7 +114,6 @@ class IPRoutes(Resource):
             # Avoid duplicate routes due to multiple paths in the network
             if not src_node in ip_routes:
                 ip_routes[src_node] = set()
-                #XXX Untested for VPP
                 #When you set up an IP address ip/prefix_len (ip addr add), you already create a route
                 #towards ip/prefix_len
                 for interface in src_node.interfaces:
