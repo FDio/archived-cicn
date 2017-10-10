@@ -14,19 +14,30 @@ In particular:
 * The wi-fi rate adaptation algorithm is Minstrel
 * The 802.11 frames are sent enabling frame aggregation
 
-## Dependencies
+## Installation from repositories
+
+On Ubuntu 16.04:
+
+```bash
+# echo "deb [trusted=yes] https://nexus.fd.io/content/repositories/fd.io.master.ubuntu.$(lsb_release -sc).main/ ./" \
+     | sudo tee -a /etc/apt/sources.list.d/99fd.io.list
+# sudo apt-get install wifi-emulator lte-emulator
+```
+
+## Building from source
+
+### Dependencies
 
 To be able to build/run the script the following libraries have to be installed. On Ubuntu:
 
 *
     **libns3**
 
-    If you are inside the cisco network you can directly install the library from our repository:
-
     ```bash
-    # echo "deb http://pirl-ndn-1.cisco.com/packages/ $(grep -oP "UBUNTU_CODENAME=\K\w+" /etc/os-release)/" > /etc/apt/sources.list.d/pirl-ndn-repo.list
-    # apt-get update
-    # apt install ns3sx libns3sx-dev
+    # echo "deb [trusted=yes] https://nexus.fd.io/content/repositories/fd.io.master.ubuntu.$(lsb_release -sc).main/ ./" \
+         | sudo tee -a /etc/apt/sources.list.d/99fd.io.list
+    # sudo apt-get update
+    # sudo apt install ns3sx libns3sx-dev
     ```
 
     Otherwise you need to download and install the latest version of libns3 by downloading it from
@@ -67,7 +78,7 @@ To be able to build/run the script the following libraries have to be installed.
     $ sudo apt install libxml2-dev
     ```
 
-## Installation
+### Installation
 
 Under the wifi-emulator/lte-emulator folder:
 
