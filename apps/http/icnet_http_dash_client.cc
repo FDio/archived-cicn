@@ -22,7 +22,7 @@ namespace http {
 
 void usage(int argc, char **argv) {
   std::cout << "Usage:" << std::endl;
-  std::cout << argv[0] << " [-D] " << "[URL]" << std::endl;
+  std::cout << argv[0] << " [-D] [-n nbr_segments] " << "[URL]" << std::endl;
   exit(EXIT_FAILURE);
 }
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   bool daemon = false;
 
   int opt;
-  while ((opt = getopt(argc, argv, "Dh")) != -1) {
+  while ((opt = getopt(argc, argv, "Dn:h")) != -1) {
     switch (opt) {
       case 'D':
         daemon = true;
