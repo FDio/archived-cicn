@@ -47,7 +47,7 @@ def parse(s):
 
     header = kw_name + kw_idx + kw_state + kw_counter + kw_count
 
-    interface = (pp.Word(pp.alphanums + '/' + '-').setResultsName('device_name') + \
+    interface = (pp.Word(pp.alphanums + '/-.').setResultsName('device_name') + \
              pp.Word(pp.nums).setResultsName('index') + \
              pp.oneOf(['up', 'down']).setResultsName('state') + \
              pp.Optional(kw_rx_packets + pp.Word(pp.nums).setResultsName('rx_packets')) + \
