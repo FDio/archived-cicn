@@ -568,6 +568,7 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
 {
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
+    dash::mpd::IAdaptationSet* adaptationSet;
 
     EnterCriticalSection(&this->monitorMutex);
     switch(type)
@@ -575,10 +576,12 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
     case viper::managers::StreamType::AUDIO:
         representation = this->audioRepresentation;
         representations = this->audioRepresentations;
+        adaptationSet = this->audioAdaptationSet;
         break;
     case viper::managers::StreamType::VIDEO:
         representation = this->videoRepresentation;
         representations = this->videoRepresentations;
+        adaptationSet = this->videoAdaptationSet;
         break;
     default:
         LeaveCriticalSection(&this->monitorMutex);
@@ -632,11 +635,13 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
                 case viper::managers::StreamType::AUDIO:
                     representation = this->audioRepresentation;
                     representations = this->audioRepresentations;
+                    adaptationSet = this->audioAdaptationSet;
                     segmentNumber = this->audioSegmentNumber;
                     break;
                 case viper::managers::StreamType::VIDEO:
                     representation = this->videoRepresentation;
                     representations = this->videoRepresentations;
+                    adaptationSet = this->videoAdaptationSet;
                     segmentNumber = this->videoSegmentNumber;
                     break;
                 default:
@@ -651,6 +656,35 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
     if(seg != NULL)
     {
         MediaObject *media = new MediaObject(seg, representation, withFeedBack);
+        if(segDuration == 0)
+        {
+            uint32_t duration = 0;
+            uint32_t timescale = 0;
+
+            if(representation->GetSegmentTemplate())
+            {
+                duration = representation->GetSegmentTemplate()->GetDuration();
+                timescale = representation->GetSegmentTemplate()->GetTimescale();
+            }
+            else
+            {
+                if(adaptationSet->GetSegmentTemplate())
+                {
+                    duration = adaptationSet->GetSegmentTemplate()->GetDuration();
+                    timescale = adaptationSet->GetSegmentTemplate()->GetTimescale();
+                }
+                else
+                {
+                    if(this->period->GetSegmentTemplate())
+                    {
+                        duration = this->period->GetSegmentTemplate()->GetDuration();
+                        timescale = this->period->GetSegmentTemplate()->GetTimescale();
+                    }
+                }
+            }
+            segDuration = 1.0*duration/(1.0*timescale) * 1000;
+
+        }
         media->SetSegmentDuration(segDuration);
         segmentNumber++;
         switch(type)
@@ -1072,9 +1106,33 @@ float	MPDWrapper::onFirstDownloadMPD	(viper::IViperGui *gui)
         }
         else //SegmentTemplate
         {
-            uint32_t duration = representation->GetSegmentTemplate()->GetDuration();
-            uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
+            uint32_t duration = 0;
+            uint32_t timescale = 0;
+
+            //check if segmentTemplate is on the representation
+            if(representation->GetSegmentTemplate())
+            {
+                duration = representation->GetSegmentTemplate()->GetDuration();
+                timescale = representation->GetSegmentTemplate()->GetTimescale();
+            }
+            else //check at adaptationSet then
+            {
+                if(this->videoAdaptationSet->GetSegmentTemplate())
+                {
+                    duration = this->videoAdaptationSet->GetSegmentTemplate()->GetDuration();
+                    timescale = this->videoAdaptationSet->GetSegmentTemplate()->GetTimescale();
+                }
+                else //check at period
+                {
+                    if(this->period->GetSegmentTemplate())
+                    {
+                        duration = this->period->GetSegmentTemplate()->GetDuration();
+                        timescale = this->period->GetSegmentTemplate()->GetTimescale();
+                    }
+                }
+            }
             segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
+
             if(gui)
             {
                 gui->setSegmentDuration(segmentDuration);
