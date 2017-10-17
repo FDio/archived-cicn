@@ -64,12 +64,25 @@ elseif(COMPILE_FOR_IOS)
   message("############ Detected cross compile for ${CMAKE_SYSTEM_NAME}")
   message("############ This build will not include doxygen, tools, or tests")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -DLongBow_DISABLE_ASSERTIONS")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
+
   macro(AddTest testFile)
     message("IOS build: Skipping test ${ARGV0}")
   endmacro(AddTest)
   add_subdirectory(src)
 else()
+  
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE")
+
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -DLongBow_DISABLE_ASSERTIONS")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
+   
   macro(AddTest testFile)
     add_executable(${ARGV0} ${ARGV0}.c)
     target_link_libraries(${ARGV0} ${PARC_BIN_LIBRARIES})
@@ -80,11 +93,6 @@ else()
   add_subdirectory(src)
   add_subdirectory(documentation)
 endif()
-
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
 
 # Generate DEB / RPM packages
 
