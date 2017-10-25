@@ -20,30 +20,9 @@
     {
       "type": "LxcImage",
       "name": "lxcimage",
-      "image": "ubuntu1604-cicnsuite-rc3",
+      "image": "ubuntu1604-cicnsuite-rc4",
       "node": "server",
       "managed": false
-    },
-    {
-      "type": "LxcContainer",
-      "node": "server",
-      "name": "bridge1",
-      "groups": ["topology"],
-      "image": "lxcimage"
-    },
-    {
-      "type": "VPP",
-      "node": "bridge1",
-      "name": "bridge1-vpp1"
-    },
-    {
-      "type": "DpdkDevice",
-      "node": "bridge1",
-      "device_name": "GigabitEthernet0/8/0",
-      "pci_address": "0000:00:08.0",
-      "ip_address" : "172.17.1.20",
-      "mac_address": "08:00:27:b8:f3:a3",
-      "name": "bridge1-dpdk1"
     },
     {
       "type": "LxcContainer",
@@ -62,34 +41,8 @@
       "node": "core1",
       "device_name": "GigabitEthernet0/9/0",
       "pci_address": "0000:00:09.0",
-      "ip_address" : "172.17.1.21",
-      "mac_address": "08:00:27:d1:b5:d1",
+      "mac_address": "08:00:27:5c:5b:f1",
       "name": "core1-dpdk1"
-    },
-    {
-      "type": "VPPInterface",
-      "name": "core1-vppdpdk1",
-      "vpp": "core1-vpp",
-      "node": "core1",
-      "ip_address": "172.17.1.21",
-      "parent": "core1-dpdk1"
-    },
-    {
-      "type": "DpdkDevice",
-      "node": "core1",
-      "device_name": "GigabitEthernet0/a/0",
-      "pci_address": "0000:00:0a.0",
-      "ip_address" : "172.17.2.21",
-      "mac_address": "08:00:27:d1:b5:c1",
-      "name": "core1-dpdk2"
-    },
-    {
-      "type": "VPPInterface",
-      "name": "core1-vppdpdk2",
-      "vpp": "core1-vpp",
-      "node": "core1",
-      "ip_address": "172.17.2.21",
-      "parent": "core1-dpdk2"
     },
     {
       "type": "CICNForwarder",
@@ -111,36 +64,10 @@
     {
       "type": "DpdkDevice",
       "node": "core2",
-      "device_name": "GigabitEthernet0/10/0",
-      "pci_address": "0000:00:10.0",
-      "ip_address" : "172.17.2.22",
-      "mac_address": "08:00:27:96:e1:dc",
+      "device_name": "GigabitEthernet0/a/0",
+      "pci_address": "0000:00:0a.0",
+      "mac_address": "08:00:27:8c:e3:49",
       "name": "core2-dpdk1"
-    },
-    {
-      "type": "VPPInterface",
-      "name": "core2-vppdpdk1",
-      "vpp": "core2-vpp",
-      "node": "core2",
-      "ip_address": "172.17.2.22",
-      "parent": "core2-dpdk1"
-    },
-    {
-      "type": "DpdkDevice",
-      "node": "core2",
-      "device_name": "GigabitEthernet0/11/0",
-      "pci_address": "0000:00:11.0",
-      "ip_address" : "172.17.3.22",
-      "mac_address": "08:00:27:d3:9e:d6",
-      "name": "core2-dpdk2"
-    },
-    {
-      "type": "VPPInterface",
-      "name": "core2-vppdpdk2",
-      "vpp": "core2-vpp",
-      "node": "core2",
-      "ip_address": "172.17.3.22",
-      "parent": "core2-dpdk2"
     },
     {
       "type": "CICNForwarder",
@@ -150,28 +77,8 @@
     {
       "type": "LxcContainer",
       "node": "server",
-      "name": "bridge2",
-      "groups": ["topology"],
-      "image": "lxcimage"
-    },
-    {
-      "type": "VPP",
-      "node": "bridge2",
-      "name": "bridge2-vpp1"
-    },
-    {
-      "type": "DpdkDevice",
-      "node": "bridge2",
-      "device_name": "GigabitEthernet0/12/0",
-      "pci_address" : "0000:00:12.0",
-      "ip_address" : "172.17.3.23",
-      "mac_address": "08:00:27:f2:a8:d9",
-      "name": "bridge2-dpdk1"
-    },
-    {
-      "type": "LxcContainer",
-      "node": "server",
       "image": "lxcimage",
+      "groups": ["topology"],
       "name": "cons1"
     },
     {
@@ -298,27 +205,105 @@
       "cache_size": 0
     },
     {
-      "type": "VPPBridge",
-      "connected_nodes": ["cons1","cons2","cons3","cons4","cons5"],
-      "interfaces": ["core1-dpdk1"],
-      "node": "bridge1"
+      "type": "WebServer",
+      "node": "prod1",
+      "prefixes": [
+            "/webserver1"
+      ]
+    },
+    {
+      "type": "WebServer",
+      "node": "prod2",
+      "prefixes": [
+            "/webserver2"
+      ]
+    },
+    {
+      "type": "WebServer",
+      "node": "prod3",
+      "prefixes": [
+            "/webserver3"
+      ]
+    },
+    {
+      "type": "WebServer",
+      "node": "prod4",
+      "prefixes": [
+            "/webserver4"
+      ]
+    },
+    {
+      "type": "WebServer",
+      "node": "prod5",
+      "prefixes": [
+            "/webserver5"
+      ]
+    },
+    {
+      "type": "Link",
+      "src_node": "cons1",
+      "dst_node": "core1",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "cons2",
+      "dst_node": "core1",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "cons3",
+      "dst_node": "core1",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "cons4",
+      "dst_node": "core1",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "cons5",
+      "dst_node": "core1",
+      "groups": ["topology"]
     },
     {
       "type": "PhyLink",
-      "src": "core1-dpdk2",
-      "dst": "core2-dpdk1"
+      "src": "core1-dpdk1",
+      "dst": "core2-dpdk1",
+      "groups": ["topology"]
     },
     {
-      "type": "VPPBridge",
-      "connected_nodes": ["prod1","prod2","prod3","prod4","prod5"],
-      "interfaces": ["core2-dpdk2"],
-      "node": "bridge2"
+      "type": "Link",
+      "src_node": "core2",
+      "dst_node": "prod1",
+      "groups": ["topology"]
     },
     {
-      "type": "CcnxSimpleTrafficGenerator",
-      "prefix": "/ccnx1",
-      "consumers": ["cons1"],
-      "producers": ["prod1"]
+      "type": "Link",
+      "src_node": "core2",
+      "dst_node": "prod2",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "core2",
+      "dst_node": "prod3",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "core2",
+      "dst_node": "prod4",
+      "groups": ["topology"]
+    },
+    {
+      "type": "Link",
+      "src_node": "core2",
+      "dst_node": "prod5",
+      "groups": ["topology"]
     },
     {
       "type": "CentralIP",
