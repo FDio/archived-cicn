@@ -56,7 +56,7 @@ if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/boost ]; then
 fi
 
 if [ ! -d ffmpeg ]; then
-	git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+	git clone -b release/3.3 https://git.ffmpeg.org/ffmpeg.git ffmpeg
 fi
 export FFSRC=`pwd`/ffmpeg
 export ANDROID_NDK=${NDK}
@@ -64,14 +64,16 @@ export ANDROID_HOME=${SDK}
 export ANDROID_NDK_HOST=${OS}-${ARCH}
 export ANDROID_NDK_PLATFORM=${ANDROID_PLATFORM}
 export ANDROID_NDK_ROOT=${NDK}
-export ANDROID_NDK_TOOLCHAIN_PREFIX=arm-linux-androideabi  
+export ANDROID_NDK_TOOLCHAIN_PREFIX=arm-linux-androideabi
 export ANDROID_NDK_TOOLCHAIN_VERSION=4.9
-export ANDROID_NDK_TOOLS_PREFIX=arm-linux-androideabi  
-export ANDROID_SDK_ROOT=${SDK} 
+export ANDROID_NDK_TOOLS_PREFIX=arm-linux-androideabi
+export ANDROID_SDK_ROOT=${SDK}
 export ANDROID_API_VERSION=${ANDROID_PLATFORM}
 export PATH=$PATH:${ANDROID_HOME}/tools:${JAVA_HOME}/bin
 if [ ! -d ${QT_HOME}/5.7/android_${ANDROID_ARCH}/include/QtAV ]; then
-	git clone https://github.com/wang-bin/QtAV.git 
+    if [ ! -d QtAv ]; then
+        git clone https://github.com/wang-bin/QtAV.git
+    fi
 	cd QtAV
 	git submodule update --init
 	cd tools/build_ffmpeg

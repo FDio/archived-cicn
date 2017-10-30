@@ -158,7 +158,6 @@ if [ ! -d ${INSTALLATION_DIR}/include/boost ]; then
 		    echo "using gcc : arm64-v8a : aarch64-linux-android-g++ ;" >> project-config.jam
 		    export PATH=$PATH:${NDK}/toolchains/aarch64-4.9/prebuilt/${OS}-${ARCH}/bin
 		fi
-		
 		echo "option.set keep-going : false ;" >> project-config.jam
 		echo "before compile"
 		bash ${BASE_DIR}/scripts/build-boost.sh
@@ -168,14 +167,13 @@ if [ ! -d ${INSTALLATION_DIR}/include/boost ]; then
 	cp -rf install_boost/include/* ${INSTALLATION_DIR}/include/
 	cp -rf install_boost/lib/* ${INSTALLATION_DIR}/lib/
 	cd ..
-	
 fi
 
 echo "Create libevent"
 
 if [ ! -d ${INSTALLATION_DIR}/include/event2 ]; then
 	if [ ! -d libevent ]; then
-		git clone https://android.googlesource.com/platform/external/libevent
+		git clone -b nougat-release https://android.googlesource.com/platform/external/libevent
 	fi
 	cd libevent
 	cp -rf ../libevent_files/* .
