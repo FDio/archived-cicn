@@ -113,9 +113,10 @@ ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber, uint64_t&
     }
 
     /* number-based template */
-    uint32_t duration = representation->GetSegmentTemplate()->GetDuration();
-    uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
-    segmentDuration = (uint64_t)(((float)duration/(float)timescale) * 1000);
+//SEGMENT DURATION IS CALCULATED AT MPDWRAPPER SIDE
+//    uint32_t duration = representation->GetSegmentTemplate()->GetDuration();
+//    uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
+//    segmentDuration = (uint64_t)(((float)duration/(float)timescale) * 1000);
     return this->segmentTemplate->GetMediaSegmentFromNumber(baseUrls, representation->GetId(), representation->GetBandwidth(),
                                                             this->segmentTemplate->GetStartNumber() + segmentNumber);
 
