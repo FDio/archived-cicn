@@ -16,7 +16,7 @@ Description=Metis is a CCNx socket based forwarder.
 #Documentation=man:metis-forwarder
 
 [Service]
-Environment=PORT=9596
+Environment=PORT=9695
 Environment=LOG_FILE=/tmp/ccnx-metis.log
 Environment=CS_SIZE=1000
 Environment=CONFIG=/etc/ccnx/ccnx_metis.conf
