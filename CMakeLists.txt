@@ -91,7 +91,7 @@ else ()
 
   find_package(Threads REQUIRED)
   include_directories(${CMAKE_THREADS_INCLUDE_DIRS})
-
+  set(BOOST_ROOT $ENV{CCNX_DEPENDENCIES})
   find_package(Boost 1.53.0 COMPONENTS system REQUIRED)
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 endif()
