@@ -210,7 +210,7 @@ void DASHPlayerNoGUI::parseArgs(int argc, char ** argv)
             }
             if(!strcmp(argv[i], "-br"))
             {
-                this->adaptLogic = LogicType::BufferRateBased;
+                this->adaptLogic = LogicType::AdapTech;
                 this->parameterAdaptation->Adaptech_Alpha = atof(argv[i+1]);
                 this->parameterAdaptation->Adaptech_FirstThreshold = atoi(argv[i+2]);
                 this->parameterAdaptation->Adaptech_SecondThreshold = atoi(argv[i+3]);

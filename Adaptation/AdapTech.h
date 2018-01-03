@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LIBDASH_FRAMEWORK_ADAPTATION_BUFFERBASEDADAPTATIONRATE_H_
-#define LIBDASH_FRAMEWORK_ADAPTATION_BUFFERBASEDADAPTATIONRATE_H_
+#ifndef LIBDASH_FRAMEWORK_ADAPTATION_ADAPTECH_H_
+#define LIBDASH_FRAMEWORK_ADAPTATION_ADAPTECH_H_
 
 #include "AbstractAdaptationLogic.h"
 #include "../MPD/AdaptationSetStream.h"
@@ -26,12 +26,12 @@ namespace framework
 {
 namespace adaptation
 {
-class BufferBasedAdaptationWithRateBased : public AbstractAdaptationLogic
+class AdapTechAdaptation : public AbstractAdaptationLogic
 {
 public:
-//    BufferBasedAdaptationWithRateBased(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
-    BufferBasedAdaptationWithRateBased(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
-    virtual ~BufferBasedAdaptationWithRateBased();
+//    AdapTech(dash::mpd::IMPD *mpd, dash::mpd::IPeriod *period, dash::mpd::IAdaptationSet *adaptationSet, bool isVid, struct AdaptationParameters *params);
+    AdapTechAdaptation(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, struct AdaptationParameters *params);
+    virtual ~AdapTechAdaptation();
 
     virtual LogicType getType();
     virtual bool isUserDependent();
@@ -70,4 +70,4 @@ private:
 }
 }
 
-#endif /* LIBDASH_FRAMEWORK_ADAPTATION_BUFFERBASEDADAPTATIONRATE_H_ */
+#endif /* LIBDASH_FRAMEWORK_ADAPTATION_ADAPTECH_H_ */

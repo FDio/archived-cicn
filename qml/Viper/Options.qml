@@ -24,10 +24,7 @@ Rectangle {
     signal closeOptions
     signal saveAdaptationLogic(string selectedAdaptationLogic, int adaptationLogicKey)
     signal saveIcn(bool selectedIcn)
-    signal saveIcnPrefix(string selectedIcnPrefix)
-    signal saveHttpPrefix(string selectedHttpPrefix)
-    signal saveIcnSuffix(string selectedIcnSuffix)
-    signal saveHttpSuffix(string selectedHttpSuffix)
+    signal saveVideoURI(string selectedVideoURI)
     signal saveSegmentBufferSize(real selectedSegmentBufferSize)
     signal saveRateAlpha(real selectedRateAlpha)
     signal saveBufferReservoirThreshold(real selectedBufferReservoirThreshold)
@@ -107,7 +104,7 @@ Rectangle {
                 ListElement { text: "Always Lowest"; }
                 ListElement { text: "Rate Based"; }
                 ListElement { text: "Buffer Based"; }
-                ListElement { text: "Buffer Rate Based"; }
+                ListElement { text: "AdapTech"; }
                 ListElement { text: "Buffer Based Three Threshold"; }
                 ListElement { text: "Panda"; }
                 ListElement { text: "Bola"; }
@@ -407,128 +404,34 @@ Rectangle {
     }
 
      Item {
-        id: itemIcnPrefix
+        id: itemVideoURI
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.rightMargin: parent.width/2
-        anchors.topMargin: Utils.scaled(12) + heightRow
+        anchors.topMargin: Utils.scaled(18) + heightRow
 
         Label {
-            text: "ICN Prefix:"
-            id: labelIcnPrefix
+            text: "Video URI:"
+            id: labelVideoURI
             color: " white"
             anchors.top: parent.top
-            anchors.right: textInputIcnPrefix.left
+            anchors.right: textInputVideoURI.left
             anchors.rightMargin: Utils.scaled(5)
-            anchors.topMargin: (textInputIcnPrefix.height - height)/2
+            anchors.topMargin: (textInputVideoURI.height - height)/2
             font.bold: true
             font.pixelSize: Utils.scaled(10);
         }
 
         TextInput  {
             width: parent.width/4*3
-            id: textInputIcnPrefix
+            id: textInputVideoURI
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.leftMargin: Utils.scaled(200)
             font.pixelSize: Utils.scaled(20)
             color: "white"
-            text: icnPrefix
-        }
-    }
-
-     Item {
-        id: itemIcnSuffix
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: parent.width/2
-        anchors.topMargin: Utils.scaled(12) + heightRow
-
-        Label {
-            text: "ICN Suffix:"
-            id: labelIcnSuffix
-            color: " white"
-            anchors.top: parent.top
-            anchors.right: textInputIcnSuffix.left
-            anchors.rightMargin: Utils.scaled(5)
-            anchors.topMargin: (textInputIcnSuffix.height - height)/2
-            font.bold: true
-            font.pixelSize: Utils.scaled(10);
-        }
-
-        TextInput  {
-            width: parent.width/4*3
-            id: textInputIcnSuffix
-            anchors.top: parent.top
-            anchors.right: parent.right
-            font.pixelSize: Utils.scaled(20)
-            color: "white"
-            text: icnSuffix
-        }
-    }
-
-    Item {
-        id: itemHttpPrefix
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.rightMargin: parent.width/2
-        anchors.topMargin: Utils.scaled(12) + 2*heightRow
-
-        Label {
-            text: "TCP Prefix:"
-            id: labelHttpPrefix
-            color: " white"
-            anchors.top: parent.top
-            anchors.right: textInputHttpPrefix.left
-            anchors.rightMargin: Utils.scaled(5)
-            anchors.topMargin: (textInputHttpPrefix.height - height)/2
-            font.bold: true
-            font.pixelSize: Utils.scaled(10);
-        }
-
-        TextInput  {
-            width: parent.width/4*3
-            id: textInputHttpPrefix
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.leftMargin: Utils.scaled(200)
-            font.pixelSize: Utils.scaled(20)
-            color: "white"
-            text: httpPrefix
-        }
-    }
-
-    Item {
-        id: itemHttpSuffix
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: parent.width/2
-        anchors.topMargin: Utils.scaled(12) + 2*heightRow
-
-        Label {
-            text: "TCP Suffix:"
-            id: labelHttpSuffix
-            color: " white"
-            anchors.top: parent.top
-            anchors.right: textInputHttpSuffix.left
-            anchors.rightMargin: Utils.scaled(5)
-            anchors.topMargin: (textInputHttpSuffix.height - height)/2
-            font.bold: true
-            font.pixelSize: Utils.scaled(10);
-        }
-
-        TextInput  {
-            width: parent.width/4*3
-            id: textInputHttpSuffix
-            anchors.top: parent.top
-            anchors.right: parent.right
-            font.pixelSize: Utils.scaled(20)
-            color: "white"
-            text: httpSuffix
+            text: videoURI
         }
     }
 
@@ -1678,10 +1581,7 @@ Rectangle {
             onClicked: {
                 saveAdaptationLogic(adaptationLogicModel.get(comboAdaptationSetList.currentIndex).text, comboAdaptationSetList.currentIndex);
                 saveIcn(switchIcn.checked)
-                saveIcnPrefix(textInputIcnPrefix.text)
-                saveHttpPrefix(textInputHttpPrefix.text)
-                saveIcnSuffix(textInputIcnSuffix.text)
-                saveHttpSuffix(textInputHttpSuffix.text)
+                saveVideoURI(textInputVideoURI.text)
                 saveSegmentBufferSize(spinboxSegmentBufferSize.value/100)
                 saveRateAlpha(spinboxRateAlpha.value/100)
                 saveBufferReservoirThreshold(spinboxBufferReservoirThreshold.value/100)

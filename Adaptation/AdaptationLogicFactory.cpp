@@ -29,9 +29,9 @@ IAdaptationLogic* AdaptationLogicFactory::create(LogicType logic, viper::manager
     case BufferBased:
         Debug("Buffer based\n");
         return new BufferBasedAdaptation(type, mpdWrapper, paramsForAdaptation);
-    case BufferRateBased:
-        Debug("Buffer Rate based\n");
-        return new BufferBasedAdaptationWithRateBased(type, mpdWrapper, paramsForAdaptation);
+    case AdapTech:
+        Debug("AdapTech\n");
+        return new AdapTechAdaptation(type, mpdWrapper, paramsForAdaptation);
     case BufferBasedThreeThreshold:
         Debug("Buffer based 3 threshold\n");
         return new BufferBasedThreeThresholdAdaptation(type, mpdWrapper, paramsForAdaptation);

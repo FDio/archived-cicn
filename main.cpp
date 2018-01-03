@@ -218,7 +218,6 @@ int main(int argc, char *argv[])
     QMetaObject::invokeMethod(viewer.rootObject(), "initGraph", Q_ARG(QVariant, (&Config::instance())->graph()));
     QMetaObject::invokeMethod(viewer.rootObject(), "initRepeat", Q_ARG(QVariant, (&Config::instance())->repeat()));
     QMetaObject::invokeMethod(viewer.rootObject(), "initFullScreen", Q_ARG(QVariant, (&Config::instance())->fullScreen()));
-    QMetaObject::invokeMethod(viewer.rootObject(), "setLastPlayed", Q_ARG(QVariant, (&Config::instance())->lastPlayed()));
     QMetaObject::invokeMethod(viewer.rootObject(), "setAdaptationLogic", Q_ARG(QVariant, (&Config::instance())->adaptationLogic()));
     QMetaObject::invokeMethod(viewer.rootObject(), "setIcn", Q_ARG(QVariant, (&Config::instance())->icn()));
     return app.exec();

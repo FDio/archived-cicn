@@ -38,7 +38,7 @@ SOURCES += \
     Adaptation/AdaptationLogicFactory.cpp \
     Adaptation/AlwaysLowestLogic.cpp \
     Adaptation/BufferBasedAdaptation.cpp \
-    Adaptation/BufferBasedAdaptationWithRateBased.cpp \
+    Adaptation/AdapTech.cpp \
     Adaptation/BufferBasedThreeThresholdAdaptation.cpp \
     Adaptation/Panda.cpp \
     Adaptation/Bola.cpp \
@@ -119,7 +119,7 @@ HEADERS *= \
     Adaptation/AdaptationLogicFactory.h \
     Adaptation/AlwaysLowestLogic.h \
     Adaptation/BufferBasedAdaptation.h \
-    Adaptation/BufferBasedAdaptationWithRateBased.h \
+    Adaptation/AdapTech.h \
     Adaptation/BufferBasedThreeThresholdAdaptation.h \
     Adaptation/IAdaptationLogic.h \
     Adaptation/Panda.h \

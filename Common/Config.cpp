@@ -157,10 +157,7 @@ public:
         settings.endGroup();
 
         settings.beginGroup(QString::fromLatin1("backend"));
-        settings.setValue(QString::fromLatin1("icn_prefix"), icn_prefix);
-        settings.setValue(QString::fromLatin1("http_prefix"), http_prefix);
-        settings.setValue(QString::fromLatin1("icn_suffix"), icn_suffix);
-        settings.setValue(QString::fromLatin1("http_suffix"), http_suffix);
+        settings.setValue(QString::fromLatin1("video_uri"), video_uri);
         settings.setValue(QString::fromLatin1("segment_buffer_size"), segment_buffer_size);
         settings.endGroup();
 
@@ -285,10 +282,7 @@ public:
     QString frag_header;
     QString frag_sample;
     QString frag_pp;
-    QString icn_prefix;
-    QString http_prefix;
-    QString icn_suffix;
-    QString http_suffix;
+    QString video_uri;
     qreal segment_buffer_size;
     QString last_played;
     QString adaptation_logic;
@@ -527,16 +521,12 @@ void Config::reload()
     settings.endGroup();
 
     settings.beginGroup(QString::fromLatin1("backend"));
-    setIcnPrefix(settings.value(QString::fromLatin1("icn_prefix"), QString::fromLatin1("http://webserver/")).toString());
-    setHttpPrefix(settings.value(QString::fromLatin1("http_prefix"), QString::fromLatin1("http://10.60.17.153:8080/")).toString());
-    setIcnSuffix(settings.value(QString::fromLatin1("icn_suffix"), QString::fromLatin1("/mpd")).toString());
-    setHttpSuffix(settings.value(QString::fromLatin1("http_suffix"), QString::fromLatin1("/mpd")).toString());
+    setVideoURI(settings.value(QString::fromLatin1("video_uri"), QString::fromLatin1("http://webserver/sintel/mpd")).toString());
 
     setSegmentBufferSize(settings.value(QString::fromLatin1("segment_buffer_size"), 20).toReal());
     settings.endGroup();
 
     settings.beginGroup(QString::fromLatin1("playback"));
-    setLastPlayed(settings.value(QString::fromLatin1("last_played"), QString::fromLatin1("sintel")).toString());
     setAdaptationLogic(settings.value(QString::fromLatin1("adaptation_logic"), QString::fromLatin1("Buffer Based")).toString());
     setIcn(settings.value(QString::fromLatin1("icn"), true).toBool());
     settings.endGroup();
@@ -1297,62 +1287,17 @@ Config& Config::setAbortOnTimeout(bool value)
     return *this;
 }
 
-QString Config::icnPrefix() const
+QString Config::videoURI() const
 {
-    return mpData->icn_prefix;
+    return mpData->video_uri;
 }
 
-Config& Config::setIcnPrefix(const QString &text)
+Config& Config::setVideoURI(const QString &text)
 {
-    if (mpData->icn_prefix == text)
+    if (mpData->video_uri == text)
         return *this;
-    mpData->icn_prefix = text;
-    Q_EMIT icnPrefixChanged();
-    Q_EMIT changed();
-    return *this;
-}
-
-QString Config::icnSuffix() const
-{
-    return mpData->icn_suffix;
-}
-
-Config& Config::setIcnSuffix(const QString &text)
-{
-    if (mpData->icn_suffix == text)
-        return *this;
-    mpData->icn_suffix = text;
-    Q_EMIT icnSuffixChanged();
-    Q_EMIT changed();
-    return *this;
-}
-
-QString Config::httpPrefix() const
-{
-    return mpData->http_prefix;
-}
-
-Config& Config::setHttpPrefix(const QString &text)
-{
-    if (mpData->http_prefix == text)
-        return *this;
-    mpData->http_prefix = text;
-    Q_EMIT httpPrefixChanged();
-    Q_EMIT changed();
-    return *this;
-}
-
-QString Config::httpSuffix() const
-{
-    return mpData->http_suffix;
-}
-
-Config& Config::setHttpSuffix(const QString &text)
-{
-    if (mpData->http_suffix == text)
-        return *this;
-    mpData->http_suffix = text;
-    Q_EMIT httpSuffixChanged();
+    mpData->video_uri = text;
+    Q_EMIT videoURIChanged();
     Q_EMIT changed();
     return *this;
 }
@@ -1368,21 +1313,6 @@ Config& Config::setSegmentBufferSize(qreal value)
         return *this;
     mpData->segment_buffer_size = value;
     Q_EMIT segmentBufferSizeChanged();
-    Q_EMIT changed();
-    return *this;
-}
-
-QString Config::lastPlayed() const
-{
-    return mpData->last_played;
-}
-
-Config& Config::setLastPlayed(const QString &text)
-{
-    if (mpData->last_played == text)
-        return *this;
-    mpData->last_played = text;
-    Q_EMIT lastPlayedChanged();
     Q_EMIT changed();
     return *this;
 }

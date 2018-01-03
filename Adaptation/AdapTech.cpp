@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "BufferBasedAdaptationWithRateBased.h"
+#include "AdapTech.h"
 #include<stdio.h>
 
 using namespace dash::mpd;
@@ -21,7 +21,7 @@ using namespace libdash::framework::adaptation;
 using namespace libdash::framework::input;
 using namespace libdash::framework::mpd;
 
-BufferBasedAdaptationWithRateBased::BufferBasedAdaptationWithRateBased(viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
+AdapTechAdaptation::AdapTechAdaptation(viper::managers::StreamType type, MPDWrapper *mpdWrapper, struct AdaptationParameters *params) :
     AbstractAdaptationLogic(type, mpdWrapper)
 {
     this->alphaRate = params->Adaptech_Alpha;
@@ -45,35 +45,35 @@ BufferBasedAdaptationWithRateBased::BufferBasedAdaptationWithRateBased(viper::ma
     Debug("BufferRateBasedParams:\talpha:%f\tfirst threshold: %f\tsecond threshold: %f\tswitch-up margin: %d\tSlack: %f\n",this->alphaRate, (double)reservoirThreshold/100, (double)maxThreshold/100, this->switchUpThreshold, this->slackParam);
     Debug("Buffer Adaptation:	STARTED\n");
 }
-BufferBasedAdaptationWithRateBased::~BufferBasedAdaptationWithRateBased         ()
+AdapTechAdaptation::~AdapTechAdaptation()
 {
 }
 
-LogicType BufferBasedAdaptationWithRateBased::getType()
+LogicType AdapTechAdaptation::getType()
 {
     return adaptation::BufferBased;
 }
 
-bool BufferBasedAdaptationWithRateBased::isUserDependent()
+bool AdapTechAdaptation::isUserDependent()
 {
     return false;
 }
 
-bool BufferBasedAdaptationWithRateBased::isRateBased()
+bool AdapTechAdaptation::isRateBased()
 {
     return true;
 }
-bool BufferBasedAdaptationWithRateBased::isBufferBased()
+bool AdapTechAdaptation::isBufferBased()
 {
     return true;
 }
 
-void BufferBasedAdaptationWithRateBased::setMultimediaManager(viper::managers::IMultimediaManagerBase *_mmManager)
+void AdapTechAdaptation::setMultimediaManager(viper::managers::IMultimediaManagerBase *_mmManager)
 {
     this->multimediaManager = _mmManager;
 }
 
-void BufferBasedAdaptationWithRateBased::notifyBitrateChange()
+void AdapTechAdaptation::notifyBitrateChange()
 {
     this->mpdWrapper->setRepresentation(this->type, this->representation);
     if(this->multimediaManager)
@@ -90,12 +90,12 @@ void BufferBasedAdaptationWithRateBased::notifyBitrateChange()
 //    this->shouldAbort = false;
 }
 
-uint64_t BufferBasedAdaptationWithRateBased::getBitrate()
+uint64_t AdapTechAdaptation::getBitrate()
 {
     return this->currentBitrate;
 }
 
-void BufferBasedAdaptationWithRateBased::setBitrate(uint32_t bufferFill)
+void AdapTechAdaptation::setBitrate(uint32_t bufferFill)
 {
     uint32_t phi1, phi2;
     std::vector<IRepresentation *> representations;
@@ -171,7 +171,7 @@ void BufferBasedAdaptationWithRateBased::setBitrate(uint32_t bufferFill)
     Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
 }
 
-void BufferBasedAdaptationWithRateBased::bitrateUpdate(uint64_t bps, uint32_t segNum)
+void AdapTechAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)
 {
     Debug("rate estimation: %lu\n", bps);
     this->instantBw = bps;
@@ -185,16 +185,16 @@ void BufferBasedAdaptationWithRateBased::bitrateUpdate(uint64_t bps, uint32_t se
     }
 }
 
-void BufferBasedAdaptationWithRateBased::onEOS(bool value)
+void AdapTechAdaptation::onEOS(bool value)
 {
     this->bufferEOS = value;
 }
 
-void BufferBasedAdaptationWithRateBased::checkedByDASHReceiver()
+void AdapTechAdaptation::checkedByDASHReceiver()
 {
     this->isCheckedForReceiver = false;
 }
-void BufferBasedAdaptationWithRateBased::bufferUpdate(uint32_t bufferFill, int maxC)
+void AdapTechAdaptation::bufferUpdate(uint32_t bufferFill, int maxC)
 {
     Debug("buffer update: %u\n", bufferFill);
     EnterCriticalSection(&this->monitorLock);
@@ -203,7 +203,7 @@ void BufferBasedAdaptationWithRateBased::bufferUpdate(uint32_t bufferFill, int m
     LeaveCriticalSection(&this->monitorLock);
 }
 
-void BufferBasedAdaptationWithRateBased::dLTimeUpdate(double time)
+void AdapTechAdaptation::dLTimeUpdate(double time)
 {
 }
 

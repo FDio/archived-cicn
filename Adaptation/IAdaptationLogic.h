@@ -32,7 +32,7 @@ namespace adaptation
     ADAPTATIONLOGIC(AlwaysLowest)  \
     ADAPTATIONLOGIC(RateBased)  \
     ADAPTATIONLOGIC(BufferBased)  \
-    ADAPTATIONLOGIC(BufferRateBased)  \
+    ADAPTATIONLOGIC(AdapTech)  \
     ADAPTATIONLOGIC(BufferBasedThreeThreshold)  \
     ADAPTATIONLOGIC(Panda) \
     ADAPTATIONLOGIC(Bola)  \

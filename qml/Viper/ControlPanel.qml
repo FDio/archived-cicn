@@ -199,8 +199,7 @@ Rectangle {
             onClicked: {
                 if (checked === true) {
                     console.log(adaptationLogic)
-                    console.log(lastPlayed)
-                    dashPlayer.downloadMPD(lastPlayed, adaptationLogic, icn)
+                    dashPlayer.downloadMPD(adaptationLogic, icn)
                 } else {
                     dashPlayer.pause();
                 }
@@ -309,7 +308,7 @@ Rectangle {
                 }
             }
 
-            Button {
+   /*         Button {
                 id: openBtn
                 bgColor: "transparent"
                 bgColorSelected: "transparent"
@@ -322,7 +321,7 @@ Rectangle {
                     if(checked)
                         openMpd()
                 }
-            }
+            } */
             Button {
                 id: repeatBtn
                 bgColor: "transparent"

@@ -175,7 +175,7 @@ void DASHPlayer::setSettings(int period, int videoAdaptationSet, int videoRepres
     this->currentSettings.audioRepresentation   = audioRepresentation;
 }
 
-bool DASHPlayer::downloadMPD(const QString &url, const QString &adaptationLogic, bool icn)
+bool DASHPlayer::downloadMPD(const QString &adaptationLogic, bool icn)
 {
 
     if (this->gui->getStop())
@@ -191,15 +191,9 @@ bool DASHPlayer::downloadMPD(const QString &url, const QString &adaptationLogic,
         this->gui->initVideoPlayer();
         this->icn = icn;
         this->segment = 0;
-        std::string mUrl;
-        if(this->icn)
-        {
-            mUrl = this->icnPrefix + url.toStdString() + this->icnSuffix;
-        }
-        else
-        {
-            mUrl = this->httpPrefix + url.toStdString() + this->httpSuffix;
-        }
+        std::string mUrl = this->videoURI;
+
+        Debug("MPD is: %s\n", mUrl.c_str());
         if (!this->onDownloadMPDPressed(mUrl))
             return false;
 
@@ -420,10 +414,7 @@ void DASHPlayer::reloadParameters()
 {
     this->beta = config->beta();
     this->drop = config->drop();
-    this->icnPrefix = config->icnPrefix().toStdString();
-    this->httpPrefix = config->httpPrefix().toStdString();
-    this->icnSuffix = config->icnSuffix().toStdString();
-    this->httpSuffix = config->httpSuffix().toStdString();
+    this->videoURI = config->videoURI().toStdString();
     this->alpha = config->alpha();
     this->repeat = config->repeat();
     this->parametersAdaptation = (struct AdaptationParameters *)malloc(sizeof(struct AdaptationParameters));
@@ -450,16 +441,6 @@ void DASHPlayer::reloadParameters()
     this->parametersAdaptation->Panda_Epsilon = config->pandaParamEpsilon();
 }
 
-QString DASHPlayer::getLastPlayed()
-{
-    return config->lastPlayed();
-}
-
-void DASHPlayer::setLastPlayed(QString lastPlayed)
-{
-    config->setLastPlayed(lastPlayed);
-}
-
 QString DASHPlayer::getAdaptationLogic()
 {
     return config->adaptationLogic();
@@ -480,44 +461,14 @@ void DASHPlayer::setIcn(bool icn)
     config->setIcn(icn);
 }
 
-QString DASHPlayer::getIcnPrefix()
+QString DASHPlayer::getVideoURI()
 {
-    return config->icnPrefix();
+    return config->videoURI();
 }
 
-void DASHPlayer::setIcnPrefix(QString icnPrefix)
+void DASHPlayer::setVideoURI(QString videoURI)
 {
-    config->setIcnPrefix(icnPrefix);
-}
-
-QString DASHPlayer::getHttpPrefix()
-{
-    return config->httpPrefix();
-}
-
-void DASHPlayer::setHttpPrefix(QString httpPrefix)
-{
-    config->setHttpPrefix(httpPrefix);
-}
-
-QString DASHPlayer::getIcnSuffix()
-{
-    return config->icnSuffix();
-}
-
-void DASHPlayer::setIcnSuffix(QString icnSuffix)
-{
-    config->setIcnSuffix(icnSuffix);
-}
-
-QString DASHPlayer::getHttpSuffix()
-{
-    return config->httpSuffix();
-}
-
-void DASHPlayer::setHttpSuffix(QString httpSuffix)
-{
-    config->setHttpSuffix(httpSuffix);
+    config->setVideoURI(videoURI);
 }
 
 qreal DASHPlayer::getAlpha()

@@ -20,9 +20,6 @@
         <file>qml/images/repeat-selected.png</file>
         <file>qml/images/fullscreen.png</file>
         <file>qml/images/fullscreen-selected.png</file>
-        <file>qml/images/open-selected.png</file>
-        <file>qml/images/open.png</file>
-        <file>qml/Viper/OpenMpd.qml</file>
         <file>qml/Viper/Options.qml</file>
         <file>qml/images/options-selected.png</file>
         <file>qml/images/options.png</file>

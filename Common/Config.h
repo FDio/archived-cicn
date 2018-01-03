@@ -69,13 +69,9 @@ class COMMON_EXPORT Config : public QObject
     Q_PROPERTY(QString fragHeader READ fragHeader WRITE setFragHeader NOTIFY fragHeaderChanged)
     Q_PROPERTY(QString fragSample READ fragSample WRITE setFragSample NOTIFY fragSampleChanged)
     Q_PROPERTY(QString fragPostProcess READ fragPostProcess WRITE setFragPostProcess NOTIFY fragPostProcessChanged)
-    Q_PROPERTY(QString icnPrefix READ icnPrefix WRITE setIcnPrefix NOTIFY icnPrefixChanged)
-    Q_PROPERTY(QString httpPrefix READ httpPrefix WRITE setHttpPrefix NOTIFY httpPrefixChanged)
-    Q_PROPERTY(QString icnSuffix READ icnSuffix WRITE setIcnSuffix NOTIFY icnSuffixChanged)
-    Q_PROPERTY(QString httpSuffix READ httpSuffix WRITE setHttpSuffix NOTIFY httpSuffixChanged)
+    Q_PROPERTY(QString videoURI READ videoURI WRITE setVideoURI NOTIFY videoURIChanged)
 
     Q_PROPERTY(qreal segmentBufferSize READ segmentBufferSize WRITE setSegmentBufferSize NOTIFY segmentBufferSizeChanged)
-    Q_PROPERTY(QString lastPlayed READ lastPlayed WRITE setLastPlayed NOTIFY lastPlayedChanged)
     Q_PROPERTY(QString adaptationLogic READ adaptationLogic WRITE setAdaptationLogic NOTIFY adaptationLogicChanged)
     Q_PROPERTY(bool icn READ icn WRITE setIcn NOTIFY icnChanged)
     Q_PROPERTY(qreal rateAlpha READ rateAlpha WRITE setRateAlpha NOTIFY rateAlphaChanged)
@@ -268,18 +264,10 @@ public:
     QString fragSample() const;
     Config& setFragPostProcess(const QString& text);
     QString fragPostProcess() const;
-    Config& setIcnPrefix(const QString &value);
-    QString icnPrefix() const;
-    Config& setIcnSuffix(const QString &value);
-    QString icnSuffix() const;
-    Config& setHttpPrefix(const QString &value);
-    QString httpPrefix() const;
-    Config& setHttpSuffix(const QString &value);
-    QString httpSuffix() const;
+    Config& setVideoURI(const QString &value);
+    QString videoURI() const;
     Config& setSegmentBufferSize(qreal value);
     qreal segmentBufferSize() const;
-    Config& setLastPlayed(const QString &value);
-    QString lastPlayed() const;
     Config& setAdaptationLogic(const QString &value);
     QString adaptationLogic() const;
     Config& setIcn(bool value);
@@ -403,12 +391,8 @@ public:
     Q_SIGNAL void logLevelChanged();
     Q_SIGNAL void languageChanged();
     Q_SIGNAL void historyChanged();
-    Q_SIGNAL void icnSuffixChanged();
-    Q_SIGNAL void httpSuffixChanged();
-    Q_SIGNAL void icnPrefixChanged();
-    Q_SIGNAL void httpPrefixChanged();
+    Q_SIGNAL void videoURIChanged();
     Q_SIGNAL void segmentBufferSizeChanged();
-    Q_SIGNAL void lastPlayedChanged();
     Q_SIGNAL void adaptationLogicChanged();
     Q_SIGNAL void icnChanged();
     Q_SIGNAL void rateAlphaChanged();

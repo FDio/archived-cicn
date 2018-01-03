@@ -16,7 +16,7 @@
 #include "AlwaysLowestLogic.h"
 #include "RateBasedAdaptation.h"
 #include "BufferBasedAdaptation.h"
-#include "BufferBasedAdaptationWithRateBased.h"
+#include "AdapTech.h"
 #include "BufferBasedThreeThresholdAdaptation.h"
 #include "Panda.h"
 #include "Bola.h"

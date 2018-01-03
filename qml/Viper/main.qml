@@ -35,12 +35,8 @@ Rectangle {
     property bool pause: false
     property bool stop: true
     property bool buffering: false
-    property string lastPlayed: ""
     property string adaptationLogic: ""
-    property string icnPrefix: ""
-    property string httpPrefix: ""
-    property string icnSuffix: ""
-    property string httpSuffix: ""
+    property string videoURI: ""
     property real alpha: 0
     property real segmentBufferSize: 0
     property bool icn: false
@@ -120,11 +116,6 @@ Rectangle {
         pause = false
         stop = false
         buffering = false
-    }
-
-    function setLastPlayed(initLastPlayed)
-    {
-        lastPlayed = initLastPlayed
     }
 
     function setAdaptationLogic(initAdaptationLogic)
@@ -416,23 +407,11 @@ Rectangle {
         onPauseGraph:graphPanel.pauseTimer()
 
         onDownloadMPD: mpdList.downloadMpd()
-        onOpenMpd: {
-            lastPlayed = dashPlayer.getLastPlayed()
-            icn = dashPlayer.getIcn()
-            adaptationLogic = dashPlayer.getAdaptationLogic()
-            openMpd.enabled = true;
-            openMpd.opacity = 0.9
-            enabled = false
-        }
 
         onOpenOptions: {
-            lastPlayed = dashPlayer.getLastPlayed()
             icn = dashPlayer.getIcn()
             adaptationLogic = dashPlayer.getAdaptationLogic()
-            icnPrefix = dashPlayer.getIcnPrefix()
-            httpPrefix = dashPlayer.getHttpPrefix()
-            icnSuffix = dashPlayer.getIcnSuffix()
-            httpSuffix = dashPlayer.getHttpSuffix()
+            videoURI = dashPlayer.getVideoURI()
             segmentBufferSize = dashPlayer.getSegmentBufferSize()
             rateAlpha = dashPlayer.getRateAlpha()
             bufferReservoirThreshold = dashPlayer.getBufferReservoirThreshold()
@@ -555,30 +534,6 @@ Rectangle {
         }
     }
 
-    OpenMpd {
-        id: openMpd
-        enabled: false
-        objectName: "openMpd"
-
-
-        anchors.centerIn: root
-
-        onCloseOpenMpd: {
-            control.uncheckOpenBtn();
-            control.enabled = true;
-            enabled = false;
-            opacity = 0
-        }
-
-        onSaveAndPlayMpd: {
-            dashPlayer.setLastPlayed(newOpenMpd)
-            lastPlayed = newOpenMpd
-            console.log("SAVE AND PLAY THE MPD QUEEN\n")
-            console.log(adaptationLogic)
-            dashPlayer.downloadMPD(newOpenMpd, adaptationLogic, icn)
-        }
-    }
-
     Options {
         id: options
         enabled: false
@@ -614,23 +569,9 @@ Rectangle {
             icn = selectedIcn
         }
 
-        onSaveIcnPrefix: {
-            dashPlayer.setIcnPrefix(selectedIcnPrefix)
-            icnPrefix = selectedIcnPrefix
-        }
-
-        onSaveHttpPrefix: {
-            dashPlayer.setHttpPrefix(selectedHttpPrefix)
-            httpPrefix = selectedHttpPrefix
-        }
-        onSaveIcnSuffix: {
-            dashPlayer.setIcnSuffix(selectedIcnSuffix)
-            icnSuffix = selectedIcnSuffix
-        }
-
-        onSaveHttpSuffix: {
-            dashPlayer.setHttpSuffix(selectedHttpSuffix)
-            httpSuffix = selectedHttpSuffix
+        onSaveVideoURI: {
+            dashPlayer.setVideoURI(selectedVideoURI)
+            videoURI = selectedVideoURI
         }
 
         onSaveSegmentBufferSize: {
