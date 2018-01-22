@@ -129,7 +129,7 @@ LongBowEventType LongBowEventSIGPROF = _eventType("Signal", "SIGPROF", LongBowSt
 
 LongBowEventType LongBowEventSIGWINCH = _eventType("Signal", "SIGWINCH", LongBowStatus_SIGNAL(SIGWINCH), false, false);
 
-#if  (!defined (_ANDROID_) && (!defined(_POSIX_C_SOURCE)) || defined(_DARWIN_C_SOURCE))
+#if  (!defined (__ANDROID__) && (!defined(_POSIX_C_SOURCE)) || defined(_DARWIN_C_SOURCE))
 LongBowEventType LongBowEventSIGINFO = _eventType("Signal", "SIGINFO", LongBowStatus_SIGNAL(SIGINFO), false, false);
 #else
 LongBowEventType LongBowEventSIGINFO = _eventType("Signal", "SIGIO", LongBowStatus_SIGNAL(SIGIO), false, false);
