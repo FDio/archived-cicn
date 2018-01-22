@@ -475,7 +475,7 @@ _longBowTestCase_RunForked(LongBowTestCase *testCase)
         // results of the test that was run in a separate process.
         int waitStatus;
         struct rusage rusage;
-#ifndef _ANDROID_
+#ifndef __ANDROID__
         wait3(&waitStatus, 0, &rusage);
 #else
         wait4(-1, &waitStatus, 0, &rusage);
