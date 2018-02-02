@@ -140,7 +140,7 @@ if(DEB_PACKAGE)
 
     set(CPACK_DEBIAN_LIBRARY_PACKAGE_SHLIBDEPS ON)
 
-    set(CPACK_${TYPE}_LIBRARY_PACKAGE_DEPENDS "longbow (>= 1.0), libevent-2.0-5, libssl1.0.0")
+    set(CPACK_${TYPE}_LIBRARY_PACKAGE_DEPENDS "longbow (>= 1.0)")
     set(CPACK_${TYPE}_HEADERS_PACKAGE_DEPENDS "libparc (>= 1.0), longbow-dev (>= 1.0), libevent-dev, libssl-dev")
     set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_DEPENDS "")
 elseif(RPM_PACKAGE)
