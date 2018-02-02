@@ -157,7 +157,7 @@ elseif(RPM_PACKAGE)
 
     set(CPACK_${TYPE}_LIBRARY_PACKAGE_AUTOREQ ON)
 
-    set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0, libevent >= 2.0, openssl >= 1.0")
+    set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0")
     set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libparc >= 1.0, longbow-devel >= 1.0, libevent-devel, openssl-devel")
     set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_REQUIRES "")
 
