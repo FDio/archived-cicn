@@ -25,6 +25,7 @@
 
 #include <ccnx/forwarder/metis/io/metis_UdpListener.h>
 #include <ccnx/forwarder/metis/io/metis_UdpConnection.h>
+#include <ccnx/forwarder/metis/io/metis_UdpTunnel.h>
 
 #include <ccnx/forwarder/metis/core/metis_Forwarder.h>
 #include <ccnx/forwarder/metis/core/metis_Connection.h>
@@ -459,23 +460,20 @@ _lookupConnectionId(MetisUdpListener *udp, MetisAddressPair *pair, unsigned *out
  * @return The connection id for the new connection
  */
 
-//for the moment this is not used anymore
-//we need to handle the connection tables in a better way in order to avoid multiple connections
-//with the same address pair.
-/*static unsigned
- * _createNewConnection(MetisUdpListener *udp, int fd, const MetisAddressPair *pair)
- * {
- *  bool isLocal = false;
- *
- *  // metisUdpConnection_Create takes ownership of the pair
- *  MetisIoOperations *ops = metisUdpConnection_Create(udp->metis, fd, pair, isLocal);
- *  MetisConnection *conn = metisConnection_Create(ops);
- *
- *  metisConnectionTable_Add(metisForwarder_GetConnectionTable(udp->metis), conn);
- *  unsigned connid = metisIoOperations_GetConnectionId(ops);
- *
- *  return connid;
- * }*/
+static unsigned
+_createNewConnection(MetisUdpListener * udp, int fd, const MetisAddressPair * pair)
+{
+    bool isLocal = false;
+ 
+    // metisUdpConnection_Create takes ownership of the pair
+    MetisIoOperations * ops = metisUdpConnection_Create(udp->metis, fd, pair, isLocal);
+    MetisConnection * conn = metisConnection_Create(ops);
+ 
+    metisConnectionTable_Add(metisForwarder_GetConnectionTable(udp->metis), conn);
+    unsigned connid = metisIoOperations_GetConnectionId(ops);
+ 
+    return connid;
+}
 
 static void
 _receivePacket(MetisUdpListener *udp, int fd, size_t packetLength, struct sockaddr_storage *peerIpAddress, socklen_t peerIpAddressLength)
@@ -485,12 +483,12 @@ _receivePacket(MetisUdpListener *udp, int fd, size_t packetLength, struct sockad
     bool foundConnection = _lookupConnectionId(udp, pair, &connid);
 
     if (!foundConnection) {
-        PARCEventBuffer *readbuffer = parcEventBuffer_Create();
-        parcEventBuffer_ReadFromFileDescriptor(readbuffer, fd, packetLength);
-        parcEventBuffer_Destroy(&readbuffer);
-        metisAddressPair_Release(&pair);
-        return;
-        //connid = _createNewConnection(udp, fd, pair);
+        //PARCEventBuffer *readbuffer = parcEventBuffer_Create();
+        //parcEventBuffer_ReadFromFileDescriptor(readbuffer, fd, packetLength);
+        //parcEventBuffer_Destroy(&readbuffer);
+        //metisAddressPair_Release(&pair);
+        //return;
+        connid = _createNewConnection(udp, fd, pair);
     }
 
     metisAddressPair_Release(&pair);

@@ -47,6 +47,7 @@
 
 #include <ccnx/forwarder/metis/core/metis_Forwarder.h>
 #include <ccnx/forwarder/metis/core/metis_System.h>
+#include <ccnx/forwarder/metis/io/metis_AddressPair.h>
 #include <ccnx/forwarder/metis/core/metis_ConnectionTable.h>
 #include <ccnx/forwarder/metis/core/metis_Connection.h>
 
@@ -351,14 +352,34 @@ static CCNxControl *
 metisConfiguration_ProcessCreateTunnel(MetisConfiguration *config, CCNxControl *control, unsigned ingressId)
 {
     bool success = false;
+    bool exists = true;
 
     CPIInterfaceIPTunnel *iptun = cpiLinks_CreateIPTunnelFromControlMessage(control);
 
     const char *symbolicName = cpiInterfaceIPTunnel_GetSymbolicName(iptun);
 
+    const CPIAddress *source;
+    const CPIAddress *destination;
+
     if (!metisSymbolicNameTable_Exists(config->symbolicNameTable, symbolicName)) {
-        const CPIAddress *source = cpiInterfaceIPTunnel_GetSourceAddress(iptun);
-        const CPIAddress *destination = cpiInterfaceIPTunnel_GetDestinationAddress(iptun);
+        source = cpiInterfaceIPTunnel_GetSourceAddress(iptun);
+        destination = cpiInterfaceIPTunnel_GetDestinationAddress(iptun);
+
+        MetisAddressPair *pair = metisAddressPair_Create(source, destination);
+        const MetisConnection *conn =
+            metisConnectionTable_FindByAddressPair(metisForwarder_GetConnectionTable(config->metis), pair);
+
+        metisAddressPair_Release(&pair);
+
+        if(conn == NULL){
+            //the connection does not exists (even without a name)
+            exists = false;
+        }
+    }
+
+    if(!exists){
+        source = cpiInterfaceIPTunnel_GetSourceAddress(iptun);
+        destination = cpiInterfaceIPTunnel_GetDestinationAddress(iptun);
 
         MetisIoOperations *ops = NULL;
         switch (cpiInterfaceIPTunnel_GetTunnelType(iptun)) {
