@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-#ifndef ICN_WEB_SERVER_RESPONSE_H_
-#define ICN_WEB_SERVER_RESPONSE_H_
+#pragma once
 
 #include "common.h"
 
@@ -25,8 +24,7 @@ class Response
  public:
   Response();
 
-  virtual
-  ~Response();
+  virtual ~Response();
 
   size_t size();
 
@@ -41,8 +39,7 @@ class Response
 
   const std::chrono::milliseconds &getResponseLifetime() const;
 
-  void setResponseLifetime(const std::chrono::milliseconds &response_lifetime);
-
+  virtual void setResponseLifetime(const std::chrono::milliseconds &response_lifetime);
 
  protected:
   boost::asio::streambuf streambuf_;
@@ -52,5 +49,3 @@ class Response
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_RESPONSE_H_

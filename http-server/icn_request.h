@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-#ifndef ICN_WEB_SERVER_ICNREQUEST_H_
-#define ICN_WEB_SERVER_ICNREQUEST_H_
+#pragma once
 
 #include "common.h"
 #include "request.h"
@@ -31,6 +30,8 @@ class IcnRequest
              std::string path,
              std::string method,
              std::string http_version);
+
+  ~IcnRequest() = default;
 
   const std::string &getName() const;
 
@@ -52,5 +53,3 @@ class IcnRequest
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_ICNREQUEST_H_

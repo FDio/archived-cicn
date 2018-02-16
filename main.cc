@@ -27,7 +27,8 @@
 #include <boost/filesystem.hpp>
 
 #include "http-server/http_server.h"
-#include "http-client/http_client.h"
+#include "http_client_tcp.h"
+#include "http_client_icn.h"
 
 typedef icn_httpserver::HttpServer HttpServer;
 typedef icn_httpserver::Response Response;
@@ -67,7 +68,7 @@ void afterSignal(HttpServer *webServer, const boost::system::error_code &errorCo
 }
 
 void usage(const char *programName) {
-  cerr << programName << " [-p PATH_TO_ROOT_FOOT_FOLDER] [-o TCP_LISTEN_PORT] [-l WEBSERVER_PREFIX] [-x PROXY_ADDRESS]\n"
+  cerr << programName << " [-p PATH_TO_ROOT_FOOT_FOLDER] [-o TCP_LISTEN_PORT] [-l WEBSERVER_PREFIX] [-x TCP_PROXY_ADDRESS] [-z ICN_PROXY_PREFIX]\n"
        << "Web server able to publish content and generate http responses over TCP/ICN\n" << endl;
 
   exit(1);
@@ -78,12 +79,12 @@ int main(int argc, char **argv) {
 
   string root_folder = "/var/www/html";
   string webserver_prefix = "http://webserver";
-  string proxy_address = "";
+  string tcp_proxy_address;
+  string icn_proxy_prefix;
   int port = 8080;
   int opt = 0;
 
-  while ((opt = getopt(argc, argv, "p:l:o:hx:")) != -1) {
-
+  while ((opt = getopt(argc, argv, "p:l:o:hx:z:")) != -1) {
     switch (opt) {
       case 'p':
         root_folder = optarg;
@@ -92,10 +93,13 @@ int main(int argc, char **argv) {
         webserver_prefix = optarg;
         break;
       case 'x':
-        proxy_address = optarg;
+        tcp_proxy_address = optarg;
         break;
       case 'o':
         port = atoi(optarg);
+        break;
+      case 'z':
+        icn_proxy_prefix = optarg;
         break;
       case 'h':
       default:
@@ -120,6 +124,12 @@ int main(int argc, char **argv) {
 
   std::cout << "Using web root folder: [" << root_folder << "]" << std::endl;
   std::cout << "Using locator: [" << webserver_prefix << "]" << std::endl;
+  if (!tcp_proxy_address.empty()) {
+    std::cout << "Using TCP proxy: [" << tcp_proxy_address << "]" << std::endl;
+  }
+  if (!icn_proxy_prefix.empty()) {
+    std::cout << "Using ICN proxy: [" << icn_proxy_prefix << "]" << std::endl;
+  }
 
   boost::asio::io_service io_service;
   HttpServer server(port, webserver_prefix, 50, 5, 300, io_service);
@@ -147,15 +157,26 @@ int main(int argc, char **argv) {
   // Will respond with content in the web/-directory, and its subdirectories.
   // Default file: index.html
   // Can for instance be used to retrieve an HTML 5 client that uses REST-resources on this server
-  server.default_resource["GET"] = [&server, &root_folder, &proxy_address](shared_ptr<Response> response, shared_ptr<Request> request) {
+  server.default_resource["GET"] = [&server, &root_folder, &tcp_proxy_address, &icn_proxy_prefix]
+      (shared_ptr<Response> response, shared_ptr<Request> request) {
     const auto web_root_path = boost::filesystem::canonical(root_folder);
 
     boost::filesystem::path path = web_root_path;
     path /= request->getPath();
 
-    if (path.extension().string() == ".mpd") {
-      response->setResponseLifetime(std::chrono::milliseconds(1000));
+    auto socket_request = dynamic_cast<icn_httpserver::SocketRequest *>(request.get());
+
+    std::chrono::milliseconds response_lifetime;
+
+    if (path.extension().string() == ".mpd" || path.stem() == "latest") {
+      std::cout << "Setting lifetime to 1 second" << std::endl;
+      response_lifetime = std::chrono::milliseconds(1000);
+    } else {
+      std::cout << "Setting lifetime to 5 second" << std::endl;
+      response_lifetime = std::chrono::milliseconds(5000);
     }
+
+    response->setResponseLifetime(response_lifetime);
 
     if (boost::filesystem::exists(path)) {
 
@@ -175,7 +196,7 @@ int main(int argc, char **argv) {
           ifs->open(path.string(), ifstream::in | ios::binary);
 
           if (*ifs) {
-            //read and send 1 MB at a time
+            //read and send 15 MB at a time
             streamsize buffer_size = 15 * 1024 * 1024;
             auto buffer = make_shared<vector<char> >(buffer_size);
 
@@ -184,17 +205,7 @@ int main(int argc, char **argv) {
             ifs->seekg(0, ios::beg);
 
             response->setResponseLength(length);
-
-            icn_httpserver::SocketRequest
-                *socket_request = dynamic_cast<icn_httpserver::SocketRequest *>(request.get());
-
-            if (socket_request) {
-              *response << "HTTP/1.0 200 OK\r\nContent-Length: " << length << "\r\n\r\n";
-            }
-
-            if (path.extension().string() == ".mpd") {
-              response->setResponseLifetime(std::chrono::milliseconds(1000));
-            }
+            *response << "HTTP/1.0 200 OK\r\nContent-Length: " << length << "\r\n\r\n";
 
             default_resource_send(server, response, ifs, buffer, length);
 
@@ -205,31 +216,54 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (!proxy_address.empty()) {
+    string proxy;
+    HTTPClient* client = nullptr;
 
+    if (tcp_proxy_address.empty() && !icn_proxy_prefix.empty()) {
+      proxy = icn_proxy_prefix;
+      client = new HTTPClientIcn(20);
+    } else if (!tcp_proxy_address.empty() && icn_proxy_prefix.empty()) {
+      proxy = tcp_proxy_address;
+      client = new HTTPClientTcp;
+    } else if (!tcp_proxy_address.empty() && !icn_proxy_prefix.empty()) {
+      if (socket_request) {
+        proxy = icn_proxy_prefix;
+        client = new HTTPClientIcn(20);
+      } else {
+        proxy = tcp_proxy_address;
+        client = new HTTPClientTcp;
+      }
+    }
+
+    if (!proxy.empty()) {
       // Fetch content from remote origin
       std::stringstream ss;
-      if (strncmp("http://", proxy_address.c_str(), 7) || strncmp("https://", proxy_address.c_str(), 8)) {
-        ss << "http://";
+
+      if (strncmp("http://", proxy.c_str(), 7) != 0) {
+        if (strncmp("https://", proxy.c_str(), 8) != 0) {
+          ss << "https://";
+        } else {
+          ss << "http://";
+        }
       }
 
-      ss << proxy_address;
+      ss << proxy;
       ss << request->getPath();
 
-      std::cout << ss.str() << std::endl;
+      std::cout << "Forwarding request to " << ss.str() << std::endl;
 
-      HTTPClient client;
+      client->download(ss.str(), *response);
 
-      client.download(ss.str(), *response);
+      delete client;
 
-//      std::cout << "+++++++++++++++++++++++++++++++++++" << reply.size() << std::endl;
-
-//      *response << reply;
+      if (response->size() == 0) {
+        *response << "HTTP/1.1 504 Gateway Timeout\r\n\r\n";
+      }
 
       return;
     }
 
-    string content = "Could not open path " + request->getPath();
+    string content = "Could not open path " + request->getPath() + "\n";
 
     *response << "HTTP/1.1 404 Not found\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
 

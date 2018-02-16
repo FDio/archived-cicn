@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#ifndef ICN_WEB_SERVER_WEB_SERVER_H_
-#define ICN_WEB_SERVER_WEB_SERVER_H_
+#pragma once
 
 #include "common.h"
 #include "icn_request.h"
@@ -49,6 +48,7 @@ namespace icn_httpserver {
 
 class HttpServer {
  public:
+
   explicit HttpServer(unsigned short port,
                       std::string icn_name,
                       size_t num_threads,
@@ -71,10 +71,11 @@ class HttpServer {
   void send(std::shared_ptr<Response> response, SendCallback callback = nullptr) const;
 
   std::unordered_map<std::string, std::unordered_map<std::string, ResourceCallback> > resource;
+
   std::unordered_map<std::string, ResourceCallback> default_resource;
 
+  void onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher, const uint8_t* buffer, std::size_t size, int request_id);
  private:
-  void onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher>& publisher, const uint8_t* buffer, std::size_t size);
 
   void spawnThreads();
 
@@ -100,11 +101,8 @@ class HttpServer {
   boost::asio::io_service &io_service_;
   boost::asio::ip::tcp::acceptor acceptor_;
   std::vector<std::thread> socket_threads_;
-
-  // ICN parameters
   std::string icn_name_;
   std::shared_ptr<libl4::http::HTTPServerAcceptor> icn_acceptor_;
-  std::unordered_map<int, std::shared_ptr<libl4::http::HTTPServerPublisher>> icn_publishers_;
   std::mutex thread_list_mtx_;
 
   long timeout_request_;
@@ -113,5 +111,3 @@ class HttpServer {
 };
 
 } // end namespace icn_httpserver
-
-#endif //ICN_WEB_SERVER_WEB_SERVER_H_

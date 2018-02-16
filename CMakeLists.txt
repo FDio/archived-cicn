@@ -23,66 +23,93 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 option(ICNET "Link against Libicnet." ON)
-option(HICNET "Link against Libhicnet." OFF)
 
-if (HICNET)
-    find_package(Libhicnet REQUIRED)
-    set(TRANSPORT_LIBRARY HICNET)
-    set(ICNET OFF)
-    set(PREFIX "hicn-")
-else()
-    find_package(Libicnet REQUIRED)
-    set(TRANSPORT_LIBRARY ICNET)
-    set(PREFIX "")
-endif()
+find_package(Libicnet REQUIRED)
+set(TRANSPORT_LIBRARY ICNET)
+set(PREFIX "")
 
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
         "${CMAKE_BINARY_DIR}/config.h")
 
-include_directories(${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIRS} http-server http-client)
+include_directories(${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIRS})
 
-find_package(Threads REQUIRED)
+if(ANDROID_API)
+  find_package(Threads REQUIRED)
+  set(CURL_INCLUDE_DIRS "$ENV{DISTILLERY_ROOT_DIR}/external/libcurl_android/jni/libcurl/include")
+  set(CURL_LIBRARIES "$ENV{DISTILLERY_ROOT_DIR}/usr/lib/libcurl.a" "$ENV{DISTILLERY_ROOT_DIR}/usr/lib/libcurl-library.a")
+  find_package(Boost 1.53.0 COMPONENTS regex system filesystem REQUIRED)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${CMAKE_BINARY_DIR} ${CURL_INCLUDE_DIRS} ${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIR} http-server http-client)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/include)
+  include_directories(${ANDROID_NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include)
+  set(ANDROID_LIBRARIES "${ANDROID_NDK}/platforms/android-24/arch-arm/usr/lib/libz.a" "${ANDROID_NDK}/platforms/android-24/arch-arm/usr/lib/liblog.so" "$ENV{NDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ENV{ABI}/libgnustl_shared.so")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS}  -Wall")
+else()
+  find_package(Threads REQUIRED)
 
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS})
+  find_package(CURL REQUIRED)
+  include_directories(${CURL_INCLUDE_DIRS})
 
-find_package(Boost 1.53.0 COMPONENTS regex system filesystem REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${CMAKE_BINARY_DIR} ${CURL_INCLUDE_DIRS} ${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIR})
-
-set(SOURCE_FILES
-    main.cc
+  find_package(Boost 1.53.0 COMPONENTS regex system filesystem REQUIRED)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${CMAKE_BINARY_DIR} ${CURL_INCLUDE_DIRS} ${LIB${TRANSPORT_LIBRARY}_INCLUDE_DIR} http-server http-client)
+endif()
+set(LIB_SOURCE_FILES
     http-server/http_server.cc
-    http-server/http_server.h
     http-server/response.cc
+    http-server/socket_response.cc
+    http-server/icn_response.cc
+    http-server/content.cc
+    http-server/request.cc
+    http-server/icn_request.cc
+    http-server/socket_request.cc
+    http-server/configuration.cc
+    http-client/http_client_tcp.cc
+    http-client/http_client_icn.cc)
+
+set(LIB_SERVER_HEADER_FILES
+    http-server/http_server.h
     http-server/response.h
     http-server/common.h
-    http-server/socket_response.cc
     http-server/socket_response.h
-    http-server/icn_response.cc
-    http-server/icn_response.h
-    http-server/content.cc
     http-server/content.h
-    http-server/request.cc
     http-server/request.h
-    http-server/icn_request.cc
     http-server/icn_request.h
-    http-server/socket_request.cc
     http-server/socket_request.h
-    http-server/configuration.cc
     http-server/configuration.h
-    http-client/http_client.cc
-    http-client/http_client.h
-    ${CMAKE_BINARY_DIR}/config.h)
+    ${CMAKE_BINARY_DIR}/config.h
+    http-server/icn_response.h)
+
+set(LIB_CLIENT_HEADER_FILES
+    http-client/http_client_tcp.h
+    http-client/http_client_icn.h
+    http-client/http_client.h)
+
+set(APP_SOURCE_FILES
+    main.cc)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -fpermissive")
 
-add_executable(${PREFIX}http-server ${SOURCE_FILES})
-target_link_libraries(${PREFIX}http-server ${LIB${TRANSPORT_LIBRARY}_LIBRARY} ${CURL_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_library(${PREFIX}httpserver ${LIB_SOURCE_FILES})
 
-install(TARGETS ${PREFIX}http-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+if(ANDROID_API)
+  target_link_libraries(${PREFIX}httpserver ${LIB${TRANSPORT_LIBRARY}_LIBRARY} ${CURL_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${ANDROID_LIBRARIES} )
+  target_compile_definitions(${PREFIX}httpserver PRIVATE ${TRANSPORT_LIBRARY}=1)
+else()
+
+  target_link_libraries(${PREFIX}httpserver ${LIB${TRANSPORT_LIBRARY}_LIBRARY} ${CURL_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+  add_executable(${PREFIX}http-server ${APP_SOURCE_FILES})
+  target_link_libraries(${PREFIX}http-server ${PREFIX}httpserver)
+  install(TARGETS ${PREFIX}http-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+endif()
+
+install(TARGETS ${PREFIX}httpserver DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+install(FILES ${LIB_SERVER_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/http-server)
+install(FILES ${LIB_CLIENT_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/http-client)
+
 
 # Generate DEB / RPM packages
 
@@ -104,7 +131,7 @@ set(CPACK_PACKAGE_CONTACT ${CONTACT})
 # Get the version
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/scripts/version
                 OUTPUT_VARIABLE PACKAGE_VERSION)
-string(STRIP ${PACKAGE_VERSION} PACKAGE_VERSION)
+string(STRIP "${PACKAGE_VERSION}" PACKAGE_VERSION)
 
 string(TOLOWER ${TRANSPORT_LIBRARY} TRANSPORT_DEPENDENCY)
 

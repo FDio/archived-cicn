@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#ifndef ICN_WEB_SERVER_SOCKETRESPONSE_H_
-#define ICN_WEB_SERVER_SOCKETRESPONSE_H_
+#pragma once
 
 #include "response.h"
 
@@ -48,5 +47,3 @@ class SocketResponse
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_SOCKETRESPONSE_H_

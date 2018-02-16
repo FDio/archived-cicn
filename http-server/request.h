@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-#ifndef ICN_WEB_SERVER_REQUEST_H_
-#define ICN_WEB_SERVER_REQUEST_H_
+#pragma once
 
 #include "common.h"
 #include "content.h"
@@ -45,6 +44,8 @@ class Request {
 
   virtual void read_remote_endpoint_data(socket_type &socket) {
   };
+
+  virtual ~Request() = default;
 
   const std::string &getMethod() const;
 
@@ -79,5 +80,3 @@ class Request {
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_REQUEST_H_

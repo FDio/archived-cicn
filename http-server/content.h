@@ -15,8 +15,7 @@
 
 #include "common.h"
 
-#ifndef ICN_WEB_SERVER_CONTENT_H_
-#define ICN_WEB_SERVER_CONTENT_H_
+#pragma once
 
 namespace icn_httpserver {
 
@@ -34,5 +33,3 @@ class Content
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_CONTENT_H_

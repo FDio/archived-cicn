@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#ifndef ICN_WEB_SERVER_SOCKETREQUEST_H_
-#define ICN_WEB_SERVER_SOCKETREQUEST_H_
+#pragma once
 
 #include "request.h"
 
@@ -40,5 +39,3 @@ class SocketRequest
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_SOCKETREQUEST_H_

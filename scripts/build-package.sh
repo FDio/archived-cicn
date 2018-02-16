@@ -33,15 +33,7 @@ baseurl=http://mirror.ghettoforge.org/distributions/gf/el/7/plus/x86_64/
 enabled=1
 gpgcheck=0
 EOF
-        sudo cat << EOF > jsoncpp.repo
-[jsoncp-repo]
-name=Repo for jsoncpp
-baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
-enabled=1
-gpgcheck=0
-EOF
         sudo mv cmake.repo /etc/yum.repos.d/cmake.repo
-        sudo mv jsoncpp.repo /etc/yum.repos.d/jsoncpp.repo
     fi
 }
 

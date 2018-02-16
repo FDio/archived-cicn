@@ -15,25 +15,21 @@
 
 #pragma once
 
-#include "config.h"
+#include "http_client.h"
 
-#include <icnet/icnet_http_facade.h>
-#include <icnet/icnet_utils_hash.h>
-
-#include <boost/asio.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/functional/hash.hpp>
-#include <memory>
-#include <algorithm>
-
-#include <unordered_map>
-#include <thread>
-#include <future>
-#include <functional>
-#include <iostream>
-#include <sstream>
 #include <string>
 
-typedef boost::asio::ip::tcp::socket socket_type;
-typedef std::function<void(const boost::system::error_code &)> SendCallback;
+class HTTPClientTcp : public HTTPClient {
+ public:
+  HTTPClientTcp();
+
+  void setTcp();
+
+  ~HTTPClientTcp();
+
+  bool download(const std::string& url, std::ostream& out);
+ private:
+  bool first_time;
+  bool tcp_;
+  void* curl_;
+};

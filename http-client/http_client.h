@@ -13,23 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef HTTP_CLIENT_H_
-#define HTTP_CLIENT_H_
+#pragma once
+
+#include "config.h"
 
 #include <string>
 
+# include <icnet/icnet_http_facade.h>
+
 class HTTPClient {
  public:
-  HTTPClient();
-  ~HTTPClient();
-  /**
-   * Download a file using HTTP GET and store in in a std::string
-   * @param url The URL to download
-   * @return The download result
-   */
-  bool download(const std::string& url, std::ostream& out);
- private:
-  void* curl_;
-};
+  virtual ~HTTPClient() = default;
 
-#endif  // HTTP_CLIENT_H_
+  virtual void setTcp() = 0;
+
+  virtual bool download(const std::string &url, std::ostream &out) = 0;
+};

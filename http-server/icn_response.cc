@@ -25,14 +25,13 @@ IcnResponse::IcnResponse(std::shared_ptr<libl4::http::HTTPServerPublisher> publi
 }
 
 void IcnResponse::send(const SendCallback &callback) {
+
   std::size_t buffer_size = this->streambuf_.size();
   this->streambuf_.commit(this->streambuf_.size());
 
-  std::cout << "Rrsponse Id " << response_id_ << std::endl;
-
   this->publisher_->publishContent(boost::asio::buffer_cast<const uint8_t *>(this->streambuf_.data()),
                                    buffer_size,
-                                   this->response_lifetime_,
+                                   std::chrono::milliseconds(100000),
                                    this->response_id_,
                                    this->is_last_);
 
@@ -41,6 +40,11 @@ void IcnResponse::send(const SendCallback &callback) {
   if (callback) {
     callback(boost::system::error_code());
   }
+}
+
+void IcnResponse::setResponseLifetime(const std::chrono::milliseconds &response_lifetime) {
+  this->publisher_->setTimeout(response_lifetime, true);
+  Response::setResponseLifetime(response_lifetime);
 }
 
 } // end namespace icn_httpserver

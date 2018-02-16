@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-#ifndef ICN_WEB_SERVER_CONFIGURATION_H_
-#define ICN_WEB_SERVER_CONFIGURATION_H_
+#pragma once
 
 #include "common.h"
 
@@ -48,5 +47,3 @@ class Configuration {
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_CONFIGURATION_H_

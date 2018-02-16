@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#include "response.h"
+#pragma once
 
-#ifndef ICN_WEB_SERVER_ICNRESPONSE_H_
-#define ICN_WEB_SERVER_ICNRESPONSE_H_
+#include "response.h"
 
 namespace icn_httpserver {
 
@@ -30,7 +29,9 @@ class IcnResponse
               std::string ndn_path,
               int response_id);
 
-  void send(const SendCallback &callback = nullptr);
+  void send(const SendCallback &callback = nullptr) override;
+
+  void setResponseLifetime(const std::chrono::milliseconds &response_lifetime) override;
 
  private:
   std::string ndn_name_;
@@ -40,5 +41,3 @@ class IcnResponse
 };
 
 } // end namespace icn_httpserver
-
-#endif // ICN_WEB_SERVER_ICNRESPONSE_H_

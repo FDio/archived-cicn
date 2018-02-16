@@ -13,27 +13,29 @@
  * limitations under the License.
  */
 
-#pragma once
+#include "http_client_icn.h"
+#include "response.h"
 
-#include "config.h"
+#include <curl/curl.h>
 
-#include <icnet/icnet_http_facade.h>
-#include <icnet/icnet_utils_hash.h>
+using namespace std;
 
-#include <boost/asio.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/functional/hash.hpp>
-#include <memory>
-#include <algorithm>
+HTTPClientIcn::HTTPClientIcn(uint32_t timeout) {
+  std::chrono::seconds _timeout(timeout);
+  connection_.setTimeout(_timeout);
+}
 
-#include <unordered_map>
-#include <thread>
-#include <future>
-#include <functional>
-#include <iostream>
-#include <sstream>
-#include <string>
+void HTTPClientIcn::setTcp() {
 
-typedef boost::asio::ip::tcp::socket socket_type;
-typedef std::function<void(const boost::system::error_code &)> SendCallback;
+}
+
+HTTPClientIcn::~HTTPClientIcn() {
+
+}
+
+bool HTTPClientIcn::download(const std::string& url, std::ostream& out) {
+  connection_.get(url);
+  libl4::http::HTTPResponse r = connection_.response();
+  out.write(reinterpret_cast<const char*>(r.data()), r.size());
+  return true;
+}

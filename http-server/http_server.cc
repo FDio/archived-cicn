@@ -23,11 +23,13 @@
  */
 
 #include "http_server.h"
-
 namespace icn_httpserver {
 
 HttpServer::HttpServer(unsigned short port,
-                       std::string icn_name, size_t num_threads, long timeout_request, long timeout_send_or_receive)
+                       std::string icn_name,
+                       size_t num_threads,
+                       long timeout_request,
+                       long timeout_send_or_receive)
     : config_(port, num_threads),
       icn_name_(icn_name),
       internal_io_service_(std::make_shared<boost::asio::io_service>()),
@@ -53,7 +55,8 @@ HttpServer::HttpServer(unsigned short port,
 
 void HttpServer::onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher> &publisher,
                               const uint8_t *buffer,
-                              std::size_t size) {
+                              std::size_t size,
+                              int request_id) {
   std::shared_ptr<Request> request = std::make_shared<IcnRequest>(publisher);
   request->getContent().rdbuf()->sputn((char*)buffer, size);
 
@@ -61,29 +64,21 @@ void HttpServer::onIcnRequest(std::shared_ptr<libl4::http::HTTPServerPublisher> 
     return;
   }
 
-  int request_id = libl4::utils::Hash::hash32(buffer, size);
-
-  std::cout << "Request ID" << request_id << std::endl;
+  std::map<int, std::shared_ptr<libl4::http::HTTPServerPublisher>>& icn_publishers = icn_acceptor_->getPublishers();
 
   std::unique_lock<std::mutex> lock(thread_list_mtx_);
-  if (icn_publishers_.size() < config_.getNum_threads()) {
-    if (icn_publishers_.find(request_id) == icn_publishers_.end()) {
+  if (icn_publishers.size() < config_.getNum_threads()) {
       std::cout << "Received request for: " << request->getPath() << std::endl;
-      icn_publishers_[request_id] = publisher;
-      icn_publishers_[request_id]->attachPublisher();
-      if (request->getPath().substr(request->getPath().find_last_of(".") + 1) == "mpd") {
-        icn_publishers_[request_id]->setTimeout(1);
-      } else {
-        icn_publishers_[request_id]->setTimeout(5);
-      }
+
+      publisher->attachPublisher();
       std::cout << "Starting new thread" << std::endl;
       io_service_.dispatch([this, request, request_id]() {
+        std::map<int, std::shared_ptr<libl4::http::HTTPServerPublisher>>& icn_publishers = icn_acceptor_->getPublishers();
         find_resource(nullptr, request);
-        icn_publishers_[request_id]->serveClients();
+        icn_publishers[request_id]->serveClients();
         std::unique_lock<std::mutex> lock(thread_list_mtx_);
-        icn_publishers_.erase(request_id);
+        icn_publishers.erase(request_id);
       });
-    }
   }
 }
 
@@ -92,7 +87,8 @@ void HttpServer::setIcnAcceptor() {
                                                                      this,
                                                                      std::placeholders::_1,
                                                                      std::placeholders::_2,
-                                                                     std::placeholders::_3));
+                                                                     std::placeholders::_3,
+                                                                     std::placeholders::_4));
   icn_acceptor_->listen(true);
 }
 
@@ -117,6 +113,7 @@ void HttpServer::spawnThreads() {
 
   accept();
 
+
   //If num_threads>1, start m_io_service.run() in (num_threads-1) threads for thread-pooling
   socket_threads_.clear();
   for (size_t c = 1; c < config_.getNum_threads(); c++) {
@@ -124,6 +121,7 @@ void HttpServer::spawnThreads() {
       io_service_.run();
     });
   }
+
 }
 
 void HttpServer::start() {
@@ -148,13 +146,13 @@ void HttpServer::start() {
   }
 
   spawnThreads();
+
   setIcnAcceptor();
 
   // Wait for the rest of the threads, if any, to finish as well
   for (auto &t: socket_threads_) {
     t.join();
   }
-
   //  for (auto &t : icn_threads) {
   //    t.second.get();
   //  }
@@ -162,17 +160,14 @@ void HttpServer::start() {
 
 void HttpServer::stop() {
   acceptor_.close();
-  icn_acceptor_.reset();
+
   io_service_.stop();
 
-  for (auto &p: icn_publishers_) {
-      p.second->stop();
-  }
+  std::map<int, std::shared_ptr<libl4::http::HTTPServerPublisher>>& icn_publishers = icn_acceptor_->getPublishers();
 
-  for (auto p : icn_publishers_) {
-    p.second.reset();
+  for (auto &p : icn_publishers) {
+    p.second->stop();
   }
-
 }
 
 void HttpServer::accept() {
@@ -251,7 +246,7 @@ void HttpServer::read_request_and_content(std::shared_ptr<socket_type> socket) {
                                       }
                                       unsigned long long content_length;
                                       try {
-                                        content_length = stoull(it->second);
+                                        content_length = atol(it->second.c_str());
                                       } catch (const std::exception &) {
                                         return;
                                       }
@@ -385,7 +380,7 @@ void HttpServer::write_response(std::shared_ptr<socket_type> socket,
 
         float http_version;
         try {
-          http_version = stof(request->getHttp_version());
+          http_version = atof(request->getHttp_version().c_str());
         } catch (const std::exception &) {
           return;
         }
@@ -403,12 +398,15 @@ void HttpServer::write_response(std::shared_ptr<socket_type> socket,
     });
   });
 
+
   try {
     resource_function(response, request);
   } catch (const std::exception &) {
     return;
   }
+
 }
 
 } // end namespace icn_httpserver
+
 
