@@ -694,6 +694,20 @@ metisMessage_ResetPathLabel(MetisMessage *message)
     assertNotNull(message, "Parameter must be non-null");
     metisTlvSkeleton_ResetPathLabel(&message->skeleton);
 }
+int
+metisMessage_GetPathLabel(MetisMessage *message)
+{
+    assertNotNull(message, "Parameter must be non-null");
+    return metisTlvSkeleton_GetPathLabelValue(&message->skeleton);
+}
+
+void
+metisMessage_SetPathLabel(MetisMessage *message, uint8_t pathLabel)
+{
+    assertNotNull(message, "Parameter must be non-null");
+    return metisTlvSkeleton_SetPathLabelValue(&message->skeleton, pathLabel);
+}
+
 
 MetisMessagePacketType
 metisMessage_GetType(const MetisMessage *message)

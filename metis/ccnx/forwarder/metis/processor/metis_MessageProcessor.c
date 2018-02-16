@@ -734,11 +734,13 @@ metisMessageProcessor_ForwardToNexthops(MetisMessageProcessor *processor, MetisM
     size_t length = metisNumberSet_Length(nexthops);
 
     unsigned ingressId = metisMessage_GetIngressConnectionId(message);
+    int old_label =  metisMessage_GetPathLabel(message);
     for (size_t i = 0; i < length; i++) {
         unsigned egressId = metisNumberSet_GetItem(nexthops, i);
         if (egressId != ingressId) {
             forwardedCopies++;
             metisMessageProcessor_ForwardToInterfaceId(processor, message, egressId);
+            metisMessage_SetPathLabel(message, (uint8_t)old_label);
         }
     }
     return forwardedCopies;

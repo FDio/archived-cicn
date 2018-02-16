@@ -236,6 +236,8 @@ MetisMessagePacketType  metisMessage_GetType(const MetisMessage *message);
 bool metisMessage_HasHopLimit(const MetisMessage *message);
 
 void metisMessage_UpdatePathLabel(MetisMessage *message, uint8_t outFace);
+void metisMessage_SetPathLabel(MetisMessage *message, uint8_t outFace);
+int metisMessage_GetPathLabel(MetisMessage *message);
 void metisMessage_ResetPathLabel(MetisMessage *message);
 
 /**

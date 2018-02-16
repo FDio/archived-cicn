@@ -210,7 +210,13 @@ metisConnection_ReSend(const MetisConnection *conn, MetisMessage *message)
         //message has the same path label. However it could be a good idea to remove the path label
         //so that raaqm will discard this packet for the RTT estimation.
 
-        return metisIoOperations_Send(conn->ops, NULL, message);
+         //NEED here to recompute the path label (to avoid wrong path labeling, due to PIT aggregation)
+        uint8_t connectionId = (uint8_t) metisConnection_GetConnectionId(conn);
+        int old_label =  metisMessage_GetPathLabel(message); 
+        metisMessage_UpdatePathLabel(message, connectionId);
+        bool ret = metisIoOperations_Send(conn->ops, NULL, message);
+        metisMessage_SetPathLabel(message, (uint8_t)old_label);
+        return ret;
     }
     return false;
 }

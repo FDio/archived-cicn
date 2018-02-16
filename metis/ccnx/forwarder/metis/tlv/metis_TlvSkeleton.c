@@ -280,6 +280,33 @@ metisTlvSkeleton_UpdateHopLimit(MetisTlvSkeleton *opaque, uint8_t hoplimit)
     return updated;
 }
 
+int
+metisTlvSkeleton_GetPathLabelValue(MetisTlvSkeleton *opaque)
+{
+    _InternalSkeleton *skeleton = (_InternalSkeleton *) opaque;
+    int label = -1;
+    if (!metisTlvExtent_Equals(&skeleton->array[INDEX_PATHLABEL], &metisTlvExtent_NotFound)) {
+        if (skeleton->array[INDEX_PATHLABEL].length == 1) {
+            uint8_t *value = skeleton->packet + skeleton->array[INDEX_PATHLABEL].offset;
+            label = *value;
+        }
+    }
+    return label;
+}
+
+void
+metisTlvSkeleton_SetPathLabelValue(MetisTlvSkeleton *opaque, uint8_t pathLabel)
+{
+    _InternalSkeleton *skeleton = (_InternalSkeleton *) opaque;
+    if (!metisTlvExtent_Equals(&skeleton->array[INDEX_PATHLABEL], &metisTlvExtent_NotFound)) {
+        if (skeleton->array[INDEX_PATHLABEL].length == 1) {
+            uint8_t *value = skeleton->packet + skeleton->array[INDEX_PATHLABEL].offset;
+            *value = pathLabel;
+        }
+    }
+}
+
+
 bool
 metisTlvSkeleton_UpdatePathLabel(MetisTlvSkeleton *opaque, uint8_t outFace)
 {

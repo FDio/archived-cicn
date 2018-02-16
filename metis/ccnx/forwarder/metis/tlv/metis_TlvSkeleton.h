@@ -361,6 +361,8 @@ bool metisTlvSkeleton_UpdateHopLimit(MetisTlvSkeleton *skeleton, uint8_t hoplimi
 void metisTlvSkeleton_SetPathLabel(MetisTlvSkeleton *skeleton, size_t offset, size_t length);
 bool metisTlvSkeleton_UpdatePathLabel(MetisTlvSkeleton *opaque, uint8_t outFace);
 bool metisTlvSkeleton_ResetPathLabel(MetisTlvSkeleton *opaque);
+int metisTlvSkeleton_GetPathLabelValue(MetisTlvSkeleton *opaque);
+void metisTlvSkeleton_SetPathLabelValue(MetisTlvSkeleton *opaque, uint8_t pathLabel);
 
 // ====================================
 // Getters
