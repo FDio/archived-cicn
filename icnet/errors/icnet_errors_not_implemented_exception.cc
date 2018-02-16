@@ -15,8 +15,6 @@
 
 #include "icnet_errors_not_implemented_exception.h"
 
-namespace icnet {
-
 namespace errors {
 
 NotImplementedException::NotImplementedException()
@@ -29,5 +27,3 @@ char const *NotImplementedException::what() const noexcept {
 }
 
 } // end namespace errors
-
-} // end namespace icnet

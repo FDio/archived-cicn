@@ -17,8 +17,6 @@
 
 #include <cstddef>
 
-namespace icnet {
-
 namespace utils {
 
 class Array {
@@ -39,7 +37,5 @@ class Array {
   std::size_t size_;
   const void *array_;
 };
-
-}
 
 }

@@ -31,7 +31,7 @@ namespace http {
 
 //typedef std::vector<uint8_t> HTTPResponse;
 typedef std::vector<uint8_t> HttpRequest;
-typedef std::function<void(std::shared_ptr<HTTPServerPublisher> &, const uint8_t *, std::size_t)> OnHttpRequest;
+typedef std::function<void(std::shared_ptr<HTTPServerPublisher> &, const uint8_t *, std::size_t, int request_id)> OnHttpRequest;
 
 class HTTPServerAcceptor {
  public:
@@ -42,11 +42,7 @@ class HTTPServerAcceptor {
 
   HttpRequest &&request();
 
-//  void asyncSendResponse();
-
-//  HTTPClientConnection& get(std::string &url, HTTPHeaders headers = {}, HTTPPayload payload = {});
-//
-//  HTTPResponse&& response();
+  std::map<int, std::shared_ptr<HTTPServerPublisher>>& getPublishers();
 
  private:
 
@@ -55,6 +51,8 @@ class HTTPServerAcceptor {
   OnHttpRequest callback_;
   HttpRequest request_;
   std::shared_ptr<transport::ProducerSocket> acceptor_producer_;
+
+  std::map<int, std::shared_ptr<HTTPServerPublisher>> publishers_;
 };
 
 } // end namespace http

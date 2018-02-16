@@ -18,8 +18,6 @@
 #include <string>
 #include <algorithm>    // find
 
-namespace icnet {
-
 namespace utils {
 
 class Uri {
@@ -45,7 +43,5 @@ class Uri {
  private:
   std::string query_string_, path_, protocol_, locator_, port_;
 };  // uri
-
-}
 
 }

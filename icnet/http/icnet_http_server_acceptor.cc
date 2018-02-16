@@ -106,65 +106,29 @@ void HTTPServerAcceptor::processIncomingInterest(transport::ProducerSocket &p, c
 
   if (method == "GET") {
     HTTPRequest request(GET, url, headers, payload);
-    auto publisher = std::make_shared<HTTPServerPublisher>(request_name);
-    callback_(publisher, (uint8_t *) request.getRequestString().data(), request.getRequestString().size());
+
+    int request_id = utils::Hash::hash32(request.getRequestString().data(), request.getRequestString().size());
+
+    if (publishers_.find(request_id) != publishers_.end()) {
+      if (publishers_[request_id]) {
+        publishers_[request_id]->getProducer().onInterest(interest.getName(), interest);
+        return;
+      }
+    } else {
+      std::cout << "Request ID" << request_id << std::endl;
+    }
+
+    publishers_[request_id] = std::make_shared<HTTPServerPublisher>(request_name);
+    callback_(publishers_[request_id],
+              (uint8_t *) request.getRequestString().data(),
+              request.getRequestString().size(),
+              request_id);
   }
 }
 
-//void HTTPServerConnection::sendResponse() {
-//
-//  std::thread t([]() {
-//
-//    // Get the name of the HTTP method to compute
-//    std::string method = request_name.get(1).toString();
-//    std::transform(method.begin(), method.end(), method.begin(), ::toupper);
-//    std::string path;
-//
-//    // This is done for getting rid of useless name components such as ccnx: or ndn:
-//    if (request_name.getSegmentCount() > 2) {
-//      std::string rawPath = request_name.getSubName(2).toString();
-//      std::size_t pos = rawPath.find("/");
-//      path = rawPath.substr(pos);
-//    }
-//
-//    // Create new producer
-//
-//    // Create timer for response availability
-//    std::shared_ptr<core::Portal> portal;
-//    po->getSocketOption(icnet::GeneralTransportOptions::PORTAL, portal);
-//    boost::asio::io_service &ioService = portal->getIoService();
-//
-//    boost::asio::deadline_timer t(ioService, boost::posix_time::seconds(5));
-//
-//    std::function<void(const boost::system::error_code e)>
-//        wait_callback = [&ioService](const boost::system::error_code e) {
-//      if (!e) {
-//        // Be sure to delete the timer before the io_service, otherwise we'll get some strange behavior!
-//        ioService.stop();
-//      }
-//    };
-//
-//    std::function<void(transport::ProducerSocket, const core::Interest &interest)>
-//        interest_enter_callback = [this, &wait_callback, &t]
-//        (transport::ProducerSocket &p, const core::Interest &interest) {
-//      t.cancel();
-//      t.expires_from_now(boost::posix_time::seconds(5));
-//      t.async_wait(wait_callback);
-//    };
-//
-//    p->setSocketOption(transport::ProducerCallbacksOptions::INTEREST_INPUT,
-//                       (transport::ProducerInterestCallback) interest_enter_callback);
-//
-//    t.async_wait(wait_callback);
-//
-//    p->serveForever();
-//
-//    std::unique_lock<std::mutex> lock(thread_list_mtx_);
-//    icn_producers_.erase(request_name);
-//  });
-//
-//  t.detach();
-//}
+std::map<int, std::shared_ptr<HTTPServerPublisher>>& HTTPServerAcceptor::getPublishers() {
+  return publishers_;
+}
 
 }
 

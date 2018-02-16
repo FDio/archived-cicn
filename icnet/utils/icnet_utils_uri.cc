@@ -16,8 +16,6 @@
 #include "icnet_utils_uri.h"
 #include "icnet_errors_runtime_exception.h"
 
-namespace icnet {
-
 namespace utils {
 
 Uri::Uri() {
@@ -133,5 +131,3 @@ std::string Uri::getQueryString() {
 }
 
 } // end namespace utils
-
-} // end namespace icnet

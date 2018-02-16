@@ -89,21 +89,25 @@ set(HTTP_HEADER_FILES
         http/icnet_http_client_connection.h
         http/icnet_http_server_acceptor.h
         http/icnet_http_server_publisher.h
+    http/icnet_http_message.h
         http/icnet_http_request.h
+    http/icnet_http_response.h
         http/icnet_http_facade.h)
 
 set(HTTP_SOURCE_FILES
         http/icnet_http_client_connection.cc
         http/icnet_http_server_acceptor.cc
         http/icnet_http_server_publisher.cc
-        http/icnet_http_request.cc)
+        http/icnet_http_request.cc
+        http/icnet_http_response.cc)
 
 set(UTILS_HEADER_FILES
         utils/icnet_utils_array.h
         utils/icnet_utils_uri.h
         utils/icnet_utils_daemonizator.h
         utils/icnet_utils_hash.h
-        utils/icnet_utils_string_tokenizer.h)
+        utils/icnet_utils_string_tokenizer.h
+        utils/icnet_utils_sharable_vector.h)
 
 set(UTILS_SOURCE_FILES
         utils/icnet_utils_array.cc

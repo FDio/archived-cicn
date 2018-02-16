@@ -19,7 +19,7 @@ namespace icnet {
 
 namespace http {
 
-void onPayload(std::shared_ptr<HTTPServerPublisher> &publisher, const uint8_t *buffer, std::size_t size) {
+void onPayload(std::shared_ptr<HTTPServerPublisher> &publisher, const uint8_t *buffer, std::size_t size, int request_id) {
 
   char *string = (char *) buffer;
   std::cout << "Received this content:" << std::endl;

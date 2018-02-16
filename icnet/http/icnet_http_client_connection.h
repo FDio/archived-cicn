@@ -19,9 +19,11 @@
 #include "icnet_transport_socket_producer.h"
 #include "icnet_utils_uri.h"
 #include "icnet_http_request.h"
+#include "icnet_http_response.h"
 #include "icnet_http_default_values.h"
 
 #include <vector>
+#include <boost/asio/steady_timer.hpp>
 
 #define HTTP_VERSION "1.0"
 
@@ -33,7 +35,9 @@ class HTTPClientConnection {
  public:
   HTTPClientConnection();
 
-  HTTPClientConnection &get(std::string &url, HTTPHeaders headers = {}, HTTPPayload payload = {});
+  HTTPClientConnection &get(const std::string &url,
+                            HTTPHeaders headers = {},
+                            HTTPPayload payload = {});
 
   HTTPResponse &&response();
 
@@ -41,16 +45,19 @@ class HTTPClientConnection {
 
   transport::ConsumerSocket &getConsumer();
 
+  void setTimeout(const std::chrono::seconds &timeout);
+
  private:
 
-  void processPayload(transport::ConsumerSocket &c, std::vector<uint8_t> &&payload);
+  void processPayload(transport::ConsumerSocket &c, std::vector<uint8_t> &&response);
 
   bool verifyData(transport::ConsumerSocket &c, const transport::ContentObject &contentObject);
 
   void processLeavingInterest(transport::ConsumerSocket &c, const transport::Interest &interest, std::string &payload);
 
-  HTTPResponse response_;
+  std::shared_ptr<HTTPResponse> response_;
   transport::ConsumerSocket consumer_;
+  std::unique_ptr<boost::asio::steady_timer> timer_;
 };
 
 } // end namespace http

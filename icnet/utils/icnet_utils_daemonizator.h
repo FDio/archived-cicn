@@ -15,15 +15,11 @@
 
 #pragma once
 
-namespace icnet {
-
 namespace utils {
 
 class Daemonizator {
  public:
   static void daemonize();
 };
-
-}
 
 }

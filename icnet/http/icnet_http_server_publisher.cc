@@ -36,10 +36,14 @@ HTTPServerPublisher& HTTPServerPublisher::attachPublisher() {
   return *this;
 }
 
-HTTPServerPublisher &HTTPServerPublisher::setTimeout(uint32_t timeout) {
+transport::ProducerSocket& HTTPServerPublisher::getProducer() {
+  return *producer_;
+}
+
+HTTPServerPublisher &HTTPServerPublisher::setTimeout(const std::chrono::milliseconds &timeout, bool timeout_renewal) {
   std::shared_ptr<transport::Portal> portal;
   producer_->getSocketOption(transport::GeneralTransportOptions::PORTAL, portal);
-  timer_ = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(portal->getIoService(), boost::posix_time::seconds(timeout)));
+  timer_ = std::unique_ptr<boost::asio::steady_timer>(new boost::asio::steady_timer(portal->getIoService(), timeout));
 
   wait_callback_ = [this](const boost::system::error_code e) {
     if (!e) {
@@ -47,14 +51,16 @@ HTTPServerPublisher &HTTPServerPublisher::setTimeout(uint32_t timeout) {
     }
   };
 
-  interest_enter_callback_ = [this, timeout](transport::ProducerSocket &p, const transport::Interest &interest) {
-    this->timer_->cancel();
-    this->timer_->expires_from_now(boost::posix_time::seconds(timeout));
-    this->timer_->async_wait(wait_callback_);
-  };
+  if (timeout_renewal) {
+    interest_enter_callback_ = [this, timeout](transport::ProducerSocket &p, const transport::Interest &interest) {
+      this->timer_->cancel();
+      this->timer_->expires_from_now(timeout);
+      this->timer_->async_wait(wait_callback_);
+    };
 
-  producer_->setSocketOption(transport::ProducerCallbacksOptions::INTEREST_INPUT,
-                             (transport::ProducerInterestCallback) interest_enter_callback_);
+    producer_->setSocketOption(transport::ProducerCallbacksOptions::INTEREST_INPUT,
+                               (transport::ProducerInterestCallback) interest_enter_callback_);
+  }
 
   timer_->async_wait(wait_callback_);
 

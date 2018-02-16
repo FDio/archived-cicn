@@ -20,8 +20,6 @@
 #include <iostream>
 #include <sys/stat.h>
 
-namespace icnet {
-
 namespace utils {
 
 void Daemonizator::daemonize() {
@@ -67,8 +65,6 @@ void Daemonizator::daemonize() {
   close(STDERR_FILENO);
 
   // Really start application
-}
-
 }
 
 }

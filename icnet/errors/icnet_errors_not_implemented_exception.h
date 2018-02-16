@@ -17,8 +17,6 @@
 
 #include <stdexcept>
 
-namespace icnet {
-
 namespace errors {
 
 class NotImplementedException : public std::logic_error {
@@ -28,5 +26,3 @@ class NotImplementedException : public std::logic_error {
 };
 
 } // end namespace errors
-
-} // end namespace icnet

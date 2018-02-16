@@ -20,6 +20,7 @@
 #include "icnet_http_default_values.h"
 
 #include <vector>
+#include <boost/asio/steady_timer.hpp>
 #include <functional>
 
 #ifdef __ANDROID__
@@ -51,16 +52,18 @@ class HTTPServerPublisher {
 
   void stop();
 
-  HTTPServerPublisher &setTimeout(uint32_t timeout);
+  HTTPServerPublisher &setTimeout(const std::chrono::milliseconds &timeout, bool timeout_renewal);
 
   HTTPServerPublisher &attachPublisher();
+
+  transport::ProducerSocket& getProducer();
 
  private:
 
   void processIncomingInterest(transport::ProducerSocket &p, const transport::Interest &interest);
 
   transport::Name content_name_;
-  std::unique_ptr<boost::asio::deadline_timer> timer_;
+  std::unique_ptr<boost::asio::steady_timer> timer_;
   std::unique_ptr<transport::ProducerSocket> producer_;
   transport::ProducerInterestCallback interest_enter_callback_;
   DeadlineTimerCallback wait_callback_;

@@ -15,8 +15,6 @@
 
 #include "icnet_errors.h"
 
-namespace icnet {
-
 namespace errors {
 
 MalformedNameException::MalformedNameException()
@@ -28,5 +26,3 @@ char const *MalformedNameException::what() const noexcept {
 }
 
 } // end namespace errors
-
-} // end namespace icnet

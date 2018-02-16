@@ -15,24 +15,15 @@
 
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
+#include <vector>
+#include <memory>
 
 namespace utils {
 
-//const uint32_t FNV1A_PRIME_32 = 0x01000193;
-//const uint32_t FNV1A_OFFSET_32 = 0x811C9DC5;
-//const uint64_t FNV1A_PRIME_64 = 0x00000100000001B3ULL;
-//const uint64_t FNV1A_OFFSET_64 = 0xCBF29CE484222325ULL;
-
-class Hash {
+template<class T>
+class SharableVector : public std::vector<T>, public std::enable_shared_from_this<SharableVector<T>> {
  public:
-  static uint32_t cumulativeHash32(const void *data, std::size_t len, uint32_t lastValue);
-  static uint64_t cumulativeHash64(const void *data, std::size_t len, uint64_t lastValue);
-  static uint32_t hash32(const void *data, std::size_t len);
-  static uint64_t hash64(const void *data, std::size_t len);
- private:
-
+  virtual ~SharableVector() {};
 };
 
 }

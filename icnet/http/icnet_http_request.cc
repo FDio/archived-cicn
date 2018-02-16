@@ -20,17 +20,10 @@ namespace icnet {
 
 namespace http {
 
-static std::map<HTTPMethod, std::string> method_map = {
-    {GET, "GET"},
-    {POST, "POST"},
-    {PUT, "PUT"},
-    {PATCH, "PATCH"},
-    {DELETE, "DELETE"},
-};
-
-//std::map<HTTPMethod, std::string> method_map
-
-HTTPRequest::HTTPRequest(HTTPMethod method, std::string &url, HTTPHeaders &headers, HTTPPayload &payload) {
+HTTPRequest::HTTPRequest(HTTPMethod method,
+                         const std::string &url,
+                         const HTTPHeaders &headers,
+                         const HTTPPayload &payload) {
   utils::Uri uri;
   uri.parse(url);
 
@@ -39,6 +32,7 @@ HTTPRequest::HTTPRequest(HTTPMethod method, std::string &url, HTTPHeaders &heade
   protocol_ = uri.getProtocol();
   locator_ = uri.getLocator();
   port_ = uri.getPort();
+  http_version_ = HTTP_VERSION;
 
   headers_ = headers;
   payload_ = payload;
@@ -97,6 +91,10 @@ HTTPPayload &HTTPRequest::getPayload() {
 
 std::string &HTTPRequest::getRequestString() {
   return request_string_;
+}
+
+std::string &HTTPRequest::getHttpVersion() {
+  return http_version_;
 }
 
 }

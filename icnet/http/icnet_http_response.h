@@ -17,48 +17,43 @@
 
 #include "icnet_utils_sharable_vector.h"
 #include "icnet_http_message.h"
+#include "icnet_utils_array.h"
 
 #include <sstream>
 #include <vector>
 #include <map>
 
-#define HTTP_VERSION "1.0"
-
 namespace icnet {
 
 namespace http {
 
-class HTTPRequest : public HTTPMessage {
+class HTTPResponse : public HTTPMessage, public utils::SharableVector<uint8_t> {
  public:
 
-  HTTPRequest(HTTPMethod method,
-              const std::string &url, const HTTPHeaders &headers, const HTTPPayload &payload);
+  HTTPResponse(const HTTPHeaders &headers, const HTTPPayload &payload);
 
-  std::string &getQueryString();
-
-  std::string &getPath();
-
-  std::string &getProtocol();
-
-  std::string &getLocator();
-
-  std::string &getPort();
-
-  std::string &getRequestString();
+  HTTPResponse();
 
   HTTPHeaders &getHeaders() override;
 
   HTTPPayload &getPayload() override;
 
+  std::string &getStatusCode();
+
+  std::string &getStatusString();
+
   std::string &getHttpVersion() override;
 
+  void parse();
+
  private:
-  std::string query_string_, path_, protocol_, locator_, port_;
-  std::string request_string_;
-  HTTPHeaders headers_;
-  HTTPPayload payload_;
+  bool parseHeaders();
+
+ private:
+  std::string status_code_;
+  std::string status_string_;
 };
 
 } // end namespace http
 
-} // end namespace icnet
+} // end namespace hicnet

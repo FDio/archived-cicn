@@ -17,8 +17,6 @@
 #include "icnet_utils_string_tokenizer.h"
 #include "icnet_errors.h"
 
-namespace icnet {
-
 namespace utils {
 
 StringTokenizer::StringTokenizer(const std::string &str)
@@ -48,5 +46,4 @@ std::string StringTokenizer::nextToken() {
   return token;
 }
 
-}
 }

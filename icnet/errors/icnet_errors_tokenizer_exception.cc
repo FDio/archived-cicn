@@ -15,8 +15,6 @@
 
 #include "icnet_errors_tokenizer_exception.h"
 
-namespace icnet {
-
 namespace errors {
 
 TokenizerException::TokenizerException()
@@ -29,5 +27,3 @@ char const *TokenizerException::what() const noexcept {
 }
 
 } // end namespace errors
-
-} // end namespace icnet

@@ -16,7 +16,6 @@
 #pragma once
 
 #include "icnet_utils_sharable_vector.h"
-#include "icnet_http_message.h"
 
 #include <sstream>
 #include <vector>
@@ -28,37 +27,38 @@ namespace icnet {
 
 namespace http {
 
-class HTTPRequest : public HTTPMessage {
+typedef enum {
+  GET,
+  POST,
+  PUT,
+  PATCH,
+  DELETE
+} HTTPMethod;
+
+static std::map<HTTPMethod, std::string> method_map = {
+    {GET, "GET"}, {POST, "POST"}, {PUT, "PUT"}, {PATCH, "PATCH"}, {DELETE, "DELETE"},
+};
+
+typedef std::map<std::string, std::string> HTTPHeaders;
+typedef std::vector<uint8_t> HTTPPayload;
+
+class HTTPMessage {
  public:
 
-  HTTPRequest(HTTPMethod method,
-              const std::string &url, const HTTPHeaders &headers, const HTTPPayload &payload);
+  virtual ~HTTPMessage() = default;
 
-  std::string &getQueryString();
+  virtual HTTPHeaders &getHeaders() = 0;
 
-  std::string &getPath();
+  virtual HTTPPayload &getPayload() = 0;
 
-  std::string &getProtocol();
+  virtual std::string &getHttpVersion() = 0;
 
-  std::string &getLocator();
-
-  std::string &getPort();
-
-  std::string &getRequestString();
-
-  HTTPHeaders &getHeaders() override;
-
-  HTTPPayload &getPayload() override;
-
-  std::string &getHttpVersion() override;
-
- private:
-  std::string query_string_, path_, protocol_, locator_, port_;
-  std::string request_string_;
+ protected:
   HTTPHeaders headers_;
   HTTPPayload payload_;
+  std::string http_version_;
 };
 
 } // end namespace http
 
-} // end namespace icnet
+} // end namespace hicnet

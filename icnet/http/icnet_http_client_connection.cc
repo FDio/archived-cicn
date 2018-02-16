@@ -28,7 +28,8 @@ namespace http {
 using namespace transport;
 
 HTTPClientConnection::HTTPClientConnection()
-    : consumer_(Name("ccnx:"), transport::TransportProtocolAlgorithms::RAAQM) {
+    : consumer_(Name("ccnx:"), transport::TransportProtocolAlgorithms::RAAQM), timer_(nullptr),
+      response_(std::make_shared<HTTPResponse>()) {
 
   consumer_.setSocketOption(ConsumerCallbacksOptions::CONTENT_OBJECT_TO_VERIFY,
                             (ConsumerContentObjectVerificationCallback) std::bind(&HTTPClientConnection::verifyData,
@@ -41,9 +42,15 @@ HTTPClientConnection::HTTPClientConnection()
                                                                 this,
                                                                 std::placeholders::_1,
                                                                 std::placeholders::_2));
+
+  std::shared_ptr<ccnx::Portal> portal;
+  consumer_.getSocketOption(GeneralTransportOptions::PORTAL, portal);
+  timer_.reset(new boost::asio::steady_timer(portal->getIoService()));
 }
 
-HTTPClientConnection &HTTPClientConnection::get(std::string &url, HTTPHeaders headers, HTTPPayload payload) {
+HTTPClientConnection &HTTPClientConnection::get(const std::string &url,
+                                                HTTPHeaders headers,
+                                                HTTPPayload payload) {
 
   HTTPRequest request(GET, url, headers, payload);
 
@@ -60,7 +67,7 @@ HTTPClientConnection &HTTPClientConnection::get(std::string &url, HTTPHeaders he
 
   // Send content to producer piggybacking it through first interest (to fix)
 
-  response_.clear();
+  response_->clear();
 
   // Factor icn name
 
@@ -78,12 +85,12 @@ HTTPClientConnection &HTTPClientConnection::get(std::string &url, HTTPHeaders he
 }
 
 HTTPResponse &&HTTPClientConnection::response() {
-  return std::move(response_);
+  return std::move(*response_);
 }
 
 void HTTPClientConnection::processPayload(transport::ConsumerSocket &c,
                                           std::vector<uint8_t> &&payload) {
-  response_ = std::move(payload);
+  *std::static_pointer_cast<std::vector<uint8_t>>(response_) = std::move(payload);
 }
 
 bool HTTPClientConnection::verifyData(transport::ConsumerSocket &c, const ContentObject &contentObject) {
@@ -99,10 +106,10 @@ bool HTTPClientConnection::verifyData(transport::ConsumerSocket &c, const Conten
 void HTTPClientConnection::processLeavingInterest(transport::ConsumerSocket &c,
                                                   const Interest &interest,
                                                   std::string &payload) {
-  if (interest.getName().get(-1).toSegment() == 0) {
+  //  if (interest.getName().get(-1).toSegment() == 0) {
     Interest &int2 = const_cast<Interest &>(interest);
     int2.setPayload((const uint8_t *) payload.data(), payload.size());
-  }
+  //  }
 }
 
 HTTPClientConnection& HTTPClientConnection::stop() {
@@ -114,6 +121,16 @@ HTTPClientConnection& HTTPClientConnection::stop() {
 
 transport::ConsumerSocket& HTTPClientConnection::getConsumer() {
   return consumer_;
+}
+
+void HTTPClientConnection::setTimeout(const std::chrono::seconds &timeout) {
+  timer_->cancel();
+  timer_->expires_from_now(timeout);
+  timer_->async_wait([this](boost::system::error_code ec) {
+    if (!ec) {
+      consumer_.stop();
+    }
+  });
 }
 
 }

@@ -15,8 +15,6 @@
 
 #include "icnet_errors_runtime_exception.h"
 
-namespace icnet {
-
 namespace errors {
 
 RuntimeException::RuntimeException()
@@ -28,5 +26,3 @@ RuntimeException::RuntimeException()
 //}
 
 } // end namespace errors
-
-} // end namespace icnet

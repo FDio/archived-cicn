@@ -18,8 +18,6 @@
 #include <stdexcept>
 #include <string>
 
-namespace icnet {
-
 namespace errors {
 
 class RuntimeException : public std::runtime_error {
@@ -30,5 +28,3 @@ class RuntimeException : public std::runtime_error {
 };
 
 } // end namespace errors
-
-} // end namespace icnet

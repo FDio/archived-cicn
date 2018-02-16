@@ -15,8 +15,6 @@
 
 #include "icnet_utils_array.h"
 
-namespace icnet {
-
 namespace utils {
 
 Array::Array(const void *array, size_t size) {
@@ -45,8 +43,6 @@ Array &Array::setData(const void *data) {
 Array &Array::setSize(std::size_t size) {
   size_ = size;
   return *this;
-}
-
 }
 
 }

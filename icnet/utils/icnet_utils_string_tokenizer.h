@@ -17,8 +17,6 @@
 
 #include <string>
 
-namespace icnet {
-
 namespace utils {
 
 class StringTokenizer {
@@ -32,7 +30,5 @@ class StringTokenizer {
   std::string str_;
   std::string delimiter_;
 };
-
-}
 
 }

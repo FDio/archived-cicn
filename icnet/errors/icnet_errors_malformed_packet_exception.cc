@@ -15,8 +15,6 @@
 
 #include "icnet_errors_malformed_packet_exception.h"
 
-namespace icnet {
-
 namespace errors {
 
 MalformedPacketException::MalformedPacketException()
@@ -28,5 +26,3 @@ char const *MalformedPacketException::what() const noexcept {
 }
 
 } // end namespace errors
-
-} // end namespace icnet

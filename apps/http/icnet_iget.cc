@@ -29,19 +29,21 @@ namespace http {
 
 void processResponse(std::string &name, HTTPResponse &&response) {
 
+  auto &payload = response.getPayload();
+
   std::string filename = name.substr(1 + name.find_last_of("/"));
-  std::cout << "Saving to: " << filename << " " << response.size() / 1024 << "kB" << std::endl;
+  std::cout << "Saving to: " << filename << " " << payload.size() / 1024 << "kB" << std::endl;
   Time t3 = std::chrono::system_clock::now();;
   std::ofstream file(filename.c_str(), std::ofstream::binary);
-  file.write((char *) response.data(), response.size());
+  file.write((char *) payload.data(), payload.size());
   file.close();
   Time t2 = std::chrono::system_clock::now();;
   TimeDuration dt = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
   TimeDuration dt3 = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1);
   long msec = dt.count();
   long msec3 = dt3.count();
-  std::cout << "Elapsed Time: " << msec / 1000.0 << " seconds -- " << response.size() * 8 / msec / 1000.0
-            << "[Mbps] -- " << response.size() * 8 / msec3 / 1000.0 << "[Mbps]" << std::endl;
+  std::cout << "Elapsed Time: " << msec / 1000.0 << " seconds -- " << payload.size() * 8 / msec / 1000.0
+            << "[Mbps] -- " << payload.size() * 8 / msec3 / 1000.0 << "[Mbps]" << std::endl;
 
 }
 

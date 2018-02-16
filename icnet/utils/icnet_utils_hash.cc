@@ -15,8 +15,6 @@
 
 #include "icnet_utils_hash.h"
 
-namespace icnet {
-
 namespace utils {
 
 uint32_t Hash::hash32(const void *data, std::size_t len) {
@@ -57,8 +55,6 @@ uint64_t Hash::cumulativeHash64(const void *data, std::size_t len, uint64_t last
   }
 
   return hash;
-}
-
 }
 
 }
