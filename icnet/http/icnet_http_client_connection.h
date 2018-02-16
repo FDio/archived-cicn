@@ -55,9 +55,11 @@ class HTTPClientConnection {
 
   void processLeavingInterest(transport::ConsumerSocket &c, const transport::Interest &interest, std::string &payload);
 
-  std::shared_ptr<HTTPResponse> response_;
   transport::ConsumerSocket consumer_;
+
   std::unique_ptr<boost::asio::steady_timer> timer_;
+
+  std::shared_ptr<HTTPResponse> response_;
 };
 
 } // end namespace http
