@@ -133,20 +133,20 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
        this->res = true;
        this->dataPos = 0;
     }
-    if (response.size() - this->dataPos > (int)len)
+    if (response.getPayload().size() - this->dataPos > (int)len)
     {
-       memcpy(data, (char*)response.data() + this->dataPos, len);
+       memcpy(data, (char*)response.getPayload().data() + this->dataPos, len);
        this->dataPos += len;
        return len;
     } else
     {
-        memcpy(data, (char*)response.data() + this->dataPos, response.size() - this->dataPos);
-	 int length = response.size() - this->dataPos;
+        memcpy(data, (char*)response.getPayload().data() + this->dataPos, response.getPayload().size() - this->dataPos);
+	 int length = response.getPayload().size() - this->dataPos;
 	if (length == 0)
         {
           this->res = false;
         }
-        this->dataPos = response.size();
+        this->dataPos = response.getPayload().size();
         return length;
     }
 }
