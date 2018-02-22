@@ -31,7 +31,7 @@ void IcnResponse::send(const SendCallback &callback) {
 
   this->publisher_->publishContent(boost::asio::buffer_cast<const uint8_t *>(this->streambuf_.data()),
                                    buffer_size,
-                                   std::chrono::milliseconds(100000),
+                                   response_lifetime_,
                                    this->response_id_,
                                    this->is_last_);
 
