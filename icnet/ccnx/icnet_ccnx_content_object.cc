@@ -29,7 +29,7 @@ ContentObject::ContentObject()
       content_type_(PayloadType::DATA) {
 }
 
-ContentObject::ContentObject(const Name &name, uint8_t *payload, std::size_t size)
+ContentObject::ContentObject(const Name &name, const uint8_t *payload, std::size_t size)
     : name_(name), content_type_(PayloadType::DATA) {
   PARCBuffer *buffer = parcBuffer_CreateFromArray(payload, size);
   buffer = parcBuffer_Flip(buffer);

@@ -59,7 +59,7 @@ class ContentObject : public std::enable_shared_from_this<ContentObject> {
  public:
   ContentObject();
 
-  ContentObject(const Name &name, uint8_t *payload, std::size_t size);
+  ContentObject(const Name &name, const uint8_t *payload, std::size_t size);
 
   ContentObject(const CCNxContentObjectStructure *content_object);
 

@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
 } // end namespace http
 
-} // end namespace hicnet
+} // end namespace icnet
 
 int main(int argc, char **argv) {
   return icnet::http::main(argc, argv);

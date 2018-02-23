@@ -20,11 +20,18 @@ set(PRODUCER_SOURCE_FILES
 set(PRODUCER_HELLO_WORLD_SOURCE_FILES
         icnet_producer_hello_world.cc)
 
+set(PRODUCER_PING_SOURCE_FILES
+    icnet_ping_server.cc)
+
 add_executable(producer-test ${PRODUCER_SOURCE_FILES})
 add_executable(producer-hello-world ${PRODUCER_HELLO_WORLD_SOURCE_FILES})
+add_executable(icnet-ping-server ${PRODUCER_PING_SOURCE_FILES})
+
 
 target_link_libraries(producer-test icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 target_link_libraries(producer-hello-world icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+target_link_libraries(icnet-ping-server icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
 install(TARGETS producer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
 install(TARGETS producer-hello-world DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
+install(TARGETS icnet-ping-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
