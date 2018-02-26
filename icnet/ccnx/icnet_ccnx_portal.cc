@@ -70,11 +70,11 @@ void Portal::sendInterest(const Interest &interest,
     if (ec.value() != boost::system::errc::operation_canceled) {
       std::unordered_map<Name, std::unique_ptr<PendingInterest>>::iterator it = pending_interest_hash_table_.find(name);
       if (it != pending_interest_hash_table_.end()) {
-        it->second->getOnTimeoutCallback()(*it->second->getInterest());
+        std::unique_ptr<PendingInterest> ptr = std::move(it->second);
+        pending_interest_hash_table_.erase(it);
+        ptr->getOnTimeoutCallback()(*ptr->getInterest());
       }
     }
-
-    pending_interest_hash_table_.erase(name);
   };
 
   pend_interest->startCountdown(timer_callback);
