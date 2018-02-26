@@ -27,7 +27,7 @@ add_executable(consumer-hello-world ${CONSUMER__HELLO_WORLD_SOURCE_FILES})
 target_link_libraries(consumer-hello-world icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 install(TARGETS consumer-hello-world DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
 
-add_executable(icnet-ping-client ${CONSUMER_PING_CLIENT_SOURCE_FILES})
+add_executable(iping-client ${CONSUMER_PING_CLIENT_SOURCE_FILES})
 
-target_link_libraries(icnet-ping-client icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-install(TARGETS icnet-ping-client DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
+target_link_libraries(iping-client icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+install(TARGETS iping-client DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
