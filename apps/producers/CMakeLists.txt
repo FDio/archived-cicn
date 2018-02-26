@@ -23,6 +23,9 @@ set(PRODUCER_HELLO_WORLD_SOURCE_FILES
 set(PRODUCER_PING_SOURCE_FILES
     icnet_ping_server.cc)
 
+set(PRODUCER_PING_SERVER_SERVICE_FILE
+    config/iping-server.service)
+
 add_executable(producer-test ${PRODUCER_SOURCE_FILES})
 add_executable(producer-hello-world ${PRODUCER_HELLO_WORLD_SOURCE_FILES})
 add_executable(iping-server ${PRODUCER_PING_SOURCE_FILES})
@@ -35,3 +38,7 @@ target_link_libraries(iping-server icnet ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRA
 install(TARGETS producer-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
 install(TARGETS producer-hello-world DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
 install(TARGETS iping-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
+
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  install(FILES ${PRODUCER_PING_SERVER_SERVICE_FILE} DESTINATION /lib/systemd/system)
+endif()

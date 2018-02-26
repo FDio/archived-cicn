@@ -45,25 +45,24 @@ class CallbackContainer {
 };
 
 void help(char * program_name) {
-  std::cout << "usage: " << program_name <<" [options]" << std::endl;
+  std::cout << "usage: " << program_name <<" [options]" << " icn-name" << std::endl;
   std::cout << "PING options" << std::endl;
   std::cout << "-s <val>  object content size (default 64B)" << std::endl;
-  std::cout << "-n <val>  icn name (default ccnx:/webserver)" << std::endl;
   std::cout << "OUTPUT options" << std::endl;
   std::cout << "-H        prints this message" << std::endl;
 }
 
 int main(int argc, char **argv) {
-  std::string name_prefix = "ccnx:/pingserver";
+  std::string name_prefix = "ccnx:/ipingserver";
   bool daemon = false;
   uint32_t object_size = 64;
   uint8_t ttl = 64;
 
   int opt;
-  while ((opt = getopt(argc, argv, "s:n:t:dH")) != -1) {
+  while ((opt = getopt(argc, argv, "s:t:dH")) != -1) {
     switch (opt) {
       case 's':
-        object_size = std::stoi(optarg);
+        object_size = uint32_t(std::stoul(optarg));
         break;
       case 't':
         ttl = (uint8_t) std::stoi(optarg);
@@ -78,8 +77,11 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (argv[optind] != 0) {
+  if (argv[optind] != nullptr) {
     name_prefix = argv[optind];
+  } else {
+    help(argv[0]);
+    exit(EXIT_FAILURE);
   }
 
   if (daemon) {

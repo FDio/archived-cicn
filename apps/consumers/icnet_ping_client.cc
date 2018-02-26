@@ -202,15 +202,14 @@ class Client {
 };
 
 void help(char * program_name) {
-  std::cout << "usage: " << program_name << " [options]" << std::endl;
+  std::cout << "usage: " << program_name << " [options]" << " icn-name" << std::endl;
   std::cout << "PING options" << std::endl;
-  std::cout << "-i <val>          ping interval in microseconds (default 1000ms)" << std::endl;
+  std::cout << "-i <val>          ping interval in microseconds (default 1000 ms)" << std::endl;
   std::cout << "-m <val>          maximum number of pings to send (default unlimited)" << std::endl;
   std::cout << "-t <val>          set packet ttl (default 64)" << std::endl;
   //std::cout << "-j <val1> <val2>  jump <val2> sequence numbers every <val1> interests (default disabled)" << std::endl;
   std::cout << "ICN options" << std::endl;
-  std::cout << "-n <val>          icn name (default ccnx:/pingserver)" << std::endl;
-  std::cout << "-l <val>          interest lifetime in milliseconds (default 500ms)" << std::endl;
+  std::cout << "-l <val>          interest lifetime in milliseconds (default 500 ms)" << std::endl;
   std::cout << "OUTPUT options" << std::endl;
   std::cout << "-H                prints this message" << std::endl;
 }
@@ -220,19 +219,19 @@ int main(int argc, char *argv[]) {
   Configuration c;
   int opt;
 
-  while ((opt = getopt(argc, argv, "j::t:i:m:s:d:n:l:SAOqVDH")) != -1) {
+  while ((opt = getopt(argc, argv, "t:i:m:l:H")) != -1) {
     switch (opt) {
       case 't':
         c.ttl_ = (uint8_t) std::stoi(optarg);
         break;
       case 'i':
-        c.pingInterval_ = std::stoi(optarg);
+        c.pingInterval_ = std::stoul(optarg);
         break;
       case 'm':
-        c.maxPing_ = std::stoi(optarg);
+        c.maxPing_ = std::stoul(optarg);
         break;
       case 'l':
-        c.interestLifetime_ = std::stoi(optarg);
+        c.interestLifetime_ = std::stoul(optarg);
         break;
       case 'H':
       default:
@@ -241,16 +240,17 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (argv[optind] == 0) {
-    std::cerr << "Using default name " << c.name_ << std::endl;
+  if (argv[optind] == nullptr) {
+    help(argv[0]);
+    exit(EXIT_FAILURE);
   } else {
     c.name_ = argv[optind];
   }
 
-  Client *ping = new Client(c);
-  ping->ping();
+  Client ping(c);
+  ping.ping();
 
-  exit(1);
+  return 0;
 }
 
 //close name spaces
