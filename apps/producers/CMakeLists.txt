@@ -40,5 +40,5 @@ install(TARGETS producer-hello-world DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COM
 install(TARGETS iping-server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT library)
 
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  install(FILES ${PRODUCER_PING_SERVER_SERVICE_FILE} DESTINATION /lib/systemd/system)
+  install(FILES ${PRODUCER_PING_SERVER_SERVICE_FILE} DESTINATION /lib/systemd/system COMPONENT library)
 endif()

@@ -37,12 +37,12 @@ class Configuration {
   std::string name_;
   uint8_t ttl_;
 
-  Configuration() {
-    interestLifetime_ = 500;                            //ms
-    pingInterval_ = 1000000;                            //us
-    maxPing_ = std::numeric_limits<uint64_t>::max();    //number of interests
-    name_ = "ccnx:/pingserver";                         //string
-    ttl_ = 64;
+  Configuration()
+    : interestLifetime_(500),                            //ms
+      pingInterval_(1000000),                            //us
+      maxPing_(std::numeric_limits<uint64_t>::max()),    //number of interests
+      name_("ccnx:/pingserver"),                         //string
+      ttl_(64) {
   }
 };
 
@@ -174,6 +174,7 @@ class Client {
                 << "/";
       std::cout << std::fixed << std::setprecision(3) << rtt_mdev / 1000
                 << " ms";
+      std::cout << std::endl;
     }
 
     portal_.stopEventsLoop();
@@ -204,7 +205,7 @@ class Client {
 void help(char * program_name) {
   std::cout << "usage: " << program_name << " [options]" << " icn-name" << std::endl;
   std::cout << "PING options" << std::endl;
-  std::cout << "-i <val>          ping interval in microseconds (default 1000 ms)" << std::endl;
+  std::cout << "-i <val>          ping interval in microseconds (default 10^6 us)" << std::endl;
   std::cout << "-m <val>          maximum number of pings to send (default unlimited)" << std::endl;
   std::cout << "-t <val>          set packet ttl (default 64)" << std::endl;
   //std::cout << "-j <val1> <val2>  jump <val2> sequence numbers every <val1> interests (default disabled)" << std::endl;

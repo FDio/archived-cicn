@@ -18,7 +18,7 @@ After=metis-forwarder.service
 
 [Service]
 Environment=SIZE=64
-Environment-NAME=ccnx:/$(hostname)-pingserver
+Environment-NAME=ccnx:/$(hostname)/pingserver
 # This will overrride the default environment
 EnvironmentFile=-/etc/default/ccnx/iping.conf
 ExecStart=/bin/bash -c "/usr/bin/iping-server -s ${SIZE} ${NAME}"

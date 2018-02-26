@@ -73,6 +73,8 @@ void Portal::sendInterest(const Interest &interest,
         it->second->getOnTimeoutCallback()(*it->second->getInterest());
       }
     }
+
+    pending_interest_hash_table_.erase(name);
   };
 
   pend_interest->startCountdown(timer_callback);
