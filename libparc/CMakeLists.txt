@@ -3,6 +3,8 @@ project(Libparc)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+option(DOC_ONLY "Build documentation only" OFF)
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
@@ -44,7 +46,9 @@ set(OPENSSL_ROOT_DIR $ENV{CCNX_DEPENDENCIES})
 
 include_directories(${PROJECT_BINARY_DIR}/parc ${PROJECT_SOURCE_DIR})
 
-if(COMPILE_FOR_IOS)
+if (DOC_ONLY)
+  message("############ Skipping check of required dependencies.")
+elseif(COMPILE_FOR_IOS)
   find_host_package( LongBow REQUIRED )
   include_directories(${LONGBOW_INCLUDE_DIRS})
 
@@ -62,7 +66,6 @@ else()
   find_package ( Threads REQUIRED )
 
   find_package ( OpenSSL REQUIRED )
-
 endif()
 
 set(PARC_BIN_LIBRARIES
