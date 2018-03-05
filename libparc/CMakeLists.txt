@@ -13,13 +13,13 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
-if( UNIX )
+if(UNIX)
   link_libraries(m)
-endif( UNIX )
+endif(UNIX)
 
-include( CTest )
-include( version )
-include( detectCacheSize )
+include(CTest)
+include(version)
+include(detectCacheSize)
 
 if(ANDROID_API)
   message("############ Detected cross compile for $ENV{CMAKE_SYSTEM_NAME}")
