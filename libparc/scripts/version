@@ -31,12 +31,13 @@ CMTR=$(echo $CMT | sed 's/-/_/')
 
 if [ -n "${BUILD_NUMBER}" ]; then
        BLD="~b${BUILD_NUMBER}"
-fi
-
-if [ -n "${BUILD_NUMBER}" ]; then
-       BLD="~b${BUILD_NUMBER}"
 else
        BLD="~b1"
+fi
+
+if [ "$1" = "rpm-version" ]; then
+  echo ${TAG}
+  exit
 fi
 
 if [ "$1" = "rpm-release" ]; then
