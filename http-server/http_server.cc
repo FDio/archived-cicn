@@ -159,9 +159,9 @@ void HttpServer::start() {
 }
 
 void HttpServer::stop() {
-  acceptor_.close();
-
   io_service_.stop();
+  
+acceptor_.close();
 
   std::map<int, std::shared_ptr<libl4::http::HTTPServerPublisher>>& icn_publishers = icn_acceptor_->getPublishers();
 
