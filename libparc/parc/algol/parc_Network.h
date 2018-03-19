@@ -32,7 +32,7 @@
 #define INPORT_ANY 0
 #endif
 
-#ifdef _ANDROID_
+#ifdef __ANDROID__
 typedef uint16_t in_port_t;
 #endif
 

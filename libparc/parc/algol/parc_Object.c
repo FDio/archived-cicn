@@ -783,7 +783,7 @@ parcObject_Unlock(const PARCObject *object)
 bool
 parcObject_Lock(const PARCObject *object)
 {
-#ifndef _ANDROID_
+#ifndef __ANDROID__
     extern int errno;
 #endif
     bool result = false;
