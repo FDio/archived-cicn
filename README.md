@@ -1,3 +1,4 @@
+
 # Introduction
 The git repository structure is described in this file. It can also be derived
 by scanning the repo itself. The master branch is read only and contains this

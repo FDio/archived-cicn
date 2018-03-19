@@ -66,6 +66,7 @@ else()
   find_package ( Threads REQUIRED )
 
   find_package ( OpenSSL REQUIRED )
+  include_directories(${OPENSSL_INCLUDE_DIR})
 endif()
 
 set(PARC_BIN_LIBRARIES
