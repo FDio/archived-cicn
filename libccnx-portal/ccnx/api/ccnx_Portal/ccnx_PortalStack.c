@@ -154,7 +154,7 @@ ccnxPortalStack_Ignore(const CCNxPortalStack *portalStack, const CCNxName *name,
 int
 ccnxPortalStack_GetErrorCode(const CCNxPortalStack *portalStack)
 {
-#ifndef _ANDROID_
+#ifndef __ANDROID__
     extern int errno;
 #endif
     return errno;

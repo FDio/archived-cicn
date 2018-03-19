@@ -186,7 +186,7 @@ ccnxKeystoreUtilities_CreateInHomeDirectory(const char *keystorePassword, int ke
     return params;
 }
 
-#ifdef _ANDROID_
+#ifdef __ANDROID__
 static char *
 getpass(const char *prompt)
 {
