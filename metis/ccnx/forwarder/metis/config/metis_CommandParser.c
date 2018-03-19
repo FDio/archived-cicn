@@ -35,7 +35,7 @@
 
 #include <ccnx/forwarder/metis/config/metis_CommandParser.h>
 
-#ifndef _ANDROID_
+#ifndef __ANDROID__
 #  ifdef HAVE_ERRNO_H
 #    include <errno.h>
 #  else

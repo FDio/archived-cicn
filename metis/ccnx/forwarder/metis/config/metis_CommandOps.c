@@ -24,7 +24,7 @@
 #include <LongBow/runtime.h>
 #include <string.h>
 
-#ifndef _ANDROID_
+#ifndef __ANDROID__
 #  ifdef HAVE_ERRNO_H
 #    include <errno.h>
 #  else
