@@ -10,7 +10,7 @@
  *****************************************************************************/
 
 #include "String.h"
-
+ 
 using namespace dash::helpers;
 
 void    String::Split   (const std::string &s, char delim, std::vector<std::string>& vector)
