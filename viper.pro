@@ -315,13 +315,13 @@ android {
     android/gradlew.bat
 
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-    INCLUDEPATH += $$(CCNX_HOME)/include
-	INCLUDEPATH += $$(CCNX_HOME)/include/libdash
+    INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include
+    INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"$$(CCNX_HOME)/lib" -lhicnet -ljsoncpp -ldash -lcurl-library -lcurl  -lxml2 -lccnx_hicn_api_portal -lccnx_hicn_transport_rta -lccnx_hicn_api_control -lccnx_hicn_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -lhicn -levent -lssl -lcrypto -lavcodec -lavutil -lavformat -lboost_system
+        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -lhicnet -ljsoncpp -ldash -lcurl  -lxml2 -lccnx_hicn_api_portal -lccnx_hicn_transport_rta -lccnx_hicn_api_control -lccnx_hicn_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -lhicn -levent -lssl -lcrypto -lavcodec -lavutil -lavformat -lboost_system
 		DEFINES += "HICNET=ON"
 	} else {
- 	    LIBS += -L"$$(CCNX_HOME)/lib" -licnet -ldash -lcurl-library -lcurl  -lxml2 -lccnx_api_portal -lccnx_transport_rta -lccnx_api_control -lccnx_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -levent -lssl -lcrypto -lavcodec -lavutil -lavformat   -lboost_system
+	    LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -licnet -ldash -lcurl  -lxml2 -lccnx_api_portal -lccnx_transport_rta -lccnx_api_control -lccnx_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -levent -lssl -lcrypto -lavcodec -lavutil -lavformat   -lboost_system
 		DEFINES += "ICNET=ON"
 	}
 }
