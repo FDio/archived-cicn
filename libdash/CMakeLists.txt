@@ -190,7 +190,7 @@ include_directories(${WLIB_INCLUDE_DIRS})
 include_directories(${CURL_INCLUDE_DIRS})
 include_directories(include)
 
-if (COMPILE_FOR_IOS OR COMPILE_FOR_IOS_SIMULATOR OR ANDROID_API)
+if (COMPILE_FOR_IOS OR COMPILE_FOR_IOS_SIMULATOR)
   add_library(dash STATIC ${SOURCE_FILES})
 else()
   add_library(dash SHARED ${SOURCE_FILES})
