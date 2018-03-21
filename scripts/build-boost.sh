@@ -6,7 +6,7 @@ PREFIX=`pwd`/install_boost
 
 if [ $ABI = armeabi-v7a ]; then
 	./b2 link=static threading=multi threadapi=pthread target-os=android --with-system\
-	toolset=gcc-arm architecture=arm address-model=32 \
+	toolset=clang-arm architecture=arm address-model=32 \
     abi=aapcs binary-format=elf define=BOOST_MATH_DISABLE_FLOAT128 \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/include \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/libs/${ABI}/include \
@@ -15,7 +15,7 @@ if [ $ABI = armeabi-v7a ]; then
     install
 elif [ $ABI = x86 ]; then
 	./b2 link=static threading=multi threadapi=pthread target-os=android --with-system\
-    toolset=gcc-x86 architecture=x86 address-model=32 \
+    toolset=clang-x86 architecture=x86 address-model=32 \
     abi=aapcs binary-format=elf define=BOOST_MATH_DISABLE_FLOAT128 \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/include \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/libs/${ABI}/include \
@@ -24,7 +24,7 @@ elif [ $ABI = x86 ]; then
     install
 elif [ $ABI = x86_64 ]; then
 	./b2 link=static threading=multi threadapi=pthread target-os=android --with-system\
-    toolset=gcc-x86_64 architecture=x86_64 address-model=64 \
+    toolset=clang-x86_64 architecture=x86_64 address-model=64 \
     abi=aapcs binary-format=elf define=BOOST_MATH_DISABLE_FLOAT128 \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/include \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/libs/${ABI}/include \
@@ -33,7 +33,7 @@ elif [ $ABI = x86_64 ]; then
     install
 else
 	./b2 link=static threading=multi threadapi=pthread target-os=android --with-system\
-    toolset=gcc-arm64 architecture=arm64-v8a address-model=64 \
+    toolset=clang-arm64 architecture=arm64-v8a address-model=64 \
     abi=aapcs binary-format=elf define=BOOST_MATH_DISABLE_FLOAT128 \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/include \
     include=$NDK/sources/cxx-stl/gnu-libstdc++/4.9/libs/${ABI}/include \

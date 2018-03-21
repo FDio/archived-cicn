@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/urlLabel"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="URL:"
+                android:textAlignment="textEnd" />
+
+            <TextView
+                android:id="@+id/urlTextView"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="80"
+                android:text="urlTextVew" />
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/savedPathLabel"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Saved Path:"
+                android:textAlignment="textEnd" />
+
+            <TextView
+                android:id="@+id/savedPathTextView"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="80"
+                android:text="savedPathTextView" />
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/md5Label"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="MD5:"
+                android:textAlignment="textEnd" />
+
+            <TextView
+                android:id="@+id/md5TextView"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="80"
+                android:text="savedPathTextView" />
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/sizeLabel"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Size:"
+                android:textAlignment="textEnd" />
+
+            <TextView
+                android:id="@+id/sizeTextView"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="80"
+                android:text="sizeTextView" />
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/dateLabel"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Date:"
+                android:textAlignment="textEnd" />
+
+            <TextView
+                android:id="@+id/dateTextView"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="80"
+                android:text="dateTextView" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

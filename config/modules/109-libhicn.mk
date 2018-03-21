@@ -1,1 +1,0 @@
-$(eval $(call addCMakeModule,libhicn))

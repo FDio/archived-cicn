@@ -18,6 +18,7 @@
 
 #!/bin/bash
 set -e
+ANDROID_ARCH=armv7
 export ANDROID_HOME=${SDK}
 export ANDROID_NDK_HOST=${OS}-${ARCH}
 export ANDROID_NDK_PLATFORM=android-23
@@ -30,14 +31,15 @@ export ANDROID_API_VERSION=android-23
 export PATH=$PATH:${ANDROID_HOME}/tools:${JAVA_HOME}/bin
 echo $QT_HOME
 cd ${DISTILLERY_ROOT_DIR}
+export DISTILLARY_INSTALLATION_PATH=${DISTILLERY_ROOT_DIR}/usr_armv7-a
 mkdir -p ${DISTILLERY_BUILD_DIR}/viper
 cd ${DISTILLERY_BUILD_DIR}/viper
-${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/qmake -r -spec android-g++ ${DISTILLERY_ROOT_DIR}/src/viper/viper.pro "TRANSPORT_LIBRARY = ICNET"
+${QT_HOME}/5.8/android_${ANDROID_ARCH}/bin/qmake -r -spec android-g++ ${DISTILLERY_ROOT_DIR}/src/viper/viper.pro
 make
 make install INSTALL_ROOT=viper-${ANDROID_ARCH}
 if [ "$1" = "DEBUG" ]; then
-	${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/androiddeployqt --output viper-${ANDROID_ARCH} --verbose --input android-libviper.so-deployment-settings.json --gradle --android-platform android-23 --stacktrace --debug --target android-23 --debug --sign ${DISTILLERY_ROOT_DIR}/src/viper/android/viper.keystore viper --storepass icn_viper
+	${QT_HOME}/5.8/android_${ANDROID_ARCH}/bin/androiddeployqt --output viper-${ANDROID_ARCH} --verbose --input android-libviper.so-deployment-settings.json --gradle --android-platform android-23 --stacktrace --debug --target android-23 --debug --sign ${DISTILLERY_ROOT_DIR}/src/viper/android/viper.keystore viper --storepass icn_viper
 else
-	${QT_HOME}/5.7/android_${ANDROID_ARCH}/bin/androiddeployqt --output viper-${ANDROID_ARCH} --verbose --input android-libviper.so-deployment-settings.json --gradle --android-platform android-23 --stacktrace --debug --target android-23 --release --sign ${DISTILLERY_ROOT_DIR}/src/viper/android/viper.keystore viper --storepass icn_viper
+	${QT_HOME}/5.8/android_${ANDROID_ARCH}/bin/androiddeployqt --output viper-${ANDROID_ARCH} --verbose --input android-libviper.so-deployment-settings.json --gradle --android-platform android-23 --stacktrace --debug --target android-23 --release --sign ${DISTILLERY_ROOT_DIR}/src/viper/android/viper.keystore viper --storepass icn_viper
 fi
 cd ..

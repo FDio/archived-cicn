@@ -10,7 +10,7 @@ Install tools to build libcurl
 If Ubuntu:
 
 ```
-sudo apt-get automake libconf libtool
+sudo apt-get automake libconf libtool clang
 ```
 
 If Max Os X
@@ -19,13 +19,14 @@ If Max Os X
 brew install automake libconf libtool
 ```
 
+
 ## Quick Start ##
 
 Clone this distro
 
 ```
-git clone -b androidsdk/master https://gerrit.fd.io/r/cicn androidSdk
-cd androidSdk
+git clone -b androidsdk/master https://gerrit.fd.io/r/cicn android-sdk
+cd android-sdk
 ```
 
 Export Android Sdk path
@@ -40,45 +41,75 @@ Export Android Ndk path
 export SDK_PATH=/Users/angelomantellini/Library/Android/sdk/ndk-bundle
 ```
 
-Export Android Android CMAKE path
-
-```
-export SDK_PATH=/Users/angelomantellini/Library/Android/sdk/cmake/3.6.3155560/bin
-```
 
 If the previous variables are not set, Sdk, Ndk and CMake for android will be downloaded
 
 Compile everything (dependencies and CCNx modules)
 
 ```
+export ANDROID_ARCH="arm"
 make all
+make android_viper
+export ANDROID_ARCH="x86_64"
+make all
+export ANDROID_ARCH="arm64"
+make all
+export ANDROID_ARCH="x86"
+make all
+
 ```
 
-The CCNx software will be installed in androidSdk/usr
+The CCNx software will be installed in androidSdk/usr_{arch}
 
 
-To compile Metis for android app (ccnxandroidmetis)
+To compile Metis for android app
 
 ```
 make android_metis
 ```
 
-To install the application run
+To install the application, run
 
 ```
-adb install -r ccnxandroidmetis/app/build/outputs/apk/app-armeabi-v7a-release.apk
+adb install -r MetisForwarderAndroid/app/build/outputs/apk/release/.apk
 ```
 
-To compile IGet for android app (ccnxandroidmetis) 
+To compile IGet for android app
 
 ```
 make android_iget
 ```
 
-To install the application run
+To install the application, run
 
 ```
-adb install -r iget_android/app/build/outputs/apk/app-armeabi-v7a-release.apk
+adb install -r IGetAndroid/app/build/outputs/apk/debug/iget-debug.apk
+```
+
+To compile HttpServer for android app
+
+```
+make android_httpserver
+```
+
+To install the application, run
+
+```
+adb install -r HttpServer/app/build/outputs/apk/release/httpserver-release.apk
+```
+
+
+To compile Viper for android app
+
+```
+export ANDROID_ARCH="arm"
+make android_viper
+```
+
+To install the application, run
+
+```
+adb install -r build_armv7-a/viper/viper-armv7/build/outputs/apk/viper-armv7-release-signed.apk 
 ```
 
 
@@ -103,7 +134,9 @@ Here's a short summary:
 - `curl-clean`			- Clean curl files and libs
 - `boost-clean`			- Clean boost files and libs
 - `openssl-clean`		- Clean opennssl files and libs
+- `crystax-clean`		- Clean crystax files and libs
 - `event-clean`			- Clean libevent files and libs
+- `crystaxndk-clean`	- Clean crystax ndk files
 - `xml2-clean`			- Clean libxml2 files and libs
 - `dependencies-clean`	- Clean all dependencies files and libs
 - `sdk-clean`			- Clean sdk files
@@ -121,6 +154,8 @@ Here's a short summary:
 - `android_metis_debug` - Build metis apk for android in debug mode
 - `android_iget`		- Build iGet apk for android
 - `android_iget_debug`  - Build iGet apk for android in debug mode
+- `android_httpserver'		- Build Viper apk for android
+- `android_httpserver_debug`  - Build Viper apk for android in debug mode
 - `android_viper`		- Build Viper apk for android
 - `android_iget_debug`  - Build Viper apk for android in debug mode
 

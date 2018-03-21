@@ -7,36 +7,25 @@ SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
-BUILD_TOOLS="p7zip-full build-essential automake libconfig9 libtool lib32stdc++6 lib32z1 unzip default-jdk libx11-xcb-dev libfontconfig1 libgl1-mesa-dev cmake"
+BUILD_TOOLS="build-essential automake libconfig9 libtool lib32stdc++6 lib32z1 unzip default-jdk cmake clang"
 
 # Parameters:
 # $1 = Distribution [Trusty / CentOS]
 #
+
 update_cmake_repo() {
 
-    DISTRIBUTION=$1
+    cat /etc/resolv.conf
+    echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+    cat /etc/resolv.conf
 
-    if [ "$DISTRIBUTION" == "trusty" ]; then
-        sudo ${apt_get} install -y --allow-unauthenticated software-properties-common
-        sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
-    elif [ "$DISTRIBUTION" == "CentOS" ]; then
-        sudo cat << EOF > cmake.repo
-[cmake-repo]
-name=Repo for cmake3
-baseurl=http://mirror.ghettoforge.org/distributions/gf/el/7/plus/x86_64/
-enabled=1
-gpgcheck=0
-EOF
-        sudo cat << EOF > jsoncpp.repo
-[jsoncp-repo]
-name=Repo for jsoncpp
-baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
-enabled=1
-gpgcheck=0
-EOF
-        sudo mv cmake.repo /etc/yum.repos.d/cmake.repo
-        sudo mv jsoncpp.repo /etc/yum.repos.d/jsoncpp.repo
-    fi
+    CMAKE_INSTALL_SCRIPT_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh"
+    CMAKE_INSTALL_SCRIPT="/tmp/install_cmake.sh"
+    curl ${CMAKE_INSTALL_SCRIPT_URL} > ${CMAKE_INSTALL_SCRIPT}
+
+    sudo mkdir -p /opt/cmake
+    sudo bash ${CMAKE_INSTALL_SCRIPT} --skip-license --prefix=/opt/cmake
+    export PATH=/opt/cmake/bin:$PATH
 }
 
 # Parameters:
@@ -99,13 +88,9 @@ setup() {
 
     DISTRIB_ID=$1
     DISTRIB_CODENAME=$2
-
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
-        if [ "$DISTRIB_CODENAME" == "trusty" ]; then
-            update_cmake_repo $DISTRIB_CODENAME
-        fi
-
-        update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
+        update_cmake_repo $DISTRIB_CODENAME
+		update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
 
         sudo ${apt_get} update || true
 
@@ -164,15 +149,17 @@ fi
 pushd $SCRIPT_PATH/..
 
 # Install dependencies and CCNx modules
+export ANDROID_ARCH="arm"
 make all
-
-# Compile metis for android app
-make android_metis
-
-# Compile iget
-make android_iget
-
-# Compile viper
 make android_viper
+export ANDROID_ARCH="x86_64"
+make all
+export ANDROID_ARCH="arm64"
+make all
+export ANDROID_ARCH="x86"
+make all
+make android_metisforwarder
+make android_httpserver
+make android_iget
 
 popd

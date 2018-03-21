@@ -81,14 +81,18 @@ modules_dir=
 	include config/modules/002-cmake-modules.mk
 	include config/modules/002-make-modules.mk
 	include config/modules/100-distillery.mk
+	include config/modules/106-jsoncpp.mk
+	include config/modules/107-libevent.mk
+	include config/modules/108-libxml2.mk
 	include config/modules/110-longbow.mk
 	include config/modules/120-libparc.mk
 	include config/modules/210-libccnx-common.mk
 	include config/modules/220-libccnx-transport-rta.mk
 	include config/modules/230-libccnx-portal.mk
-	include config/modules/510-Metis.mk
+	include config/modules/510-forwarder.mk
 	include config/modules/610-libicnet.mk
 	include config/modules/610-libdash.mk
+	include config/modules/710-http-server.mk
 
 # Load user defined modules
 DISTILLERY_USER_MODULES_DIR=${DISTILLERY_USER_CONFIG_DIR}/modules
@@ -110,9 +114,9 @@ init_depend:
 	./scripts/init.sh ${ABI} ${DISTILLERY_INSTALL_DIR};
 init_qt:
 	./scripts/init_qt.sh
-android_metis:
+android_metisforwarder:
 	./scripts/compile_metisforwarder.sh
-android_metis_debug:
+android_metisforwarder_debug:
 	./scripts/compile_metisforwarder.sh DEBUG
 android_iget:
 	./scripts/compile_iget.sh
@@ -122,6 +126,10 @@ android_viper:
 	./scripts/compile_androidviper.sh
 android_viper_debug:
 	./scripts/compile_androidviper.sh DEBUG
+android_httpserver:
+	./scripts/compile_httpserver.sh
+android_httpserver_debug:
+	./scripts/compile_httpserver.sh DEBUG
 
 curl-clean:
 	@rm -rf external/curl
@@ -131,7 +139,7 @@ curl-clean:
 	@rm -rf external/libcurl_android/jni/libcurl/lib
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcurl*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/curl
-
+	
 openssl-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libssl.*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libcrypto.*
@@ -144,14 +152,12 @@ boost-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/boost
 	@rm -rf external/boost_1_63_0
 	@rm -rf external/boost_1_63_0.tar.gz
-
-
+	
 event-clean:
 	@rm -rf external/libevent
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libevent*
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/event2
-
-
+		
 xml2-clean:
 	@rm -rf external/libxml2
 	@rm -rf external/libxml2_android/obj
@@ -159,11 +165,17 @@ xml2-clean:
 	@rm -rf external/libxml2_android/jni/libxml2/*.h
 	@rm -rf external/libxml2_android/jni/libxml2/include
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libxml2*
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/libxml
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/jsoncpp
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/win32config.h
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/wsockcompat.h
-	
-dependencies-clean: event-clean openssl-clean boost-clean curl-clean xml2-clean
+
+jsoncpp-clean:
+	@rm -rf external/jsoncpp
+	@rm -rf external/jsoncpp_android/obj
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libjsoncpp.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/libxml
+
+dependencies-clean: event-clean openssl-clean boost-clean curl-clean xml2-clean jsoncpp-clean
 	
 sdk-clean:
 	@rm -rf sdk/android-sdk_*
@@ -194,18 +206,25 @@ ccnxlibs-clean:
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/transport
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/api
 
-sb-forwarder-clean:
+hicn-fwd-clean:
 	@rm -rf src/sb-forwarder
-	@rm -rf ${DISTILLERY_BUILD_DIR}/sb-forwarder
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libmetis*
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/forwarder
+	@rm -rf ${DISTILLERY_BUILD_DIR}/hicn-fwd
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libhicnfwd.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/hicn-forwarder
 	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/config.h
 
-libicnet-clean:
-	@rm -rf src/libicnet
-	@rm -rf ${DISTILLERY_BUILD_DIR}/libicnet
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libicnet*
-	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/ccnx/icnet
+libhicnet-clean:
+	@rm -rf src/libhicnet
+	@rm -rf ${DISTILLERY_BUILD_DIR}/libhicnet
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libhicnet*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/hicnet
+
+libhicn-clean:
+	@rm -rf src/libhicnet
+	@rm -rf ${DISTILLERY_BUILD_DIR}/libhicn
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/lib/libhicn.*
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/hicnet.h
+	@rm -rf ${DISTILLERY_INSTALL_DIR}/include/hicnet_*
 
 libdash-clean:
 	@rm -rf ${DISTILLERY_BUILD_DIR}/libdash
@@ -215,8 +234,8 @@ libdash-clean:
 qt-clean:
 	@rm -rf qt/*
 	@rm -rf ${DISTILLERY_BUILD_DIR}/qtav
-
-all-clean: dependencies-clean cframework-clean ccnxlibs-clean sb-forwarder-clean libicnet-clean qt-clean
+	
+all-clean: dependencies-clean cframework-clean ccnxlibs-clean hicn-fwd-clean libhicnet-clean qt-clean libhicn-clean
 
 update:
 	./scripts/update.sh
@@ -232,6 +251,7 @@ help:
 	@echo "boost-clean			- Clean boost files and libs"
 	@echo "openssl-clean		- Clean opennssl files and libs"
 	@echo "event-clean			- Clean libevent files and libs"
+	@echo "jsoncpp-clean		- Clean libjsoncpp files and libs"
 	@echo "xml2-clean			- Clean libxml2 files and libs"
 	@echo "dependencies-clean 	- Clean all dependencies files and libs"
 	@echo "sdk-clean			- Clean sdk files"
@@ -240,15 +260,20 @@ help:
 	@echo "androidsdk-clean		- Clean sdk, ndk and cmake files"
 	@echo "cframework-clean		- Clean cframework (libparc and longbow) files and libs"
 	@echo "ccnxlibs-clean		- Clean ccnxlibs files and libs"
-	@echo "sb-forwarder-clean	- Clean sb-forwarder (metis) files and libs"
-	@echo "libicnet-clean		- Clean libicnet files and libs"
+	@echo "hicn-fwd-clean		- Clean hicn-fwd files and libs"
+	@echo "libhicnet-clean		- Clean libhicnet files and libs"
+	@echo "libhicn-clean		- Clean libhicn files and libs"
 	@echo "libdash-clean		- Clean libdash files and libs"
 	@echo "all-clean			- Clean	all files and libs"
-	@echo "android_metis		- Build metis apk for android"
-	@echo "android_metis_debug	- Build metis apk for android in debug mode"
-	@echo "android_iget			- Build iGet apk for android apk in debug mode"
-	@echo "android_iget_debug	- Build iGet apk for android apk"
-
+	@echo "android_metisforwarder	- Build MetisForwarder apk for android"
+	@echo "android_metisforwarder_debug	- Build MetisForwarder apk for android in debug mode"
+	@echo "android_iget		- Build iGet apk for android apk" 
+	@echo "android_iget_debug	- Build iGet apk for android apk in debug mode"
+	@echo "android_httpserver		- Build HttpServer apk for android apk" 
+	@echo "android_httpserver_debug	- Build HttpServer apk for android apk in debug mode"
+	@echo "android_viper		- Build Viper apk for android apk" 
+	@echo "android_viper_debug	- Build Viper apk for android apk in debug mode"
+	
 ${DISTILLERY_STAMP}: ${REBUILD_DEPENDS}
 	touch $@
 

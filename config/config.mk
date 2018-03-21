@@ -37,8 +37,19 @@ DISTILLERY_BUILD_NAME?=
 
 # This is the directory where things are built.
 # Note that if some modules don't support off-tree builds you may have problems
-DISTILLERY_BUILD_DIR?=${DISTILLERY_ROOT_DIR}/build${DISTILLERY_BUILD_NAME}
-
+DISTILLERY_BUILD_DIR?=${DISTILLERY_ROOT_DIR}/$(shell if [ "${ANDROID_ARCH}" = "arm64" ]; \
+then echo build_aarch64; \
+else \
+if [ "${ANDROID_ARCH}" = "x86" ]; then \
+echo build_x86; \
+else \
+if [ "${ANDROID_ARCH}" = "x86_64" ]; then \
+echo build_x86_64; \
+else \
+echo build_armv7-a; \
+fi; \
+fi; \
+fi;)
 # This is the directory where the source is checked out.
 DISTILLERY_SOURCE_DIR?=${DISTILLERY_ROOT_DIR}/src
 
@@ -51,7 +62,20 @@ MAKE_BUILD_FLAGS?=-j8
 # This is the directory where all the ccn software will be installed. This
 # directory will be DELETED if you do a make clobber. Do not treat this the
 # same way you would treat a system install directory.
-DISTILLERY_INSTALL_DIR?=${DISTILLERY_ROOT_DIR}/usr
+DISTILLERY_INSTALL_DIR?=${DISTILLERY_ROOT_DIR}/$(shell if [ "${ANDROID_ARCH}" = "arm64" ]; \
+then echo usr_aarch64; \
+else \
+if [ "${ANDROID_ARCH}" = "x86" ]; then \
+echo usr_i686; \
+else \
+if [ "${ANDROID_ARCH}" = "x86_64" ]; then \
+echo usr_x86_64; \
+else \
+echo usr_armv7-a; \
+fi; \
+fi; \
+fi;)
+
 
 # DISTILLERY_DEPENDENCIES_DIR=/path/to/dependencies/dir
 # This is the path to the dependencies directory. It is used as the base for
@@ -101,9 +125,33 @@ export ARCH=$(shell uname -m)
 CCNX_COMPILE_ENVIRONMENT=-DCMAKE_TOOLCHAIN_FILE=${DISTILLERY_ROOT_DIR}/config/config.android
 OPEN_SSL_DIR=-DOPENSSL_ROOT_DIR=${DISTILLERY_INSTALL_DIR}
 LIBEVENT_ROOT=${DISTILLERY_INSTALL_DIR}
-export ABI=armeabi-v7a
+export ABI=$(shell if [ "${ANDROID_ARCH}" = "arm64" ]; \
+then echo arm64; \
+else \
+if [ "${ANDROID_ARCH}" = "x86" ]; then \
+echo x86; \
+else \
+if [ "${ANDROID_ARCH}" = "x86_64" ]; then \
+echo x86_64; \
+else \
+echo arm; \
+fi; \
+fi; \
+fi;)
+export ANDROID_ABI=$(shell if [ "${ABI}" = "arm64" ]; then \
+echo arm64-v8a; \
+else \
+if [ "${ANDROID_ARCH}" = "x86" ]; then \
+echo x86; \
+else \
+if [ "${ANDROID_ARCH}" = "x86_64" ]; then \
+echo x86_64; \
+else \
+echo armeabi-v7a; \
+fi; \
+fi; \
+fi;)
 export QT_HOME=${DISTILLERY_ROOT_DIR}/qt/Qt
-export ANDROID_ARCH=armv7
 export DISTILLERY_BUILD_DIR
 export DISTILLERY_INSTALL_DIR
-export ANDROID_PLATFORM=android-23
+export ANDROID_PLATFORM=android-26

@@ -16,14 +16,11 @@
 #!/bin/bash
 set -e
 
-#git pull
+git pull
 cd src/ccnxlibs
 git pull
 cd ../..
 cd src/cframework
-git pull
-cd ../..
-cd src/sb-forwarder
 git pull
 cd ../..
 cd src/libicnet
@@ -32,3 +29,5 @@ cd ../..
 cd src/viper
 git pull
 cd ../..
+cd src/httpserver
+git pull

@@ -1,6 +1,6 @@
 #!/bin/bash
-
-cd iGetAndroid
+set -e
+cd IGetAndroid
 if [ ! -f local.properties ]; then
 	echo sdk.dir=${SDK} > local.properties
 	echo ndk.dir=${NDK} >> local.properties
@@ -12,5 +12,5 @@ else
 	./gradlew assembleRelease
 fi
 
-echo "Apks are inside iGetAndroid/app/build/outputs/apk"
+echo "Apks are inside IGetAndroid/app/build/outputs/apk"
 cd ..

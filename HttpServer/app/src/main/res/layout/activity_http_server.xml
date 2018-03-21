@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="icn.httpserver.com.httpserver.HttpServerActivity">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.099"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.029999971">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/rootFolderTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Root Folder"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp">
+
+                <EditText
+                    android:id="@+id/rootFolderEditText"
+                    android:layout_width="500dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textUri"
+                    android:text="8888:8888:8888:8888:8888:8888:8888:8888"
+                    android:textSize="24sp" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tcpListenPortTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TCP Listen Port"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp">
+
+
+                <EditText
+                    android:id="@+id/tcpListenPortEditText"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:text="88888"
+                    android:textSize="24sp" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/webServerPrefixTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Web Server Prefix"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp">
+
+
+                <EditText
+                    android:id="@+id/webServerPrefixEditText"
+                    android:layout_width="500dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textUri"
+                    android:text="8888:8888:8888:8888:8888:8888:8888:8888"
+                    android:textSize="24sp" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/proxyAddressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Proxy Address"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp">
+
+
+                <EditText
+                    android:id="@+id/proxyAddressEditText"
+                    android:layout_width="500dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textUri"
+                    android:text="8888:8888:8888:8888:8888:8888:8888:8888"
+                    android:textSize="24sp" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/iCNproxyAddressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ICN Proxy Address"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp">
+
+                <EditText
+                    android:id="@+id/iCNproxyAddressEditText"
+                    android:layout_width="500dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textUri"
+                    android:text="8888:8888:8888:8888:8888:8888:8888:8888"
+                    android:textSize="24sp" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <Switch
+            android:id="@+id/httpServerSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Disabled"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>
