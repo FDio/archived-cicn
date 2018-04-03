@@ -27,6 +27,7 @@
 struct parc_inmemory_verifier;
 typedef struct parc_inmemory_verifier PARCInMemoryVerifier;
 
+extern PARCVerifierInterface *PARCInMemoryVerifierAsVerifier;
 /**
  * Create an empty verifier.   It's destroyed via the PARCVerifierInterface->Destroy call.
  *
