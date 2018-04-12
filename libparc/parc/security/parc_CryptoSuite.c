@@ -28,7 +28,7 @@ parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite)
         case PARCCryptoSuite_DSA_SHA256:      // fallthrough
         case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
         case PARCCryptoSuite_RSA_SHA256:      // fallthrough
-        case PARCCryptoSuite_EC_SECP_256K1:
+        case PARCCryptoSuite_ECDSA_SHA256:
             return PARCCryptoHashType_SHA256;
 
         case PARCCryptoSuite_HMAC_SHA512:     // fallthrough
@@ -37,6 +37,55 @@ parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite)
 
         case PARCCryptoSuite_NULL_CRC32C:
             return PARCCryptoHashType_CRC32C;
+
+        default:
+            trapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+    }
+}
+
+int
+parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite suite, int keyLengthBits)
+{
+    switch (suite) {
+        case PARCCryptoSuite_DSA_SHA256:      // fallthrough
+        case PARCCryptoSuite_RSA_SHA256:      // fallthrough
+        case PARCCryptoSuite_RSA_SHA512:
+            return keyLengthBits;
+
+        case PARCCryptoSuite_ECDSA_SHA256:
+            return keyLengthBits*2 + 64; //Overhead added by ECDSA 
+
+        case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
+        case PARCCryptoSuite_HMAC_SHA512:     // fallthrough
+            return 512;
+
+        case PARCCryptoSuite_NULL_CRC32C:
+            return 32;
+
+        default:
+            trapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+    }
+}
+
+int
+parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits)
+{
+    int keyLengthBytes = keyLengthBits >> 3;
+    switch (suite) {
+        case PARCCryptoSuite_DSA_SHA256:      // fallthrough
+        case PARCCryptoSuite_RSA_SHA256:      // fallthrough
+        case PARCCryptoSuite_RSA_SHA512:
+            return keyLengthBytes;
+
+        case PARCCryptoSuite_ECDSA_SHA256:
+            return keyLengthBytes*2 + 8; //Overhead added by ECDSA 
+
+        case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
+        case PARCCryptoSuite_HMAC_SHA512:     // fallthrough
+            return 64;
+
+        case PARCCryptoSuite_NULL_CRC32C:
+            return 4;
 
         default:
             trapIllegalValue(suite, "Unknown crypto suite: %d", suite);

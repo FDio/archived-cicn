@@ -130,7 +130,7 @@ typedef struct parc_signer_interface {
  * Example
  * @code
  * {
- *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *     parcSigner_AssertValid(signer);
  * }
@@ -150,7 +150,7 @@ void parcSigner_AssertValid(const PARCSigner *signer);
  * Example:
  * @code
  * {
- *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  * }
  * @endcode
  */
@@ -171,7 +171,7 @@ PARCSigner *parcSigner_Create(PARCObject *instance, PARCSigningInterface *interf
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *      PARCSigner *handle = parcSigner_Acquire(signer);
  *      // use the handle instance as needed
  * }
@@ -197,7 +197,7 @@ PARCSigner *parcSigner_Acquire(const PARCSigner *signer);
  * Example:
  * @code
  * {
- *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *     parcSigner_Release(&signer);
  * }
@@ -215,7 +215,7 @@ void parcSigner_Release(PARCSigner **signerPtr);
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *      PARCKeyId *keyId = parcSigner_CreateKeyId(signer);
  * }
@@ -233,7 +233,7 @@ PARCKeyId *parcSigner_CreateKeyId(const PARCSigner *signer);
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *      PARCKey *publicKey = parcSigner_CreatePublicKey(signer);
  * }
@@ -257,7 +257,7 @@ PARCKey *parcSigner_CreatePublicKey(PARCSigner *signer);
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *      PARCCryptoHasher hasher = parcSigner_GetCryptoHasher(signer);
  * }
@@ -279,7 +279,7 @@ PARCCryptoHasher *parcSigner_GetCryptoHasher(const PARCSigner *signer);
  * Example:
  * @code
  * {
- *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *     PARCCryptoHasher *hasher = parcSigner_GetCryptoHasher(signer);
  *     parcCryptoHasher_Init(hasher);
@@ -303,7 +303,7 @@ PARCSignature *parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoH
  * Example:
  * @code
  * {
- *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *     PARCBuffer *inputBuffer = ...
  *
  *     PARCSignature signature = parcSigner_SignBuffer(signer, inputBuffer);
@@ -322,7 +322,7 @@ PARCSignature *parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer 
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *      PARCSigningAlgorithm suite = parcSigner_GetSigningAlgorithm(signer);
  * }
@@ -340,7 +340,7 @@ PARCSigningAlgorithm parcSigner_GetSigningAlgorithm(PARCSigner *signer);
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *      PARCCryptoHashType suite = parcSigner_GetCryptoHashType(signer);
  * }
@@ -358,7 +358,7 @@ PARCCryptoHashType parcSigner_GetCryptoHashType(const PARCSigner *signer);
  * Example:
  * @code
  * {
- *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
  *
  *      PARCKeyStore *keyStore = parcSigner_GetKeyStore(signer);
  * }

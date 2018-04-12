@@ -36,16 +36,17 @@ parcPublicKey_Create(PARCArrayList *args)
     char *fileName = parcArrayList_Get(args, 2);
     char *password = parcArrayList_Get(args, 3);
     char *subjectName = parcArrayList_Get(args, 4);
-
+    PARCSigningAlgorithm signAlgo = *(int *)parcArrayList_Get(args, 5);
+    
     if (parcArrayList_Size(args) > 5) {
-        keyLength = (unsigned int) strtoul(parcArrayList_Get(args, 5), NULL, 10);
+        keyLength = (unsigned int) strtoul(parcArrayList_Get(args, 6), NULL, 10);
     }
 
     if (parcArrayList_Size(args) > 6) {
-        validityDays = (unsigned int) strtoul(parcArrayList_Get(args, 6), NULL, 10);
+        validityDays = (unsigned int) strtoul(parcArrayList_Get(args, 7), NULL, 10);
     }
 
-    bool result = parcPkcs12KeyStore_CreateFile(fileName, password, subjectName, keyLength, validityDays);
+    bool result = parcPkcs12KeyStore_CreateFile(fileName, password, subjectName, keyLength, validityDays, signAlgo);
     if (!result) {
         printf("Error: %s %s", fileName, strerror(errno));
         return;
@@ -62,7 +63,7 @@ parcPublicKey_Validate(PARCArrayList *args)
     PARCPkcs12KeyStore *keyStore = parcPkcs12KeyStore_Open(fileName, password, PARCCryptoHashType_SHA256);
     PARCKeyStore *publicKeyStore = parcKeyStore_Create(keyStore, PARCPkcs12KeyStoreAsKeyStore);
 
-    PARCPublicKeySigner *signer = parcPublicKeySigner_Create(publicKeyStore, PARCSigningAlgorithm_RSA, PARCCryptoHashType_SHA256);
+    PARCPublicKeySigner *signer = parcPublicKeySigner_Create(publicKeyStore, PARCCryptoSuite_RSA_SHA256);
     PARCSigner *pkSigner = parcSigner_Create(signer, PARCPublicKeySignerAsSigner);
 
     parcKeyStore_Release(&publicKeyStore);

@@ -36,7 +36,7 @@ typedef enum {
     PARCCryptoSuite_HMAC_SHA256,
     PARCCryptoSuite_HMAC_SHA512,
     PARCCryptoSuite_NULL_CRC32C,
-    PARCCryptoSuite_EC_SECP_256K1,
+    PARCCryptoSuite_ECDSA_SHA256,
     PARCCryptoSuite_UNKNOWN
 } PARCCryptoSuite;
 
@@ -55,4 +55,39 @@ typedef enum {
  * @endcode
  */
 PARCCryptoHashType parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite);
+
+/**
+ * Given a PARCCryptoSuite value and the key length, return the expected length in bits of the signature.
+ * For ECDSA the result is the maximum length
+ *
+ * @param [in] suite A PARCCryptoSuite value.
+ *
+ * @return A PARCCryptoHashType value
+ *
+ * Example:
+ * @code
+ * {
+ *     int bits = parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite_RSA_SHA256, 1024);
+ * }
+ * @endcode
+ */
+int parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite suite, int keyLengthBits);
+
+/**
+ * Given a PARCCryptoSuite value and the key length, return the expected length in bytes of the signature.
+ * For ECDSA the result is the maximum length
+ *
+ * @param [in] suite A PARCCryptoSuite value.
+ *
+ * @return A PARCCryptoHashType value
+ *
+ * Example:
+ * @code
+ * {
+ *     int bytes = parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite_RSA_SHA256, 1024);
+ * }
+ * @endcode
+ */
+int parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits);
+
 #endif // libparc_parc_CryptoSuite_h

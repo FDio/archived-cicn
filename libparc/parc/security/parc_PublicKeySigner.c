@@ -118,13 +118,17 @@ parcObject_Override(PARCPublicKeySigner, PARCObject,
                     .hashCode = (PARCObjectHashCode *) parcPublicKeySigner_HashCode);
 
 PARCPublicKeySigner *
-parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCSigningAlgorithm signingAlgorithm, PARCCryptoHashType hashType)
+parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCCryptoSuite suite)
 {
     PARCPublicKeySigner *result = parcObject_CreateInstance(PARCPublicKeySigner);
 
+    PARCSigningAlgorithm signAlgo = parcSigningAlgorithm_GetSigningAlgorithm(suite);
+    PARCCryptoHashType hashType = parcCryptoSuite_GetCryptoHash(suite);
+
+
     if (result != NULL) {
         result->keyStore = parcKeyStore_Acquire(keyStore);
-        result->signingAlgorithm = signingAlgorithm;
+        result->signingAlgorithm = signAlgo;
         result->hashType = hashType;
         result->hasher = parcCryptoHasher_Create(hashType);
     }
@@ -133,9 +137,10 @@ parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCSigningAlgorithm signingA
 }
 
 static PARCSigningAlgorithm
-_GetSigningAlgorithm(PARCPublicKeySigner *interfaceContext)
+_GetSigningAlgorithm(PARCPublicKeySigner *signer)
 {
-    return PARCSigningAlgorithm_RSA;
+    assertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
+    return signer->signingAlgorithm;
 }
 
 static PARCCryptoHashType
@@ -159,6 +164,56 @@ _GetKeyStore(PARCPublicKeySigner *signer)
     return signer->keyStore;
 }
 
+static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t ** sig, unsigned * sigLength)
+{
+    EVP_PKEY *privateKey = NULL;
+    size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
+    uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
+    privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, keySize);
+
+    RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
+    *sig = parcMemory_Allocate(RSA_size(rsa));
+
+    assertNotNull(*sig, "parcMemory_Allocate(%u) returned NULL", RSA_size(rsa));
+
+    *sigLength = 0;
+    PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
+    int result = RSA_sign(opensslDigestType,
+                          (unsigned char *) parcByteArray_Array(parcBuffer_Array(bb_digest)),
+                          (int) parcBuffer_Remaining(bb_digest),
+                          *sig,
+                          sigLength,
+                          rsa);
+    assertTrue(result == 1, "Got error from RSA_sign: %d", result);
+    RSA_free(rsa);
+    return result;
+}
+
+static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t ** sig, unsigned * sigLength)
+{
+    EVP_PKEY *privateKey = NULL;
+    size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
+    uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
+    privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, keySize);
+
+    EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
+
+    *sig = parcMemory_Allocate(ECDSA_size(ec_key));
+    assertNotNull(sig, "parcMemory_Allocate(%u) returned NULL", ECDSA_size(ec_key));
+
+    *sigLength = 0;
+    PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
+    int result = ECDSA_sign(opensslDigestType,
+                          (unsigned char *) parcByteArray_Array(parcBuffer_Array(bb_digest)),
+                          (int) parcBuffer_Remaining(bb_digest),
+                          *sig,
+                          sigLength,
+                          ec_key);
+    assertTrue(result == 1, "Got error from ECDSA_sign: %d", result);
+    EC_KEY_free(ec_key);
+
+}
+
 static PARCSignature *
 _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
 {
@@ -170,15 +225,10 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
     // TODO: what is the best way to expose this?
     PARCKeyStore *keyStore = signer->keyStore;
     PARCBuffer *privateKeyBuffer = parcKeyStore_GetDEREncodedPrivateKey(keyStore);
-    EVP_PKEY *privateKey = NULL;
-    size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
-    uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
-    privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, keySize);
-    parcBuffer_Release(&privateKeyBuffer);
-
-    RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
 
     int opensslDigestType;
+    uint8_t *sig;
+    unsigned sigLength;
 
     switch (parcCryptoHash_GetDigestType(digestToSign)) {
         case PARCCryptoHashType_SHA256:
@@ -192,19 +242,16 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
                                 parcCryptoHashType_ToString(parcCryptoHash_GetDigestType(digestToSign)));
     }
 
-    uint8_t *sig = parcMemory_Allocate(RSA_size(rsa));
-    assertNotNull(sig, "parcMemory_Allocate(%u) returned NULL", RSA_size(rsa));
-
-    unsigned sigLength = 0;
-    PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
-    int result = RSA_sign(opensslDigestType,
-                          (unsigned char *) parcByteArray_Array(parcBuffer_Array(bb_digest)),
-                          (int) parcBuffer_Remaining(bb_digest),
-                          sig,
-                          &sigLength,
-                          rsa);
-    assertTrue(result == 1, "Got error from RSA_sign: %d", result);
-    RSA_free(rsa);
+    switch (signer->signingAlgorithm) {
+        case PARCSigningAlgorithm_RSA:
+            _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, &sig, &sigLength);
+            break;
+        case PARCSigningAlgorithm_ECDSA:
+            _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, &sig, &sigLength);
+            break;
+        default:
+            return NULL;
+    }
 
     PARCBuffer *bbSign = parcBuffer_Allocate(sigLength);
     parcBuffer_Flip(parcBuffer_PutArray(bbSign, sigLength, sig));
@@ -216,6 +263,7 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
                              bbSign
                              );
     parcBuffer_Release(&bbSign);
+    parcBuffer_Release(&privateKeyBuffer);
     return signature;
 }
 

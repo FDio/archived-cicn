@@ -29,6 +29,7 @@
 #include <parc/algol/parc_Buffer.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Memory.h>
+#include <parc/security/parc_KeyType.h>
 
 #include <openssl/bio.h>
 #include <openssl/err.h>
@@ -398,91 +399,219 @@ parcX509Certificate_CreateFromDERBuffer(const PARCBuffer *buffer)
     return cert;
 }
 
-PARCX509Certificate *
-parcX509Certificate_CreateSelfSignedCertificate(PARCBuffer **privateKeyBuffer, char *subjectName, int keyLength, size_t validityDays)
+PARCX509Certificate * _createSelfSignedCertificate_RSA(PARCBuffer **privateKeyBuffer, char *subjectName, int keyLength, size_t validityDays)
 {
-    parcSecurity_AssertIsInitialized();
+  parcSecurity_AssertIsInitialized();
 
-    RSA *rsa = RSA_new();
-    assertNotNull(rsa, "RSA_new failed.");
+  RSA *rsa = RSA_new();
+  assertNotNull(rsa, "RSA_new failed.");
 
-    EVP_PKEY *privateKey = EVP_PKEY_new();
-    assertNotNull(privateKey, "EVP_PKEY_new() failed.");
+  EVP_PKEY *privateKey = EVP_PKEY_new();
+  assertNotNull(privateKey, "EVP_PKEY_new() failed.");
 
-    X509 *cert = X509_new();
-    assertNotNull(cert, "X509_new() failed.");
+  X509 *cert = X509_new();
+  assertNotNull(cert, "X509_new() failed.");
 
-    int res;
-    BIGNUM *pub_exp;
+  int res;
+  BIGNUM *pub_exp;
 
-    pub_exp = BN_new();
+  pub_exp = BN_new();
 
-    BN_set_word(pub_exp, RSA_F4);
-    res = 1;
-    bool result = false;
-    if (RSA_generate_key_ex(rsa, keyLength, pub_exp, NULL)) {
-        if (EVP_PKEY_set1_RSA(privateKey, rsa)) {
-            if (X509_set_version(cert, 2)) { // 2 => X509v3
-                result = true;
-            }
-        }
+  BN_set_word(pub_exp, RSA_F4);
+  res = 1;
+  bool result = false;
+  if (RSA_generate_key_ex(rsa, keyLength, pub_exp, NULL)) {
+    if (EVP_PKEY_set1_RSA(privateKey, rsa)) {
+      if (X509_set_version(cert, 2)) { // 2 => X509v3
+        result = true;
+      }
     }
-    if (result) {
-        // add serial number
-        if (_addRandomSerial(cert) == true) {
-            if (_addValidityPeriod(cert, validityDays) == true) {
-                if (X509_set_pubkey(cert, privateKey) == 1) {
-                    if (_addSubjectName(cert, subjectName) == true) {
-                        if (_addExtensions(cert) == true) {
-                            if (_addKeyIdentifier(cert) == true) {
-                                // The certificate is complete, sign it.
-                                if (X509_sign(cert, privateKey, EVP_sha256())) {
-                                    result = true;
-                                } else {
-                                    printf("error: (%d) %s\n", res, ERR_lib_error_string(res));
-                                }
-                            }
-                        }
-                    }
+  }
+  if (result) {
+    // add serial number
+    if (_addRandomSerial(cert) == true) {
+      if (_addValidityPeriod(cert, validityDays) == true) {
+        if (X509_set_pubkey(cert, privateKey) == 1) {
+          if (_addSubjectName(cert, subjectName) == true) {
+            if (_addExtensions(cert) == true) {
+              if (_addKeyIdentifier(cert) == true) {
+                // The certificate is complete, sign it.
+                if (X509_sign(cert, privateKey, EVP_sha256())) {
+                  result = true;
+                } else {
+                  printf("error: (%d) %s\n", res, ERR_lib_error_string(res));
                 }
+              }
             }
+          }
         }
+      }
     }
+  }
 
-    ERR_print_errors_fp(stdout);
+  ERR_print_errors_fp(stdout);
 
-    BN_free(pub_exp);
+  BN_free(pub_exp);
 
-    uint8_t *certificateDerEncoding = NULL;
-    int numBytes = i2d_X509(cert, &certificateDerEncoding);
-    if (numBytes < 0) {
-        EVP_PKEY_free(privateKey);
-        RSA_free(rsa);
-        X509_free(cert);
+  uint8_t *certificateDerEncoding = NULL;
+  int numBytes = i2d_X509(cert, &certificateDerEncoding);
+  if (numBytes < 0) {
+    EVP_PKEY_free(privateKey);
+    RSA_free(rsa);
+    X509_free(cert);
 
-        return NULL;
+    return NULL;
+  }
+
+  PARCBuffer *derBuffer = parcBuffer_Allocate(numBytes);
+  parcBuffer_Flip(parcBuffer_PutArray(derBuffer, numBytes, certificateDerEncoding));
+
+  PARCX509Certificate *certificate = parcX509Certificate_CreateFromDERBuffer(derBuffer);
+  parcBuffer_Release(&derBuffer);
+
+  uint8_t *privateKeyBytes = NULL;
+  int privateKeyByteCount = i2d_PrivateKey(privateKey, &privateKeyBytes);
+  if (privateKeyByteCount < 0) {
+    EVP_PKEY_free(privateKey);
+    RSA_free(rsa);
+    X509_free(cert);
+
+    return NULL;
+  }
+
+  *privateKeyBuffer = parcBuffer_Allocate(privateKeyByteCount);
+  parcBuffer_Flip(parcBuffer_PutArray(*privateKeyBuffer, privateKeyByteCount, privateKeyBytes));
+
+  EVP_PKEY_free(privateKey);
+  RSA_free(rsa);
+  X509_free(cert);
+  
+  return certificate;
+}
+
+static inline int _get_EC_params_from_lenght(int keyLength)
+{
+  //For the moment only support 256bit key length
+  switch (keyLength)
+  {
+    case 160:
+      return NID_secp160k1;
+    case 192:
+      return NID_secp192k1;
+    case 224:
+      return NID_secp224k1;
+    case 256:
+      return NID_secp256k1;
+    default:
+      return -1;
+  }
+  
+}
+
+PARCX509Certificate * _createSelfSignedCertificate_EC(PARCBuffer **privateKeyBuffer, char *subjectName, int keyLength, size_t validityDays)
+{
+  parcSecurity_AssertIsInitialized();
+  int curve_params = _get_EC_params_from_lenght(keyLength);
+  bool result = false;
+  
+  if (curve_params == -1)
+    return NULL;
+  
+  EC_KEY *ec_key = EC_KEY_new_by_curve_name(curve_params);
+  assertNotNull(ec_key, "EC key creation failed.");
+  
+  EC_KEY_set_asn1_flag(ec_key, OPENSSL_EC_NAMED_CURVE);
+  
+  EVP_PKEY *pkey = EVP_PKEY_new();
+  assertNotNull(pkey, "EVP_PKEY_new() failed.");
+  
+  X509 *cert = X509_new();
+  assertNotNull(cert, "X509_new() failed.");
+
+  int res;
+  
+
+  if((res = (EC_KEY_generate_key(ec_key))) < 0 )
+    printf("error: (%d) %s\n", res, ERR_lib_error_string(res));
+  else if((res = (EVP_PKEY_set1_EC_KEY(pkey, ec_key))) < 0 )
+    printf("error: (%d) %s\n", res, ERR_lib_error_string(res));
+  else if (X509_set_version(cert, 2)) { // 2 => X509v3
+    result = true;
+  }
+    
+  if (result) {
+    // add serial number
+    if (_addRandomSerial(cert) == true) {
+      if (_addValidityPeriod(cert, validityDays) == true) {
+        if (X509_set_pubkey(cert, pkey) == 1) {
+          if (_addSubjectName(cert, subjectName) == true) {
+            if (_addExtensions(cert) == true) {
+              if (_addKeyIdentifier(cert) == true) {
+                // The certificate is complete, sign it.
+                if (X509_sign(cert, pkey, EVP_sha256())) {
+                  result = true;
+                } else {
+                  printf("error: (%d) %s\n", res, ERR_lib_error_string(res));
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  }
 
-    PARCBuffer *derBuffer = parcBuffer_Allocate(numBytes);
-    parcBuffer_Flip(parcBuffer_PutArray(derBuffer, numBytes, certificateDerEncoding));
+  ERR_print_errors_fp(stdout);
 
-    PARCX509Certificate *certificate = parcX509Certificate_CreateFromDERBuffer(derBuffer);
-    parcBuffer_Release(&derBuffer);
+  
 
-    uint8_t *privateKeyBytes = NULL;
-    int privateKeyByteCount = i2d_PrivateKey(privateKey, &privateKeyBytes);
-    if (privateKeyByteCount < 0) {
-        EVP_PKEY_free(privateKey);
-        RSA_free(rsa);
-        X509_free(cert);
+  uint8_t *certificateDerEncoding = NULL;
+  int numBytes = i2d_X509(cert, &certificateDerEncoding);
+  if (numBytes < 0) {
+    EVP_PKEY_free(pkey);
+    EC_KEY_free(ec_key);
+    X509_free(cert);
+    
+    return NULL;
+  }
+  
+  PARCBuffer *derBuffer = parcBuffer_Allocate(numBytes);
+  parcBuffer_Flip(parcBuffer_PutArray(derBuffer, numBytes, certificateDerEncoding));
+  
+  PARCX509Certificate *certificate = parcX509Certificate_CreateFromDERBuffer(derBuffer);
+  parcBuffer_Release(&derBuffer);
+  
+  uint8_t *pkeyBytes = NULL;
+  int pkeyByteCount = i2d_PrivateKey(pkey, &pkeyBytes);
+  if (pkeyByteCount < 0) {
+    EVP_PKEY_free(pkey);
+    EC_KEY_free(ec_key);
+    X509_free(cert);
+    
+    return NULL;
+  }
+  
+  *privateKeyBuffer = parcBuffer_Allocate(pkeyByteCount);
+  parcBuffer_Flip(parcBuffer_PutArray(*privateKeyBuffer, pkeyByteCount, pkeyBytes));
 
-        return NULL;
-    }
+  EVP_PKEY_free(pkey);
+  EC_KEY_free(ec_key);
+  X509_free(cert);
+  
+  return certificate;
+}
 
-    *privateKeyBuffer = parcBuffer_Allocate(privateKeyByteCount);
-    parcBuffer_Flip(parcBuffer_PutArray(*privateKeyBuffer, privateKeyByteCount, privateKeyBytes));
+PARCX509Certificate *
+parcX509Certificate_CreateSelfSignedCertificate(PARCBuffer **privateKeyBuffer, char *subjectName, int keyLength, size_t validityDays, PARCKeyType keyType)
+{
+  switch(keyType) {
+    case PARCKeyType_RSA:
+      return _createSelfSignedCertificate_RSA(privateKeyBuffer, subjectName, keyLength, validityDays);
+    case PARCKeyType_EC:
+      return _createSelfSignedCertificate_EC(privateKeyBuffer, subjectName, keyLength, validityDays);
+  }
 
-    return certificate;
+  return NULL;
 }
 
 

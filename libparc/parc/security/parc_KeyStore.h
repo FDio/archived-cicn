@@ -30,6 +30,7 @@
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Buffer.h>
 #include <parc/security/parc_CryptoHash.h>
+#include <parc/security/parc_SigningAlgorithm.h>
 
 struct parc_key_store;
 typedef struct parc_key_store PARCKeyStore;
@@ -105,6 +106,15 @@ typedef PARCBuffer *(PARCKeyStoreGetDEREncodedPublicKey)(const void *interfaceCo
  */
 typedef PARCBuffer *(PARCKeyStoreGetDEREncodedPrivateKey)(const void *interfaceContext);
 
+/**
+ * Returns the signing algorithm from the key type store in the keystore
+ *
+ *
+ * @param [in] interfaceContextPtr A pointer to a concrete PARCKeyStore instance.
+ *
+ * @return A pointer to a PARCBuffer containing the encoded private key.
+ */
+typedef PARCSigningAlgorithm (PARCKeyStoreGetSigningAlgorithm)(const void *interfaceContext);
 
 typedef struct parc_keystore_interface {
     /**
@@ -177,6 +187,16 @@ typedef struct parc_keystore_interface {
      * @return A pointer to a PARCBuffer containing the encoded private key.
      */
     PARCKeyStoreGetDEREncodedPrivateKey *getDEREncodedPrivateKey;
+
+    /**
+     * Returns the signing algorithm from the key type store in the keystore
+     *
+     *
+     * @param [in] interfaceContextPtr A pointer to a concrete PARCKeyStore instance.
+     *
+     * @return A pointer to a PARCBuffer containing the encoded private key.
+     */
+    PARCKeyStoreGetSigningAlgorithm *getSigningAlgorithm;
 } PARCKeyStoreInterface;
 
 /**
@@ -345,4 +365,14 @@ PARCBuffer *parcKeyStore_GetDEREncodedPublicKey(const PARCKeyStore *interfaceCon
  * @endcode
  */
 PARCBuffer *parcKeyStore_GetDEREncodedPrivateKey(const PARCKeyStore *interfaceContext);
+
+/**
+ * Returns the signing algorithm from the key type store in the keystore
+ *
+ *
+ * @param [in] interfaceContextPtr A pointer to a concrete PARCKeyStore instance.
+ *
+ * @return A pointer to a PARCBuffer containing the encoded private key.
+ */
+PARCSigningAlgorithm parcKeyStore_getSigningAlgorithm(const PARCKeyStore *interfaceContext);
 #endif // libparc_parc_KeyStore_h

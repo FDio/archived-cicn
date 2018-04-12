@@ -104,7 +104,7 @@ void parcPublicKeySigner_AssertValid(const PARCPublicKeySigner *instance);
  * }
  * @endcode
  */
-PARCPublicKeySigner *parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCSigningAlgorithm signingAlgorithm, PARCCryptoHashType hashType);
+PARCPublicKeySigner *parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCCryptoSuite suite);
 
 /**
  * Compares @p instance with @p other for order.

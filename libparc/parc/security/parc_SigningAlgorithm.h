@@ -34,7 +34,8 @@ typedef enum {
     PARCSigningAlgorithm_RSA = 1,
     PARCSigningAlgorithm_DSA = 2,
     PARCSigningAlgorithm_HMAC = 3,
-    PARCSigningAlgortihm_NULL = 4,
+    PARCSigningAlgorithm_ECDSA = 4,
+    PARCSigningAlgortihm_NULL = 5,
 } PARCSigningAlgorithm;
 
 /**

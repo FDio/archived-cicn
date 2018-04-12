@@ -23,7 +23,8 @@
 #ifndef libparc_parc_X509Certificate_h
 #define libparc_parc_X509Certificate_h
 
-#include <parc/security//parc_Certificate.h>
+#include <parc/security/parc_Certificate.h>
+#include <parc/security/parc_KeyType.h>
 
 struct parc_X509_certificate;
 typedef struct parc_X509_certificate PARCX509Certificate;
@@ -67,7 +68,7 @@ PARCX509Certificate *parcX509Certificate_CreateFromPEMFile(const char *filename)
 PARCX509Certificate *parcX509Certificate_CreateFromDERBuffer(const PARCBuffer *buffer);
 
 // TODO
-PARCX509Certificate *parcX509Certificate_CreateSelfSignedCertificate(PARCBuffer **privateKey, char *subjectName, int keyLength, size_t valdityDays);
+PARCX509Certificate *parcX509Certificate_CreateSelfSignedCertificate(PARCBuffer **privateKey, char *subjectName, int keyLength, size_t valdityDays, PARCKeyType ketType);
 
 /**
  * Increase the number of references to a `PARCX509Certificate` instance.

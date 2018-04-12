@@ -114,7 +114,7 @@ PARCCertificate *parcCertificateFactory_CreateCertificateFromBuffer(PARCCertific
  * }
  * @endcode
  */
-PARCCertificate *parcCertificateFactory_CreateSelfSignedCertificate(PARCCertificateFactory *factort, PARCBuffer **privateKey, char *subjectName, size_t keyLength, size_t valdityDays);
+PARCCertificate *parcCertificateFactory_CreateSelfSignedCertificate(PARCCertificateFactory *factort, PARCBuffer **privateKey, char *subjectName, PARCSigningAlgorithm signAlgo, size_t keyLength, size_t valdityDays);
 
 /**
  * Increase the number of references to a `PARCCertificateFactory` instance.

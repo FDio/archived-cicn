@@ -24,6 +24,7 @@
 
 #include <parc/security/parc_KeyStore.h>
 #include <parc/security/parc_Signer.h>
+#include <parc/security/parc_SigningAlgorithm.h>
 
 struct parc_pkcs12_keystore;
 typedef struct parc_pkcs12_keystore PARCPkcs12KeyStore;
@@ -31,13 +32,13 @@ typedef struct parc_pkcs12_keystore PARCPkcs12KeyStore;
 extern PARCKeyStoreInterface *PARCPkcs12KeyStoreAsKeyStore;
 
 /**
- * Increase the number of references to a `PARCPublicKeySigner` instance.
+ * Increase the number of references to a `PARCPkcs12KeyStore` instance.
  *
- * Note that new `PARCPublicKeySigner` is not created,
- * only that the given `PARCPublicKeySigner` reference count is incremented.
- * Discard the reference by invoking `parcPublicKeySigner_Release`.
+ * Note that new `PARCPkcs12KeyStore` is not created,
+ * only that the given `PARCPkcs12KeyStore` reference count is incremented.
+ * Discard the reference by invoking `parcPkcs12KeyStore_Release`.
  *
- * @param [in] instance A pointer to a valid PARCPublicKeySigner instance.
+ * @param [in] instance A pointer to a valid PARCPkcs12KeyStore instance.
  *
  * @return The same value as @p instance.
  *
@@ -97,12 +98,12 @@ void parcPkcs12KeyStore_Release(PARCPkcs12KeyStore **instancePtr);
  *     const char *filename = "/tmp/ccnxFileKeyStore_Pkcs12Open_CreateAndOpen.p12";
  *     const char *password = "12345";
  *     const char *subject  = "alice";
- *     bool result = parcPkcs12KeyStore_CreateFile(filename, password, subject, 1024, 32);
+ *     bool result = parcPkcs12KeyStore_CreateFile(filename, password, subject, PARCSigningAlgorithm_RSA, 1024, 32);
  * }
  * @endcode
  */
 bool parcPkcs12KeyStore_CreateFile(const char *filename, const char *password, const char *subjectName,
-                                   unsigned keyLength, unsigned validityDays);
+                                   PARCSigningAlgorithm signAlgo, unsigned keyLength, unsigned validityDays);
 
 /**
  * Create a `PARCPkcs12KeyStore` instance.
@@ -123,12 +124,11 @@ bool parcPkcs12KeyStore_CreateFile(const char *filename, const char *password, c
  *
  *     ...
  *
- *     PARCSigningInterface *interface = parcPublicKeySignerPkcs12Store_Open(filename, password, PARCCryptoHashType_SHA256);
+ *     PARCSigningInterface *interface = parcPkcs12Store_Open(filename, password, PARCCryptoHashType_SHA256);
  *
  *     ...
  * }
  * @endcode
  */
 PARCPkcs12KeyStore *parcPkcs12KeyStore_Open(const char *filename, const char *password, PARCCryptoHashType hashType);
-
-#endif // libparc_parc_PublicKeySignerPkcs12Store_h
+#endif // libparc_parc_Pkcs12Store_h

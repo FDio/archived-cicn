@@ -162,7 +162,7 @@ LONGBOW_TEST_CASE(Global, parcIdentity_CreateSigner)
 
     assertEqualStrings(keystorePassword, parcIdentity_GetPassWord(identity));
 
-    PARCSigner *signer = parcIdentity_CreateSigner(identity);
+    PARCSigner *signer = parcIdentity_CreateSigner(identity, PARCCryptoSuite_RSA_SHA256);
 
     assertNotNull(signer, "Expected non-null");
 

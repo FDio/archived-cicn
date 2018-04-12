@@ -37,6 +37,7 @@
 #include <parc/security/parc_CertificateFactory.h>
 #include <parc/security/parc_CertificateType.h>
 #include <parc/security/parc_ContainerEncoding.h>
+#include <parc/security/parc_KeyType.h>
 
 #include <parc/security/parc_Pkcs12KeyStore.h>
 
@@ -48,6 +49,7 @@ struct parc_pkcs12_keystore {
     EVP_PKEY *private_key;
     EVP_PKEY *public_key;
     X509 *x509_cert;
+    PARCSigningAlgorithm signAlgo;
 
     // These will be 0 length until asked for
     PARCBuffer *public_key_digest;
@@ -63,7 +65,7 @@ struct parc_pkcs12_keystore {
 static bool
 _parcPkcs12KeyStore_Finalize(PARCPkcs12KeyStore **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCPublicKeySigner pointer.");
+    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCPkcs12KeyStore pointer.");
     PARCPkcs12KeyStore *keystore = *instancePtr;
 
     EVP_PKEY_free(keystore->private_key);
@@ -124,6 +126,22 @@ _parcPkcs12KeyStore_ParseFile(PARCPkcs12KeyStore *keystore, const char *filename
     }
 
     keystore->public_key = X509_get_pubkey(keystore->x509_cert);
+    if (keystore->public_key) {
+        switch (keystore->public_key->type) {
+            case EVP_PKEY_RSA:
+                keystore->signAlgo = PARCSigningAlgorithm_RSA;
+                break;
+            case EVP_PKEY_DSA:
+                keystore->signAlgo = PARCSigningAlgorithm_DSA;
+                break;
+            case EVP_PKEY_EC:
+                keystore->signAlgo = PARCSigningAlgorithm_ECDSA;
+                break;
+            default:
+                fprintf(stderr, "%d bit unknown Key type\n\n", EVP_PKEY_bits(keystore->public_key));
+                break;
+        }
+    }
     return 0;
 }
 
@@ -131,11 +149,80 @@ _parcPkcs12KeyStore_ParseFile(PARCPkcs12KeyStore *keystore, const char *filename
 LONGBOW_STOP_DEPRECATED_WARNINGS
 // =============================================================
 
+PKCS12 *_createPkcs12KeyStore_RSA(
+    PARCBuffer *privateKeyBuffer,
+    PARCCertificate *certificate,
+    const char *password)
+{
+    // Extract the private key
+    EVP_PKEY *privateKey = NULL;
+    uint8_t *privateKeyBytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
+    d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &privateKeyBytes, parcBuffer_Limit(privateKeyBuffer));
+    parcBuffer_Release(&privateKeyBuffer);
+    
+    // Extract the certificate
+    PARCBuffer *certBuffer = parcCertificate_GetDEREncodedCertificate(certificate);
+    uint8_t *certBytes = parcBuffer_Overlay(certBuffer, parcBuffer_Limit(certBuffer));
+    X509 *cert = NULL;
+    d2i_X509(&cert, (const unsigned char **) &certBytes, parcBuffer_Limit(certBuffer));
+    
+    parcCertificate_Release(&certificate);
+    
+    PKCS12 *pkcs12 = PKCS12_create((char *) password,
+                                   "ccnxuser",
+                                   privateKey,
+                                   cert,
+                                   NULL,
+                                   0,
+                                   0,
+                                   0 /*default iter*/,
+                                   PKCS12_DEFAULT_ITER /*mac_iter*/,
+                                   0);
+    X509_free(cert);
+    EVP_PKEY_free(privateKey);
+    return pkcs12;
+}
+
+PKCS12 *_createPkcs12KeyStore_ECDSA(
+    PARCBuffer *privateKeyBuffer,
+    PARCCertificate *certificate,
+    const char *password)
+{
+    // Extract the private key
+    EVP_PKEY *privateKey = NULL;
+    uint8_t *privateKeyBytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
+    d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &privateKeyBytes, parcBuffer_Limit(privateKeyBuffer));
+    parcBuffer_Release(&privateKeyBuffer);
+    
+    // Extract the certificate
+    PARCBuffer *certBuffer = parcCertificate_GetDEREncodedCertificate(certificate);
+    uint8_t *certBytes = parcBuffer_Overlay(certBuffer, parcBuffer_Limit(certBuffer));
+    X509 *cert = NULL;
+    d2i_X509(&cert, (const unsigned char **) &certBytes, parcBuffer_Limit(certBuffer));
+    
+    parcCertificate_Release(&certificate);
+    
+    PKCS12 *pkcs12 = PKCS12_create((char *) password,
+                                   "ccnxuser",
+                                   privateKey,
+                                   cert,
+                                   NULL,
+                                   0,
+                                   0,
+                                   0 /*default iter*/,
+                                   PKCS12_DEFAULT_ITER /*mac_iter*/,
+                                   0);
+    X509_free(cert);
+    EVP_PKEY_free(privateKey);
+    return pkcs12;
+}
+
 bool
 parcPkcs12KeyStore_CreateFile(
     const char *filename,
     const char *password,
     const char *subjectName,
+    PARCSigningAlgorithm signAlgo,
     unsigned keyLength,
     unsigned validityDays)
 {
@@ -146,38 +233,24 @@ parcPkcs12KeyStore_CreateFile(
     PARCCertificateFactory *factory = parcCertificateFactory_Create(PARCCertificateType_X509, PARCContainerEncoding_DER);
 
     PARCBuffer *privateKeyBuffer;
-    PARCCertificate *certificate = parcCertificateFactory_CreateSelfSignedCertificate(factory, &privateKeyBuffer, (char *) subjectName, keyLength, validityDays);
+    PARCCertificate *certificate = parcCertificateFactory_CreateSelfSignedCertificate(factory, &privateKeyBuffer, (char *) subjectName,signAlgo, keyLength, validityDays);
 
     parcCertificateFactory_Release(&factory);
 
     if (certificate != NULL) {
-        // construct the full PKCS12 keystore to hold the certificate and private key
 
-        // Extract the private key
-        EVP_PKEY *privateKey = NULL;
-        uint8_t *privateKeyBytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
-        d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &privateKeyBytes, parcBuffer_Limit(privateKeyBuffer));
-        parcBuffer_Release(&privateKeyBuffer);
-
-        // Extract the certificate
-        PARCBuffer *certBuffer = parcCertificate_GetDEREncodedCertificate(certificate);
-        uint8_t *certBytes = parcBuffer_Overlay(certBuffer, parcBuffer_Limit(certBuffer));
-        X509 *cert = NULL;
-        d2i_X509(&cert, (const unsigned char **) &certBytes, parcBuffer_Limit(certBuffer));
-
-        parcCertificate_Release(&certificate);
-
-        PKCS12 *pkcs12 = PKCS12_create((char *) password,
-                                       "ccnxuser",
-                                       privateKey,
-                                       cert,
-                                       NULL,
-                                       0,
-                                       0,
-                                       0 /*default iter*/,
-                                       PKCS12_DEFAULT_ITER /*mac_iter*/,
-                                       0);
-
+        PKCS12 *pkcs12;
+        switch (signAlgo){
+            case PARCSigningAlgorithm_RSA:
+                pkcs12 = _createPkcs12KeyStore_RSA(privateKeyBuffer, certificate, password);
+                break;
+            case PARCSigningAlgorithm_ECDSA:
+                pkcs12 = _createPkcs12KeyStore_ECDSA(privateKeyBuffer, certificate, password);
+                break;
+            default:
+                return result;
+        }
+        
         if (pkcs12 != NULL) {
             int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0600);
             if (fd != -1) {
@@ -194,8 +267,6 @@ parcPkcs12KeyStore_CreateFile(
                 trapUnrecoverableState("Cannot open(2) the file '%s': %s", filename, strerror(errno));
             }
             PKCS12_free(pkcs12);
-            X509_free(cert);
-            EVP_PKEY_free(privateKey);
         } else {
             unsigned long errcode;
             while ((errcode = ERR_get_error()) != 0) {
@@ -228,6 +299,10 @@ parcPkcs12KeyStore_Open(const char *filename, const char *password, PARCCryptoHa
     return keyStore;
 }
 
+PARCSigningAlgorithm _GetSigningAlgorithm(PARCPkcs12KeyStore *keystore)
+{
+    return keystore->signAlgo;
+}
 
 static PARCCryptoHash *
 _GetPublickKeyDigest(PARCPkcs12KeyStore *keystore)
@@ -365,6 +440,7 @@ PARCKeyStoreInterface *PARCPkcs12KeyStoreAsKeyStore = &(PARCKeyStoreInterface) {
     .getDEREncodedCertificate = (PARCKeyStoreGetDEREncodedCertificate *) _GetDEREncodedCertificate,
     .getDEREncodedPublicKey = (PARCKeyStoreGetDEREncodedPublicKey *) _GetDEREncodedPublicKey,
     .getDEREncodedPrivateKey = (PARCKeyStoreGetDEREncodedPrivateKey *) _GetDEREncodedPrivateKey,
+    .getSigningAlgorithm = (PARCKeyStoreGetSigningAlgorithm *) _GetSigningAlgorithm,
 };
 
 // =============================================================

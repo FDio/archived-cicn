@@ -69,6 +69,7 @@ parcKey_CreateFromDerEncodedPublicKey(PARCKeyId *keyid, PARCSigningAlgorithm sig
     switch (signingAlg) {
         case PARCSigningAlgorithm_RSA: // fallthrough
         case PARCSigningAlgorithm_DSA:
+        case PARCSigningAlgorithm_ECDSA:
             break;
 
         default:

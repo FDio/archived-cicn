@@ -13,17 +13,21 @@ set(TestsExpectedToPass
   test_parc_Identity
   test_parc_IdentityFile
   test_parc_InMemoryVerifier
+  test_parc_InMemoryVerifierECDSA
   test_parc_Key
   test_parc_KeyId
   test_parc_KeyStore
   test_parc_SecureRandom
   test_parc_Pkcs12KeyStore
+  test_parc_Pkcs12KeyStoreECDSA
   test_parc_PublicKeySigner
+  test_parc_PublicKeyECSigner
   test_parc_SymmetricKeySigner
   test_parc_SymmetricKeyStore
   test_parc_Security
   test_parc_Signature
   test_parc_Signer
+  test_parc_SignerEC
   test_parc_SigningAlgorithm
   test_parc_Verifier
   test_parc_X509Certificate
@@ -46,6 +50,7 @@ set(EXTRA_DATA_FILES
 	test_pubkey.pem
 	test_random_bytes
 	test_random_bytes.sig
+	test_random_bytes.sig_ec
 	test_random_bytes.hmac_sha256
 	test_random_bytes.hmac_sha512
 	test_rsa.p12
@@ -58,6 +63,14 @@ set(EXTRA_DATA_FILES
 	test_rsa_pub_sha256.bin
 	test_symmetric_key.bin
 	test_symmetric_key.sha256
+	test_ec.p12
+	test_ec_crt.der
+	test_ec_crt_sha256.bin
+	test_ec_key.der
+	test_ec_key.pem
+	test_ec_pub.der
+	test_ec_pub.pem
+	test_ec_pub_sha256.bin
 	)
 
 foreach(data_file ${EXTRA_DATA_FILES})

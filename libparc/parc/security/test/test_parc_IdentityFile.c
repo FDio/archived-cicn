@@ -176,7 +176,7 @@ LONGBOW_TEST_CASE(Global, parcIdentityFile_CreateSigner)
     } else {
         perror("getcwd() error");
     }
-    PARCSigner *signer = parcIdentityFile_CreateSigner(identityFile);
+    PARCSigner *signer = parcIdentityFile_CreateSigner(identityFile, PARCCryptoSuite_RSA_SHA256);
 
     assertNotNull(signer, "Expected non-null");
 

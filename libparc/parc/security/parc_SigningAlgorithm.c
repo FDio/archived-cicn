@@ -32,6 +32,7 @@ static struct {
     { PARCSigningAlgorithm_RSA,  "PARCSigningAlgorithm_RSA"  },
     { PARCSigningAlgorithm_DSA,  "PARCSigningAlgorithm_DSA"  },
     { PARCSigningAlgorithm_HMAC, "PARCSigningAlgorithm_HMAC" },
+    { PARCSigningAlgorithm_ECDSA,"PARCSigningAlgorithm_ECDSA"},
     { 0,                         NULL                        }
 };
 
@@ -72,6 +73,8 @@ parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite suite)
         case PARCCryptoSuite_HMAC_SHA512:
             return PARCSigningAlgorithm_HMAC;
 
+        case PARCCryptoSuite_ECDSA_SHA256:
+	    return PARCSigningAlgorithm_ECDSA;
         case PARCCryptoSuite_NULL_CRC32C:
             return PARCSigningAlgortihm_NULL;
 

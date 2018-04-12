@@ -102,3 +102,12 @@ parcKeyStore_GetDEREncodedPrivateKey(const PARCKeyStore *interfaceContext)
     }
     return NULL;
 }
+
+PARCSigningAlgorithm
+parcKeyStore_getSigningAlgorithm(const PARCKeyStore *interfaceContext)
+{
+    if (interfaceContext->interface != NULL) {
+        return interfaceContext->interface->getSigningAlgorithm(interfaceContext->instance);
+    }
+    return PARCSigningAlgortihm_NULL;
+}

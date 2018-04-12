@@ -64,7 +64,7 @@ LONGBOW_TEST_CASE(Global, parcCryptoSuite_GetCryptoHash)
     assertTrue(PARCCryptoHashType_SHA256 == parcCryptoSuite_GetCryptoHash(PARCCryptoSuite_HMAC_SHA256), "Expected to be true");
     assertTrue(PARCCryptoHashType_SHA512 == parcCryptoSuite_GetCryptoHash(PARCCryptoSuite_HMAC_SHA512), "Expected to be true");
     assertTrue(PARCCryptoHashType_CRC32C == parcCryptoSuite_GetCryptoHash(PARCCryptoSuite_NULL_CRC32C), "Expected to be true");
-    assertTrue(PARCCryptoHashType_SHA256 == parcCryptoSuite_GetCryptoHash(PARCCryptoSuite_EC_SECP_256K1), "Expected to be true");
+    assertTrue(PARCCryptoHashType_SHA256 == parcCryptoSuite_GetCryptoHash(PARCCryptoSuite_ECDSA_SHA256), "Expected to be true");
 }
 
 LONGBOW_TEST_CASE_EXPECTS(Global, parcCryptoSuite_GetCryptoHash_IllegalValue, .event = &LongBowTrapIllegalValue)

@@ -45,6 +45,7 @@
 
 #include <parc/algol/parc_Object.h>
 #include <parc/security/parc_Signer.h>
+#include <parc/security/parc_CryptoSuite.h>
 
 struct parc_identity;
 typedef struct parc_identity PARCIdentity;
@@ -73,7 +74,7 @@ typedef struct parc_identity_interface {
     /**
      * @see parcIdentity_CreateSigner
      */
-    PARCSigner *(*GetSigner)(const void *identity);
+    PARCSigner *(*GetSigner)(const void *identity, PARCCryptoSuite suite);
 
     /**
      * @see parcIdentity_Equals
@@ -278,7 +279,7 @@ const char *parcIdentity_GetPassWord(const PARCIdentity *identity);
  * }
  * @endcode
  */
-PARCSigner *parcIdentity_CreateSigner(const PARCIdentity *identity);
+PARCSigner *parcIdentity_CreateSigner(const PARCIdentity *identity, PARCCryptoSuite suite);
 
 /**
  * Determine if two PARCIdentity are equal.

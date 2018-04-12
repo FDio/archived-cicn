@@ -73,7 +73,7 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Global)
 LONGBOW_TEST_CASE(Global, parcSignature_Create)
 {
     PARCBuffer *bits = parcBuffer_Allocate(10); // arbitrary buffer size -- not important
-    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, bits);
+    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, bits);
     parcBuffer_Release(&bits);
 
     assertNotNull(signature, "Expected non-NULL PARCSignature");
@@ -88,7 +88,7 @@ LONGBOW_TEST_CASE(Global, parcSignature_Create)
 LONGBOW_TEST_CASE(Global, parcSignature_Acquire)
 {
     PARCBuffer *bits = parcBuffer_Allocate(10); // arbitrary buffer size -- not important
-    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, bits);
+    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, bits);
     PARCSignature *handle = parcSignature_Acquire(signature);
     parcBuffer_Release(&bits);
 
@@ -106,7 +106,7 @@ LONGBOW_TEST_CASE(Global, parcSignature_Acquire)
 LONGBOW_TEST_CASE(Global, parcSignature_Release)
 {
     PARCBuffer *bits = parcBuffer_Allocate(10); // arbitrary bufer size -- not important
-    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, bits);
+    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, bits);
     PARCSignature *handle = parcSignature_Acquire(signature);
     parcBuffer_Release(&bits);
 
@@ -129,12 +129,12 @@ LONGBOW_TEST_CASE(Global, parcSignature_Equals)
     PARCBuffer *otherBits = parcBuffer_Allocate(strlen("hello"));
     parcBuffer_PutArray(otherBits, strlen("hello"), (uint8_t *) "hello");
 
-    PARCSignature *x = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, bits);
-    PARCSignature *y = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, bits);
-    PARCSignature *z = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, bits);
+    PARCSignature *x = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, bits);
+    PARCSignature *y = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, bits);
+    PARCSignature *z = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, bits);
     PARCSignature *unequal1 = parcSignature_Create(PARCSigningAlgorithm_HMAC, PARCCryptoHashType_SHA256, bits);
-    PARCSignature *unequal2 = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_CRC32C, bits);
-    PARCSignature *unequal3 = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, otherBits);
+    PARCSignature *unequal2 = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_CRC32C, bits);
+    PARCSignature *unequal3 = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, otherBits);
 
     parcObjectTesting_AssertEqualsFunction(parcSignature_Equals, x, y, z, unequal1, unequal2, unequal3, NULL);
 
@@ -154,7 +154,7 @@ LONGBOW_TEST_CASE(Global, parcSignature_GetHashType)
     PARCBuffer *bits = parcBuffer_Allocate(strlen("Hello"));
     parcBuffer_PutArray(bits, strlen("Hello"), (uint8_t *) "Hello");
     PARCCryptoHashType expected = PARCCryptoHashType_SHA256;
-    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_DSA, expected, bits);
+    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_ECDSA, expected, bits);
     parcBuffer_Release(&bits);
 
     PARCCryptoHashType actual = parcSignature_GetHashType(signature);
@@ -167,7 +167,7 @@ LONGBOW_TEST_CASE(Global, parcSignature_GetSignature)
 {
     PARCBuffer *expected = parcBuffer_Allocate(strlen("Hello"));
     parcBuffer_PutArray(expected, strlen("Hello"), (uint8_t *) "Hello");
-    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_DSA, PARCCryptoHashType_SHA256, expected);
+    PARCSignature *signature = parcSignature_Create(PARCSigningAlgorithm_ECDSA, PARCCryptoHashType_SHA256, expected);
 
     PARCBuffer *actual = parcSignature_GetSignature(signature);
 
@@ -180,7 +180,7 @@ LONGBOW_TEST_CASE(Global, parcSignature_GetSigningAlgorithm)
 {
     PARCBuffer *signatureBits = parcBuffer_Allocate(strlen("Hello"));
     parcBuffer_PutArray(signatureBits, strlen("Hello"), (uint8_t *) "Hello");
-    PARCSigningAlgorithm expected = PARCSigningAlgorithm_DSA;
+    PARCSigningAlgorithm expected = PARCSigningAlgorithm_ECDSA;
     PARCSignature *signature = parcSignature_Create(expected, PARCCryptoHashType_SHA256, signatureBits);
 
     PARCSigningAlgorithm actual = parcSignature_GetSigningAlgorithm(signature);
@@ -194,7 +194,7 @@ LONGBOW_TEST_CASE(Global, parcSignature_ToString)
 {
     PARCBuffer *signatureBits = parcBuffer_Allocate(strlen("Hello"));
     parcBuffer_PutArray(signatureBits, strlen("Hello"), (uint8_t *) "Hello");
-    PARCSigningAlgorithm expected = PARCSigningAlgorithm_DSA;
+    PARCSigningAlgorithm expected = PARCSigningAlgorithm_ECDSA;
     PARCSignature *signature = parcSignature_Create(expected, PARCCryptoHashType_SHA256, signatureBits);
 
     char *string = parcSignature_ToString(signature);

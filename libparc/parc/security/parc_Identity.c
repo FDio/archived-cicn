@@ -99,9 +99,9 @@ parcIdentity_GetPassWord(const PARCIdentity *identity)
 }
 
 PARCSigner *
-parcIdentity_CreateSigner(const PARCIdentity *identity)
+parcIdentity_CreateSigner(const PARCIdentity *identity, PARCCryptoSuite suite)
 {
-    return identity->interface->GetSigner(identity->instance);
+  return identity->interface->GetSigner(identity->instance, suite);
 }
 
 void

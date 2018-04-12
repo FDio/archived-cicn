@@ -53,6 +53,8 @@ LONGBOW_TEST_FIXTURE(Global)
     LONGBOW_RUN_TEST_CASE(Global, parc_X509Certificate_GetCertificateDigest);
     LONGBOW_RUN_TEST_CASE(Global, parc_X509Certificate_GetDEREncodedCertificate);
     LONGBOW_RUN_TEST_CASE(Global, parc_X509Certificate_GetDEREncodedPublicKey);
+    LONGBOW_RUN_TEST_CASE(Global, parc_X509Certificate_CreateSelfSignedCertificate_RSA);
+    LONGBOW_RUN_TEST_CASE(Global, parc_X509Certificate_CreateSelfSignedCertificate_EC);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Global)
@@ -96,6 +98,24 @@ LONGBOW_TEST_CASE(Global, parc_X509Certificate_Create)
     char *fileName = "bad.pem";
     PARCX509Certificate *certificate = _parcX509Certificate_CreateFromPEMFile(fileName);
     assertNull(certificate, "Expected NULL certificate with non-existent file");
+}
+
+LONGBOW_TEST_CASE(Global, parc_X509Certificate_CreateSelfSignedCertificate_EC)
+{
+  PARCBuffer *privateKeyBuffer = NULL;
+  PARCX509Certificate *certificate = _createSelfSignedCertificate_EC(&privateKeyBuffer, "TEST", 256, 180);
+  assertNotNull(certificate, "Expected non-NULL EC certificate");
+  parcBuffer_Release(&privateKeyBuffer);
+  parcX509Certificate_Release(&certificate);
+}
+
+LONGBOW_TEST_CASE(Global, parc_X509Certificate_CreateSelfSignedCertificate_RSA)
+{
+  PARCBuffer *privateKeyBuffer = NULL;
+  PARCX509Certificate *certificate = _createSelfSignedCertificate_RSA(&privateKeyBuffer, "TEST", 1024, 180);
+  assertNotNull(certificate, "Expected non-NULL RSA certificate");
+  parcBuffer_Release(&privateKeyBuffer);
+  parcX509Certificate_Release(&certificate);
 }
 
 LONGBOW_TEST_CASE(Global, parc_X509Certificate_CreateFromDERBuffer)

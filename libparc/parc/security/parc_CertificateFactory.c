@@ -78,10 +78,20 @@ parcCertificateFactory_CreateCertificateFromBuffer(PARCCertificateFactory *facto
 
 PARCCertificate *
 parcCertificateFactory_CreateSelfSignedCertificate(PARCCertificateFactory *factory, PARCBuffer **privateKey,
-                                                   char *subjectName, size_t keyLength, size_t valdityDays)
+                                                   char *subjectName, PARCSigningAlgorithm signAlgo,
+                                                   size_t keyLength, size_t valdityDays)
 {
     if (factory->type == PARCCertificateType_X509 && factory->encoding == PARCContainerEncoding_DER) {
-        PARCX509Certificate *certificate = parcX509Certificate_CreateSelfSignedCertificate(privateKey, subjectName, (int) keyLength, valdityDays);
+      PARCX509Certificate *certificate = NULL;
+      switch (signAlgo)
+      {
+        case PARCSigningAlgorithm_RSA:
+          certificate = parcX509Certificate_CreateSelfSignedCertificate(privateKey, subjectName, (int) keyLength, valdityDays, PARCKeyType_RSA);
+          break;
+        case PARCSigningAlgorithm_ECDSA:
+          certificate = parcX509Certificate_CreateSelfSignedCertificate(privateKey, subjectName, (int) keyLength, valdityDays, PARCKeyType_EC);
+          break;
+      }
 
         // This may fail.
         if (certificate == NULL) {

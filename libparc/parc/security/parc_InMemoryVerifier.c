@@ -34,6 +34,8 @@
 #include <parc/algol/parc_Memory.h>
 
 #include <openssl/x509v3.h>
+#include <openssl/ecdsa.h>
+
 
 struct parc_inmemory_verifier {
     PARCCryptoHasher *hasher_sha256;
@@ -124,6 +126,17 @@ _parcInMemoryVerifier_AllowedCryptoSuite(void *interfaceContext, PARCKeyId *keyi
             }
             break;
 
+      case PARCSigningAlgorithm_ECDSA:
+            switch (suite) {
+                case PARCCryptoSuite_ECDSA_SHA256:
+                    return true;
+
+                default:
+                    return false;
+            }
+            break;
+
+            
         case PARCSigningAlgorithm_DSA:
             switch (suite) {
                 default:
@@ -152,6 +165,8 @@ _parcInMemoryVerifier_AllowedCryptoSuite(void *interfaceContext, PARCKeyId *keyi
 static bool _parcInMemoryVerifier_RSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHash *localHash,
                                                 PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey);
 
+static bool _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHash *localHash,
+                                      PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey);
 /**
  * The signature verifies if:
  * 0) we know the key for keyid
@@ -194,6 +209,9 @@ _parcInMemoryVerifier_VerifyDigest(void *interfaceContext, PARCKeyId *keyid, PAR
     switch (parcSignature_GetSigningAlgorithm(objectSignature)) {
         case PARCSigningAlgorithm_RSA:
             return _parcInMemoryVerifier_RSAKey_Verify(verifier, locallyComputedHash, objectSignature, parcKey_GetKey(key));
+
+        case PARCSigningAlgorithm_ECDSA:
+            return _parcInMemoryVerifier_ECDSAKey_Verify(verifier, locallyComputedHash, objectSignature, parcKey_GetKey(key));
 
         case PARCSigningAlgorithm_DSA:
             trapNotImplemented("DSA not supported");
@@ -295,7 +313,69 @@ _parcInMemoryVerifier_RSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHa
         }
         EVP_PKEY_free(unwrapped_key);
 
-        if (success) {
+        if (success == 1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Return if the signature and key verify with the local hash.
+ *
+ * PRECONDITION:
+ *  - You know the signature and key are ECDSA.
+ *
+ * Example:
+ * @code
+ * <#example#>
+ * @endcode
+ */
+static bool
+_parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHash *localHash,
+                                    PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey)
+{
+    const uint8_t *der_bytes = parcByteArray_Array(parcBuffer_Array(derEncodedKey));
+
+    long der_length = parcBuffer_Remaining(derEncodedKey);
+    EVP_PKEY *unwrapped_key = d2i_PUBKEY(NULL, &der_bytes, der_length);
+
+    if (unwrapped_key != NULL) {
+        int success = 0;
+        EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(unwrapped_key);
+
+        if (ec_key != NULL) {
+            int openssl_digest_type;
+
+            switch (parcCryptoHash_GetDigestType(localHash)) {
+                case PARCCryptoHashType_SHA256:
+                    openssl_digest_type = NID_sha256;
+                    break;
+                case PARCCryptoHashType_SHA512:
+                    openssl_digest_type = NID_sha512;
+                    break;
+                default:
+                    trapUnexpectedState("Unknown digest type: %s",
+                                        parcCryptoHashType_ToString(parcCryptoHash_GetDigestType(localHash)));
+            }
+
+            PARCBuffer *sigbits = parcSignature_GetSignature(signatureToVerify);
+            PARCByteArray *bytearray = parcBuffer_Array(sigbits);
+            unsigned signatureLength = (unsigned) parcBuffer_Remaining(sigbits);
+            uint8_t *sigbuffer = parcByteArray_Array(bytearray);
+            size_t signatureOffset = parcBuffer_ArrayOffset(sigbits);
+
+            success = ECDSA_verify(openssl_digest_type,
+                                 (unsigned char *) parcByteArray_Array(parcBuffer_Array(parcCryptoHash_GetDigest(localHash))),
+                                 (unsigned) parcBuffer_Remaining(parcCryptoHash_GetDigest(localHash)),
+                                 sigbuffer + signatureOffset,
+                                 signatureLength,
+                                 ec_key);
+            EC_KEY_free(ec_key);
+        }
+        EVP_PKEY_free(unwrapped_key);
+
+        if (success == 1) {
             return true;
         }
     }
