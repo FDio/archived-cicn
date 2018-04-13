@@ -45,7 +45,7 @@ parcCertificateFactory_Create(PARCCertificateType type, PARCContainerEncoding en
 }
 
 PARCCertificate *
-parcCertificateFactory_CreateCertificateFromFile(PARCCertificateFactory *factory, char *filename, char *password __attribute__((unused)))
+parcCertificateFactory_CreateCertificateFromFile(PARCCertificateFactory *factory, const char *filename, const char *password __attribute__((unused)))
 {
     if (factory->type == PARCCertificateType_X509 && factory->encoding == PARCContainerEncoding_PEM) {
         PARCX509Certificate *certificate = parcX509Certificate_CreateFromPEMFile(filename);

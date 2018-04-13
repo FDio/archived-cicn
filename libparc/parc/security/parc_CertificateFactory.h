@@ -66,7 +66,7 @@ PARCCertificateFactory *parcCertificateFactory_Create(PARCCertificateType type, 
  * }
  * @endcode
  */
-PARCCertificate *parcCertificateFactory_CreateCertificateFromFile(PARCCertificateFactory *factory, char *filename, char *password);
+PARCCertificate *parcCertificateFactory_CreateCertificateFromFile(PARCCertificateFactory *factory, const char *filename, const char *password);
 
 /**
  * Create a `PARCCertificate` from the specified `PARCBuffer`.
