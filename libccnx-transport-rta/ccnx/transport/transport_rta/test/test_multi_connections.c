@@ -227,9 +227,9 @@ stackSetup(const char *alice_nonce, const char *bob_nonce)
     unlink(alice_keystore_name);
     unlink(bob_keystore_name);
 
-    bool success = parcPkcs12KeyStore_CreateFile(alice_keystore_name, "23456", "alice", 1024, 30);
+    bool success = parcPkcs12KeyStore_CreateFile(alice_keystore_name, "23456", "alice", PARCSigningAlgorithm_RSA, 1024, 30);
     assertTrue(success, "parcPkcs12Store_CreateFile() failed.");
-    success = parcPkcs12KeyStore_CreateFile(bob_keystore_name, "34567", "bob", 2048, 15);
+    success = parcPkcs12KeyStore_CreateFile(bob_keystore_name, "34567", "bob", PARCSigningAlgorithm_RSA, 2048, 15);
     assertTrue(success, "parcPkcs12Store_CreateFile() failed.");
 
     alice_params = MultipleConnections_createParams(local_name, alice_keystore_name, "23456", alice_nonce);

@@ -61,7 +61,7 @@ codecTlv_CreateParams(const char *keystore_filename, const char *keystore_passwo
 
     unlink(keystore_filename);
 
-    bool success = parcPkcs12KeyStore_CreateFile(keystore_filename, keystore_password, "alice", 1024, 30);
+    bool success = parcPkcs12KeyStore_CreateFile(keystore_filename, keystore_password, "alice", PARCSigningAlgorithm_RSA, 1024, 30);
     assertTrue(success, "parcPkcs12KeyStore_CreateFile() failed.");
 
     publicKeySigner_ConnectionConfig(connConfig, keystore_filename, keystore_password);

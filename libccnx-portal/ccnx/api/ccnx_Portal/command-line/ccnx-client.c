@@ -40,7 +40,7 @@
 int
 ccnGet(PARCIdentity *identity, CCNxName *name)
 {
-    CCNxPortalFactory *factory = ccnxPortalFactory_Create(identity);
+  CCNxPortalFactory *factory = ccnxPortalFactory_Create(identity, PARCCryptoSuite_RSA_SHA256);
 
     CCNxPortal *portal = ccnxPortalFactory_CreatePortal(factory, ccnxPortalRTA_Message);
 

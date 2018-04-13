@@ -92,7 +92,7 @@ _commonSetup(void)
 
     unlink(data->keystoreName);
 
-    bool success = parcPkcs12KeyStore_CreateFile(data->keystoreName, data->keystorePassword, "user", 1024, 30);
+    bool success = parcPkcs12KeyStore_CreateFile(data->keystoreName, data->keystorePassword, "user", PARCSigningAlgorithm_RSA, 1024, 30);
     assertTrue(success, "parcPkcs12KeyStore_CreateFile() failed.");
 
     data->commandRingBuffer = parcRingBuffer1x1_Create(128, NULL);

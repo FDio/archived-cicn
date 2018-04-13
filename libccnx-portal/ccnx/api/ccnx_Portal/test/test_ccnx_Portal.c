@@ -127,14 +127,14 @@ LONGBOW_TEST_FIXTURE_SETUP(Global)
 
     parcSecurity_Init();
 
-    bool success = parcPkcs12KeyStore_CreateFile("my_keystore", "my_keystore_password", subjectName, keyLength, validityDays);
+    bool success = parcPkcs12KeyStore_CreateFile("my_keystore", "my_keystore_password", subjectName, PARCSigningAlgorithm_RSA, keyLength, validityDays);
     assertTrue(success, "parcPkcs12KeyStore_CreateFile('my_keystore', 'my_keystore_password') failed.");
 
     PARCIdentityFile *identityFile = parcIdentityFile_Create("my_keystore", "my_keystore_password");
     PARCIdentity *identity = parcIdentity_Create(identityFile, PARCIdentityFileAsPARCIdentity);
     parcIdentityFile_Release(&identityFile);
 
-    data->factory = ccnxPortalFactory_Create(identity);
+    data->factory = ccnxPortalFactory_Create(identity, PARCCryptoSuite_RSA_SHA256);
     parcIdentity_Release(&identity);
 
     longBowTestCase_SetClipBoardData(testCase, data);
@@ -604,14 +604,14 @@ LONGBOW_TEST_FIXTURE_SETUP(Performance)
 
     parcSecurity_Init();
 
-    bool success = parcPkcs12KeyStore_CreateFile("my_keystore", "my_keystore_password", subjectName, keyLength, validityDays);
+    bool success = parcPkcs12KeyStore_CreateFile("my_keystore", "my_keystore_password", subjectName, PARCSigningAlgorithm_RSA, keyLength, validityDays);
     assertTrue(success, "parcPkcs12KeyStore_CreateFile('my_keystore', 'my_keystore_password') failed.");
 
     PARCIdentityFile *identityFile = parcIdentityFile_Create("my_keystore", "my_keystore_password");
     PARCIdentity *identity = parcIdentity_Create(identityFile, PARCIdentityFileAsPARCIdentity);
     parcIdentityFile_Release(&identityFile);
 
-    data->factory = ccnxPortalFactory_Create(identity);
+    data->factory = ccnxPortalFactory_Create(identity, PARCCryptoSuite_RSA_SHA256);
     parcIdentity_Release(&identity);
 
     longBowTestCase_SetClipBoardData(testCase, data);

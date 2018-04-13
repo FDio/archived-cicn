@@ -69,15 +69,18 @@ parcObject_ImplementAcquire(ccnxPortalFactory, CCNxPortalFactory);
 parcObject_ImplementRelease(ccnxPortalFactory, CCNxPortalFactory);
 
 CCNxPortalFactory *
-ccnxPortalFactory_Create(const PARCIdentity *identity)
+ccnxPortalFactory_Create(const PARCIdentity *identity, PARCCryptoSuite suite)
 {
     parcIdentity_OptionalAssertValid(identity);
 
+    if (identity == NULL)
+      return NULL;
+    
     parcSecurity_Init();
     CCNxPortalFactory *result = parcObject_CreateInstance(CCNxPortalFactory);
     if (result != NULL) {
         result->identity = parcIdentity_Acquire(identity);
-        result->signer = parcIdentity_CreateSigner(identity);
+        result->signer = parcIdentity_CreateSigner(identity, suite);
         result->keyId = parcSigner_CreateKeyId(result->signer);
         result->properties = parcProperties_Create();
 

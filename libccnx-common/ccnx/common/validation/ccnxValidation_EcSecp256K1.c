@@ -47,7 +47,7 @@ ccnxValidationEcSecp256K1_Set(CCNxTlvDictionary *message, const PARCBuffer *keyi
     bool success = true;
     switch (ccnxTlvDictionary_GetSchemaVersion(message)) {
         case CCNxTlvDictionary_SchemaVersion_V1: {
-            success &= ccnxTlvDictionary_PutInteger(message, CCNxCodecSchemaV1TlvDictionary_ValidationFastArray_CRYPTO_SUITE, PARCCryptoSuite_EC_SECP_256K1);
+            success &= ccnxTlvDictionary_PutInteger(message, CCNxCodecSchemaV1TlvDictionary_ValidationFastArray_CRYPTO_SUITE, PARCCryptoSuite_ECDSA_SHA256);
 
             if (keyid) {
                 success &= ccnxTlvDictionary_PutBuffer(message, CCNxCodecSchemaV1TlvDictionary_ValidationFastArray_KEYID, keyid);
@@ -69,7 +69,7 @@ ccnxValidationEcSecp256K1_Test(const CCNxTlvDictionary *message)
 {
     if (ccnxTlvDictionary_IsValueInteger(message, CCNxCodecSchemaV1TlvDictionary_ValidationFastArray_CRYPTO_SUITE)) {
         uint64_t cryptosuite = ccnxTlvDictionary_GetInteger(message, CCNxCodecSchemaV1TlvDictionary_ValidationFastArray_CRYPTO_SUITE);
-        return (cryptosuite == PARCCryptoSuite_EC_SECP_256K1);
+        return (cryptosuite == PARCCryptoSuite_ECDSA_SHA256);
     }
     return false;
 }

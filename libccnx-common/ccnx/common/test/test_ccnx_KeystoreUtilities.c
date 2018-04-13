@@ -211,7 +211,7 @@ LONGBOW_TEST_CASE(Local, ccnxKeystoreUtilities_OpenFromHomeDirectory_Oldfile)
     mkdir(ccnxdir, 0700);
     char *path = ccnxKeystoreUtilities_ConstructPath(ccnxdir, ".ccnx_keystore");
 
-    bool success = parcPkcs12KeyStore_CreateFile(path, "1234", "ccnxuser", 1024, 365);
+    bool success = parcPkcs12KeyStore_CreateFile(path, "1234", "ccnxuser", PARCSigningAlgorithm_RSA, 1024, 365);
     assertTrue(success, "parcPkcs12KeyStore_CreateFile() failed.");
 
     KeystoreParams *signer = ccnxKeystoreUtilities_OpenFromHomeDirectory("1234");
@@ -233,7 +233,7 @@ LONGBOW_TEST_CASE(Local, ccnxKeystoreUtilities_OpenFromHomeDirectory_Newfile)
     mkdir(ccnxdir, 0700);
     char *path = ccnxKeystoreUtilities_ConstructPath(ccnxdir, ".ccnx_keystore.p12");
 
-    bool success = parcPkcs12KeyStore_CreateFile(path, "1234", "ccnxuser", 1024, 365);
+    bool success = parcPkcs12KeyStore_CreateFile(path, "1234", "ccnxuser", PARCSigningAlgorithm_RSA, 1024, 365);
     assertTrue(success, "parcPkcs12KeyStore_CreateFile() failed.");
 
     KeystoreParams *signer = ccnxKeystoreUtilities_OpenFromHomeDirectory("1234");

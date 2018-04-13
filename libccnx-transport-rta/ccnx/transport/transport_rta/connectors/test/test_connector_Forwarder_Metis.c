@@ -441,7 +441,7 @@ LONGBOW_TEST_RUNNER_SETUP(connector_Forwarder_Metis)
 
     // init + fini here so there's no memory imbalance
     parcSecurity_Init();
-    parcPkcs12KeyStore_CreateFile(keystorename, keystorepass, "ccnxuser", 1024, 365);
+    parcPkcs12KeyStore_CreateFile(keystorename, keystorepass, "ccnxuser", PARCSigningAlgorithm_RSA, 1024, 365);
     parcSecurity_Fini();
 
     return LONGBOW_STATUS_SUCCEEDED;

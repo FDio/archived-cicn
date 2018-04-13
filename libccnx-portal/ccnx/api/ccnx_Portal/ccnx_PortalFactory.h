@@ -21,6 +21,8 @@
 #ifndef CCNx_Portal_API_ccnx_PortalFactory_h
 #define CCNx_Portal_API_ccnx_PortalFactory_h
 
+#include <parc/security/parc_CryptoSuite.h>
+
 struct CCNxPortalFactory;
 /**
  * @typedef CCNxPortalFactory
@@ -80,7 +82,7 @@ extern const char *CCNxPortalFactory_LocalRouterTimeout;
  * @see {@link ccnxPortalFactory_Acquire}
  * @see {@link ccnxPortalFactory_Release}
  */
-CCNxPortalFactory *ccnxPortalFactory_Create(const PARCIdentity *identity);
+CCNxPortalFactory *ccnxPortalFactory_Create(const PARCIdentity *identity, PARCCryptoSuite suite);
 
 /**
  * Print a human readable representation of the given `CCNxPortalFactory` instance.

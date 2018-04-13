@@ -78,7 +78,7 @@ ccnServe(const PARCIdentity *identity, const CCNxName *listenName, const char *c
 {
     parcSecurity_Init();
 
-    CCNxPortalFactory *factory = ccnxPortalFactory_Create(identity);
+    CCNxPortalFactory *factory = ccnxPortalFactory_Create(identity, PARCCryptoSuite_RSA_SHA256);
 
     CCNxPortal *portal = ccnxPortalFactory_CreatePortal(factory, ccnxPortalRTA_Message);
     assertNotNull(portal, "Expected a non-null CCNxPortal pointer.");

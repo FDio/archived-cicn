@@ -126,7 +126,7 @@ _commonSetup(void)
 
     sprintf(data->keystorePassword, "23439429");
 
-    bool success = parcPkcs12KeyStore_CreateFile(data->keystoreName, data->keystorePassword, "user", 1024, 30);
+    bool success = parcPkcs12KeyStore_CreateFile(data->keystoreName, data->keystorePassword, "user", PARCSigningAlgorithm_RSA, 1024, 30);
     assertTrue(success, "parcPublicKeySignerPkcs12Store_CreateFile() failed.");
     close(fd);
 

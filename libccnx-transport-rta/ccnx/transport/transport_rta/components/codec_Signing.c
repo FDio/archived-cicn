@@ -62,7 +62,7 @@ component_Codec_GetSigner(RtaConnection *conn)
             PARCPkcs12KeyStore *pkcs12KeyStore = parcPkcs12KeyStore_Open(params.filename, params.password, PARCCryptoHashType_SHA256);
             PARCKeyStore *keyStore = parcKeyStore_Create(pkcs12KeyStore, PARCPkcs12KeyStoreAsKeyStore);
             parcPkcs12KeyStore_Release(&pkcs12KeyStore);
-            PARCPublicKeySigner *publicKeySigner = parcPublicKeySigner_Create(keyStore, PARCSigningAlgorithm_RSA, PARCCryptoHashType_SHA256);
+            PARCPublicKeySigner *publicKeySigner = parcPublicKeySigner_Create(keyStore, PARCCryptoSuite_RSA_SHA256);
             parcKeyStore_Release(&keyStore);
 
             signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);

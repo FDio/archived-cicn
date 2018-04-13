@@ -87,7 +87,7 @@ LONGBOW_TEST_CASE(Global, ccnxValidationEcSecp256K1_DictionaryCryptoSuiteValue)
                                                                                NULL);
     ccnxValidationEcSecp256K1_Set(dictionary, data->keyid, NULL);
     uint64_t cryptosuite = ccnxTlvDictionary_GetInteger(dictionary, CCNxCodecSchemaV1TlvDictionary_ValidationFastArray_CRYPTO_SUITE);
-    assertTrue(cryptosuite == PARCCryptoSuite_EC_SECP_256K1, "Unexpected PARCCryptoSuite value in dictionary");
+    assertTrue(cryptosuite == PARCCryptoSuite_ECDSA_SHA256, "Unexpected PARCCryptoSuite value in dictionary");
 
     ccnxTlvDictionary_Release(&dictionary);
 }
