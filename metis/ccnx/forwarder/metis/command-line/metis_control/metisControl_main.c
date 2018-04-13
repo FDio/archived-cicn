@@ -157,11 +157,11 @@ _writeAndReadMessage(void *mainStatePtr, CCNxMetaMessage *msg)
 }
 
 static CCNxPortal *
-_createPortalWithKeystore(const char *keystoreName, const char *keystorePassword)
+_createPortalWithKeystore(const char *keystoreName, const char *keystorePassword, PARCCryptoSuite suite)
 {
     PARCIdentityFile *identityFile = parcIdentityFile_Create(keystoreName, keystorePassword);
     PARCIdentity *identity = parcIdentity_Create(identityFile, PARCIdentityFileAsPARCIdentity);
-    CCNxPortalFactory *portalFactory = ccnxPortalFactory_Create(identity);
+    CCNxPortalFactory *portalFactory = ccnxPortalFactory_Create(identity, suite);
 
     CCNxPortal *result = ccnxPortalFactory_CreatePortal(portalFactory, ccnxPortalRTA_Message);
 
@@ -225,7 +225,8 @@ main(int argc, char *argv[])
     }
 
     mainState.controlPortal = _createPortalWithKeystore(ccnxKeystoreUtilities_GetFileName(mainState.keystoreParams),
-                                                        ccnxKeystoreUtilities_GetPassword(mainState.keystoreParams));
+                                                        ccnxKeystoreUtilities_GetPassword(mainState.keystoreParams),
+                                                        PARCCryptoSuite_RSA_SHA256);
     parcSecurity_Fini();
 
     mainState.controlState = metisControlState_Create(&mainState, _writeAndReadMessage);
