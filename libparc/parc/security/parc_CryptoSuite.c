@@ -97,11 +97,11 @@ PARCCryptoSuite parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorithm signAlgo
 
   switch (signAlgo) {
     case PARCSigningAlgorithm_DSA:
-      return PARCCryptoSuite_DSA_SHA256 + hash -1;
+      return PARCCryptoSuite_DSA_SHA256 + hash;
     case PARCSigningAlgorithm_RSA:
-      return PARCCryptoSuite_RSA_SHA256 + hash -1;
+      return PARCCryptoSuite_RSA_SHA256 + hash;
     case PARCSigningAlgorithm_ECDSA:
-      return PARCCryptoSuite_ECDSA_SHA256 + hash -1;      
+      return PARCCryptoSuite_ECDSA_SHA256 + hash;
     case PARCSigningAlgorithm_NULL:
       return PARCCryptoSuite_NULL_CRC32C;
     default:
