@@ -26,16 +26,13 @@
 #ifndef libparc_parc_SigningAlgorithm_h
 #define libparc_parc_SigningAlgorithm_h
 
-#include <parc/security/parc_CryptoHashType.h>
-#include <parc/security/parc_CryptoSuite.h>
-
 typedef enum {
     PARCSigningAlgorithm_UNKNOWN = -1,
     PARCSigningAlgorithm_RSA = 1,
     PARCSigningAlgorithm_DSA = 2,
     PARCSigningAlgorithm_HMAC = 3,
     PARCSigningAlgorithm_ECDSA = 4,
-    PARCSigningAlgortihm_NULL = 5,
+    PARCSigningAlgorithm_NULL = 5,
 } PARCSigningAlgorithm;
 
 /**
@@ -77,25 +74,4 @@ const char *parcSigningAlgorithm_ToString(PARCSigningAlgorithm algorithm);
  */
 PARCSigningAlgorithm parcSigningAlgorithm_FromString(const char *name);
 
-/**
- * Get the `PARCSigningAlgorithm` type associated with the specified `PARCCryptoSuite` type.
- *
- * PARCCryptoSuite types combine hash and signing algorithms to be used to signature and/or MAC generation.
- * Therefore, a PARCCryptoSuite type of PARCCryptoSuite_DSA_SHA256, for example, uses the
- * PARCSigningAlgorithm_DSA type of signing algorithm. This function serves to determine the
- * signing algorithm type from the suite.
- *
- * @param [in] suite The type of cryptographic suite used for signature and/or MAC generation.
- * @return A valid `PARCSigningAlgorithm` enum associated with the specified `PARCCryptoSuite` type.
- *
- * Example:
- * @code
- * {
- *     PARCCryptoSuite suite = PARCCryptoSuite_RSA_SHA256;
- *     PARCSigningAlgorithm alg = parcSigningAlgorithm_GetSigningAlgorithm(suite);
- *     // do something with alg
- * }
- * @endcode
- */
-PARCSigningAlgorithm parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite suite);
 #endif // libparc_parc_SigningAlgorithm_h

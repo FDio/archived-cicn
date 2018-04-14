@@ -112,7 +112,7 @@ parcIdentityFile_CreateSigner(const PARCIdentityFile *identity, PARCCryptoSuite 
 
     PARCSigningAlgorithm signAlgo = parcKeyStore_getSigningAlgorithm(publicKeyStore);
 
-    if (signAlgo != parcSigningAlgorithm_GetSigningAlgorithm(suite))
+    if (signAlgo != parcCryptoSuite_GetSigningAlgorithm(suite))
       return NULL;
     
     PARCPublicKeySigner *signer = parcPublicKeySigner_Create(publicKeyStore, suite);

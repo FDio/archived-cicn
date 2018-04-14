@@ -28,6 +28,7 @@
 #include <parc/security/parc_Signature.h>
 #include <parc/security/parc_CryptoHashType.h>
 #include <parc/security/parc_Key.h>
+#include <parc/security/parc_CryptoSuite.h>
 
 struct parc_verifier;
 typedef struct parc_verifier PARCVerifier;

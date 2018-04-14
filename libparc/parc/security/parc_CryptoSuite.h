@@ -28,15 +28,18 @@
 #define libparc_parc_CryptoSuite_h
 
 #include <parc/security/parc_CryptoHashType.h>
+#include <parc/security/parc_SigningAlgorithm.h>
 
 typedef enum {
-    PARCCryptoSuite_RSA_SHA256,
     PARCCryptoSuite_DSA_SHA256,
+    PARCCryptoSuite_DSA_SHA512,
+    PARCCryptoSuite_RSA_SHA256,
     PARCCryptoSuite_RSA_SHA512,
     PARCCryptoSuite_HMAC_SHA256,
     PARCCryptoSuite_HMAC_SHA512,
-    PARCCryptoSuite_NULL_CRC32C,
     PARCCryptoSuite_ECDSA_SHA256,
+    PARCCryptoSuite_ECDSA_SHA512,
+    PARCCryptoSuite_NULL_CRC32C,
     PARCCryptoSuite_UNKNOWN
 } PARCCryptoSuite;
 
@@ -89,5 +92,44 @@ int parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite suite, int keyLengthBit
  * @endcode
  */
 int parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits);
+
+/**
+ * Given a PARCSigningAlgorithm value and a PARCCryptoHashType value, return the corresponding `PARCCryptoSuite`.
+ *
+ * @param [in] suite A PARCSigningAlgorithm value and a PARCCryptoHashType value
+ *
+ * @return A PARCCryptoSuite value
+ *
+ * Example:
+ * @code
+ * {
+ *     PARCryptoSuite suite = parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorihtm_RSA, PARCCryptoHashType_SHA256);
+ * }
+ * @endcode
+ */
+PARCCryptoSuite parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorithm signAlgo, PARCCryptoHashType hash);
+
+/**
+ * Get the `PARCSigningAlgorithm` type associated with the specified `PARCCryptoSuite` type.
+ *
+ * PARCCryptoSuite types combine hash and signing algorithms to be used to signature and/or MAC generation.
+ * Therefore, a PARCCryptoSuite type of PARCCryptoSuite_DSA_SHA256, for example, uses the
+ * PARCSigningAlgorithm_DSA type of signing algorithm. This function serves to determine the
+ * signing algorithm type from the suite.
+ *
+ * @param [in] suite The type of cryptographic suite used for signature and/or MAC generation.
+ * @return A valid `PARCSigningAlgorithm` enum associated with the specified `PARCCryptoSuite` type.
+ *
+ * Example:
+ * @code
+ * {
+ *     PARCCryptoSuite suite = PARCCryptoSuite_RSA_SHA256;
+ *     PARCSigningAlgorithm alg = parcSigningAlgorithm_GetSigningAlgorithm(suite);
+ *     // do something with alg
+ * }
+ * @endcode
+ */
+PARCSigningAlgorithm parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite suite);
+
 
 #endif // libparc_parc_CryptoSuite_h

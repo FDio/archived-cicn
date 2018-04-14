@@ -109,5 +109,5 @@ parcKeyStore_getSigningAlgorithm(const PARCKeyStore *interfaceContext)
     if (interfaceContext->interface != NULL) {
         return interfaceContext->interface->getSigningAlgorithm(interfaceContext->instance);
     }
-    return PARCSigningAlgortihm_NULL;
+    return PARCSigningAlgorithm_NULL;
 }
