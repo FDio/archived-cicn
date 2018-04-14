@@ -28,7 +28,7 @@ static struct {
     PARCSigningAlgorithm alg;
     char *name;
 } _signingAlgorithm_ToString[] = {
-    { PARCSigningAlgortihm_NULL, "PARCSigningAlgortihm_NULL" },
+    { PARCSigningAlgorithm_NULL, "PARCSigningAlgorithm_NULL" },
     { PARCSigningAlgorithm_RSA,  "PARCSigningAlgorithm_RSA"  },
     { PARCSigningAlgorithm_DSA,  "PARCSigningAlgorithm_DSA"  },
     { PARCSigningAlgorithm_HMAC, "PARCSigningAlgorithm_HMAC" },
@@ -56,29 +56,4 @@ parcSigningAlgorithm_FromString(const char *name)
         }
     }
     return PARCSigningAlgorithm_UNKNOWN;
-}
-
-PARCSigningAlgorithm
-parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite suite)
-{
-    switch (suite) {
-        case PARCCryptoSuite_DSA_SHA256:
-            return PARCSigningAlgorithm_DSA;
-
-        case PARCCryptoSuite_RSA_SHA256:      // fallthrough
-        case PARCCryptoSuite_RSA_SHA512:
-            return PARCSigningAlgorithm_RSA;
-
-        case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
-        case PARCCryptoSuite_HMAC_SHA512:
-            return PARCSigningAlgorithm_HMAC;
-
-        case PARCCryptoSuite_ECDSA_SHA256:
-	    return PARCSigningAlgorithm_ECDSA;
-        case PARCCryptoSuite_NULL_CRC32C:
-            return PARCSigningAlgortihm_NULL;
-
-        default:
-            trapIllegalValue(suit, "Unknown crypto suite: %d", suite);
-    }
 }

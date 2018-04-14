@@ -20,6 +20,7 @@
 #include <LongBow/runtime.h>
 
 #include <parc/security/parc_CryptoSuite.h>
+#include <parc/security/parc_SigningAlgorithm.h>
 
 PARCCryptoHashType
 parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite)
@@ -89,5 +90,46 @@ parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits)
 
         default:
             trapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+    }
+}
+
+PARCCryptoSuite parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorithm signAlgo, PARCCryptoHashType hash) {
+
+  switch (signAlgo) {
+    case PARCSigningAlgorithm_DSA:
+      return PARCCryptoSuite_DSA_SHA256 + hash -1;
+    case PARCSigningAlgorithm_RSA:
+      return PARCCryptoSuite_RSA_SHA256 + hash -1;
+    case PARCSigningAlgorithm_ECDSA:
+      return PARCCryptoSuite_ECDSA_SHA256 + hash -1;      
+    case PARCSigningAlgorithm_NULL:
+      return PARCCryptoSuite_NULL_CRC32C;
+    default:
+      trapIllegalValue(suite, "Unknown signing algorithm suite: %d", signAlgo);
+  }
+}
+
+PARCSigningAlgorithm
+parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite suite)
+{
+    switch (suite) {
+        case PARCCryptoSuite_DSA_SHA256:
+            return PARCSigningAlgorithm_DSA;
+
+        case PARCCryptoSuite_RSA_SHA256:      // fallthrough
+        case PARCCryptoSuite_RSA_SHA512:
+            return PARCSigningAlgorithm_RSA;
+
+        case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
+        case PARCCryptoSuite_HMAC_SHA512:
+            return PARCSigningAlgorithm_HMAC;
+
+        case PARCCryptoSuite_ECDSA_SHA256:
+	    return PARCSigningAlgorithm_ECDSA;
+        case PARCCryptoSuite_NULL_CRC32C:
+            return PARCSigningAlgorithm_NULL;
+
+        default:
+            trapIllegalValue(suit, "Unknown crypto suite: %d", suite);
     }
 }

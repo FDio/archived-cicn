@@ -24,6 +24,7 @@
 #include <parc/security/parc_PublicKeySigner.h>
 #include <parc/security/parc_Pkcs12KeyStore.h>
 #include <parc/security/parc_CryptoHash.h>
+#include <parc/security/parc_CryptoSuite.h>
 #include <parc/security/parc_Security.h>
 
 #include <openssl/pkcs12.h>
@@ -122,7 +123,7 @@ parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCCryptoSuite suite)
 {
     PARCPublicKeySigner *result = parcObject_CreateInstance(PARCPublicKeySigner);
 
-    PARCSigningAlgorithm signAlgo = parcSigningAlgorithm_GetSigningAlgorithm(suite);
+    PARCSigningAlgorithm signAlgo = parcCryptoSuite_GetSigningAlgorithm(suite);
     PARCCryptoHashType hashType = parcCryptoSuite_GetCryptoHash(suite);
 
 

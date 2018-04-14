@@ -18,6 +18,7 @@
 // Include the file(s) containing the functions to be tested.
 // This permits internal static functions to be visible to this Test Framework.
 #include "../parc_SigningAlgorithm.c"
+#include <parc/security/parc_CryptoSuite.h>
 
 #include <LongBow/testing.h>
 #include <LongBow/debugging.h>
@@ -91,28 +92,28 @@ LONGBOW_TEST_CASE(Global, parcSigningAlgorithm_FromString_NotFound)
 
 LONGBOW_TEST_CASE(Global, parcSigningAlgorithm_GetSigningAlgorithm)
 {
-    PARCSigningAlgorithm actual = parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite_DSA_SHA256);
+    PARCSigningAlgorithm actual = parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite_DSA_SHA256);
     assertTrue(PARCSigningAlgorithm_DSA == actual, "Expected %d, actual %d", PARCSigningAlgorithm_DSA, actual);
 
-    actual = parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite_RSA_SHA256);
+    actual = parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite_RSA_SHA256);
     assertTrue(PARCSigningAlgorithm_RSA == actual, "Expected %d, actual %d", PARCSigningAlgorithm_RSA, actual);
 
-    actual = parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite_RSA_SHA512);
+    actual = parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite_RSA_SHA512);
     assertTrue(PARCSigningAlgorithm_RSA == actual, "Expected %d, actual %d", PARCSigningAlgorithm_RSA, actual);
 
-    actual = parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite_HMAC_SHA256);
+    actual = parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite_HMAC_SHA256);
     assertTrue(PARCSigningAlgorithm_HMAC == actual, "Expected %d, actual %d", PARCSigningAlgorithm_HMAC, actual);
 
-    actual = parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite_HMAC_SHA512);
+    actual = parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite_HMAC_SHA512);
     assertTrue(PARCSigningAlgorithm_HMAC == actual, "Expected %d, actual %d", PARCSigningAlgorithm_HMAC, actual);
 
-    actual = parcSigningAlgorithm_GetSigningAlgorithm(PARCCryptoSuite_NULL_CRC32C);
-    assertTrue(PARCSigningAlgortihm_NULL == actual, "Expected %d, actual %d", PARCSigningAlgortihm_NULL, actual);
+    actual = parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite_NULL_CRC32C);
+    assertTrue(PARCSigningAlgorithm_NULL == actual, "Expected %d, actual %d", PARCSigningAlgorithm_NULL, actual);
 }
 
 LONGBOW_TEST_CASE_EXPECTS(Global, parcSigningAlgorithm_GetSigningAlgorithm_BadAlgorithm, .event = &LongBowTrapIllegalValue)
 {
-    parcSigningAlgorithm_GetSigningAlgorithm(-1);
+    parcCryptoSuite_GetSigningAlgorithm(-1);
 }
 
 int

@@ -28,6 +28,7 @@
 
 #include <parc/security/parc_KeyStore.h>
 #include <parc/security/parc_CryptoHash.h>
+#include <parc/security/parc_CryptoSuite.h>
 #include <parc/security/parc_SigningAlgorithm.h>
 #include <parc/security/parc_Signer.h>
 

@@ -27,6 +27,7 @@
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Buffer.h>
 #include <parc/security/parc_CryptoHasher.h>
+#include <parc/security/parc_CryptoSuite.h>
 #include <parc/security/parc_Signature.h>
 #include <parc/security/parc_CryptoHashType.h>
 #include <parc/security/parc_Key.h>
@@ -347,6 +348,24 @@ PARCSigningAlgorithm parcSigner_GetSigningAlgorithm(PARCSigner *signer);
  * @endcode
  */
 PARCCryptoHashType parcSigner_GetCryptoHashType(const PARCSigner *signer);
+
+/**
+ * Return the crypto suite used by the Signer
+ *
+ * @param [in] signer A pointer to a PARCSigner instance.
+ *
+ * @return A PARCCryptoSuite value.
+ *
+ * Example:
+ * @code
+ * {
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
+ *
+ *      PARCCryptoSuite suite = parcSigner_GetCryptoSuite(signer);
+ * }
+ * @endcode
+ */
+PARCCryptoSuite parcSigner_GetCryptoSuite(const PARCSigner *signer);
 
 /**
  * Given a `PARCSigner` instance, return the `PARCKeyStore` containing its public key information.

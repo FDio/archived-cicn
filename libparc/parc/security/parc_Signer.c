@@ -151,6 +151,16 @@ parcSigner_GetCryptoHashType(const PARCSigner *signer)
     return signer->interface->GetCryptoHashType(signer->instance);
 }
 
+PARCCryptoSuite
+parcSigner_GetCryptoSuite(const PARCSigner *signer)
+{
+    parcSigner_OptionalAssertValid(signer);
+
+    PARCCryptoHashType hash = signer->interface->GetCryptoHashType(signer->instance);
+    PARCSigningAlgorithm signAlgo = signer->interface->GetSigningAlgorithm(signer->instance);
+    return parcCryptoSuite_GetFromSigningHash(signAlgo, hash);
+}
+
 PARCKeyStore *
 parcSigner_GetKeyStore(const PARCSigner *signer)
 {
