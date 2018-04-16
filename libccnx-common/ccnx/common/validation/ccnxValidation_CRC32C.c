@@ -109,14 +109,14 @@ static PARCSignature *
 _crc32Signer_SignDigest(_CRC32Signer *interfaceContext, const PARCCryptoHash *cryptoHash)
 {
     PARCSignature *signature =
-        parcSignature_Create(PARCSigningAlgortihm_NULL, PARCCryptoHashType_CRC32C, parcCryptoHash_GetDigest(cryptoHash));
+        parcSignature_Create(PARCSigningAlgorithm_NULL, PARCCryptoHashType_CRC32C, parcCryptoHash_GetDigest(cryptoHash));
     return signature;
 }
 
 static PARCSigningAlgorithm
 _crc32Signer_GetSigningAlgorithm(_CRC32Signer *interfaceContext)
 {
-    return PARCSigningAlgortihm_NULL;
+    return PARCSigningAlgorithm_NULL;
 }
 
 static PARCCryptoHashType

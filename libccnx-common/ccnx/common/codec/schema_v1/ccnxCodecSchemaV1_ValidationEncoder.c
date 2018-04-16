@@ -113,7 +113,7 @@ _encodeSignatureTime(CCNxCodecTlvEncoder *encoder, CCNxTlvDictionary *packetDict
         PARCSigner *signer = ccnxCodecTlvEncoder_GetSigner(encoder);
         if (signer) {
             PARCSigningAlgorithm alg = parcSigner_GetSigningAlgorithm(signer);
-            if (alg != PARCSigningAlgortihm_NULL && alg != PARCSigningAlgorithm_UNKNOWN) {
+            if (alg != PARCSigningAlgorithm_NULL && alg != PARCSigningAlgorithm_UNKNOWN) {
                 // We will generate a signature, so generate a signing time
 
                 struct timeval tv;

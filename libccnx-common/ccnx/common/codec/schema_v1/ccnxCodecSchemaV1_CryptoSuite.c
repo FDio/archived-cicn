@@ -119,7 +119,7 @@ ccnxCodecSchemaV1CryptoSuite_SignAndHashToTlv(PARCSigningAlgorithm signAlgorithm
             break;
         }
 
-        case PARCSigningAlgortihm_NULL: {
+        case PARCSigningAlgorithm_NULL: {
             switch (hashType) {
                 case PARCCryptoHashType_CRC32C:
                     *outputValue = CCNxCodecSchemaV1TlvDictionary_CryptoSuite_CRC32C;
