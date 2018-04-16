@@ -268,10 +268,53 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
     return signature;
 }
 
+static size_t
+_GetSignatureSize(PARCPublicKeySigner *signer)
+{
+  assertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
+
+  // TODO: what is the best way to expose this?
+  PARCKeyStore *keyStore = signer->keyStore;
+  PARCBuffer *privateKeyBuffer = parcKeyStore_GetDEREncodedPrivateKey(keyStore);
+
+  size_t size = 0;
+  switch (signer->signingAlgorithm) {
+    case PARCSigningAlgorithm_RSA:
+      {
+        EVP_PKEY *privateKey = NULL;
+        uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
+        privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, parcBuffer_Limit(privateKeyBuffer));
+
+        RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
+
+        size = RSA_size(rsa);
+        RSA_free(rsa);
+        break;
+      }
+    case PARCSigningAlgorithm_ECDSA:
+      {
+        EVP_PKEY *privateKey = NULL;
+        size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
+        uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
+        privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, keySize);
+
+        EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
+
+        size = ECDSA_size(ec_key);
+        EC_KEY_free(ec_key);
+        break;
+      }
+  }
+  parcBuffer_Release(&privateKeyBuffer);
+
+  return size;
+}
+
 PARCSigningInterface *PARCPublicKeySignerAsSigner = &(PARCSigningInterface) {
     .GetCryptoHasher = (PARCCryptoHasher * (*)(void *))_GetCryptoHasher,
     .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *))_SignDigest,
     .GetSigningAlgorithm = (PARCSigningAlgorithm (*)(void *))_GetSigningAlgorithm,
     .GetCryptoHashType = (PARCCryptoHashType (*)(void *))_GetCryptoHashType,
     .GetKeyStore = (PARCKeyStore * (*)(void *))_GetKeyStore,
+    .GetSignatureSize = (size_t (*)(void *))_GetSignatureSize
 };

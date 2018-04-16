@@ -45,30 +45,6 @@ parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite)
 }
 
 int
-parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite suite, int keyLengthBits)
-{
-    switch (suite) {
-        case PARCCryptoSuite_DSA_SHA256:      // fallthrough
-        case PARCCryptoSuite_RSA_SHA256:      // fallthrough
-        case PARCCryptoSuite_RSA_SHA512:
-            return keyLengthBits;
-
-        case PARCCryptoSuite_ECDSA_SHA256:
-            return keyLengthBits*2 + 64; //Overhead added by ECDSA 
-
-        case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
-        case PARCCryptoSuite_HMAC_SHA512:     // fallthrough
-            return 512;
-
-        case PARCCryptoSuite_NULL_CRC32C:
-            return 32;
-
-        default:
-            trapIllegalValue(suite, "Unknown crypto suite: %d", suite);
-    }
-}
-
-int
 parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits)
 {
     int keyLengthBytes = keyLengthBits >> 3;

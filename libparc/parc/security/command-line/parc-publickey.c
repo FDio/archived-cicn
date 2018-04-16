@@ -36,17 +36,17 @@ parcPublicKey_Create(PARCArrayList *args)
     char *fileName = parcArrayList_Get(args, 2);
     char *password = parcArrayList_Get(args, 3);
     char *subjectName = parcArrayList_Get(args, 4);
-    PARCSigningAlgorithm signAlgo = *(int *)parcArrayList_Get(args, 5);
-    
+    PARCSigningAlgorithm signAlgo = PARCSigningAlgorithm_RSA;
+
     if (parcArrayList_Size(args) > 5) {
-        keyLength = (unsigned int) strtoul(parcArrayList_Get(args, 6), NULL, 10);
+        keyLength = (unsigned int) strtoul(parcArrayList_Get(args, 5), NULL, 10);
     }
 
     if (parcArrayList_Size(args) > 6) {
-        validityDays = (unsigned int) strtoul(parcArrayList_Get(args, 7), NULL, 10);
+        validityDays = (unsigned int) strtoul(parcArrayList_Get(args, 6), NULL, 10);
     }
 
-    bool result = parcPkcs12KeyStore_CreateFile(fileName, password, subjectName, keyLength, validityDays, signAlgo);
+    bool result = parcPkcs12KeyStore_CreateFile(fileName, password, subjectName, signAlgo, keyLength, validityDays);
     if (!result) {
         printf("Error: %s %s", fileName, strerror(errno));
         return;

@@ -105,6 +105,7 @@ LONGBOW_TEST_FIXTURE(Object)
     LONGBOW_RUN_TEST_CASE(Object, parcPublicKeySigner_HashCode);
     LONGBOW_RUN_TEST_CASE(Object, parcPublicKeySigner_IsValid);
     LONGBOW_RUN_TEST_CASE(Object, parcPublicKeySigner_ToString);
+    LONGBOW_RUN_TEST_CASE(Object, parcPublicKeySigner_SignatureSize);
 }
 
 LONGBOW_TEST_FIXTURE_SETUP(Object)
@@ -484,6 +485,17 @@ LONGBOW_TEST_CASE(Global, parcSigner_CreateKeyId)
     parcSignature_Release(&sig);
     parcSigner_Release(&signer);
 }
+
+LONGBOW_TEST_CASE(Object, parcPublicKeySigner_SignatureSize)
+{
+    PARCPublicKeySigner *publicKeySigner = _createSigner("test_key_size");
+    PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCPublicKeySignerAsSigner);
+
+    assertTrue(parcSigner_GetSignatureSize(signer) == 72, "Key size unexpected %lu ", parcSigner_GetSignatureSize(signer));
+    parcPublicKeySigner_Release(&publicKeySigner);
+    parcSigner_Release(&signer);
+}
+
 
 int
 main(int argc, char *argv[argc])

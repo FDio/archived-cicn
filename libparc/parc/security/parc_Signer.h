@@ -115,6 +115,15 @@ typedef struct parc_signer_interface {
      * @return A PARCKeyStore instance.
      */
     PARCKeyStore *(*GetKeyStore)(void *interfaceContext);
+
+    /**
+     * Return the key size for this Signer.
+     *
+     * @param [in] interfaceContext A pointer to a concrete PARCSigner instance.
+     *
+     * @return A size_t
+     */
+    size_t (*GetSignatureSize)(void *interfaceContext);
 } PARCSigningInterface;
 
 /**
@@ -384,4 +393,22 @@ PARCCryptoSuite parcSigner_GetCryptoSuite(const PARCSigner *signer);
  * @endcode
  */
 PARCKeyStore *parcSigner_GetKeyStore(const PARCSigner *signer);
+
+/**
+ * Given a `PARCSigner` instance, return the expected size of the signature.
+ *
+ * @param [in] signer A pointer to a `PARCSigner` instance.
+ *
+ * @return A size_t with the size of the key.
+ *
+ * Example:
+ * @code
+ * {
+ *      PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
+ *
+ *      PARCKeyStore *keyStore = parcSigner_GetKeyStore(signer);
+ * }
+ * @endcode
+ */
+size_t parcSigner_GetSignatureSize(const PARCSigner *signer);
 #endif // libparc_parc_Signer_h
