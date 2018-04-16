@@ -240,6 +240,18 @@ _getKeyStore(PARCSymmetricKeySigner *signer)
     return signer->generalKeyStore;
 }
 
+static size_t
+_GetSignatureSize(PARCSymmetricKeySigner *signer)
+{
+  assertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
+
+  // TODO: what is the best way to expose this?
+  PARCSymmetricKeyStore *keyStore = signer->keyStore;
+  PARCBuffer *secretKeyBuffer = parcSymmetricKeyStore_GetKey(keyStore);
+
+  return parcBuffer_Limit(secretKeyBuffer);
+}
+
 // ==================================================
 // implementation
 
@@ -265,4 +277,5 @@ PARCSigningInterface *PARCSymmetricKeySignerAsSigner = &(PARCSigningInterface) {
     .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *))_signDigest,
     .GetSigningAlgorithm = (PARCSigningAlgorithm (*)(void *))_getSigningAlgorithm,
     .GetKeyStore = (PARCKeyStore * (*)(void *))_getKeyStore,
+    .GetSignatureSize = (size_t (*)(void *))_GetSignatureSize
 };

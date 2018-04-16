@@ -237,6 +237,17 @@ LONGBOW_TEST_CASE(Specialization, test_hmac_sha512)
     parcBuffer_Release(&output);
 }
 
+LONGBOW_TEST_CASE(Global, parcSymmetricSigner_SignatureSize)
+{
+    PARCSymmetricKeySigner *symmetricSigner = _createSigner();
+
+    PARCSigner *signer = parcSigner_Create(symmetricSigner, PARCSymmetricKeySignerAsSigner);
+
+    assertTrue(parcSigner_GetSignatureSize(signer) == 32, "Key size unexpected %d ", parcSigner_GetSignatureSize(signer));
+    parcSigner_Release(&signer);
+    parcSymmetricKeySigner_Release(&symmetricSigner);
+}
+
 int
 main(int argc, char *argv[argc])
 {

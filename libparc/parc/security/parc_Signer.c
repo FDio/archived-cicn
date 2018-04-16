@@ -168,3 +168,11 @@ parcSigner_GetKeyStore(const PARCSigner *signer)
 
     return signer->interface->GetKeyStore(signer->instance);
 }
+
+size_t
+parcSigner_GetSignatureSize(const PARCSigner *signer)
+{
+    parcSigner_OptionalAssertValid(signer);
+
+    return signer->interface->GetSignatureSize(signer->instance);
+}

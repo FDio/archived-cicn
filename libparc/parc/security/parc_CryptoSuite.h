@@ -60,23 +60,6 @@ typedef enum {
 PARCCryptoHashType parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite);
 
 /**
- * Given a PARCCryptoSuite value and the key length, return the expected length in bits of the signature.
- * For ECDSA the result is the maximum length
- *
- * @param [in] suite A PARCCryptoSuite value.
- *
- * @return A PARCCryptoHashType value
- *
- * Example:
- * @code
- * {
- *     int bits = parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite_RSA_SHA256, 1024);
- * }
- * @endcode
- */
-int parcCryptoSuite_GetSignatureSizeBits(PARCCryptoSuite suite, int keyLengthBits);
-
-/**
  * Given a PARCCryptoSuite value and the key length, return the expected length in bytes of the signature.
  * For ECDSA the result is the maximum length
  *
