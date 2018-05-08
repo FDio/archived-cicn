@@ -74,7 +74,7 @@ typedef struct parc_identity_interface {
     /**
      * @see parcIdentity_CreateSigner
      */
-    PARCSigner *(*GetSigner)(const void *identity, PARCCryptoSuite suite);
+    PARCSigner *(*GetSigner)(const void *identity, PARCCryptoHashType hash);
 
     /**
      * @see parcIdentity_Equals

@@ -42,7 +42,7 @@ PARCIdentityInterface *PARCIdentityFileAsPARCIdentity = &(PARCIdentityInterface)
     .Release = (void (*)(void **))parcIdentityFile_Release,
     .GetPassWord = (void *(*)(const void *))parcIdentityFile_GetPassWord,
     .GetFileName = (void *(*)(const void *))parcIdentityFile_GetFileName,
-    .GetSigner = (PARCSigner * (*)(const void *, PARCCryptoSuite))parcIdentityFile_CreateSigner,
+    .GetSigner = (PARCSigner * (*)(const void *, PARCCryptoHashType))parcIdentityFile_CreateSigner,
     .Equals = (bool (*)(const void *, const void *))parcIdentityFile_Equals,
     .Display = (void (*)(const void *, size_t))parcIdentityFile_Display
 };
@@ -104,7 +104,7 @@ parcIdentityFile_GetPassWord(const PARCIdentityFile *identity)
 }
 
 PARCSigner *
-parcIdentityFile_CreateSigner(const PARCIdentityFile *identity, PARCCryptoSuite suite)
+parcIdentityFile_CreateSigner(const PARCIdentityFile *identity, PARCCryptoHashType hash)
 {
     PARCPkcs12KeyStore *keyStore = parcPkcs12KeyStore_Open(identity->fileName, identity->passWord, PARCCryptoHashType_SHA256);
     PARCKeyStore *publicKeyStore = parcKeyStore_Create(keyStore, PARCPkcs12KeyStoreAsKeyStore);
@@ -112,8 +112,7 @@ parcIdentityFile_CreateSigner(const PARCIdentityFile *identity, PARCCryptoSuite 
 
     PARCSigningAlgorithm signAlgo = parcKeyStore_getSigningAlgorithm(publicKeyStore);
 
-    if (signAlgo != parcCryptoSuite_GetSigningAlgorithm(suite))
-      return NULL;
+    PARCCryptoSuite suite = parcCryptoSuite_GetFromSigningHash(signAlgo, hash);
     
     PARCPublicKeySigner *signer = parcPublicKeySigner_Create(publicKeyStore, suite);
     PARCSigner *pkSigner = parcSigner_Create(signer, PARCPublicKeySignerAsSigner);

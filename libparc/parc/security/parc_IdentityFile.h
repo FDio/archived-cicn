@@ -205,7 +205,7 @@ const char *parcIdentityFile_GetPassWord(const PARCIdentityFile *identity);
  * }
  * @endcode
  */
-PARCSigner *parcIdentityFile_CreateSigner(const PARCIdentityFile *identity, PARCCryptoSuite suite);
+PARCSigner *parcIdentityFile_CreateSigner(const PARCIdentityFile *identity, PARCCryptoHashType hash);
 
 /**
  * Determine if two PARCIdentityFiles are equal.
