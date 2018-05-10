@@ -363,7 +363,7 @@ _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCrypto
             PARCByteArray *bytearray = parcBuffer_Array(sigbits);
             unsigned signatureLength = (unsigned) parcBuffer_Remaining(sigbits);
             uint8_t *sigbuffer = parcByteArray_Array(bytearray);
-            size_t signatureOffset = parcBuffer_ArrayOffset(sigbits);
+            size_t signatureOffset = parcBuffer_Position(sigbits);
 
             success = ECDSA_verify(openssl_digest_type,
                                  (unsigned char *) parcByteArray_Array(parcBuffer_Array(parcCryptoHash_GetDigest(localHash))),

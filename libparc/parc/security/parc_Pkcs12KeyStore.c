@@ -311,6 +311,7 @@ _GetPublickKeyDigest(PARCPkcs12KeyStore *keystore)
 
     assertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
 
+#if 0
     if (keystore->public_key_digest == NULL) {
         AUTHORITY_KEYID  *akid = X509_get_ext_d2i(keystore->x509_cert, NID_authority_key_identifier, NULL, NULL);
         if (akid != NULL) {
@@ -324,6 +325,7 @@ _GetPublickKeyDigest(PARCPkcs12KeyStore *keystore)
             AUTHORITY_KEYID_free(akid);
         }
     }
+#endif
 
     // If we could not load the digest from the certificate, then calculate it from the public key.
     if (keystore->public_key_digest == NULL) {
