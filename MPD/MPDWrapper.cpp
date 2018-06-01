@@ -28,8 +28,7 @@ MPDWrapper::MPDWrapper(IMPD *mpd):
     videoSegmentOffset	(0),
     audioSegmentOffset	(0),
     videoSegmentNumber	(0),
-    audioSegmentNumber	(0),
-    hasReachedEndOfList (false)
+    audioSegmentNumber	(0)
 
 {
     InitializeConditionVariable (&this->mpdUpdate);
@@ -52,7 +51,7 @@ void	MPDWrapper::updateMPD	(IMPD* mpd)
 //Assumptions here:
 //    *only one period in the MPD
 //    *only triggered if using SegmentTimeline dynamic MPD
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     this->period = mpd->GetPeriods().at(0);
     this->findVideoAdaptationSet(mpd);
     this->findAudioAdaptationSet(mpd);
@@ -61,7 +60,7 @@ void	MPDWrapper::updateMPD	(IMPD* mpd)
     delete(this->mpd);
     this->mpd = mpd;
     WakeAllConditionVariable(&this->mpdUpdate);
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
 }
 
 void	MPDWrapper::findVideoAdaptationSet	(IMPD* mpd)
@@ -186,16 +185,16 @@ void	MPDWrapper::findAudioRepresentation	(IMPD* mpd)
 std::string	MPDWrapper::getType	()
 {
     std::string type;
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     type = this->mpd->GetType();
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return type;
 }
 
 
 void	MPDWrapper::reInit	(viper::managers::StreamType type)
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     switch(type)
     {
     case viper::managers::StreamType::VIDEO:
@@ -215,30 +214,30 @@ void	MPDWrapper::reInit	(viper::managers::StreamType type)
     default:
         break;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
 }
 
 bool	MPDWrapper::hasVideoAdaptationSetAndVideoRepresentation	()
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     if(this->videoAdaptationSet && this->videoRepresentation)
     {
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return 1;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return 0;
 }
 
 bool	MPDWrapper::hasAudioAdaptationSetAndAudioRepresentation	()
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     if(this->audioAdaptationSet && this->audioRepresentation)
     {
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return 1;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return 0;
 }
 
@@ -281,7 +280,7 @@ void	MPDWrapper::initializeAdaptationSetStream	(viper::managers::StreamType type
 {
     IAdaptationSet *adaptationSet = NULL;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations = NULL;
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
 
     switch(type)
     {
@@ -311,7 +310,7 @@ void	MPDWrapper::initializeAdaptationSetStream	(viper::managers::StreamType type
         RepresentationStreamType typeR   = determineRepresentationStreamType(representation, adaptationSet, this->period);
         (*representations)[representation] = RepresentationStreamFactory::create(type, typeR, this, period, adaptationSet, representation);
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
 }
 
 void	MPDWrapper::initializeAdaptationSetStreamWithoutLock	(viper::managers::StreamType type)
@@ -549,7 +548,7 @@ void	MPDWrapper::releaseLock	()
 
 void	MPDWrapper::setSegmentOffset(viper::managers::StreamType type, uint32_t segmentOffset)
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     switch(type)
     {
     case viper::managers::StreamType::AUDIO:
@@ -563,31 +562,28 @@ void	MPDWrapper::setSegmentOffset(viper::managers::StreamType type, uint32_t seg
     default:
         break;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
 }
 
 MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool isLooping, uint32_t &segmentNumber, bool withFeedBack)
 {
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
-    dash::mpd::IAdaptationSet* adaptationSet;
-
-    EnterCriticalSection(&this->monitorMutex);
+    
+    this->acquireLock();
     switch(type)
     {
     case viper::managers::StreamType::AUDIO:
         representation = this->audioRepresentation;
         representations = this->audioRepresentations;
-        adaptationSet = this->audioAdaptationSet;
         break;
     case viper::managers::StreamType::VIDEO:
         representation = this->videoRepresentation;
         representations = this->videoRepresentations;
-        adaptationSet = this->videoAdaptationSet;
         break;
     default:
-        LeaveCriticalSection(&this->monitorMutex);
-        return NULL;
+        this->releaseLock();
+    return NULL;
     }
 
     ISegment* seg = NULL;
@@ -614,7 +610,7 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
                 default:
                     break;
                 }
-                LeaveCriticalSection(&this->monitorMutex);
+                this->releaseLock();
                 return NULL;
             }
         }
@@ -624,105 +620,53 @@ MediaObject*	MPDWrapper::getNextSegment	(viper::managers::StreamType type, bool 
         while((this->isStopping == false) && segmentNumber >= representationStream->getSize())
         {
             SleepConditionVariableCS(&this->mpdUpdate, &this->monitorMutex, INFINITE);
-            this->hasReachedEndOfList = true;
+
+            if(this->isStopping)
+            {
+                this->releaseLock();
+                return NULL;
+            }
+            //Need to update representationStream here as it was updated with the mpd (Live only):
             switch(type)
             {
                 case viper::managers::StreamType::AUDIO:
                     representation = this->audioRepresentation;
                     representations = this->audioRepresentations;
-                    adaptationSet = this->audioAdaptationSet;
-                    segmentNumber = this->audioSegmentNumber;
                     break;
                 case viper::managers::StreamType::VIDEO:
                     representation = this->videoRepresentation;
                     representations = this->videoRepresentations;
-                    adaptationSet = this->videoAdaptationSet;
-                    segmentNumber = this->videoSegmentNumber;
                     break;
                 default:
                     break;
             }
             representationStream = representations->find(representation)->second;
-            if(this->hasReachedEndOfList)
-                segmentNumber += 1;
-        }
-        if(this->isStopping)
-        {
-            LeaveCriticalSection(&this->monitorMutex);
-            return NULL;
-        }
-
-        //Need to update representationStream here as it was updated with the mpd:
-        switch(type)
-        {
-            case viper::managers::StreamType::AUDIO:
-                segmentNumber = this->audioSegmentNumber;
-                break;
-            case viper::managers::StreamType::VIDEO:
-                segmentNumber = this->videoSegmentNumber;
-                break;
-            default:
-                break;
-        }
-        if(this->hasReachedEndOfList)
-        {
-            segmentNumber += 1;
-            this->hasReachedEndOfList = false;
         }
     }
-    uint64_t segDuration = 0;
-    //Returns the segmentDuration in milliseconds
-    seg = representationStream->getMediaSegment(segmentNumber, segDuration);
+    seg = representationStream->getMediaSegment(segmentNumber);
     if(seg != NULL)
     {
-        MediaObject *media = new MediaObject(seg, representation, withFeedBack);
-        if(segDuration == 0)
-        {
-            uint32_t duration = 0;
-            uint32_t timescale = 0;
-
-            if(representation->GetSegmentTemplate())
-            {
-                duration = representation->GetSegmentTemplate()->GetDuration();
-                timescale = representation->GetSegmentTemplate()->GetTimescale();
-            }
-            else
-            {
-                if(adaptationSet->GetSegmentTemplate())
-                {
-                    duration = adaptationSet->GetSegmentTemplate()->GetDuration();
-                    timescale = adaptationSet->GetSegmentTemplate()->GetTimescale();
-                }
-                else
-                {
-                    if(this->period->GetSegmentTemplate())
-                    {
-                        duration = this->period->GetSegmentTemplate()->GetDuration();
-                        timescale = this->period->GetSegmentTemplate()->GetTimescale();
-                    }
-                }
-            }
-            segDuration = 1.0*duration/(1.0*timescale) * 1000;
-
-        }
-        media->SetSegmentDuration(segDuration);
+        MediaObject *media = new MediaObject(seg, representation, withFeedBack); 
         segmentNumber++;
-
         switch(type)
         {
         case viper::managers::StreamType::AUDIO:
             this->audioSegmentNumber = segmentNumber;
+            this->audioSegmentIsSet = false;
+            this->audioSegmentQuality = -1;
             break;
         case viper::managers::StreamType::VIDEO:
             this->videoSegmentNumber = segmentNumber;
+            this->videoSegmentIsSet = false;
+            this->videoSegmentQuality = -1;
             break;
         default:
             break;
         }
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return media;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return NULL;
 }
 
@@ -730,7 +674,7 @@ MediaObject*	MPDWrapper::getSegment	(viper::managers::StreamType type, uint32_t 
 {
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
 
     switch(type)
     {
@@ -743,7 +687,7 @@ MediaObject*	MPDWrapper::getSegment	(viper::managers::StreamType type, uint32_t 
         representations = this->videoRepresentations;
         break;
     default:
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return NULL;
     }
 
@@ -751,19 +695,17 @@ MediaObject*	MPDWrapper::getSegment	(viper::managers::StreamType type, uint32_t 
     IRepresentationStream* representationStream = representations->find(representation)->second;
     if(segNum >= representationStream->getSize())
     {
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return NULL;
     }
-    uint64_t segDuration =0;
-    seg = representationStream->getMediaSegment(segNum, segDuration);
+    seg = representationStream->getMediaSegment(segNum);
     if(seg != NULL)
     {
         MediaObject *media = new MediaObject(seg, representation);
-        media->SetSegmentDuration(segDuration);
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return media;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return NULL;
 }
 
@@ -771,7 +713,7 @@ MediaObject*	MPDWrapper::getInitSegment	(viper::managers::StreamType type)
 {
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
 
     switch(type)
     {
@@ -784,7 +726,7 @@ MediaObject*	MPDWrapper::getInitSegment	(viper::managers::StreamType type)
         representations = this->videoRepresentations;
         break;
     default:
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return NULL;
     }
 
@@ -795,10 +737,10 @@ MediaObject*	MPDWrapper::getInitSegment	(viper::managers::StreamType type)
     if(seg != NULL)
     {
         MediaObject *media = new MediaObject(seg, representation);
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return media;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return NULL;
 }
 
@@ -822,7 +764,7 @@ void	MPDWrapper::setAudioQuality	(IPeriod *period, IAdaptationSet *adaptationSet
     bool periodChanged = false;
     if (this->audioRepresentation == representation)
     {
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return;
     }
 
@@ -848,7 +790,7 @@ void	MPDWrapper::setVideoQuality	(IPeriod *period, IAdaptationSet *adaptationSet
     bool periodChanged = false;
     if (this->videoRepresentation == representation)
     {
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return;
     }
 
@@ -873,7 +815,7 @@ uint32_t	MPDWrapper::calculateSegmentOffset	(viper::managers::StreamType type, u
 {
     IRepresentation* representation;
     std::map<dash::mpd::IRepresentation *, IRepresentationStream *> *representations;
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
 
     switch(type)
     {
@@ -886,13 +828,13 @@ uint32_t	MPDWrapper::calculateSegmentOffset	(viper::managers::StreamType type, u
         representations = this->videoRepresentations;
         break;
     default:
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return 0;
     }
 
     if(!(strcmp(this->mpd->GetType().c_str(), "static")))
     {
-        LeaveCriticalSection(&this->monitorMutex);
+        this->releaseLock();
         return 0;
     }
     IRepresentationStream* representationStream = representations->find(representation)->second;
@@ -900,14 +842,14 @@ uint32_t	MPDWrapper::calculateSegmentOffset	(viper::managers::StreamType type, u
     uint32_t currSegNum = representationStream->getCurrentSegmentNumber();
     uint32_t startSegNum = currSegNum - 2*bufferSize;
 
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return (startSegNum > firstSegNum) ? startSegNum : firstSegNum;
 }
 
 std::string	MPDWrapper::getRepresentationID	(viper::managers::StreamType type)
 {
     std::string id = "";
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
 
     switch(type)
     {
@@ -920,23 +862,23 @@ std::string	MPDWrapper::getRepresentationID	(viper::managers::StreamType type)
     default:
         break;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return id;
 }
 
 std::string	MPDWrapper::getPublishTime	()
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     std::string pubTime = this->mpd->GetPublishTime();
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return pubTime;
 }
 
 std::string	MPDWrapper::getMinimumUpdatePeriod	()
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     std::string res = this->mpd->GetMinimumUpdatePeriod();
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return res;
 }
 
@@ -1079,7 +1021,7 @@ uint32_t	MPDWrapper::getFetchTime	()
 
 void	MPDWrapper::settingsChanged	(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation)
 {
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     this->period = this->mpd->GetPeriods().at(period);
     std::vector<IAdaptationSet *>   videoAdaptationSets = AdaptationSetHelper::getVideoAdaptationSets(this->period);
     std::vector<IAdaptationSet *>   audioAdaptationSets = AdaptationSetHelper::getAudioAdaptationSets(this->period);
@@ -1103,14 +1045,14 @@ void	MPDWrapper::settingsChanged	(int period, int videoAdaptationSet, int videoR
         this->audioAdaptationSet = NULL;
         this->audioRepresentation = NULL;
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
 }
 
 //Returns the segmentDuration
 float	MPDWrapper::onFirstDownloadMPD	(viper::IViperGui *gui)
 {
     float segmentDuration = 0.0;
-    EnterCriticalSection(&this->monitorMutex);
+    this->acquireLock();
     IRepresentation *representation = this->videoAdaptationSet->GetRepresentation().at(0);
     if(!strcmp(this->mpd->GetType().c_str(), "static")) // VOD MPD
     {
@@ -1164,8 +1106,26 @@ float	MPDWrapper::onFirstDownloadMPD	(viper::IViperGui *gui)
     else   //Live MPD
     {
         //Assuming here that the segment duration doesn't change. If so, need to do an average over all segments.
-        uint32_t duration = representation->GetSegmentTemplate()->GetSegmentTimeline()->GetTimelines().at(0)->GetDuration();
-        uint32_t timescale = representation->GetSegmentTemplate()->GetTimescale();
+        uint32_t duration = 0;
+        uint32_t timescale = 0;
+        if(representation->GetSegmentTemplate())
+        {
+            duration = representation->GetSegmentTemplate()->GetDuration();
+            timescale = representation->GetSegmentTemplate()->GetTimescale();
+        }
+        else
+        {
+            if(this->videoAdaptationSet->GetSegmentTemplate())  //SegmentTemplate at AdaptationSet level
+            {
+                duration = this->videoAdaptationSet->GetSegmentTemplate()->GetDuration();
+                timescale = this->videoAdaptationSet->GetSegmentTemplate()->GetTimescale();
+            }
+            else
+            { // SegmentTemplate at Period level
+                duration = this->period->GetSegmentTemplate()->GetDuration();
+                timescale = this->period->GetSegmentTemplate()->GetTimescale();
+            }
+        }
         segmentDuration = 1.0*duration/(1.0*timescale) * 1000;
         if(gui)
         {
@@ -1173,7 +1133,7 @@ float	MPDWrapper::onFirstDownloadMPD	(viper::IViperGui *gui)
             gui->setListSegmentSize(0);
         }
     }
-    LeaveCriticalSection(&this->monitorMutex);
+    this->releaseLock();
     return segmentDuration;
 }
 
@@ -1181,4 +1141,60 @@ void    MPDWrapper::setIsStopping   (bool isStopping)
 {
     this->isStopping = isStopping;
     WakeAllConditionVariable(&this->mpdUpdate);
+}
+
+void MPDWrapper::setSegmentIsSetFlag(viper::managers::StreamType type, bool flag)
+{
+    switch(type)
+    {
+    case viper::managers::StreamType::AUDIO:
+        this->audioSegmentIsSet = flag;
+        break;
+    case viper::managers::StreamType::VIDEO:
+        this->videoSegmentIsSet = flag;
+        break;
+    default:
+        break;
+    }
+}
+
+bool MPDWrapper::getSegmentIsSetFlag(viper::managers::StreamType type)
+{
+    switch(type)
+    {
+    case viper::managers::StreamType::AUDIO:
+        return this->audioSegmentIsSet;
+    case viper::managers::StreamType::VIDEO:
+        return this->videoSegmentIsSet;
+    default:
+        return false;
+    }
+}
+
+int MPDWrapper::getSegmentQuality(viper::managers::StreamType type)
+{
+    switch(type)
+    {
+    case viper::managers::StreamType::AUDIO:
+        return this->audioSegmentQuality;
+    case viper::managers::StreamType::VIDEO:
+        return this->videoSegmentQuality;
+    default:
+        return false;
+    }
+}
+
+void MPDWrapper::setSegmentQuality(viper::managers::StreamType type, int segQuality)
+{
+    switch(type)
+    {
+    case viper::managers::StreamType::AUDIO:
+        this->audioSegmentIsSet = segQuality;
+        break;
+    case viper::managers::StreamType::VIDEO:
+        this->videoSegmentIsSet = segQuality;
+        break;
+    default:
+        break;
+    }
 }

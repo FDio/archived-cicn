@@ -41,6 +41,7 @@ public:
     virtual void bufferUpdate(uint32_t bufferFill, int maxC);
     virtual void dLTimeUpdate(double time);
     void setBitrate(uint32_t bufferFill);
+    void setBitrateOption1(uint32_t bufferFill);
     uint64_t getBitrate();
     virtual void setMultimediaManager(viper::managers::IMultimediaManagerBase *_mmManager);
     void notifyBitrateChange();

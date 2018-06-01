@@ -107,6 +107,7 @@ private:
     IICNConnection                                      *conn;
     IICNConnection                                      *initConn;
     THREAD_HANDLE                                       bufferingThread;
+    THREAD_HANDLE                                       mpdFetcherThread;
     bool                                                isBuffering;
     bool                                                icn;
     double                                              icnAlpha;
@@ -122,6 +123,7 @@ private:
     void DownloadInitSegmentWithoutLock();
     bool InitSegmentExists(std::string rep);
     static void* DoBuffering(void *receiver);
+    static void* DoMPDFetching(void * data);
 };
 }
 }

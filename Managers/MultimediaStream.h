@@ -75,6 +75,7 @@ public:
     bool isICN();
     void shouldAbort();
     void setTargetDownloadingTime(double);
+    void fetchMPD();
 
 private:
     float                                               beta;

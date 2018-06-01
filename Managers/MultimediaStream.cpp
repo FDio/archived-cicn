@@ -198,3 +198,11 @@ void MultimediaStream::notifyBufferChange(uint32_t bufferfill, int maxC)
 {
     this->dashManager->onBufferStateChanged(libdash::framework::buffer::VIDEO, bufferfill, maxC);
 }
+
+void MultimediaStream::fetchMPD()
+{
+    for(size_t i=0; i < this->observers.size(); i++)
+    {
+	this->observers.at(i)->fetchMPD();
+    }
+}

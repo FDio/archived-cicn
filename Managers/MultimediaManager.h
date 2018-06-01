@@ -106,7 +106,6 @@ private:
     double                                                      frameRate;
     THREAD_HANDLE                                               videoRendererHandle;
     THREAD_HANDLE                                               audioRendererHandle;
-    THREAD_HANDLE                                               mpdFetcherThread;
     bool                                                        isVideoRendering;
     bool                                                        isAudioRendering;
     bool                                                        eos;
@@ -137,7 +136,6 @@ private:
     void                                                        notifyAudioSegmentBufferObservers   (uint32_t fillstateInPercent);
     void                                                        updateMPD                           ();
     void                                                        updateMPDICN                        ();
-    static void*                                                DoMPDFetching				        (void* manager);
 };
 }
 }

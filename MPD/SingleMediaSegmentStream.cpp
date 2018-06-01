@@ -51,7 +51,7 @@ ISegment* SingleMediaSegmentStream::getIndexSegment(size_t segmentNumber)
 
     return NULL;
 }
-ISegment* SingleMediaSegmentStream::getMediaSegment(size_t segmentNumber, uint64_t& segmentDuration)
+ISegment* SingleMediaSegmentStream::getMediaSegment(size_t segmentNumber)
 {
     /* segmentNumber equals the desired BaseUrl */
     if (this->representation->GetBaseURLs().size() > segmentNumber)

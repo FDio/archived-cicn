@@ -64,14 +64,13 @@ ISegment* SegmentTemplateStream::getIndexSegment(size_t segmentNumber)
                                                             this->segmentTemplate->GetStartNumber() + segmentNumber);
 }
 
-ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber, uint64_t& segmentDuration)
+ISegment* SegmentTemplateStream::getMediaSegment(size_t segmentNumber)
 {
     /* time-based template */
     if (this->segmentTemplate->GetSegmentTimeline())
     {//Get the one at segmentNumber
         if(this->segmentStartTimes.size() > segmentNumber)
         {
-            segmentDuration = (uint64_t)(((float)this->segmentDurationTimes.at(segmentNumber)/(float)this->getTimescale()) * 1000);
             return this->segmentTemplate->GetMediaSegmentFromTime(baseUrls, representation->GetId(), representation->GetBandwidth(), this->segmentStartTimes.at(segmentNumber));
         }
         else
@@ -228,7 +227,7 @@ uint64_t SegmentTemplateStream::getTime(size_t segmentNumber)
     if(segmentNumber < this->segmentStartTimes.size())
 	return this->segmentStartTimes.at(segmentNumber);
     else
-	return this->segmentStartTimes.at(this->segmentStartTimes.size()-1);
+	return (this->segmentStartTimes.size() == 0)? 0 : this->segmentStartTimes.at(this->segmentStartTimes.size()-1);
 }
 
 size_t SegmentTemplateStream::getSegmentNumber(uint64_t time)

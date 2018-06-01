@@ -41,8 +41,7 @@ MultimediaManager::MultimediaManager(ViperGui *viperGui, int segBufSize, std::st
     eos                         (false),
     playing                     (false),
     noDecoding                  (nodecoding),
-    mpdWrapper                  (NULL),
-    mpdFetcherThread            (NULL)
+    mpdWrapper                  (NULL)
 {
     InitializeCriticalSection (&this->monitorMutex);
     InitializeCriticalSection (&this->monitorBufferMutex);
@@ -239,14 +238,6 @@ void MultimediaManager::start(bool icnEnabled, double icnAlpha, uint32_t nextOff
     this->started = true;
     this->playing = true;
 
-    if(!strcmp(this->mpdWrapper->getType().c_str(), "dynamic"))
-    {
-	    this->mpdFetcherThread = createThreadPortable(DoMPDFetching, this);
-	    if(this->mpdFetcherThread == NULL)
-	    {
-	        std::cout << "mpd Fetcher thread is NULL. Need to think of how to handle this?" << std::endl;
-	    }
-	}
     LeaveCriticalSection(&this->monitorMutex);
 }
 
@@ -265,11 +256,6 @@ void MultimediaManager::stop()
     Debug("VIDEO STOPPED\n");
     this->mpdWrapper->reInit(viper::managers::StreamType::VIDEO);
     this->mpdWrapper->reInit(viper::managers::StreamType::AUDIO);
-    if(this->mpdFetcherThread != NULL)
-    {
-	JoinThread(this->mpdFetcherThread);
-	destroyThreadPortable(this->mpdFetcherThread);
-    }
 }
 
 void MultimediaManager::stopVideo()
@@ -706,24 +692,3 @@ float MultimediaManager::getSegmentDuration()
     return this->segmentDuration;
 }
 
-void*					MultimediaManager::DoMPDFetching				(void* data)
-{
-    MultimediaManager *manager = (MultimediaManager*) data;
-    uint32_t currTime = TimeResolver::getCurrentTimeInSec();
-    uint32_t publishedTime = manager->mpdWrapper->getFetchTime();
-//    To avoid clock synchronisation issues: using fetching time instead of publish time
-//    uint32_t publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
-    uint32_t periodUpdate = TimeResolver::getDurationInSec(manager->mpdWrapper->getMinimumUpdatePeriod());
-   while(manager->isStarted())
-    {
-    while(manager->isStarted() && currTime < publishedTime + periodUpdate)
-    {
-        usleep(((publishedTime + periodUpdate) - currTime) * 1000000);
-        currTime = TimeResolver::getCurrentTimeInSec();
-    }
-    manager->fetchMPD();
-	publishedTime = manager->mpdWrapper->getFetchTime();
-//	publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
-	periodUpdate = TimeResolver::getDurationInSec(manager->mpdWrapper->getMinimumUpdatePeriod());
-    }
-}

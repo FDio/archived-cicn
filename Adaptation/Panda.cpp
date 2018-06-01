@@ -64,7 +64,7 @@ PandaAdaptation::PandaAdaptation(StreamType type, MPDWrapper *mpdWrapper, struct
     // Retrieve the available bitrates
     this->mpdWrapper->acquireLock();
     std::vector<IRepresentation* > representations = this->mpdWrapper->getRepresentations(this->type);
-
+    this->mpdWrapper->releaseLock();
     this->availableBitrates.clear();
     Debug("PANDA Available Bitrates...\n");
     for(size_t i = 0; i < representations.size(); i++)
@@ -76,7 +76,7 @@ PandaAdaptation::PandaAdaptation(StreamType type, MPDWrapper *mpdWrapper, struct
     this->representation = representations.at(0);
     this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
 
-    Debug("Panda parameters: K= %f, Bmin = %f, alpha = %f, beta = %f, W = %f\n", param_K, param_Bmin, param_Alpha, param_Beta, param_W);
+    Debug("Panda parameters: K= %f, Bmin = %f, alpha = %f, beta = %f, W = %f \n", param_K, param_Bmin, param_Alpha, param_Beta, param_W);
 }
 
 PandaAdaptation::~PandaAdaptation() {

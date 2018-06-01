@@ -192,7 +192,7 @@ void ViperGui::writeData(libdash::framework::input::MediaObject* media)
         this->segment = this->segment + 1;
     if( this->segment > 0)
     {
-        this->bufferDuration += media->GetSegmentDuration();
+        this->bufferDuration += this->segmentDuration;
 
         if(this->bufferDuration - this->position  > 3000)
         {
@@ -206,7 +206,7 @@ void ViperGui::writeData(libdash::framework::input::MediaObject* media)
     }
     else
     {
-        this->bufferDuration += (this->durationMilliseconds - (media->GetSegmentDuration() * (this->listSegmentSize - 1)));
+        this->bufferDuration += (this->durationMilliseconds - (this->segmentDuration * (this->listSegmentSize - 1)));
 
         if(this->bufferDuration - this->position >3000)
         {

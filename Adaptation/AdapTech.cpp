@@ -82,12 +82,6 @@ void AdapTechAdaptation::notifyBitrateChange()
                 this->multimediaManager->setVideoQuality();
             else
                 this->multimediaManager->setAudioQuality();
-    //Should Abort is done here to avoid race condition with DASHReceiver::DoBuffering()
-//    if(this->shouldAbort)
-//    {
-//        this->multimediaManager->shouldAbort((this->type == viper::managers::StreamType::VIDEO));
-//    }
-//    this->shouldAbort = false;
 }
 
 uint64_t AdapTechAdaptation::getBitrate()
@@ -96,6 +90,44 @@ uint64_t AdapTechAdaptation::getBitrate()
 }
 
 void AdapTechAdaptation::setBitrate(uint32_t bufferFill)
+{
+    std::vector<IRepresentation *> representations;
+    representations = this->mpdWrapper->getRepresentations(this->type);
+    bool flagIsSet = this->mpdWrapper->getSegmentIsSetFlag(this->type);
+    int mySetQuality = this->mpdWrapper->getSegmentQuality(this->type);
+
+    if(flagIsSet)
+    {
+        Debug("Adaptech:\tFor %s:\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu,already set: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
+
+        if(bufferFill < this->reservoirThreshold)
+        {
+            if(mySetQuality == -1)
+            {
+                mySetQuality = this->myQuality;
+                this->myQuality = 0;
+                this->representation = representations.at(this->myQuality);
+                Debug("Adaptech:\tFor %s: buffer level too low, going to panic mode, old quality: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", mySetQuality);
+                this->mpdWrapper->setSegmentQuality(this->type, mySetQuality);
+            }
+        }
+        else
+        {
+            if(mySetQuality != -1)
+            {
+                this->myQuality = mySetQuality;
+                Debug("AdaptechNA:\tFor %s: buffer level high enough, restoring old computed quality: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", mySetQuality);
+            }
+            this->representation = representations.at(this->myQuality);
+        }
+    }
+    else
+    {
+        this->setBitrateOption1(bufferFill);
+        this->mpdWrapper->setSegmentIsSetFlag(this->type, true);
+    }
+}
+void AdapTechAdaptation::setBitrateOption1(uint32_t bufferFill)
 {
     uint32_t phi1, phi2;
     std::vector<IRepresentation *> representations;

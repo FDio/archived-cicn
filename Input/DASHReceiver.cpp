@@ -42,7 +42,8 @@ DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrappe
     isLooping                   (false),
     beta                        (beta),
     drop                        (drop),
-    bufferingThread             (NULL)
+    bufferingThread             (NULL),
+    mpdFetcherThread            (NULL)
 {
     readMax = 32768;
     readBuffer = (uint8_t*)malloc(sizeof(uint8_t)*readMax);
@@ -95,6 +96,15 @@ bool			DASHReceiver::Start						()
         this->isBuffering = false;
         return false;
     }
+    //if dynamic, set up the fetching loop
+    if(!strcmp(this->mpdWrapper->getType().c_str(), "dynamic"))
+    {
+	    this->mpdFetcherThread = createThreadPortable(DoMPDFetching, this);
+	    if(this->mpdFetcherThread == NULL)
+	    {
+	        std::cout << "mpd Fetcher thread is NULL. Need to think of how to handle this?" << std::endl;
+	    }
+	}
     return true;
 }
 void DASHReceiver::Stop()
@@ -260,8 +270,8 @@ void					DASHReceiver::NotifyCheckedAdaptationLogic()
 //Is only called when this->adaptationLogic->IsBufferBased
 void 					DASHReceiver::OnSegmentBufferStateChanged(uint32_t fillstateInPercent, int maxC)
 {
-    this->adaptationLogic->bufferUpdate(this->observer->getBufferLevel(), maxC);
     this->bufferLevelAtUpdate = this->observer->getBufferLevel();
+    this->adaptationLogic->bufferUpdate(this->bufferLevelAtUpdate, maxC);
 }
 void					DASHReceiver::OnEOS(bool value)
 {
@@ -274,14 +284,14 @@ bool			    DASHReceiver::PushBack(MediaObject *mediaObject)
     mediaObject->AddInitSegment(init);
     //TODO the read should be in a function
 
-    //Grab the infos for the analytics: bitrate, fps
+    //Grab the infos for the analytics: bitrate, bufferLevel
     uint32_t bitrate = 0;
-    int fps = 0;
+    int bufferLevel = 0;
     uint32_t quality = 0;
     bitrate = mediaObject->GetRepresentationBandwidth();
     quality = mediaObject->GetRepresentationHeight();
-    fps = this->bufferLevelAtUpdate;
-    this->observer->notifyStatistics((int)this->segmentNumber - 1, bitrate, fps, quality);
+    bufferLevel = this->bufferLevelAtUpdate;
+    this->observer->notifyStatistics((int)this->segmentNumber - 1, bitrate, bufferLevel, quality);
     return(this->buffer->pushBack(mediaObject));
 }
 
@@ -333,6 +343,25 @@ void*                       DASHReceiver::DoBuffering               (void *recei
     dashReceiver->buffer->setEOS(true);
     dashReceiver->threadComplete = true;
     return NULL;
+}
+
+void*					DASHReceiver::DoMPDFetching				(void* receiver)
+{
+    DASHReceiver* dashReceiver = (DASHReceiver*) receiver;
+    uint32_t currTime = TimeResolver::getCurrentTimeInSec();
+    uint32_t publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
+    uint32_t period = TimeResolver::getDurationInSec(dashReceiver->mpdWrapper->getMinimumUpdatePeriod());
+   while(dashReceiver->isBuffering)
+    {
+    while(dashReceiver->isBuffering && currTime < publishedTime + period)
+    {
+        usleep(((publishedTime + period) - currTime) * 1000000);
+        currTime = TimeResolver::getCurrentTimeInSec();
+    }
+	dashReceiver->observer->fetchMPD();
+	publishedTime = TimeResolver::getUTCDateTimeInSec(dashReceiver->mpdWrapper->getPublishTime());
+	period = TimeResolver::getDurationInSec(dashReceiver->mpdWrapper->getMinimumUpdatePeriod());
+    }
 }
 
 //can Push video to buffer in the renderer

@@ -106,6 +106,10 @@ public:
     void                                        settingsChanged(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation);
     float                                       onFirstDownloadMPD(viper::IViperGui *gui);
     void                                        setIsStopping(bool isStopping);
+    void                                        setSegmentIsSetFlag(viper::managers::StreamType type, bool flag);
+    bool                                        getSegmentIsSetFlag(viper::managers::StreamType type);
+    int                                         getSegmentQuality(viper::managers::StreamType type);
+    void                                        setSegmentQuality(viper::managers::StreamType type, int segQuality);
 
 private:
     RepresentationStreamType	determineRepresentationStreamType(dash::mpd::IRepresentation *representation, dash::mpd::IAdaptationSet* adaptationSet, dash::mpd::IPeriod* period);
@@ -124,8 +128,11 @@ private:
     uint32_t                                                            audioSegmentOffset;
     size_t                                                              videoSegmentNumber;
     size_t                                                              audioSegmentNumber;
+    bool                                                                videoSegmentIsSet;
+    bool                                                                audioSegmentIsSet;
+    int                                                                 videoSegmentQuality;
+    int                                                                 audioSegmentQuality;
     bool                                                                isStopping;
-    bool                                                                hasReachedEndOfList;
 };
 }
 }
