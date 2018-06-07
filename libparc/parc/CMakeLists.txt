@@ -177,21 +177,22 @@ set(LIBPARC_SECURITY_HEADER_FILES
 	security/parc_IdentityFile.h
 	security/parc_Key.h
 	security/parc_KeyId.h
-    security/parc_KeyStore.h
-    security/parc_Pkcs12KeyStore.h
-    security/parc_PublicKeySigner.h
+        security/parc_KeyStore.h
+        security/parc_Pkcs12KeyStore.h
+        security/parc_PublicKeySigner.h
 	security/parc_SecureRandom.h
 	security/parc_Security.h
 	security/parc_Signature.h
 	security/parc_Signer.h
-    security/parc_SymmetricKeySigner.h
-    security/parc_SymmetricKeyStore.h
+	security/parc_SymmetricKeySigner.h
+	security/parc_SymmetricKeyStore.h
 	security/parc_Verifier.h
-    security/parc_ContainerEncoding.h
-    security/parc_Certificate.h
-    security/parc_CertificateFactory.h
-    security/parc_CertificateType.h
-    security/parc_X509Certificate.h
+	security/parc_ContainerEncoding.h
+	security/parc_Certificate.h
+	security/parc_CertificateFactory.h
+	security/parc_CertificateType.h
+	security/parc_X509Certificate.h
+	security/parc_KeyType.h
 	)
 
 set(LIBPARC_SECURITY_SOURCE_FILES
