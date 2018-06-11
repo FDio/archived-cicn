@@ -155,12 +155,39 @@ void*   AbstractChunk::DownloadInternalConnection   (void *abstractchunk)
     AbstractChunk *chunk  = (AbstractChunk *) abstractchunk;
 
     //chunk->response = curl_easy_perform(chunk->curl);
-    int u =1;
+    int u = 1;
+    CURLMcode ret_code;
+    int repeats = 0;
 
-    while(chunk->stateManager.State() != REQUEST_ABORT && u)
+    do
     {
-    	curl_multi_perform(chunk->curlm, &u);
-    }
+        int numfds;
+
+        ret_code = curl_multi_wait(chunk->curlm, NULL, 0, 1000, &numfds);
+
+        if (ret_code != CURLM_OK)
+        {
+            fprintf(stderr, "CURL Multi Wait failed!!!\n");
+            break;
+        }
+
+        if (numfds == 0)
+        {
+            repeats++;
+            if (repeats > 1)
+            {
+             	usleep(100000);
+            }
+        }
+        else
+        {
+            repeats = 0;
+        }
+
+        ret_code = curl_multi_perform(chunk->curlm, &u);
+
+    } while(chunk->stateManager.State() != REQUEST_ABORT && u && ret_code == CURLM_OK);
+
     double speed;
     double size;
     double time;
