@@ -11,11 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Find uncrustify program
-#
-find_program( UNCRUSTIFY_BIN uncrustify
-                PATHS
-				$ENV{UNCRUSTIFY_HOME}
-				)
+include(CheckFunctionExists)
 
-message( "-- UNCRUSTIFY found in ${UNCRUSTIFY_BIN}" )
+CHECK_FUNCTION_EXISTS(realloc HAVE_REALLOC)

@@ -20,6 +20,7 @@ endif(UNIX)
 include(CTest)
 include(version)
 include(detectCacheSize)
+include(CheckRealloc)
 
 if(ANDROID_API)
   message("############ Detected cross compile for $ENV{CMAKE_SYSTEM_NAME}")
