@@ -186,6 +186,7 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
                           sigLength,
                           rsa);
     assertTrue(result == 1, "Got error from RSA_sign: %d", result);
+    EVP_PKEY_free(privateKey);
     RSA_free(rsa);
     return result;
 }
@@ -289,6 +290,7 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
 
         size = RSA_size(rsa);
         RSA_free(rsa);
+        EVP_PKEY_free(privateKey);
         break;
       }
     case PARCSigningAlgorithm_ECDSA:
@@ -302,6 +304,7 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
 
         size = ECDSA_size(ec_key);
         EC_KEY_free(ec_key);
+        EVP_PKEY_free(privateKey);
         break;
       }
   }
