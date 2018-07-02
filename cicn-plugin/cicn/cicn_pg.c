@@ -608,7 +608,6 @@ icnpg_node_server_fn (vlib_main_t * vm,
 
 		  /* Change message and packet from Interest to Content */
 		  *(body0 + 1) = CICN_PKT_TYPE_CONTENT;
-		  C_PUTINT16 (body0 + 14, CICN_MSG_TYPE_CONTENT);
 
 		  vlib_buffer_t *rb = NULL;
 		  rb = vlib_get_buffer (vm, sm->pgen_svr_buffer_idx);
@@ -642,6 +641,7 @@ icnpg_node_server_fn (vlib_main_t * vm,
 		  // Update interest lifetime to cache time
 		  C_PUTINT16 (body0 + 8, CICN_HDR_TLV_CACHE_TIME);
 
+		  C_PUTINT16 (body0 + 14, CICN_MSG_TYPE_CONTENT);
 		  // Update the length of the message
 		  uint16_t msg_len;
 		  C_GETINT16 (msg_len, body0 + 16);
@@ -689,7 +689,6 @@ icnpg_node_server_fn (vlib_main_t * vm,
 
 		  /* Change message and packet types from Interest to Content */
 		  *(body1 + 1) = CICN_PKT_TYPE_CONTENT;
-		  C_PUTINT16 (body1 + 14, CICN_MSG_TYPE_CONTENT);
 
 		  vlib_buffer_t *rb = NULL;
 		  rb = vlib_get_buffer (vm, sm->pgen_svr_buffer_idx);
@@ -723,6 +722,7 @@ icnpg_node_server_fn (vlib_main_t * vm,
 		  // Update interest lifetime to cache time
 		  C_PUTINT16 (body1 + 8, CICN_HDR_TLV_CACHE_TIME);
 
+		  C_PUTINT16 (body1 + 14, CICN_MSG_TYPE_CONTENT);
 		  // Update the length of the message
 		  uint16_t msg_len;
 		  C_GETINT16 (msg_len, body1 + 16);
@@ -841,7 +841,6 @@ icnpg_node_server_fn (vlib_main_t * vm,
 
 		  /* Change message and packet types from Interest to Content */
 		  *(body0 + 1) = CICN_PKT_TYPE_CONTENT;
-		  C_PUTINT16 (body0 + 8, CICN_MSG_TYPE_CONTENT);
 
 		  vlib_buffer_t *rb = NULL;
 		  rb = vlib_get_buffer (vm, sm->pgen_svr_buffer_idx);
@@ -872,10 +871,14 @@ icnpg_node_server_fn (vlib_main_t * vm,
 		  b0 = vlib_get_buffer (vm, index);
 		  body0 = vlib_buffer_get_current (b0);
 
+		  // Update interest lifetime to cache time
+		  C_PUTINT16 (body0 + 8, CICN_HDR_TLV_CACHE_TIME);
+
+		  C_PUTINT16 (body0 + 14, CICN_MSG_TYPE_CONTENT);
 		  // Update the length of the message
 		  uint16_t msg_len;
-		  C_GETINT16 (msg_len, body0 + 10);
-		  C_PUTINT16 (body0 + 10, msg_len + bytes_to_copy);
+		  C_GETINT16 (msg_len, body0 + 16);
+		  C_PUTINT16 (body0 + 16, msg_len + bytes_to_copy);
 
 		  // Update the length of the packet
 		  C_PUTINT16 (body0 + 2, pkt_len + bytes_to_copy);
