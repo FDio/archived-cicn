@@ -64,7 +64,7 @@ _parcStdlibMemory_DecrementOutstandingAllocations(void)
 }
 #endif
 
-#if HAVE_REALLOC == 0
+#ifndef HAVE_REALLOC
 static void *
 _parcStdlibMemory_rplRealloc(void *oldAlloc, size_t newSize)
 {
@@ -144,7 +144,7 @@ parcStdlibMemory_Deallocate(void **pointer)
 void *
 parcStdlibMemory_Reallocate(void *pointer, size_t newSize)
 {
-#if HAVE_REALLOC
+#ifdef HAVE_REALLOC
     void *result = realloc(pointer, newSize);
 #else
     void *result = _parcStdlibMemory_rplRealloc(pointer, newSize);
