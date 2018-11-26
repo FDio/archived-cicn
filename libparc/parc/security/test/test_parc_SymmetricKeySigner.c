@@ -155,11 +155,12 @@ LONGBOW_TEST_CASE(Specialization, test_hmac_sha256)
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     _hmacInit(ctx);
     _hmacUpdate(ctx, to_digest_buffer, to_digest_length);
+    PARCBuffer *output = _hmacFinalize(ctx);
 #else
     _hmacInit(&ctx);
     _hmacUpdate(&ctx, to_digest_buffer, to_digest_length);
-#endif
     PARCBuffer *output = _hmacFinalize(&ctx);
+#endif
 
     assertTrue(parcBuffer_Position(output) == true_hmac_length,
                "hmac wrong length, expected %zu got %zu",
@@ -168,6 +169,7 @@ LONGBOW_TEST_CASE(Specialization, test_hmac_sha256)
 
     assertTrue(memcmp(parcByteArray_Array(parcBuffer_Array(output)), true_hmac_buffer, true_hmac_length) == 0,
                "hmac values did not match");
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX_free(ctx);
 #else
@@ -214,11 +216,12 @@ LONGBOW_TEST_CASE(Specialization, test_hmac_sha512)
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     _hmacInit(ctx);
     _hmacUpdate(ctx, to_digest_buffer, to_digest_length);
+    PARCBuffer *output = _hmacFinalize(ctx);
 #else
     _hmacInit(&ctx);
     _hmacUpdate(&ctx, to_digest_buffer, to_digest_length);
-#endif
     PARCBuffer *output = _hmacFinalize(&ctx);
+#endif
 
     assertTrue(parcBuffer_Position(output) == true_hmac_length,
                "hmac wrong length, expected %zu got %zu",

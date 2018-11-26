@@ -127,7 +127,11 @@ _parcPkcs12KeyStore_ParseFile(PARCPkcs12KeyStore *keystore, const char *filename
 
     keystore->public_key = X509_get_pubkey(keystore->x509_cert);
     if (keystore->public_key) {
-        switch (keystore->public_key->type) {
+#if OPENSSL_VERSION_NUMBER >= 0X10100000L
+        switch (EVP_PKEY_id(keystore->public_key)) {
+#else
+            switch (keystore->public_key->type) {
+#endif
             case EVP_PKEY_RSA:
                 keystore->signAlgo = PARCSigningAlgorithm_RSA;
                 break;

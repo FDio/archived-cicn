@@ -116,8 +116,8 @@ _hmacDestroy(void **ctxPtr)
     HMAC_CTX_free(*ctxPtr);
 #else
     HMAC_CTX_cleanup(*ctxPtr);
-#endif
     parcMemory_Deallocate((void **) ctxPtr);
+#endif
     *ctxPtr = NULL;
 }
 
