@@ -1,0 +1,5 @@
+parc_LibraryVersion.c
+test/test_ccnx_FileKeystore
+test/test_ccnx_SelfSignedCertificate
+test/test_ccnx_Signature
+test/test_parc_CryptoHasher

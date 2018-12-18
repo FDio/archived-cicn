@@ -1,0 +1,12 @@
+#
+# Generate some blocks of bytes to digest, then calculate the "truth" via openssl
+
+dd if=/dev/urandom of=test_digest_bytes_128.bin bs=128 count=1
+
+openssl dgst -sha256 -binary < test_digest_bytes_128.bin > test_digest_bytes_128.sha256
+openssl dgst -sha512 -binary < test_digest_bytes_128.bin > test_digest_bytes_128.sha512
+
+# these are for the symmetric key tests
+openssl sha256 -hmac 'apple_pie_is_good' -binary < test_random_bytes > test_random_bytes.hmac_sha256
+openssl sha512 -hmac 'apple_pie_is_good' -binary < test_random_bytes > test_random_bytes.hmac_sha512
+

@@ -1,0 +1,41 @@
+/**
+\mainpage
+The PARC Library is a collection of data structures, algorithms,
+abstractions and generally useful facilities for C programs.
+
+The most notable facility of the PARC library is the use of `PARCObject`
+reference counted allocated memory.
+
+The general abstractions provided by the library try to follow along with the
+Java runtime.
+For example, the PARC Library provides `PARCHashMap`, `PARCLinkedList`,
+`PARCInputStream`, and so forth.
+Ideally, the Java programmer will feel at home with the PARC Library.
+
+@defgroup types Basic Types
+@brief Basic Types
+
+@defgroup object Reference counted object types
+@brief Reference counted object types
+
+@defgroup datastructures Data Structures
+@brief Data structures
+
+@defgroup inputoutput Input Output
+@brief Functions to manage input and output.
+
+@defgroup memory Memory and Buffer Management
+@brief Functions to manage memory and references to memory.
+
+@defgroup threading Threading and Concurrency
+@brief Functions to manage Threading and Concurrency.
+
+@defgroup security Security
+@brief Functions to manage Security.
+
+@defgroup developer Developer Aids
+@brief Functions to provide Developer Aids.
+
+@defgroup networking Networking and Communication
+@brief Functions to manage Networking and Communication.
+*/
