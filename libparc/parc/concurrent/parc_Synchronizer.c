@@ -44,7 +44,7 @@ struct PARCSynchronizer {
 static void
 _parcSynchronizer_Finalize(PARCSynchronizer **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSynchronizer pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSynchronizer pointer.");
 
     parcSynchronizer_OptionalAssertValid((*instancePtr));
 }
@@ -58,7 +58,7 @@ parcObject_ExtendPARCObject(PARCSynchronizer, _parcSynchronizer_Finalize, NULL, 
 void
 parcSynchronizer_AssertValid(const PARCSynchronizer *instance)
 {
-    assertTrue(parcSynchronizer_IsValid(instance),
+    parcAssertTrue(parcSynchronizer_IsValid(instance),
                "PARCSynchronizer is not valid.");
 }
 

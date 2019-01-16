@@ -37,7 +37,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_PathName.h>
@@ -66,8 +66,8 @@ parcObject_Override(PARCFile, PARCObject,
 void
 parcFile_AssertValid(const PARCFile *instance)
 {
-    trapIllegalValueIf(instance == NULL, "Parameter must be a non-null pointer to a valid PARCFile.");
-    trapIllegalValueIf(instance->pathName == NULL, "PARCFile cannot have a NULL path-name");
+    parcTrapIllegalValueIf(instance == NULL, "Parameter must be a non-null pointer to a valid PARCFile.");
+    parcTrapIllegalValueIf(instance->pathName == NULL, "PARCFile cannot have a NULL path-name");
 }
 
 PARCFile *
@@ -194,10 +194,10 @@ parcFile_Delete(const PARCFile *file)
     char *string = parcPathName_ToString(file->pathName);
 
     // only allow under tmp
-    assertTrue(strncmp(string, "/tmp/", 5) == 0,
+    parcAssertTrue(strncmp(string, "/tmp/", 5) == 0,
                "Path must begin with /tmp/: %s", string);
     // dont allow ".."
-    assertNull(strstr(string, ".."), "Path cannot have .. in it: %s", string);
+    parcAssertNull(strstr(string, ".."), "Path cannot have .. in it: %s", string);
 
     bool result = false;
     if (parcFile_IsDirectory(file)) {
@@ -208,7 +208,7 @@ parcFile_Delete(const PARCFile *file)
         int maximumFileDescriptors = 20;
 
         int failure = nftw(string, _deleteNode, maximumFileDescriptors, flags);
-        assertFalse(failure, "Error on recursive delete: (%d) %s", errno, strerror(errno));
+        parcAssertFalse(failure, "Error on recursive delete: (%d) %s", errno, strerror(errno));
 
         result = failure == false;
     } else {

@@ -9,11 +9,11 @@ apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
 BUILD_TOOLS_UBUNTU="build-essential doxygen"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
-DEPS_UBUNTU="longbow-dev $LIBSSL_LIBEVENT_UBUNTU"
+DEPS_UBUNTU="$LIBSSL_LIBEVENT_UBUNTU"
 
 BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 LIBSSL_LIBEVENT_CENTOS="libevent-devel openssl-devel"
-DEPS_CENTOS="longbow-devel $LIBSSL_LIBEVENT_CENTOS"
+DEPS_CENTOS="$LIBSSL_LIBEVENT_CENTOS"
 
 update_cmake_repo() {
 

@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_CryptoSuite.h>
 #include <parc/security/parc_SigningAlgorithm.h>
@@ -40,7 +40,7 @@ parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite)
             return PARCCryptoHashType_CRC32C;
 
         default:
-            trapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+            parcTrapIllegalValue(suite, "Unknown crypto suite: %d", suite);
     }
 }
 
@@ -65,7 +65,7 @@ parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits)
             return 4;
 
         default:
-            trapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+            parcTrapIllegalValue(suite, "Unknown crypto suite: %d", suite);
     }
 }
 
@@ -81,7 +81,7 @@ PARCCryptoSuite parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorithm signAlgo
     case PARCSigningAlgorithm_NULL:
       return PARCCryptoSuite_NULL_CRC32C;
     default:
-      trapIllegalValue(suite, "Unknown signing algorithm suite: %d", signAlgo);
+      parcTrapIllegalValue(suite, "Unknown signing algorithm suite: %d", signAlgo);
   }
 }
 
@@ -106,6 +106,6 @@ parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite suite)
             return PARCSigningAlgorithm_NULL;
 
         default:
-            trapIllegalValue(suit, "Unknown crypto suite: %d", suite);
+            parcTrapIllegalValue(suit, "Unknown crypto suite: %d", suite);
     }
 }

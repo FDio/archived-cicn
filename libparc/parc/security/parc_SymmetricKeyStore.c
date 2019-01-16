@@ -44,8 +44,7 @@
 #include <openssl/aes.h>
 #include <openssl/hmac.h>
 
-#include <LongBow/runtime.h>
-#include <LongBow/longBow_Compiler.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Memory.h>
@@ -107,10 +106,6 @@ parcObject_ImplementRelease(parcSymmetricKeyStore, PARCSymmetricKeyStore);
 
 parcObject_Override(PARCSymmetricKeyStore, PARCObject,
                     .destructor = (PARCObjectDestructor *) _parcSymmetricKeyStore_Finalize);
-
-// =============================================================
-LONGBOW_STOP_DEPRECATED_WARNINGS
-// =============================================================
 
 /**
  * The openssl ASN1 representation of the PARC symmetric key keystore.
@@ -392,7 +387,7 @@ _AESKeyStoreInit(const char *filename, const char *password)
 PARCBuffer *
 parcSymmetricKeyStore_CreateKey(unsigned bits)
 {
-    assertTrue((bits & 0x07) == 0, "bits must be a multiple of 8");
+    parcAssertTrue((bits & 0x07) == 0, "bits must be a multiple of 8");
 
     unsigned keylength = bits / 8;
     uint8_t buffer[keylength];
@@ -427,7 +422,7 @@ parcSymmetricKeyStore_GetVerifierKeyDigest(PARCSymmetricKeyStore *keyStore)
 bool
 parcSymmetricKeyStore_CreateFile(const char *filename, const char *password, PARCBuffer *secret_key)
 {
-    assertTrue(parcBuffer_Remaining(secret_key) > 0, "The secret_key buffer is not flipped.  See parcBuffer_Flip()");
+    parcAssertTrue(parcBuffer_Remaining(secret_key) > 0, "The secret_key buffer is not flipped.  See parcBuffer_Flip()");
     return _createKeyStore(filename, password, secret_key) == 0;
 }
 
@@ -444,7 +439,7 @@ PARCSymmetricKeyStore *
 parcSymmetricKeyStore_OpenFile(const char *filename, const char *password, PARCCryptoHashType hmacHashType)
 {
     PARCBuffer *secretKey = _AESKeyStoreInit(filename, password);
-    assertNotNull(secretKey, "Could not read AES keystore %s", filename);
+    parcAssertNotNull(secretKey, "Could not read AES keystore %s", filename);
 
     PARCSymmetricKeyStore *keyStore = parcSymmetricKeyStore_Create(secretKey);
     parcBuffer_Release(&secretKey);
@@ -465,13 +460,10 @@ PARCSymmetricKeyStore *
 parcSymmetricKeyStore_Create(PARCBuffer *secret_key)
 {
     PARCSymmetricKeyStore *keyStore = parcObject_CreateAndClearInstance(PARCSymmetricKeyStore);
-    assertNotNull(keyStore, "parcObject_CreateAndClearInstance returned NULL, cannot allocate keystore");
+    parcAssertNotNull(keyStore, "parcObject_CreateAndClearInstance returned NULL, cannot allocate keystore");
 
     keyStore->secretKey = parcBuffer_Acquire(secret_key);
 
     return keyStore;
 }
 
-// =============================================================
-LONGBOW_START_DEPRECATED_WARNINGS
-// =============================================================

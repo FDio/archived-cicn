@@ -40,7 +40,7 @@ struct PARCStopwatch {
 static bool
 _parcStopwatch_Destructor(PARCStopwatch **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCStopwatch pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCStopwatch pointer.");
 
     /* cleanup the instance fields here */
     return true;
@@ -63,7 +63,7 @@ parcObject_Override(PARCStopwatch, PARCObject,
 void
 parcStopwatch_AssertValid(const PARCStopwatch *instance)
 {
-    assertTrue(parcStopwatch_IsValid(instance),
+    parcAssertTrue(parcStopwatch_IsValid(instance),
                "PARCStopwatch is not valid.");
 }
 

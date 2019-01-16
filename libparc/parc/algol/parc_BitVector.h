@@ -57,7 +57,7 @@ PARCBitVector *parcBitVector_Create(void);
  *     PARCBitVector *parcBitVector = parcBitVector_Create();
  *     parcBitVector_Set(parcBitVector, 10);
  *     PARCBitVector *copy = parcBitVector_Copy(parcBitVector);
- *     assertTrue(parcBitVector_Equals(parcBitVector, copy), "Duplicate vector is unequal");
+ *     parcAssertTrue(parcBitVector_Equals(parcBitVector, copy), "Duplicate vector is unequal");
  * }
  * @endcode
  *
@@ -115,7 +115,7 @@ void parcBitVector_Release(PARCBitVector **parcBitVector);
  *     parcBitVector_Set(parcBitVector, 10);
  *     PARCBitVector *copy = parcBitVector_Copy(parcBitVector);
  *     parcBitVector_Set(copy, 1);
- *     assertTrue(parcBitVector_Equals(parcBitVector, copy) == false, "Vector should have been unequal");
+ *     parcAssertTrue(parcBitVector_Equals(parcBitVector, copy) == false, "Vector should have been unequal");
  * }
  * @endcode
  *
@@ -138,7 +138,7 @@ bool parcBitVector_Equals(const PARCBitVector *a, const PARCBitVector *b);
  *     parcBitVector_Set(superSet, 11);
  *     PARCBitVector *subSet = parcBitVector_Create();
  *     parcBitVector_Set(subSet, 10);
- *     assertTrue(parcBitVector_Contains(superSet, subSet), "Expect superSet to contain subSet");
+ *     parcAssertTrue(parcBitVector_Contains(superSet, subSet), "Expect superSet to contain subSet");
  * }
  * @endcode
  *
@@ -157,7 +157,7 @@ bool parcBitVector_Contains(const PARCBitVector *parcBitVector, const PARCBitVec
  * {
  *     PARCBitVector *parcBitVector = parcBitVector_Create();
  *     parcBitVector_Set(parcBitVector, 10);
- *     assertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
+ *     parcAssertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
  * }
  * @endcode
  *
@@ -175,7 +175,7 @@ int parcBitVector_Get(const PARCBitVector *parcBitVector, unsigned bit);
  * {
  *     PARCBitVector *parcBitVector = parcBitVector_Create();
  *     parcBitVector_Set(parcBitVector, 10);
- *     assertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
+ *     parcAssertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
  * }
  * @endcode
  *
@@ -196,7 +196,7 @@ void parcBitVector_Set(PARCBitVector *parcBitVector, unsigned bit);
  *     parcBitVector_Set(parcBitVector, 0);
  *
  *     parcBitVector_RightShift(parcBitVector, 1);
- *     assertTrue(parcBitVector_FirstBitSet(parcBitVector) == 1,
+ *     parcAssertTrue(parcBitVector_FirstBitSet(parcBitVector) == 1,
  *                "First vector element should have moved up");
  *
  *     parcBitVector_Release(&parcBitVector);
@@ -221,7 +221,7 @@ PARCBitVector *parcBitVector_RightShift(PARCBitVector *parcBitVector, size_t rig
  *     parcBitVector_Set(parcBitVector, 0);
  *
  *     parcBitVector_LeftShift(parcBitVector, 1);
- *     assertTrue(parcBitVector_NumberOfBitsSet(parcBitVector) == 1,
+ *     parcAssertTrue(parcBitVector_NumberOfBitsSet(parcBitVector) == 1,
  *                "First vector element should have rolled off");
  *
  *     parcBitVector_Release(&parcBitVector);
@@ -247,7 +247,7 @@ PARCBitVector *parcBitVector_LeftShift(PARCBitVector *parcBitVector, size_t left
  *     parcBitVector_Set(andVector, 11);
  *
  *     PARCBitVector *result = parcBitVector_And(parcBitVector, andVector);
- *     assertTrue(parcBitVector_NumberOfBitsSet(result) == 0, "Vector should have been empty");
+ *     parcAssertTrue(parcBitVector_NumberOfBitsSet(result) == 0, "Vector should have been empty");
  *
  *     parcBitVector_Release(&parcBitVector);
  *     parcBitVector_Release(&andVector);
@@ -274,7 +274,7 @@ PARCBitVector *parcBitVector_And(const PARCBitVector *a, const PARCBitVector *b)
  *     parcBitVector_Set(orVector, 11);
  *
  *     PARCBitVector *result = parcBitVector_Or(parcBitVector, orVector);
- *     assertTrue(parcBitVector_NumberOfBitsSet(result) == 2, "Vector should have been set");
+ *     parcAssertTrue(parcBitVector_NumberOfBitsSet(result) == 2, "Vector should have been set");
  *
  *     parcBitVector_Release(&parcBitVector);
  *     parcBitVector_Release(&orVector);
@@ -298,7 +298,7 @@ PARCBitVector *parcBitVector_Or(const PARCBitVector *a, const PARCBitVector *b);
  *     PARCBitVector *bitsToSet = parcBitVector_Create();
  *     parcBitVector_Set(bitsToSet, 10);
  *     parcBitVector_SetVector(parcBitVector, bitsToSet);
- *     assertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
+ *     parcAssertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
  * }
  * @endcode
  *
@@ -317,7 +317,7 @@ void parcBitVector_SetVector(PARCBitVector *parcBitVector, const PARCBitVector *
  *     parcBitVector_Set(parcBitVector, 10);
  *     parcBitVector_Set(parcBitVector, 42);
  *     parcBitVector_Reset(parcBitVector);
- *     assertTrue(parcBitVector_NumberOfBitsSet(parcBitVector) == 0, "Vector should have 0 bits set");
+ *     parcAssertTrue(parcBitVector_NumberOfBitsSet(parcBitVector) == 0, "Vector should have 0 bits set");
  * }
  * @endcode
  *
@@ -335,9 +335,9 @@ void parcBitVector_Reset(PARCBitVector *parcBitVector);
  * {
  *     PARCBitVector *parcBitVector = parcBitVector_Create();
  *     parcBitVector_Set(parcBitVector, 10);
- *     assertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
+ *     parcAssertTrue(parcBitVector_Get(parcBitVector, 10) == 1, "Vector should have been set");
  *     parcBitVector_Clear(parcBitVector, 10);
- *     assertTrue(parcBitVector_Get(parcBitVector, 10) == 0, "Vector should have been cleared");
+ *     parcAssertTrue(parcBitVector_Get(parcBitVector, 10) == 0, "Vector should have been cleared");
  * }
  * @endcode
  *
@@ -358,7 +358,7 @@ void parcBitVector_Clear(PARCBitVector *parcBitVector, unsigned bit);
  *     PARCBitVector *bitsToClear = parcBitVector_Create();
  *     parcBitVector_Set(bitsToClear, 10);
  *     parcBitVector_SetVector(parcBitVector, bitsToClear);
- *     assertTrue(parcBitVector_Get(parcBitVector, 10) == 0, "Vector should have been cleared");
+ *     parcAssertTrue(parcBitVector_Get(parcBitVector, 10) == 0, "Vector should have been cleared");
  * }
  * @endcode
  *
@@ -376,7 +376,7 @@ void parcBitVector_ClearVector(PARCBitVector *parcBitVector, const PARCBitVector
  * {
  *     PARCBitVector *parcBitVector = parcBitVector_Create();
  *     parcBitVector_Set(parcBitVector, 10);
- *     assertTrue(parcBitVector_NumberOfBitsSet(parcBitVector) == 1, "One bit should have been set");
+ *     parcAssertTrue(parcBitVector_NumberOfBitsSet(parcBitVector) == 1, "One bit should have been set");
  * }
  * @endcode
  *
@@ -396,8 +396,8 @@ unsigned parcBitVector_NumberOfBitsSet(const PARCBitVector *parcBitVector);
  *     PARCBitVector *parcBitVector = parcBitVector_Create();
  *     parcBitVector_Set(parcBitVector, 10);
  *     parcBitVector_Set(parcBitVector, 12);
- *     assertTrue(parcBitVector_NextBitSet(parcBitVector, 0) == 10, "Bit 10 should have been found first");
- *     assertTrue(parcBitVector_NextBitSet(parcBitVector, 11) == 12, "Bit 12 should have been found next");
+ *     parcAssertTrue(parcBitVector_NextBitSet(parcBitVector, 0) == 10, "Bit 10 should have been found first");
+ *     parcAssertTrue(parcBitVector_NextBitSet(parcBitVector, 11) == 12, "Bit 12 should have been found next");
  * }
  * @endcode
  *

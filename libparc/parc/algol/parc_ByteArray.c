@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_ByteArray.h>
 #include <parc/algol/parc_Memory.h>
@@ -39,7 +39,7 @@ struct parc_byte_array {
 static inline void
 _trapIfOutOfBounds(const PARCByteArray *array, const size_t index)
 {
-    trapOutOfBoundsIf(index >= array->length, "parcByteArray index %zd exceeds the length %zd", index, array->length);
+    parcTrapOutOfBoundsIf(index >= array->length, "parcByteArray index %zd exceeds the length %zd", index, array->length);
 }
 
 static bool
@@ -66,7 +66,7 @@ parcObject_Override(PARCByteArray, PARCObject,
 void
 parcByteArray_AssertValid(const PARCByteArray *instance)
 {
-    trapInvalidValueIf(parcByteArray_IsValid(instance) == false,
+    parcTrapInvalidValueIf(parcByteArray_IsValid(instance) == false,
                        "PARCByteArray instance is invalid.");
 }
 
@@ -212,12 +212,12 @@ PARCByteArray *
 parcByteArray_PutBytes(PARCByteArray *result, size_t offset, size_t length, const uint8_t source[length])
 {
     parcByteArray_OptionalAssertValid(result);
-    trapOutOfBoundsIf(offset > result->length,
+    parcTrapOutOfBoundsIf(offset > result->length,
                       "The offset (%zd) exeeds the length (%zd) of the PARCByteArray.", offset, result->length);
 
     size_t available = result->length - offset;
 
-    trapOutOfBoundsIf(length > available, "%zd available bytes, %zd required.", available, length);
+    parcTrapOutOfBoundsIf(length > available, "%zd available bytes, %zd required.", available, length);
 
     memcpy(&result->array[offset], source, length);
     return result;
@@ -230,7 +230,7 @@ parcByteArray_GetBytes(const PARCByteArray *result, size_t offset, size_t length
 
     size_t available = result->length - offset;
 
-    trapOutOfBoundsIf(length > available, "parcByteArray_CopyOut %zd available bytes, %zd required", available, length);
+    parcTrapOutOfBoundsIf(length > available, "parcByteArray_CopyOut %zd available bytes, %zd required", available, length);
 
     memcpy(array, &result->array[offset], length);
     return (PARCByteArray *) result;

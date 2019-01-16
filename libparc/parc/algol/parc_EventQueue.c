@@ -18,7 +18,7 @@
 #include <config.h>
 #include <errno.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include "internal_parc_Event.h"
 #include <parc/algol/parc_EventScheduler.h>
@@ -70,7 +70,7 @@ _parc_queue_read_callback(struct bufferevent *bev, void *ptr)
     parcEventQueue_LogDebug(parcEventQueue,
                             "_parc_queue_read_callback(bev=%p,ptr->buffereventBuffer=%p,parcEventQueue=%p)\n",
                             bev, parcEventQueue->buffereventBuffer, parcEventQueue);
-    assertNotNull(parcEventQueue->readCallback, "parcEvent read callback called when NULL");
+    parcAssertNotNull(parcEventQueue->readCallback, "parcEvent read callback called when NULL");
 
     parcEventQueue->readCallback(parcEventQueue, PARCEventType_Read, parcEventQueue->readUserData);
 }
@@ -82,7 +82,7 @@ _parc_queue_write_callback(struct bufferevent *bev, void *ptr)
     parcEventQueue_LogDebug(parcEventQueue,
                             "_parc_queue_write_callback(bev=%p,ptr->buffereventBuffer=%p,parcEventQueue=%p)\n",
                             bev, parcEventQueue->buffereventBuffer, parcEventQueue);
-    assertNotNull(parcEventQueue->writeCallback, "parcEvent write callback called when NULL");
+    parcAssertNotNull(parcEventQueue->writeCallback, "parcEvent write callback called when NULL");
 
     parcEventQueue->writeCallback(parcEventQueue, PARCEventType_Write, parcEventQueue->writeUserData);
 }
@@ -95,7 +95,7 @@ _parc_queue_event_callback(struct bufferevent *bev, short events, void *ptr)
     parcEventQueue_LogDebug(parcEventQueue,
                             "_parc_queue_event_callback(bev=%p,events=%x,errno=%d,ptr->buffereventBuffer=%p,parcEventQueue=%p)\n",
                             bev, events, errno, parcEventQueue->buffereventBuffer, parcEventQueue);
-    assertNotNull(parcEventQueue->eventCallback, "parcEvent event callback called when NULL");
+    parcAssertNotNull(parcEventQueue->eventCallback, "parcEvent event callback called when NULL");
 
     errno = errno_forwarded;
     parcEventQueue->eventCallback(parcEventQueue, internal_bufferevent_type_to_PARCEventQueueEventType(events), parcEventQueue->eventUserData);
@@ -130,9 +130,9 @@ parcEventQueue_SetCallbacks(PARCEventQueue *parcEventQueue,
 PARCEventQueue *
 parcEventQueue_Create(PARCEventScheduler *eventScheduler, int fd, PARCEventQueueOption flags)
 {
-    assertNotNull(eventScheduler, "parcEventQueue_Create passed a NULL scheduler instance.");
+    parcAssertNotNull(eventScheduler, "parcEventQueue_Create passed a NULL scheduler instance.");
     PARCEventQueue *parcEventQueue = parcMemory_AllocateAndClear(sizeof(PARCEventQueue));
-    assertNotNull(parcEventQueue, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueue));
+    parcAssertNotNull(parcEventQueue, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueue));
     parcEventQueue->eventScheduler = eventScheduler;
 
     //
@@ -145,7 +145,7 @@ parcEventQueue_Create(PARCEventScheduler *eventScheduler, int fd, PARCEventQueue
     //
     parcEventQueue->buffereventBuffer = bufferevent_socket_new(parcEventScheduler_GetEvBase(eventScheduler), fd,
                                                                internal_PARCEventQueueOption_to_bufferevent_options(flags));
-    assertNotNull(parcEventQueue->buffereventBuffer,
+    parcAssertNotNull(parcEventQueue->buffereventBuffer,
                   "Got null from bufferevent_socket_new for socket %d", fd);
 
     parcEventQueue_LogDebug(parcEventQueue,
@@ -161,7 +161,7 @@ void
 parcEventQueue_Destroy(PARCEventQueue **parcEventQueue)
 {
     parcEventQueue_LogDebug((*parcEventQueue), "parcEventQueue_Destroy(ptr=%p)\n", *parcEventQueue);
-    assertNotNull((*parcEventQueue)->buffereventBuffer, "parcEventQueue_Destroy passed a null buffer!");
+    parcAssertNotNull((*parcEventQueue)->buffereventBuffer, "parcEventQueue_Destroy passed a null buffer!");
 
     bufferevent_free((*parcEventQueue)->buffereventBuffer);
     parcMemory_Deallocate((void *) parcEventQueue);
@@ -226,7 +226,7 @@ int
 parcEventQueue_Printf(PARCEventQueue *parcEventQueue, const char *fmt, ...)
 {
     struct evbuffer *buffer = bufferevent_get_output(parcEventQueue->buffereventBuffer);
-    assertNotNull(buffer, "bufferevent_get_output returned NULL");
+    parcAssertNotNull(buffer, "bufferevent_get_output returned NULL");
 
     va_list ap;
 
@@ -258,9 +258,9 @@ parcEventQueue_SetPriority(PARCEventQueue *eventQueue, PARCEventPriority priorit
 PARCEventQueuePair *
 parcEventQueue_CreateConnectedPair(PARCEventScheduler *eventScheduler)
 {
-    assertNotNull(eventScheduler, "parcEventQueue_CreateConnectedPair must be passed a valid Event Scheduler");
+    parcAssertNotNull(eventScheduler, "parcEventQueue_CreateConnectedPair must be passed a valid Event Scheduler");
     PARCEventQueuePair *parcEventQueuePair = parcMemory_AllocateAndClear(sizeof(PARCEventQueuePair));
-    assertNotNull(parcEventQueuePair, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueuePair));
+    parcAssertNotNull(parcEventQueuePair, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueuePair));
 
     parcEventQueuePair->up = parcMemory_AllocateAndClear(sizeof(PARCEventQueue));
     parcEventQueuePair->up->eventScheduler = eventScheduler;
@@ -269,7 +269,7 @@ parcEventQueue_CreateConnectedPair(PARCEventScheduler *eventScheduler)
                             eventScheduler,
                             parcEventScheduler_GetEvBase(eventScheduler),
                             parcEventQueuePair->up);
-    assertNotNull(parcEventQueuePair->up, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueue));
+    parcAssertNotNull(parcEventQueuePair->up, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueue));
 
     parcEventQueuePair->down = parcMemory_AllocateAndClear(sizeof(PARCEventQueue));
     parcEventQueuePair->down->eventScheduler = eventScheduler;
@@ -278,7 +278,7 @@ parcEventQueue_CreateConnectedPair(PARCEventScheduler *eventScheduler)
                             eventScheduler,
                             parcEventScheduler_GetEvBase(eventScheduler),
                             parcEventQueuePair->down);
-    assertNotNull(parcEventQueuePair->down, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueue));
+    parcAssertNotNull(parcEventQueuePair->down, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventQueue));
 
     struct bufferevent *evpair[2];
     int result = bufferevent_pair_new(parcEventScheduler_GetEvBase(eventScheduler), 0, evpair);

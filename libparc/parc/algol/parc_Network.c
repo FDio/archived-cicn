@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <sys/socket.h>
 #include <ctype.h>
@@ -49,9 +49,9 @@ parcNetwork_SockAddress(const char *address, in_port_t port)
         switch (ai->ai_family) {
             case PF_INET: {
                 struct sockaddr_in *result = parcMemory_AllocateAndClear(sizeof(struct sockaddr_in));
-                assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
+                parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
                 if (result != NULL) {
-                    assertTrue(ai->ai_addrlen == sizeof(struct sockaddr_in),
+                    parcAssertTrue(ai->ai_addrlen == sizeof(struct sockaddr_in),
                                "Sockaddr wrong length, expected %zu got %u", sizeof(struct sockaddr_in), ai->ai_addrlen);
                     memcpy(result, ai->ai_addr, ai->ai_addrlen);
                     result->sin_port = htons(port);
@@ -62,9 +62,9 @@ parcNetwork_SockAddress(const char *address, in_port_t port)
 
             case PF_INET6: {
                 struct sockaddr_in6 *result = parcMemory_AllocateAndClear(sizeof(struct sockaddr_in6));
-                assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in6));
+                parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in6));
                 if (result != NULL) {
-                    assertTrue(ai->ai_addrlen == sizeof(struct sockaddr_in6),
+                    parcAssertTrue(ai->ai_addrlen == sizeof(struct sockaddr_in6),
                                "Sockaddr wrong length, expected %zu got %u", sizeof(struct sockaddr_in6), ai->ai_addrlen);
 
                     memcpy(result, ai->ai_addr, ai->ai_addrlen);
@@ -93,7 +93,7 @@ struct sockaddr_in *
 parcNetwork_SockInet4Address(const char *address, in_port_t port)
 {
     struct sockaddr_in *result = parcMemory_AllocateAndClear(sizeof(struct sockaddr_in));
-    assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
+    parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
     if (result != NULL) {
         result->sin_family = AF_INET;
         result->sin_port = htons(port);
@@ -113,7 +113,7 @@ struct sockaddr_in6 *
 parcNetwork_SockInet6Address(const char *address, in_port_t port, uint32_t flowInfo, uint32_t scopeId)
 {
     struct sockaddr_in6 *result = parcMemory_AllocateAndClear(sizeof(struct sockaddr_in6));
-    assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in6));
+    parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in6));
     if (result != NULL) {
         result->sin6_family = AF_INET6;
         result->sin6_port = htons(port);
@@ -136,7 +136,7 @@ struct sockaddr_in *
 parcNetwork_SockInet4AddressAny()
 {
     struct sockaddr_in *result = parcMemory_AllocateAndClear(sizeof(struct sockaddr_in));
-    assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
+    parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
     if (result != NULL) {
         result->sin_family = AF_INET;
         result->sin_addr.s_addr = INADDR_ANY;
@@ -151,10 +151,10 @@ parcNetwork_SockInet4AddressAny()
 PARCBufferComposer *
 parcNetwork_SockInet4Address_BuildString(const struct sockaddr_in *address, PARCBufferComposer *composer)
 {
-    assertNotNull(address, "Parameter must be a non-null pointer to a struct sockaddr_in.");
+    parcAssertNotNull(address, "Parameter must be a non-null pointer to a struct sockaddr_in.");
 
     if (address->sin_family != AF_INET) {
-        trapIllegalValue(address->sin_family, "Expected an AF_INET configured address, not %d", address->sin_family);
+        parcTrapIllegalValue(address->sin_family, "Expected an AF_INET configured address, not %d", address->sin_family);
     }
 
     char buffer[INET_ADDRSTRLEN];
@@ -167,10 +167,10 @@ parcNetwork_SockInet4Address_BuildString(const struct sockaddr_in *address, PARC
 PARCBufferComposer *
 parcNetwork_SockInet6Address_BuildString(const struct sockaddr_in6 *address, PARCBufferComposer *composer)
 {
-    assertNotNull(address, "Parameter must be a non-null pointer to a struct sockaddr_in.");
+    parcAssertNotNull(address, "Parameter must be a non-null pointer to a struct sockaddr_in.");
 
     if (address->sin6_family != AF_INET6) {
-        trapIllegalValue(address->sin_family, "Expected an AF_INET6 configured address, not %d", address->sin6_family);
+        parcTrapIllegalValue(address->sin_family, "Expected an AF_INET6 configured address, not %d", address->sin6_family);
     }
 
     char buffer[INET6_ADDRSTRLEN];
@@ -297,13 +297,13 @@ parcNetwork_ParseLinkAddress(const char *address)
 
         if (parcNetwork_ParseMAC48Address(&address[7], result) == false) {
             parcBuffer_Release(&result);
-            trapIllegalValue(address, "Syntax error '%s'", address);
+            parcTrapIllegalValue(address, "Syntax error '%s'", address);
         }
 
         return parcBuffer_Flip(result);
     }
 
-    trapIllegalValue(address, "Bad scheme '%s'", address);
+    parcTrapIllegalValue(address, "Bad scheme '%s'", address);
 }
 
 bool
@@ -366,7 +366,7 @@ _isInet4Loopback(struct sockaddr_in *sin4)
 bool
 parcNetwork_IsSocketLocal(struct sockaddr *sock)
 {
-    assertNotNull(sock, "Parameter sock must be non-null");
+    parcAssertNotNull(sock, "Parameter sock must be non-null");
     bool isLocal = false;
 
     switch (sock->sa_family) {

@@ -52,7 +52,7 @@ parcObject_Override(PARCUnsigned, PARCObject,
 void
 parcUnsigned_AssertValid(const PARCUnsigned *instance)
 {
-    assertTrue(parcUnsigned_IsValid(instance),
+    parcAssertTrue(parcUnsigned_IsValid(instance),
                "PARCUnsigned is not valid.");
 }
 

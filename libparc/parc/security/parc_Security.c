@@ -26,7 +26,7 @@
 
 #include <pthread.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_Security.h>
 #include <parc/algol/parc_Memory.h>
@@ -50,7 +50,6 @@
 #error OpenSSL version must be at least 0.9.8 release
 #endif
 
-// Use the LongBow aids for this (case 999)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
@@ -77,7 +76,7 @@ _lockingCallback(int mode, int type, const char *file __attribute__((unused)), i
         error = pthread_mutex_unlock(&(perThreadLocks[type]));
     }
 
-    assertTrue(error == 0, "Error in pthreads: (%d) %s", errno, strerror(errno));
+    parcAssertTrue(error == 0, "Error in pthreads: (%d) %s", errno, strerror(errno));
 }
 
 #if OPENSSL_VERSION_NUMBER < 0x1000005fL
@@ -92,7 +91,7 @@ _getThreadId(void)
 #if defined(__APPLE__)
     uint64_t threadid = 0;
     int error = pthread_threadid_np(pthread_self(), &threadid);
-    assertTrue(error == 0, "Error getting threadid");
+    parcAssertTrue(error == 0, "Error getting threadid");
     return (unsigned long) threadid;
 #elif defined(__linux__)
     // linux (at least ubuntu and redhat) uses unsigned long int
@@ -131,7 +130,7 @@ static void
 _initLocks(void)
 {
     perThreadLocks = parcMemory_AllocateAndClear(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-    assertNotNull(perThreadLocks, "parcMemory_AllocateAndClear(%zu) returned NULL",
+    parcAssertNotNull(perThreadLocks, "parcMemory_AllocateAndClear(%zu) returned NULL",
                   CRYPTO_num_locks() * sizeof(pthread_mutex_t));
 
     for (int i = 0; i < CRYPTO_num_locks(); i++) {
@@ -161,14 +160,14 @@ _finiLocks(void)
 void
 parcSecurity_AssertIsInitialized(void)
 {
-    trapUnexpectedStateIf(parcSecurity_IsInitialized() == false, "PARC Security framework is not initialized.  See parcSecurity_Init()");
+    parcTrapUnexpectedStateIf(parcSecurity_IsInitialized() == false, "PARC Security framework is not initialized.  See parcSecurity_Init()");
 }
 
 void
 parcSecurity_Init(void)
 {
     int lockSuccessful = pthread_mutex_lock(&parcSecurity_mutex) == 0;
-    assertTrue(lockSuccessful, "Unable to lock the PARC Security framework.");
+    parcAssertTrue(lockSuccessful, "Unable to lock the PARC Security framework.");
 
     if (!parcSecurity_initialized) {
         _initLocks();
@@ -180,7 +179,7 @@ parcSecurity_Init(void)
     parcSecurity_count++;
 
     int unlockSuccessful = pthread_mutex_unlock(&parcSecurity_mutex) == 0;
-    assertTrue(unlockSuccessful, "Unable to unlock the PARC Security framework.");
+    parcAssertTrue(unlockSuccessful, "Unable to unlock the PARC Security framework.");
 }
 
 bool
@@ -193,7 +192,7 @@ void
 parcSecurity_Fini(void)
 {
     int lockSuccessful = pthread_mutex_lock(&parcSecurity_mutex) == 0;
-    assertTrue(lockSuccessful, "Unable to lock the PARC Security framework.");
+    parcAssertTrue(lockSuccessful, "Unable to lock the PARC Security framework.");
 
     parcSecurity_count--;
     if (parcSecurity_count == 0) {
@@ -204,7 +203,7 @@ parcSecurity_Fini(void)
     }
 
     int unlockSuccessful = pthread_mutex_unlock(&parcSecurity_mutex) == 0;
-    assertTrue(unlockSuccessful, "Unable to unlock the PARC Security framework.");
+    parcAssertTrue(unlockSuccessful, "Unable to unlock the PARC Security framework.");
 }
 
 #pragma GCC diagnostic pop

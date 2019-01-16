@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_KeyStore.h>
 #include <parc/algol/parc_Memory.h>

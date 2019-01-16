@@ -31,14 +31,12 @@ elseif(COMPILE_FOR_IOS)
   message("############ This build will not include doxygen, tools, or tests")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 else()
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-#    set(CMAKE_C_FLAGS_NOPANTS "${CMAKE_C_FLAGS_NOPANTS} -O3 -DNDEBUG -DPARCLibrary_DISABLE_VALIDATION")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
   find_package( Doxygen )
 endif()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -DPARCLibrary_DISABLE_VALIDATION -DLongBow_DISABLE_ASSERTIONS")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -DPARCLibrary_DISABLE_VALIDATION")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${CMAKE_C_FLAGS}")
 
@@ -50,33 +48,42 @@ include_directories(${PROJECT_BINARY_DIR}/parc ${PROJECT_SOURCE_DIR})
 if (DOC_ONLY)
   message("############ Skipping check of required dependencies.")
 elseif(COMPILE_FOR_IOS)
-  find_host_package( LongBow REQUIRED )
-  include_directories(${LONGBOW_INCLUDE_DIRS})
-
-  find_host_package( LibEvent REQUIRED )
+find_host_package( LibEvent REQUIRED )
   include_directories(${LIBEVENT_INCLUDE_DIRS})
 
   find_host_package ( OpenSSL REQUIRED )
 else()
-  find_package( LongBow REQUIRED )
-  include_directories(${LONGBOW_INCLUDE_DIRS})
-
   find_package( LibEvent REQUIRED )
   include_directories(${LIBEVENT_INCLUDE_DIRS})
+
+  if(ENABLE_TEST)
+    find_package( LongBow REQUIRED )
+    include_directories(${LONGBOW_INCLUDE_DIRS})
+  endif()
 
   find_package ( Threads REQUIRED )
 
   find_package ( OpenSSL REQUIRED )
   include_directories(${OPENSSL_INCLUDE_DIR})
-endif()
 
-set(PARC_BIN_LIBRARIES
-  parc
-  ${LONGBOW_LIBRARIES}
-  ${LIBEVENT_LIBRARIES}
-  ${OPENSSL_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  )
+endif()
+if(ENABLE_TEST)
+  message("############ Test enabled")
+   set(PARC_BIN_LIBRARIES
+    parc
+    ${LONGBOW_LIBRARIES}
+    ${LIBEVENT_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+    )
+else()
+  set(PARC_BIN_LIBRARIES
+    parc
+    ${LIBEVENT_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+    )
+endif()
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
@@ -91,6 +98,7 @@ if (ANDROID_API)
 elseif(COMPILE_FOR_IOS)
   macro(AddTest testFile)
     message("iOS build: Skipping test ${ARGV0}")
+    set(CMAKE_C_FLAGS_NOPANTS "${CMAKE_C_FLAGS_NOPANTS} -O3 -DNDEBUG -DPARCLibrary_DISABLE_VALIDATION")
   endmacro(AddTest)
 else()
   macro(AddTest testFile)
@@ -145,9 +153,13 @@ if(DEB_PACKAGE)
 
 #  set(CPACK_DEBIAN_LIBRARY_PACKAGE_SHLIBDEPS ON)
 
-  set(CPACK_${TYPE}_LIBRARY_PACKAGE_DEPENDS "longbow (>= 1.0)")
-  set(CPACK_${TYPE}_HEADERS_PACKAGE_DEPENDS "libparc (>= 1.0), longbow-dev (>= 1.0), libevent-dev, libssl-dev")
-  set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_DEPENDS "")
+  if(ENABLE_TEST)
+    set(CPACK_${TYPE}_LIBRARY_PACKAGE_DEPENDS "longbow (>= 1.0)")
+    set(CPACK_${TYPE}_HEADERS_PACKAGE_DEPENDS "libparc (>= 1.0), longbow-dev (>= 1.0), libevent-dev, libssl-dev")
+  else()
+    set(CPACK_${TYPE}_HEADERS_PACKAGE_DEPENDS "libparc (>= 1.0), libevent-dev, libssl-dev")
+    set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_DEPENDS "")
+  endif()
 elseif(RPM_PACKAGE)
   set(TYPE "RPM")
   set(GENERATOR "RPM")
@@ -161,10 +173,13 @@ elseif(RPM_PACKAGE)
   set(CPACK_${TYPE}_DOCUMENTATION_FILE_NAME "${PACKAGE_NAME}-doc-${PACKAGE_VERSION}.${ARCHITECTURE}.rpm")
 
   set(CPACK_${TYPE}_LIBRARY_PACKAGE_AUTOREQ ON)
-
-  set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0")
-  set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libparc >= 1.0, longbow-devel >= 1.0, libevent-devel, openssl-devel")
-  set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_REQUIRES "")
+  if(ENABLE_TEST)
+    set(CPACK_${TYPE}_LIBRARY_PACKAGE_REQUIRES "longbow >= 1.0")
+    set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libparc >= 1.0, longbow-devel >= 1.0, libevent-devel, openssl-devel")
+  else()
+    set(CPACK_${TYPE}_HEADERS_PACKAGE_REQUIRES "libparc >= 1.0, libevent-devel, openssl-devel")
+    set(CPACK_${TYPE}_DOCUMENTATION_PACKAGE_REQUIRES "")
+  endif()
 
   set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/etc" "/usr/lib/python2.7" "/usr/lib/python2.7/site-packages")
 else()

@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/security/parc_Identity.h>
@@ -53,13 +53,13 @@ parcIdentity_IsValid(const PARCIdentity *identity)
 void
 parcIdentity_AssertValid(const PARCIdentity *identity)
 {
-    trapInvalidValueIf(parcIdentity_IsValid(identity) == false, "PARCIdentity");
+    parcTrapInvalidValueIf(parcIdentity_IsValid(identity) == false, "PARCIdentity");
 }
 
 PARCIdentity *
 parcIdentity_Create(PARCObject *instance, const PARCIdentityInterface *interface)
 {
-    assertNotNull(interface, "Got null interface in parcIdentity_Create");
+    parcAssertNotNull(interface, "Got null interface in parcIdentity_Create");
 
     PARCIdentity *result = parcObject_CreateInstance(PARCIdentity);
 
@@ -107,7 +107,7 @@ parcIdentity_CreateSigner(const PARCIdentity *identity, PARCCryptoHashType hash)
 void
 parcIdentity_Display(const PARCIdentity *identity, int indentation)
 {
-    assertNotNull(identity->interface->Display, "Got null implementation in parcIdentity_Display");
+    parcAssertNotNull(identity->interface->Display, "Got null implementation in parcIdentity_Display");
 
     parcDisplayIndented_PrintLine(indentation, "PARCIdentity@%p {", identity);
     parcDisplayIndented_PrintLine(indentation, ".instance=");

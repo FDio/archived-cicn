@@ -28,7 +28,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -181,7 +181,7 @@ _expand(PARCHashCodeTable *hashCodeTable)
         temp_table.tableLimit = old_table->tableLimit * expandby;
         temp_table.expandThreshold = temp_table.tableLimit - temp_table.tableLimit / 4;
         temp_table.entries = parcMemory_AllocateAndClear(temp_table.tableLimit * sizeof(HashTableEntry));
-        assertNotNull(temp_table.entries, "parcMemory_AllocateAndClear(%zu) returned NULL", temp_table.tableLimit * sizeof(HashTableEntry));
+        parcAssertNotNull(temp_table.entries, "parcMemory_AllocateAndClear(%zu) returned NULL", temp_table.tableLimit * sizeof(HashTableEntry));
 
         result = _rehash(old_table, &temp_table, hashCodeTable->keyEqualsFunc);
         if (result == ADD_NOSPACE) {
@@ -203,11 +203,11 @@ parcHashCodeTable_Create_Size(PARCHashCodeTable_KeyEqualsFunc keyEqualsFunc,
                               size_t minimumSize)
 {
     PARCHashCodeTable *table = parcMemory_AllocateAndClear(sizeof(PARCHashCodeTable));
-    assertNotNull(table, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCHashCodeTable));
+    parcAssertNotNull(table, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCHashCodeTable));
 
-    assertNotNull(keyEqualsFunc, "keyEqualsFunc must be non-null");
-    assertNotNull(keyHashCodeFunc, "keyHashCodeFunc must be non-null");
-    assertTrue(minimumSize > 0, "minimumSize must be greater than zero");
+    parcAssertNotNull(keyEqualsFunc, "keyEqualsFunc must be non-null");
+    parcAssertNotNull(keyHashCodeFunc, "keyHashCodeFunc must be non-null");
+    parcAssertTrue(minimumSize > 0, "minimumSize must be greater than zero");
 
     table->keyEqualsFunc = keyEqualsFunc;
     table->keyHashCodeFunc = keyHashCodeFunc;
@@ -215,7 +215,7 @@ parcHashCodeTable_Create_Size(PARCHashCodeTable_KeyEqualsFunc keyEqualsFunc,
     table->dataDestroyer = dataDestroyer;
 
     table->hashtable.entries = parcMemory_AllocateAndClear(minimumSize * sizeof(HashTableEntry));
-    assertNotNull(table->hashtable.entries, "parcMemory_AllocateAndClear(%zu) returned NULL", minimumSize * sizeof(HashTableEntry));
+    parcAssertNotNull(table->hashtable.entries, "parcMemory_AllocateAndClear(%zu) returned NULL", minimumSize * sizeof(HashTableEntry));
     table->hashtable.tableLimit = minimumSize;
     table->hashtable.tableSize = 0;
 
@@ -239,8 +239,8 @@ parcHashCodeTable_Create(PARCHashCodeTable_KeyEqualsFunc keyEqualsFunc,
 void
 parcHashCodeTable_Destroy(PARCHashCodeTable **tablePtr)
 {
-    assertNotNull(tablePtr, "Parameter must be non-null double pointer");
-    assertNotNull(*tablePtr, "Parameter must dereference to non-null pointer");
+    parcAssertNotNull(tablePtr, "Parameter must be non-null double pointer");
+    parcAssertNotNull(*tablePtr, "Parameter must dereference to non-null pointer");
     PARCHashCodeTable *table = *tablePtr;
     size_t i;
 
@@ -264,9 +264,9 @@ parcHashCodeTable_Destroy(PARCHashCodeTable **tablePtr)
 bool
 parcHashCodeTable_Add(PARCHashCodeTable *table, void *key, void *data)
 {
-    assertNotNull(table, "Parameter table must be non-null");
-    assertNotNull(key, "Parameter key must be non-null");
-    assertNotNull(data, "Parameter data must be non-null");
+    parcAssertNotNull(table, "Parameter table must be non-null");
+    parcAssertNotNull(key, "Parameter key must be non-null");
+    parcAssertNotNull(data, "Parameter data must be non-null");
 
     if (table->hashtable.tableSize >= table->hashtable.expandThreshold) {
         _expand(table);
@@ -291,13 +291,13 @@ parcHashCodeTable_Del(PARCHashCodeTable *table, const void *key)
     size_t index;
     bool found;
 
-    assertNotNull(table, "Parameter table must be non-null");
-    assertNotNull(key, "parameter key must be non-null");
+    parcAssertNotNull(table, "Parameter table must be non-null");
+    parcAssertNotNull(key, "parameter key must be non-null");
 
     found = _findIndex(table, key, &index);
 
     if (found) {
-        assertTrue(table->hashtable.tableSize > 0, "Illegal state: found entry in a hash table with 0 size");
+        parcAssertTrue(table->hashtable.tableSize > 0, "Illegal state: found entry in a hash table with 0 size");
 
         if (table->keyDestroyer) {
             table->keyDestroyer(&table->hashtable.entries[index].key);
@@ -318,8 +318,8 @@ parcHashCodeTable_Get(PARCHashCodeTable *table, const void *key)
 {
     size_t index;
 
-    assertNotNull(table, "Parameter table must be non-null");
-    assertNotNull(key, "parameter key must be non-null");
+    parcAssertNotNull(table, "Parameter table must be non-null");
+    parcAssertNotNull(key, "parameter key must be non-null");
 
     bool found = _findIndex(table, key, &index);
 
@@ -333,6 +333,6 @@ parcHashCodeTable_Get(PARCHashCodeTable *table, const void *key)
 size_t
 parcHashCodeTable_Length(const PARCHashCodeTable *table)
 {
-    assertNotNull(table, "Parameter table must be non-null");
+    parcAssertNotNull(table, "Parameter table must be non-null");
     return table->hashtable.tableSize;
 }

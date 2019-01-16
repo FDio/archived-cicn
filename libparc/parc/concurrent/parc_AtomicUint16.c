@@ -32,7 +32,7 @@ struct PARCAtomicUint16 {
 static void
 _parcAtomicUint16_Finalize(PARCAtomicUint16 **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCAtomicUint16 pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCAtomicUint16 pointer.");
 
     parcAtomicUint16_OptionalAssertValid((*instancePtr));
 
@@ -49,7 +49,7 @@ parcObject_ExtendPARCObject(PARCAtomicUint16, _parcAtomicUint16_Finalize, parcAt
 void
 parcAtomicUint16_AssertValid(const PARCAtomicUint16 *instance)
 {
-    assertTrue(parcAtomicUint16_IsValid(instance),
+    parcAssertTrue(parcAtomicUint16_IsValid(instance),
                "PARCAtomicUint16 is not valid.");
 }
 

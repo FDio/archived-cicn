@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <sys/queue.h>
@@ -136,7 +136,7 @@ static void
 _parcLinkedListIterator_IsValid(const _PARCLinkedListNode *node)
 {
     if (node != NULL) {
-        assertTrue(_parcLinkedListNode_IsValid(node), "node is invalid");
+        parcAssertTrue(_parcLinkedListNode_IsValid(node), "node is invalid");
     }
 }
 
@@ -183,12 +183,12 @@ _parcLinkedListNode_Next(PARCLinkedList *list __attribute__((unused)), const _PA
     if (node == NULL) {
         result = list->head;
     } else {
-        assertTrue(_parcLinkedListNode_IsValid(node), "node is invalid");
-        trapOutOfBoundsIf(node->next == NULL, "No more elements.");
+        parcAssertTrue(_parcLinkedListNode_IsValid(node), "node is invalid");
+        parcTrapOutOfBoundsIf(node->next == NULL, "No more elements.");
         result = node->next;
     }
 
-    assertTrue(_parcLinkedListNode_IsValid(result), "result is invalid");
+    parcAssertTrue(_parcLinkedListNode_IsValid(result), "result is invalid");
     parcObject_OptionalAssertValid(result->object);
 
     return result;
@@ -244,12 +244,12 @@ _parcLinkedListNode_HasNext(PARCLinkedList *list, const _PARCLinkedListNode *nod
     if (node == NULL) {
         result = (list->head != NULL);
         if (result) {
-            assertTrue(_parcLinkedListNode_IsValid(list->head), "node is invalid");
+            parcAssertTrue(_parcLinkedListNode_IsValid(list->head), "node is invalid");
         }
     } else {
         result = node->next != NULL;
         if (result) {
-            assertTrue(_parcLinkedListNode_IsValid(node->next), "node is invalid");
+            parcAssertTrue(_parcLinkedListNode_IsValid(node->next), "node is invalid");
         }
     }
 
@@ -333,7 +333,7 @@ parcLinkedList_IsValid(const PARCLinkedList *list)
 void
 parcLinkedList_AssertValid(const PARCLinkedList *instance)
 {
-    assertTrue(parcLinkedList_IsValid(instance),
+    parcAssertTrue(parcLinkedList_IsValid(instance),
                "PARCLinkedList is not valid.");
 }
 
@@ -462,7 +462,7 @@ parcLinkedList_RemoveLast(PARCLinkedList *list)
 bool
 parcLinkedList_Remove(PARCLinkedList *list, const PARCObject *element)
 {
-    assertTrue(element != NULL, "Element must not be NULL");
+    parcAssertTrue(element != NULL, "Element must not be NULL");
     bool result = false;
 
     _PARCLinkedListNode *node = _parcLinkedListNode_getByValue(list, element);
@@ -592,7 +592,7 @@ parcLinkedList_SetAtIndex(PARCLinkedList *list, size_t index, PARCObject *elemen
     PARCObject *result = NULL;
 
     if (index > (parcLinkedList_Size(list) - 1)) {
-        trapOutOfBounds(index, "[0, %zd]", parcLinkedList_Size(list) - 1);
+        parcTrapOutOfBounds(index, "[0, %zd]", parcLinkedList_Size(list) - 1);
     }
 
     _PARCLinkedListNode *node = _parcLinkedListNode_getByIndex(list, index);
@@ -607,7 +607,7 @@ PARCObject *
 parcLinkedList_GetAtIndex(const PARCLinkedList *list, size_t index)
 {
     if (index > (parcLinkedList_Size(list) - 1)) {
-        trapOutOfBounds(index, "[0, %zd]", parcLinkedList_Size(list) - 1);
+        parcTrapOutOfBounds(index, "[0, %zd]", parcLinkedList_Size(list) - 1);
     }
 
     _PARCLinkedListNode *node = _parcLinkedListNode_getByIndex(list, index);

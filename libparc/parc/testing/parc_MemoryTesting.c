@@ -21,8 +21,16 @@
 #include <parc/testing/parc_MemoryTesting.h>
 #include <parc/algol/parc_Memory.h>
 
+
+
+#if INTPTR_MAX == INT32_MAX
 bool
 parcMemoryTesting_ExpectedOutstanding(const uint32_t expected, const char *format, ...)
+#else
+bool
+parcMemoryTesting_ExpectedOutstanding(const uint64_t expected, const char *format, ...)
+#endif
+
 {
     bool result = true;
 

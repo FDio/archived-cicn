@@ -72,7 +72,12 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(CreateAcquireRelease)
     PARCBuffer *buffer = longBowTestCase_Get(testCase, "object");
     parcBuffer_Release(&buffer);
 
+#if INTPTR_MAX == INT32_MAX
     uint32_t initialAllocations = (uint32_t) longBowTestCase_Get(testCase, "initialAllocations");
+#else
+    uint64_t initialAllocations = (uint64_t) longBowTestCase_Get(testCase, "initialAllocations");
+#endif
+
     if (!parcMemoryTesting_ExpectedOutstanding(initialAllocations, "%s leaked memory.", longBowTestCase_GetFullName(testCase))) {
         parcSafeMemory_ReportAllocation(1);
         return LONGBOW_STATUS_MEMORYLEAK;
@@ -126,7 +131,12 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Object)
     PARCBuffer *buffer = longBowTestCase_Get(testCase, "object");
     parcBuffer_Release(&buffer);
 
+#if INTPTR_MAX == INT32_MAX
     uint32_t initialAllocations = (uint32_t) longBowTestCase_Get(testCase, "initialAllocations");
+#else
+    uint64_t initialAllocations = (uint64_t) longBowTestCase_Get(testCase, "initialAllocations");
+#endif
+
     if (!parcMemoryTesting_ExpectedOutstanding(initialAllocations, "%s leaked memory.", longBowTestCase_GetFullName(testCase))) {
         parcSafeMemory_ReportAllocation(1);
         return LONGBOW_STATUS_MEMORYLEAK;
@@ -239,7 +249,12 @@ LONGBOW_TEST_FIXTURE_SETUP(Specialization)
 
 LONGBOW_TEST_FIXTURE_TEARDOWN(Specialization)
 {
+#if INTPTR_MAX == INT32_MAX
     uint32_t initialAllocations = (uint32_t) longBowTestCase_Get(testCase, "initialAllocations");
+#else
+    uint64_t initialAllocations = (uint64_t) longBowTestCase_Get(testCase, "initialAllocations");
+#endif
+
     if (!parcMemoryTesting_ExpectedOutstanding(initialAllocations, "%s leaked memory.", longBowTestCase_GetFullName(testCase))) {
         parcSafeMemory_ReportAllocation(1);
         return LONGBOW_STATUS_MEMORYLEAK;

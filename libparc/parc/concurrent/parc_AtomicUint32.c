@@ -32,7 +32,7 @@ struct PARCAtomicUint32 {
 static void
 _parcAtomicUint32_Finalize(PARCAtomicUint32 **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCAtomicUint32 pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCAtomicUint32 pointer.");
 
     parcAtomicUint32_OptionalAssertValid((*instancePtr));
 
@@ -49,7 +49,7 @@ parcObject_ExtendPARCObject(PARCAtomicUint32, _parcAtomicUint32_Finalize, parcAt
 void
 parcAtomicUint32_AssertValid(const PARCAtomicUint32 *instance)
 {
-    assertTrue(parcAtomicUint32_IsValid(instance),
+    parcAssertTrue(parcAtomicUint32_IsValid(instance),
                "PARCAtomicUint32 is not valid.");
 }
 

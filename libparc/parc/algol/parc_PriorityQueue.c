@@ -30,7 +30,7 @@
 
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -263,8 +263,8 @@ _expand(PARCPriorityQueue *queue)
 void
 parcPriorityQueue_ParcFreeDestroyer(void **elementPtr)
 {
-    assertNotNull(elementPtr, "Double pointer must be non-null");
-    assertNotNull(*elementPtr, "Double pointer must dereference to non-null");
+    parcAssertNotNull(elementPtr, "Double pointer must be non-null");
+    parcAssertNotNull(*elementPtr, "Double pointer must dereference to non-null");
     void *element = *elementPtr;
     parcMemory_Deallocate((void **) &element);
     *elementPtr = NULL;
@@ -286,13 +286,13 @@ parcPriorityQueue_Uint64CompareTo(const void *a, const void *b)
 PARCPriorityQueue *
 parcPriorityQueue_Create(PARCPriorityQueueCompareTo *compare, PARCPriorityQueueDestroyer *destroyer)
 {
-    assertNotNull(compare, "Parameter compare must be non-null");
+    parcAssertNotNull(compare, "Parameter compare must be non-null");
 
     size_t initialSize = 128;
     PARCPriorityQueue *queue = parcMemory_AllocateAndClear(sizeof(PARCPriorityQueue));
-    assertNotNull(queue, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCPriorityQueue));
+    parcAssertNotNull(queue, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCPriorityQueue));
     queue->array = parcMemory_AllocateAndClear(sizeof(HeapEntry) * initialSize);
-    assertNotNull(queue->array, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(HeapEntry) * initialSize);
+    parcAssertNotNull(queue->array, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(HeapEntry) * initialSize);
     queue->capacity = initialSize;
     queue->size = 0;
     queue->compare = compare;
@@ -304,8 +304,8 @@ parcPriorityQueue_Create(PARCPriorityQueueCompareTo *compare, PARCPriorityQueueD
 void
 parcPriorityQueue_Destroy(PARCPriorityQueue **queuePtr)
 {
-    assertNotNull(queuePtr, "Double pointer must be non-null");
-    assertNotNull(*queuePtr, "Double pointer must dereference to non-null");
+    parcAssertNotNull(queuePtr, "Double pointer must be non-null");
+    parcAssertNotNull(*queuePtr, "Double pointer must dereference to non-null");
     PARCPriorityQueue *queue = *queuePtr;
     parcPriorityQueue_Clear(queue);
     parcMemory_Deallocate((void **) &(queue->array));
@@ -316,8 +316,8 @@ parcPriorityQueue_Destroy(PARCPriorityQueue **queuePtr)
 bool
 parcPriorityQueue_Add(PARCPriorityQueue *queue, void *data)
 {
-    assertNotNull(queue, "Parameter queue must be non-null");
-    assertNotNull(data, "Parameter data must be non-null");
+    parcAssertNotNull(queue, "Parameter queue must be non-null");
+    parcAssertNotNull(data, "Parameter data must be non-null");
 
     if (queue->size + 1 > queue->capacity) {
         _expand(queue);
@@ -338,7 +338,7 @@ parcPriorityQueue_Add(PARCPriorityQueue *queue, void *data)
 void
 parcPriorityQueue_Clear(PARCPriorityQueue *queue)
 {
-    assertNotNull(queue, "Parameter queue must be non-null");
+    parcAssertNotNull(queue, "Parameter queue must be non-null");
     if (queue->destroyer != NULL) {
         for (size_t i = 0; i < queue->size; i++) {
             queue->destroyer(&queue->array[i].data);
@@ -351,7 +351,7 @@ parcPriorityQueue_Clear(PARCPriorityQueue *queue)
 void *
 parcPriorityQueue_Peek(PARCPriorityQueue *queue)
 {
-    assertNotNull(queue, "Parameter queue must be non-null");
+    parcAssertNotNull(queue, "Parameter queue must be non-null");
     if (queue->size > 0) {
         return queue->array[0].data;
     }
@@ -361,7 +361,7 @@ parcPriorityQueue_Peek(PARCPriorityQueue *queue)
 void *
 parcPriorityQueue_Poll(PARCPriorityQueue *queue)
 {
-    assertNotNull(queue, "Parameter queue must be non-null");
+    parcAssertNotNull(queue, "Parameter queue must be non-null");
     if (queue->size > 0) {
         void *data = queue->array[0].data;
 
@@ -382,6 +382,6 @@ parcPriorityQueue_Poll(PARCPriorityQueue *queue)
 size_t
 parcPriorityQueue_Size(const PARCPriorityQueue *queue)
 {
-    assertNotNull(queue, "Parameter queue must be non-null");
+    parcAssertNotNull(queue, "Parameter queue must be non-null");
     return queue->size;
 }

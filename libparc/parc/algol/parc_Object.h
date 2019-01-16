@@ -42,8 +42,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#include <LongBow/runtime.h>
-#include <LongBow/longBow_Compiler.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_CMacro.h>
 //#include <parc/algol/parc_JSON.h>
@@ -598,8 +597,9 @@ const PARCObjectDescriptor *parcObject_SetDescriptor(PARCObject *object, const P
  * Create new `PARCObjectDescriptor` based on an existing `PARCObjectDescriptor.`
  * The new `PARCObjectDescriptor` uses the existing `PARCObjectDescriptor` as the super-type of the new descriptor.
  */
+
 #define parcObject_Extends(_subtype, _superType, ...) \
-    LongBowCompiler_IgnoreInitializerOverrides \
+    _Pragma("GCC diagnostic ignored \"-Woverride-init\"") \
     parcObjectDescriptor_Declaration(_subtype) = { \
         .super           = &parcObject_DescriptorName(_superType), \
         .name            = #_subtype, \
@@ -619,7 +619,7 @@ const PARCObjectDescriptor *parcObject_SetDescriptor(PARCObject *object, const P
         .typeState       = NULL, \
         __VA_ARGS__  \
     }; \
-    LongBowCompiler_WarnInitializerOverrides \
+    _Pragma("GCC diagnostic warning \"-Woverride-init\"") \
     const PARCObjectDescriptor parcObject_DescriptorName(_subtype)
 
 /**

@@ -209,7 +209,7 @@ void parcSafeMemory_Deallocate(void **pointer);
  *     size_t newLength = 0;
  *     unsigned char *newMemory = parcSafeMemory_Reallocate(memory, newLength);
  *
- *     assertTrue(newMemory == NULL, "Expected NULL, actual %p", newMemory);
+ *     parcAssertTrue(newMemory == NULL, "Expected NULL, actual %p", newMemory);
  * }
  * @endcode
  */

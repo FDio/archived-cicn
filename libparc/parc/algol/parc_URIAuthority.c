@@ -18,7 +18,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <unistd.h>
 #include <stdio.h>

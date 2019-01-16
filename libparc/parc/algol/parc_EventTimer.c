@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include "internal_parc_Event.h"
 #include <parc/algol/parc_EventTimer.h>
@@ -62,7 +62,7 @@ PARCEventTimer *
 parcEventTimer_Create(PARCEventScheduler *eventScheduler, PARCEventType flags, PARCEvent_Callback *callback, void *callbackArgs)
 {
     PARCEventTimer *parcEventTimer = parcMemory_Allocate(sizeof(PARCEventTimer));
-    assertNotNull(parcEventTimer, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventTimer));
+    parcAssertNotNull(parcEventTimer, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventTimer));
 
     parcEventTimer->eventScheduler = eventScheduler;
     parcEventTimer->callback = callback;
@@ -72,7 +72,7 @@ parcEventTimer_Create(PARCEventScheduler *eventScheduler, PARCEventType flags, P
     parcEventTimer->event = event_new(parcEventScheduler_GetEvBase(eventScheduler), -1,
                                       internal_PARCEventType_to_libevent_type(flags),
                                       _parc_event_timer_callback, parcEventTimer);
-    assertNotNull(parcEventTimer->event, "Could not create a new event!");
+    parcAssertNotNull(parcEventTimer->event, "Could not create a new event!");
 
     parcEventTimer_LogDebug(parcEventTimer,
                             "parcEventTimer_Create(base=%p,events=%x,cb=%p,args=%p) = %p\n",
@@ -88,7 +88,7 @@ parcEventTimer_Start(PARCEventTimer *parcEventTimer, struct timeval *timeout)
     parcEventTimer_LogDebug(parcEventTimer,
                             "parcEventTimer_Start(event=%p, timeout=%d:%d)\n",
                             parcEventTimer, timeout->tv_sec, timeout->tv_usec);
-    assertNotNull(parcEventTimer, "parcEventTimer_Start must be passed a valid event!");
+    parcAssertNotNull(parcEventTimer, "parcEventTimer_Start must be passed a valid event!");
 
     int result = event_add(parcEventTimer->event, timeout);
     return result;
@@ -98,7 +98,7 @@ int
 parcEventTimer_Stop(PARCEventTimer *parcEventTimer)
 {
     parcEventTimer_LogDebug(parcEventTimer, "parcEventTimer_Stop(event=%p)\n", parcEventTimer);
-    assertNotNull(parcEventTimer, "parcEventTimer_Stop must be passed a valid event!");
+    parcAssertNotNull(parcEventTimer, "parcEventTimer_Stop must be passed a valid event!");
 
     int result = event_del(parcEventTimer->event);
     return result;
@@ -108,8 +108,8 @@ void
 parcEventTimer_Destroy(PARCEventTimer **parcEventTimer)
 {
     parcEventTimer_LogDebug((*parcEventTimer), "parcEventTimer_Destroy(parcEventTimer=%p)\n", *parcEventTimer);
-    assertNotNull(*parcEventTimer, "parcEventTimer_Destroy must be passed a valid parcEventTimer!");
-    assertNotNull((*parcEventTimer)->event, "parcEventTimer_Destroy passed a null event!");
+    parcAssertNotNull(*parcEventTimer, "parcEventTimer_Destroy must be passed a valid parcEventTimer!");
+    parcAssertNotNull((*parcEventTimer)->event, "parcEventTimer_Destroy passed a null event!");
 
     event_free((*parcEventTimer)->event);
     parcMemory_Deallocate((void **) parcEventTimer);

@@ -79,7 +79,7 @@ _getPublicKeyDigest(void *interfaceContext)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
+    parcAssertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
 
     PARCX509Certificate *certificate = (PARCX509Certificate *) interfaceContext;
 
@@ -103,7 +103,7 @@ _getCertificateDigest(void *interfaceContext)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
+    parcAssertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
 
     PARCX509Certificate *certificate = (PARCX509Certificate *) interfaceContext;
 
@@ -126,7 +126,7 @@ _getDEREncodedCertificate(void *interfaceContext)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
+    parcAssertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
 
     PARCX509Certificate *certificate = (PARCX509Certificate *) interfaceContext;
 
@@ -150,7 +150,7 @@ _getDEREncodedPublicKey(void *interfaceContext)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
+    parcAssertNotNull(interfaceContext, "Parameter must be non-null PARCX509Certificate");
 
     PARCX509Certificate *certificate = (PARCX509Certificate *) interfaceContext;
 
@@ -222,7 +222,7 @@ _createEmptyCertificate()
     cert->certificateDigest = NULL;
     cert->derEncodedCertificate = NULL;
     cert->derEncodedKey = NULL;
-    assertNotNull(cert, "Failure allocating memory for a new PARCX509Certificate instance");
+    parcAssertNotNull(cert, "Failure allocating memory for a new PARCX509Certificate instance");
 
     return cert;
 }
@@ -288,7 +288,7 @@ _addSubjectName(X509 *cert, const char *subjectname)
 {
     // Set up the simple subject name and issuer name for the certificate.
     X509_NAME *name = X509_get_subject_name(cert);
-    assertNotNull(name, "Got null name from X509_get_subject_name");
+    parcAssertNotNull(name, "Got null name from X509_get_subject_name");
 
     if (X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *) subjectname, -1, -1, 0)) {
         if (X509_set_issuer_name(cert, name)) {
@@ -353,7 +353,7 @@ _parcX509Certificate_CreateFromPEMFile(const char *filename)
 
     cert->certificateBIO = BIO_new(BIO_s_file());
     size_t result = BIO_read_filename(cert->certificateBIO, filename);
-    assertTrue(result == 1, "Unable to open the specified file");
+    parcAssertTrue(result == 1, "Unable to open the specified file");
 
     cert->certificate = PEM_read_bio_X509(cert->certificateBIO, NULL, 0, NULL);
     cert->publicKey = X509_get_pubkey(cert->certificate);
@@ -404,13 +404,13 @@ PARCX509Certificate * _createSelfSignedCertificate_RSA(PARCBuffer **privateKeyBu
   parcSecurity_AssertIsInitialized();
 
   RSA *rsa = RSA_new();
-  assertNotNull(rsa, "RSA_new failed.");
+  parcAssertNotNull(rsa, "RSA_new failed.");
 
   EVP_PKEY *privateKey = EVP_PKEY_new();
-  assertNotNull(privateKey, "EVP_PKEY_new() failed.");
+  parcAssertNotNull(privateKey, "EVP_PKEY_new() failed.");
 
   X509 *cert = X509_new();
-  assertNotNull(cert, "X509_new() failed.");
+  parcAssertNotNull(cert, "X509_new() failed.");
 
   int res;
   BIGNUM *pub_exp;
@@ -518,15 +518,15 @@ PARCX509Certificate * _createSelfSignedCertificate_EC(PARCBuffer **privateKeyBuf
     return NULL;
   
   EC_KEY *ec_key = EC_KEY_new_by_curve_name(curve_params);
-  assertNotNull(ec_key, "EC key creation failed.");
+  parcAssertNotNull(ec_key, "EC key creation failed.");
   
   EC_KEY_set_asn1_flag(ec_key, OPENSSL_EC_NAMED_CURVE);
   
   EVP_PKEY *pkey = EVP_PKEY_new();
-  assertNotNull(pkey, "EVP_PKEY_new() failed.");
+  parcAssertNotNull(pkey, "EVP_PKEY_new() failed.");
   
   X509 *cert = X509_new();
-  assertNotNull(cert, "X509_new() failed.");
+  parcAssertNotNull(cert, "X509_new() failed.");
 
   int res;
   

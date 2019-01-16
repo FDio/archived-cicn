@@ -18,7 +18,7 @@
 #include <config.h>
 #include <stdio.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
@@ -44,7 +44,7 @@ _parcSigner_FinalRelease(PARCSigner **signerPtr)
 void
 parcSigner_AssertValid(const PARCSigner *signer)
 {
-    assertNotNull(signer, "Parameter must be non-null PARCSigner");
+    parcAssertNotNull(signer, "Parameter must be non-null PARCSigner");
 }
 
 parcObject_ImplementAcquire(parcSigner, PARCSigner);
@@ -56,7 +56,7 @@ parcObject_Override(PARCSigner, PARCObject,
 PARCSigner *
 parcSigner_Create(PARCObject *instance, PARCSigningInterface *interfaceContext)
 {
-    assertNotNull(interfaceContext, "Parameter must be non-null implementation pointer");
+    parcAssertNotNull(interfaceContext, "Parameter must be non-null implementation pointer");
 
     PARCSigner *signer = parcObject_CreateInstance(PARCSigner);
     if (signer != NULL) {
@@ -112,7 +112,7 @@ parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *parcDigest
 {
     parcSigner_OptionalAssertValid(signer);
 
-    assertNotNull(parcDigest, "parcDigest to sign must not be null");
+    parcAssertNotNull(parcDigest, "parcDigest to sign must not be null");
     return signer->interface->SignDigest(signer->instance, parcDigest);
 }
 
@@ -120,7 +120,7 @@ PARCSignature *
 parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer *buffer)
 {
     parcSigner_OptionalAssertValid(signer);
-    assertNotNull(buffer, "buffer to sign must not be null");
+    parcAssertNotNull(buffer, "buffer to sign must not be null");
 
     PARCCryptoHashType hashType = parcSigner_GetCryptoHashType(signer);
     PARCCryptoHasher *hasher = parcCryptoHasher_Create(hashType);

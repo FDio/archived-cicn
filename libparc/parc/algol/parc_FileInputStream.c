@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_File.h>
@@ -70,7 +70,7 @@ parcFileInputStream_Open(const PARCFile *file)
 PARCFileInputStream *
 parcFileInputStream_Create(int fileDescriptor)
 {
-    trapIllegalValueIf(fileDescriptor < 0, "File descriptor must not be negative.");
+    parcTrapIllegalValueIf(fileDescriptor < 0, "File descriptor must not be negative.");
 
     PARCFileInputStream *result = parcObject_CreateInstance(PARCFileInputStream);
     if (result != NULL) {

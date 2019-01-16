@@ -72,7 +72,7 @@ _workerThread(PARCThread *thread, PARCScheduledThreadPool *pool)
 static bool
 _parcScheduledThreadPool_Destructor(PARCScheduledThreadPool **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCScheduledThreadPool pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCScheduledThreadPool pointer.");
     PARCScheduledThreadPool *pool = *instancePtr;
     parcThreadPool_Release(&pool->threadPool);
 
@@ -81,7 +81,7 @@ _parcScheduledThreadPool_Destructor(PARCScheduledThreadPool **instancePtr)
     if (parcObject_Lock(pool->workQueue)) {
         parcSortedList_Release(&pool->workQueue);
     } else {
-        assertTrue(false, "Cannot lock the work queue.");
+        parcAssertTrue(false, "Cannot lock the work queue.");
     }
 
     return true;
@@ -103,7 +103,7 @@ parcObject_Override(PARCScheduledThreadPool, PARCObject,
 void
 parcScheduledThreadPool_AssertValid(const PARCScheduledThreadPool *instance)
 {
-    assertTrue(parcScheduledThreadPool_IsValid(instance),
+    parcAssertTrue(parcScheduledThreadPool_IsValid(instance),
                "PARCScheduledThreadPool is not valid.");
 }
 

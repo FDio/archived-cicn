@@ -18,7 +18,7 @@
 #include <config.h>
 #include <stdio.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_DisplayIndented.h>
@@ -35,7 +35,7 @@ struct PARCProperties {
 static void
 _parcProperties_Finalize(PARCProperties **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCProperties pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCProperties pointer.");
     PARCProperties *instance = *instancePtr;
 
     parcProperties_OptionalAssertValid(instance);
@@ -53,7 +53,7 @@ parcObject_ExtendPARCObject(PARCProperties, _parcProperties_Finalize, parcProper
 void
 parcProperties_AssertValid(const PARCProperties *instance)
 {
-    assertTrue(parcProperties_IsValid(instance),
+    parcAssertTrue(parcProperties_IsValid(instance),
                "PARCProperties is not valid.");
 }
 
@@ -94,7 +94,7 @@ void
 parcProperties_Display(const PARCProperties *properties, int indentation)
 {
     parcDisplayIndented_PrintLine(indentation, "PARCProperties@%p {", properties);
-    trapCannotObtainLockIf(parcHashMap_Lock(properties->properties) == false, "Cannot lock PARCProperties object.");
+    parcTrapCannotObtainLockIf(parcHashMap_Lock(properties->properties) == false, "Cannot lock PARCProperties object.");
 
     PARCIterator *iterator = parcHashMap_CreateKeyIterator(properties->properties);
     while (parcIterator_HasNext(iterator)) {
@@ -151,7 +151,7 @@ parcProperties_ToJSON(const PARCProperties *properties)
 {
     PARCJSON *result = parcJSON_Create();
 
-    trapCannotObtainLockIf(parcHashMap_Lock(properties->properties) == false, "Cannot lock PARCProperties object.");
+    parcTrapCannotObtainLockIf(parcHashMap_Lock(properties->properties) == false, "Cannot lock PARCProperties object.");
 
     PARCIterator *iterator = parcHashMap_CreateKeyIterator(properties->properties);
     while (parcIterator_HasNext(iterator)) {
@@ -170,7 +170,7 @@ parcProperties_ToJSON(const PARCProperties *properties)
 PARCBufferComposer *
 parcProperties_BuildString(const PARCProperties *properties, PARCBufferComposer *composer)
 {
-    trapCannotObtainLockIf(parcHashMap_Lock(properties->properties) == false, "Cannot lock PARCProperties object.");
+    parcTrapCannotObtainLockIf(parcHashMap_Lock(properties->properties) == false, "Cannot lock PARCProperties object.");
 
     PARCIterator *iterator = parcHashMap_CreateKeyIterator(properties->properties);
     while (parcIterator_HasNext(iterator)) {

@@ -37,7 +37,7 @@ struct PARCMyObject {
 static bool
 _parcMyObject_Destructor(PARCMyObject **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCMyObject pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCMyObject pointer.");
 
 
     /* cleanup the instance fields here */
@@ -62,7 +62,7 @@ parcObject_Override(
 void
 parcMyObject_AssertValid(const PARCMyObject *instance)
 {
-    assertTrue(parcMyObject_IsValid(instance),
+    parcAssertTrue(parcMyObject_IsValid(instance),
                "PARCMyObject is not valid.");
 }
 

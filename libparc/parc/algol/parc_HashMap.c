@@ -16,7 +16,7 @@
 /**
  */
 #include <config.h>
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_DisplayIndented.h>
@@ -54,7 +54,7 @@ _parcHashMapEntry_IsValid(_PARCHashMapEntry *hashEntry)
 static void
 _parcHashMapEntry_Finalize(_PARCHashMapEntry **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCHashMap pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCHashMap pointer.");
     _PARCHashMapEntry *hashMapEntry = *instancePtr;
 
     _parcHashMapEntry_IsValid(hashMapEntry);
@@ -134,7 +134,7 @@ _parcHashMapEntry_Create(const PARCObject *key, const PARCObject *value)
 static void
 _parcHashMap_Finalize(PARCHashMap **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCHashMap pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCHashMap pointer.");
     PARCHashMap *hashMap = *instancePtr;
 
     for (unsigned int i = 0; i < hashMap->capacity; i++) {
@@ -157,7 +157,7 @@ parcObject_ExtendPARCObject(PARCHashMap, _parcHashMap_Finalize, parcHashMap_Copy
 void
 parcHashMap_AssertValid(const PARCHashMap *instance)
 {
-    assertTrue(parcHashMap_IsValid(instance),
+    parcAssertTrue(parcHashMap_IsValid(instance),
                "PARCHashMap is not valid.");
 }
 
@@ -566,7 +566,7 @@ _parcHashMap_Init(PARCHashMap *map __attribute__((unused)))
             }
         }
 
-        trapOutOfMemoryIf(state->listIterator == NULL, "Cannot create parcLinkedList_CreateIterator");
+        parcTrapOutOfMemoryIf(state->listIterator == NULL, "Cannot create parcLinkedList_CreateIterator");
     }
 
     return state;
@@ -613,7 +613,7 @@ _parcHashMap_HasNext(PARCHashMap *map __attribute__((unused)), _PARCHashMapItera
                 if (map->buckets[state->bucket] != NULL) {
                     parcIterator_Release(&state->listIterator);
                     state->listIterator = parcLinkedList_CreateIterator(map->buckets[state->bucket]);
-                    trapOutOfMemoryIf(state->listIterator == NULL, "Cannot create parcLinkedList_CreateIterator");
+                    parcTrapOutOfMemoryIf(state->listIterator == NULL, "Cannot create parcLinkedList_CreateIterator");
                     result = parcIterator_HasNext(state->listIterator);
                 }
             }

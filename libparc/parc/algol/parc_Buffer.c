@@ -18,8 +18,7 @@
 #include <config.h>
 #include <ctype.h>
 
-#include <LongBow/runtime.h>
-#include <LongBow/debugging.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Buffer.h>
@@ -65,8 +64,8 @@ _markIsDiscarded(const PARCBuffer *buffer)
 static inline void
 _trapIfIndexExceedsLimit(const PARCBuffer *buffer, const size_t index)
 {
-    trapOutOfBoundsIf(index > buffer->limit, "PARCBuffer limit at %zd, attempted to access at %zd",
-                      parcBuffer_Limit(buffer), index);
+    //parcTrapOutOfBoundsIf(index > buffer->limit, "PARCBuffer limit at %zd, attempted to access at %zd",
+    //                  parcBuffer_Limit(buffer), index);
 }
 
 static inline void
@@ -96,15 +95,15 @@ static inline void
 _assertInvariants(const PARCBuffer *buffer)
 {
     // 0 <= mark <= position <= limit <= capacity
-    assertTrue(0 <= buffer->mark,
+    parcAssertTrue(0 <= buffer->mark,
                "Expected 0 <= mark (%zd)", buffer->mark);
-    assertTrue(_markIsDiscarded(buffer) || buffer->mark <= buffer->position,
+    parcAssertTrue(_markIsDiscarded(buffer) || buffer->mark <= buffer->position,
                "Expected mark (%zd) <= position (%zd)", buffer->mark, buffer->position);
-    assertTrue(buffer->position <= buffer->limit,
+    parcAssertTrue(buffer->position <= buffer->limit,
                "Expected position (%zd) <= limit (%zd)", buffer->position, buffer->limit);
-    assertTrue(buffer->limit <= buffer->capacity,
+    parcAssertTrue(buffer->limit <= buffer->capacity,
                "Expected limit (%zd) <= capacity (%zd)", buffer->limit, buffer->capacity);
-    assertTrue((buffer->arrayOffset + buffer->capacity) <= parcByteArray_Capacity(buffer->array),
+    parcAssertTrue((buffer->arrayOffset + buffer->capacity) <= parcByteArray_Capacity(buffer->array),
                "Expected (%zd + %zd) <= %zd",
                buffer->arrayOffset, buffer->capacity, parcByteArray_Capacity(buffer->array));
 }
@@ -201,7 +200,7 @@ parcBuffer_AssertValid(const PARCBuffer *buffer)
 {
     char *explanation = _parcBuffer_CheckValidity(buffer);
 
-    trapIllegalValueIf(explanation != NULL, "PARCBuffer@%p %s.", (void *) buffer, explanation);
+    parcTrapIllegalValueIf(explanation != NULL, "PARCBuffer@%p %s.", (void *) buffer, explanation);
 }
 
 bool
@@ -450,7 +449,7 @@ parcBuffer_ParseHexString(const char *hexString)
 PARCBuffer *
 parcBuffer_CreateFromArray(const void *bytes, const size_t length)
 {
-    assertTrue(length == 0 || bytes != NULL,
+    parcAssertTrue(length == 0 || bytes != NULL,
                "If the byte array is NULL, then length MUST be zero.");
 
     PARCBuffer *result = parcBuffer_Allocate(length);
@@ -587,7 +586,7 @@ parcBuffer_Reset(PARCBuffer *buffer)
 {
     parcBuffer_OptionalAssertValid(buffer);
 
-    assertFalse(_markIsDiscarded(buffer),
+    parcAssertFalse(_markIsDiscarded(buffer),
                 "The mark has not been set");
     buffer->position = buffer->mark;
 
@@ -618,7 +617,7 @@ PARCBuffer *
 parcBuffer_SetLimit(PARCBuffer *buffer, size_t newLimit)
 {
     parcBuffer_OptionalAssertValid(buffer);
-    assertTrue(newLimit <= parcBuffer_Capacity(buffer),
+    parcAssertTrue(newLimit <= parcBuffer_Capacity(buffer),
                "new limit cannot be larger than the capacity");
 
     if (_markIsDiscarded(buffer)) {
@@ -666,7 +665,7 @@ parcBuffer_SetPosition(PARCBuffer *buffer, size_t newPosition)
 {
     parcBuffer_OptionalAssertValid(buffer);
 
-    assertFalse(newPosition > buffer->limit,
+    parcAssertFalse(newPosition > buffer->limit,
                 "new position cannot be greater the buffer's limit");
 
     buffer->position = newPosition;
@@ -808,7 +807,7 @@ PARCBuffer *
 parcBuffer_PutUint8(PARCBuffer *buffer, uint8_t value)
 {
     parcBuffer_OptionalAssertValid(buffer);
-    assertTrue(parcBuffer_Remaining(buffer) >= 1,
+    parcAssertTrue(parcBuffer_Remaining(buffer) >= 1,
                "Buffer overflow");
 
     parcByteArray_PutByte(buffer->array, _effectivePosition(buffer), value);
@@ -819,7 +818,7 @@ parcBuffer_PutUint8(PARCBuffer *buffer, uint8_t value)
 PARCBuffer *
 parcBuffer_PutUint16(PARCBuffer *buffer, uint16_t value)
 {
-    assertTrue(parcBuffer_Remaining(buffer) >= sizeof(uint16_t),
+    parcAssertTrue(parcBuffer_Remaining(buffer) >= sizeof(uint16_t),
                "Buffer overflow");
 
     parcBuffer_PutUint8(buffer, (value >> 8) & 0xFF);
@@ -830,7 +829,7 @@ parcBuffer_PutUint16(PARCBuffer *buffer, uint16_t value)
 PARCBuffer *
 parcBuffer_PutUint32(PARCBuffer *buffer, uint32_t value)
 {
-    assertTrue(parcBuffer_Remaining(buffer) >= sizeof(uint32_t),
+    parcAssertTrue(parcBuffer_Remaining(buffer) >= sizeof(uint32_t),
                "Buffer overflow");
     for (int i = sizeof(uint32_t) - 1; i > 0; i--) {
         uint8_t b = value >> (i * 8) & 0xFF;
@@ -843,7 +842,7 @@ parcBuffer_PutUint32(PARCBuffer *buffer, uint32_t value)
 PARCBuffer *
 parcBuffer_PutUint64(PARCBuffer *buffer, uint64_t value)
 {
-    assertTrue(parcBuffer_Remaining(buffer) >= sizeof(uint64_t),
+    parcAssertTrue(parcBuffer_Remaining(buffer) >= sizeof(uint64_t),
                "Buffer overflow");
     for (int i = sizeof(uint64_t) - 1; i > 0; i--) {
         uint8_t b = value >> (i * 8) & 0xFF;
@@ -857,7 +856,7 @@ PARCBuffer *
 parcBuffer_PutAtIndex(PARCBuffer *buffer, size_t index, uint8_t value)
 {
     parcBuffer_OptionalAssertValid(buffer);
-    assertTrue(_effectiveIndex(buffer, index) < parcBuffer_Limit(buffer), "Buffer overflow");
+    parcAssertTrue(_effectiveIndex(buffer, index) < parcBuffer_Limit(buffer), "Buffer overflow");
 
     parcByteArray_PutByte(buffer->array, _effectiveIndex(buffer, index), value);
     return buffer;
@@ -867,7 +866,7 @@ PARCBuffer *
 parcBuffer_PutArray(PARCBuffer *buffer, size_t arrayLength, const uint8_t array[arrayLength])
 {
     parcBuffer_OptionalAssertValid(buffer);
-    assertTrue(parcBuffer_Remaining(buffer) >= arrayLength,
+    parcAssertTrue(parcBuffer_Remaining(buffer) >= arrayLength,
                "Buffer overflow");
 
     parcByteArray_PutBytes(buffer->array, _effectivePosition(buffer), arrayLength, array);
@@ -884,7 +883,7 @@ PARCBuffer *
 parcBuffer_PutBuffer(PARCBuffer *result, const PARCBuffer *buffer)
 {
     parcBuffer_OptionalAssertValid(buffer);
-    assertTrue(parcBuffer_Remaining(result) >= parcBuffer_Remaining(buffer),
+    parcAssertTrue(parcBuffer_Remaining(result) >= parcBuffer_Remaining(buffer),
                "Buffer overflow. %zd bytes remaining, %zd required.", parcBuffer_Remaining(result), parcBuffer_Remaining(buffer));
 
     size_t length = parcBuffer_Remaining(buffer);
@@ -923,7 +922,7 @@ parcBuffer_ToString(const PARCBuffer *buffer)
 
     char *result = parcMemory_Allocate(remaining + 1);
     if (remaining > 0) {
-        assertNotNull(result, "parcMemory_Allocate returned NULL");
+        parcAssertNotNull(result, "parcMemory_Allocate returned NULL");
         if (result != NULL) {
             memcpy(result, parcBuffer_Overlay((PARCBuffer *) buffer, 0), remaining);
         }
@@ -965,7 +964,7 @@ parcBuffer_ToHexString(const PARCBuffer *buffer)
     // Hopefully length is less than (2^(sizeof(size_t)*8) / 2)
 
     char *result = parcMemory_AllocateAndClear((length * 2) + 1);
-    assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", (length * 2) + 1);
+    parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", (length * 2) + 1);
 
     for (size_t i = 0; i < length; i++) {
         unsigned char byte = parcBuffer_GetAtIndex(buffer, i);

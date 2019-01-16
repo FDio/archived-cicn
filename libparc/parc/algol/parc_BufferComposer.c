@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -91,8 +91,8 @@ _ensureRemaining(PARCBufferComposer *composer, size_t required)
 void
 parcBufferComposer_AssertValid(const PARCBufferComposer *composer)
 {
-    trapIllegalValueIf(composer == NULL, "Parameter must be a non-null pointer to a valid PARCBufferComposer.");
-    trapIllegalValueIf(composer->incrementHeuristic < sizeof(void *), "Heuristic cannot be < sizeof(void *) (%zd), actual %zd", sizeof(void *), composer->incrementHeuristic);
+    parcTrapIllegalValueIf(composer == NULL, "Parameter must be a non-null pointer to a valid PARCBufferComposer.");
+    parcTrapIllegalValueIf(composer->incrementHeuristic < sizeof(void *), "Heuristic cannot be < sizeof(void *) (%zd), actual %zd", sizeof(void *), composer->incrementHeuristic);
 }
 
 PARCBufferComposer *
@@ -250,7 +250,7 @@ parcBufferComposer_Format(PARCBufferComposer *composer, const char *format, ...)
     va_start(ap, format);
     char *cString;
     ssize_t written = vasprintf(&cString, format, ap);
-    assertTrue(written >= 0, "Got error from vasprintf");
+    parcAssertTrue(written >= 0, "Got error from vasprintf");
     va_end(ap);
 
     parcBufferComposer_PutString(composer, cString);

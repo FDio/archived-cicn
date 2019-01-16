@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 
@@ -102,7 +102,7 @@ static Node *
 _rbNodeCreate(PARCTreeRedBlack *tree, int color)
 {
     Node *node = parcMemory_AllocateAndClear(sizeof(Node));
-    assertNotNull(node, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(Node));
+    parcAssertNotNull(node, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(Node));
     node->color = color;
     node->left_child = tree->nil;
     node->right_child = tree->nil;
@@ -414,9 +414,9 @@ parcTreeRedBlack_Create(PARCTreeRedBlack_KeyCompare *keyCompare,
                         PARCTreeRedBlack_ValueFree *valueFree,
                         PARCTreeRedBlack_ValueCopy *valueCopy)
 {
-    assertNotNull(keyCompare, "We need a key compare function");
+    parcAssertNotNull(keyCompare, "We need a key compare function");
     PARCTreeRedBlack *tree = parcMemory_AllocateAndClear(sizeof(PARCTreeRedBlack));
-    assertNotNull(tree, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCTreeRedBlack));
+    parcAssertNotNull(tree, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCTreeRedBlack));
     tree->nil = _rbNodeCreate(tree, BLACK);
     tree->nil->left_child = tree->nil;
     tree->nil->right_child = tree->nil;
@@ -435,8 +435,8 @@ parcTreeRedBlack_Create(PARCTreeRedBlack_KeyCompare *keyCompare,
 void
 parcTreeRedBlack_Destroy(PARCTreeRedBlack **treePointer)
 {
-    assertNotNull(treePointer, "pointer to pointer to tree can't be null");
-    assertNotNull(*treePointer, "pointer to tree can't be null");
+    parcAssertNotNull(treePointer, "pointer to pointer to tree can't be null");
+    parcAssertNotNull(*treePointer, "pointer to tree can't be null");
 
     if ((*treePointer)->size > 0) {
         // If we have any elements in the tree, free them
@@ -453,9 +453,9 @@ parcTreeRedBlack_Destroy(PARCTreeRedBlack **treePointer)
 void
 parcTreeRedBlack_Insert(PARCTreeRedBlack *tree, void *key, void *value)
 {
-    assertNotNull(tree, "Tree can't be NULL");
-    assertNotNull(key, "Key can't be NULL");
-    assertNotNull(value, "Value can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(key, "Key can't be NULL");
+    parcAssertNotNull(value, "Value can't be NULL");
 
     Node *newNode = _rbNodeCreate(tree, RED);
     Node *parent = tree->nil;
@@ -511,7 +511,7 @@ parcTreeRedBlack_Insert(PARCTreeRedBlack *tree, void *key, void *value)
 void *
 parcTreeRedBlack_Get(PARCTreeRedBlack *tree, const void *key)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
 
     Node *node = tree->root;
 
@@ -535,8 +535,8 @@ parcTreeRedBlack_Get(PARCTreeRedBlack *tree, const void *key)
 void *
 parcTreeRedBlack_Remove(PARCTreeRedBlack *tree, const void *key)
 {
-    assertNotNull(tree, "Tree can't be NULL");
-    assertNotNull(key, "Key can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(key, "Key can't be NULL");
 
     Node *node = tree->root;
 
@@ -568,8 +568,8 @@ parcTreeRedBlack_Remove(PARCTreeRedBlack *tree, const void *key)
 void
 parcTreeRedBlack_RemoveAndDestroy(PARCTreeRedBlack *tree, const void *key)
 {
-    assertNotNull(tree, "Tree can't be NULL");
-    assertNotNull(key, "Key can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(key, "Key can't be NULL");
 
     Node *node = tree->root;
     // Let's get to the bottom of the tree to insert.
@@ -591,7 +591,7 @@ parcTreeRedBlack_RemoveAndDestroy(PARCTreeRedBlack *tree, const void *key)
 void *
 parcTreeRedBlack_LastKey(const PARCTreeRedBlack *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     Node *node = tree->root;
 
     if (tree->size == 0) {
@@ -610,7 +610,7 @@ parcTreeRedBlack_LastKey(const PARCTreeRedBlack *tree)
 void *
 parcTreeRedBlack_FirstKey(const PARCTreeRedBlack *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     Node *node = tree->root;
 
 
@@ -630,7 +630,7 @@ parcTreeRedBlack_FirstKey(const PARCTreeRedBlack *tree)
 size_t
 parcTreeRedBlack_Size(const PARCTreeRedBlack *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
 
     return tree->size;
 }
@@ -645,7 +645,7 @@ _rbGetKeys(Node *node, void *data)
 PARCArrayList *
 parcTreeRedBlack_Keys(const PARCTreeRedBlack *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
 
     PARCArrayList *keys = parcArrayList_Create(NULL);
 
@@ -665,7 +665,7 @@ _rbGetValues(Node *node, void *data)
 PARCArrayList *
 parcTreeRedBlack_Values(const PARCTreeRedBlack *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
 
     PARCArrayList *values = parcArrayList_Create(NULL);
 
@@ -678,8 +678,8 @@ parcTreeRedBlack_Values(const PARCTreeRedBlack *tree)
 int
 parcTreeRedBlack_Equals(const PARCTreeRedBlack *tree1, const PARCTreeRedBlack *tree2)
 {
-    assertNotNull(tree1, "Tree can't be NULL");
-    assertNotNull(tree2, "Tree can't be NULL");
+    parcAssertNotNull(tree1, "Tree can't be NULL");
+    parcAssertNotNull(tree2, "Tree can't be NULL");
 
     int ret = 1;
 
@@ -736,7 +736,7 @@ parcTreeRedBlack_Equals(const PARCTreeRedBlack *tree1, const PARCTreeRedBlack *t
 PARCTreeRedBlack *
 parcTreeRedBlack_Copy(const PARCTreeRedBlack *source_tree)
 {
-    assertNotNull(source_tree, "Tree can't be NULL");
+    parcAssertNotNull(source_tree, "Tree can't be NULL");
 
     void *key_source;
     void *key_copy;

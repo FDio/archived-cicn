@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -463,7 +463,7 @@ _displayNumber(const PARCJSONValue *value, int indentation)
 void
 parcJSONValue_AssertValid(const PARCJSONValue *value)
 {
-    assertNotNull(value, "PARCJSONValue cannot be NULL.");
+    parcAssertNotNull(value, "PARCJSONValue cannot be NULL.");
 }
 
 bool
@@ -577,7 +577,7 @@ parcJSONValue_CreateFromString(PARCBuffer *value)
 PARCJSONValue *
 parcJSONValue_CreateFromCString(const char *value)
 {
-    assertNotNull(value, "String cannot be NULL.");
+    parcAssertNotNull(value, "String cannot be NULL.");
 
     PARCJSONValue *result = _createValue(PARCJSONValueType_String);
     if (result != NULL) {
@@ -663,7 +663,7 @@ parcJSONValue_Display(const PARCJSONValue *value, int indentation)
                 parcDisplayIndented_PrintLine(indentation + 1, ".value=null");
                 break;
             default:
-                trapIllegalValue(value->type, "Unknown PARCJSONValue type %d", value->type);
+                parcTrapIllegalValue(value->type, "Unknown PARCJSONValue type %d", value->type);
         }
     }
     parcDisplayIndented_PrintLine(indentation, "}");
@@ -739,7 +739,7 @@ parcJSONValue_GetArray(const PARCJSONValue *value)
 {
     parcJSONValue_OptionalAssertValid(value);
 
-    trapUnexpectedStateIf(!parcJSONValue_IsArray(value), "Expected type to be array, actual type %d", value->type);
+    parcTrapUnexpectedStateIf(!parcJSONValue_IsArray(value), "Expected type to be array, actual type %d", value->type);
 
     return value->value.array;
 }
@@ -749,7 +749,7 @@ parcJSONValue_GetBoolean(const PARCJSONValue *value)
 {
     parcJSONValue_OptionalAssertValid(value);
 
-    trapUnexpectedStateIf(!parcJSONValue_IsBoolean(value), "Expected type to be boolean, actual type %d", value->type);
+    parcTrapUnexpectedStateIf(!parcJSONValue_IsBoolean(value), "Expected type to be boolean, actual type %d", value->type);
 
     return value->value.boolean;
 }
@@ -793,7 +793,7 @@ parcJSONValue_GetString(const PARCJSONValue *value)
 {
     parcJSONValue_OptionalAssertValid(value);
 
-    trapUnexpectedStateIf(!parcJSONValue_IsString(value), "Expected type to be string, actual type %d", value->type);
+    parcTrapUnexpectedStateIf(!parcJSONValue_IsString(value), "Expected type to be string, actual type %d", value->type);
 
     return value->value.string;
 }
@@ -803,7 +803,7 @@ parcJSONValue_GetJSON(const PARCJSONValue *value)
 {
     parcJSONValue_OptionalAssertValid(value);
 
-    trapUnexpectedStateIf(!parcJSONValue_IsJSON(value), "Expected type to be string, actual type %d", value->type);
+    parcTrapUnexpectedStateIf(!parcJSONValue_IsJSON(value), "Expected type to be string, actual type %d", value->type);
 
     return value->value.object;
 }
@@ -811,7 +811,7 @@ parcJSONValue_GetJSON(const PARCJSONValue *value)
 struct timeval *
 parcJSONValue_GetTimeval(const PARCJSONValue *jsonTimeval, struct timeval *timeval)
 {
-    assertNotNull(jsonTimeval, "Parameter jsonTimeval must be a non-null PARCJSON pointer.");
+    parcAssertNotNull(jsonTimeval, "Parameter jsonTimeval must be a non-null PARCJSON pointer.");
 
     PARCJSON *json = parcJSONValue_GetJSON(jsonTimeval);
     PARCJSONValue *value = parcJSON_GetValueByName(json, "seconds");
@@ -825,7 +825,7 @@ parcJSONValue_GetTimeval(const PARCJSONValue *jsonTimeval, struct timeval *timev
 struct timespec *
 parcJSONValue_GetTimespec(const PARCJSONValue *jsonTimespec, struct timespec *timespec)
 {
-    assertNotNull(jsonTimespec, "Parameter jsonTimeval must be a non-null PARCJSON pointer.");
+    parcAssertNotNull(jsonTimespec, "Parameter jsonTimeval must be a non-null PARCJSON pointer.");
 
     PARCJSON *json = parcJSONValue_GetJSON(jsonTimespec);
     PARCJSONValue *value = parcJSON_GetValueByName(json, "seconds");
@@ -911,7 +911,7 @@ parcJSONValue_BuildString(const PARCJSONValue *value, PARCBufferComposer *compos
     } else if (value->type == PARCJSONValueType_Null) {
         parcBufferComposer_PutString(composer, "null");
     } else {
-        trapIllegalValue(value->type, "Unknown value type: %d", value->type);
+        parcTrapIllegalValue(value->type, "Unknown value type: %d", value->type);
     }
 
     return composer;

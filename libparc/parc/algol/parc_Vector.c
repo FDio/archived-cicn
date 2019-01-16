@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -46,7 +46,7 @@ parcVector_Create(const void *pointer, const size_t length)
 PARCVector *
 parcVector_Init(PARCVector *vector, const void *pointer, const size_t length)
 {
-    assertNotNull(vector, "Parameter must be a non-null PARCVector pointer");
+    parcAssertNotNull(vector, "Parameter must be a non-null PARCVector pointer");
 
     vector->pointer = pointer;
     vector->length = length;
@@ -56,9 +56,9 @@ parcVector_Init(PARCVector *vector, const void *pointer, const size_t length)
 void
 parcVector_Destroy(PARCVector **vectorPtr)
 {
-    assertNotNull(vectorPtr, "Parameter must be a non-null PARCVector pointer");
+    parcAssertNotNull(vectorPtr, "Parameter must be a non-null PARCVector pointer");
     PARCVector *vector = *vectorPtr;
-    assertNotNull(vector, "Vector is already free or was not set.\n");
+    parcAssertNotNull(vector, "Vector is already free or was not set.\n");
 
     parcMemory_Deallocate((void **) &vector);
     *vectorPtr = NULL;
@@ -67,14 +67,14 @@ parcVector_Destroy(PARCVector **vectorPtr)
 const void *
 parcVector_GetPointer(const PARCVector *vector)
 {
-    assertNotNull(vector, "Parameter must be a non-null PARCVector pointer.");
+    parcAssertNotNull(vector, "Parameter must be a non-null PARCVector pointer.");
     return vector->pointer;
 }
 
 size_t
 parcVector_GetLength(const PARCVector *vector)
 {
-    assertNotNull(vector, "Parameter must be a non-null PARCVector pointer.");
+    parcAssertNotNull(vector, "Parameter must be a non-null PARCVector pointer.");
 
     return vector->length;
 }

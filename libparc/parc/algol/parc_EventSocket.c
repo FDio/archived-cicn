@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_EventScheduler.h>
 #include <parc/algol/parc_EventSocket.h>
@@ -87,7 +87,7 @@ parcEventSocket_Create(PARCEventScheduler *eventScheduler,
                        void *userData, const struct sockaddr *sa, int socklen)
 {
     PARCEventSocket *parcEventSocket = parcMemory_AllocateAndClear(sizeof(PARCEventSocket));
-    assertNotNull(parcEventSocket, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventSocket));
+    parcAssertNotNull(parcEventSocket, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventSocket));
 
     parcEventSocket->eventScheduler = eventScheduler;
     parcEventSocket->socketCallback = callback;
@@ -118,7 +118,7 @@ parcEventSocket_Create(PARCEventScheduler *eventScheduler,
 void
 parcEventSocket_Destroy(PARCEventSocket **socketEvent)
 {
-    assertNotNull(*socketEvent, "parcEventSocket_Destroy must be passed a valid socketEvent!");
+    parcAssertNotNull(*socketEvent, "parcEventSocket_Destroy must be passed a valid socketEvent!");
 
     if ((*socketEvent)->listener) {
         evconnlistener_free((*socketEvent)->listener);

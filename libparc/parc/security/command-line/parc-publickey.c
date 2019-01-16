@@ -20,7 +20,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_ArrayList.h>
 #include <parc/security/parc_Security.h>

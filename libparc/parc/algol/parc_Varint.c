@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,12 +45,12 @@ parcVarint_Create(void)
 PARCVarint *
 parcVarint_DecodeBuffer(PARCBuffer *buffer, size_t length)
 {
-    assertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
-    assertTrue(length < sizeof(size_t), "Length must be less then or equal to %zd", sizeof(size_t));
-    assertTrue(length <= parcBuffer_Remaining(buffer), "Buffer does not contain at least %zd bytes", length);
+    parcAssertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
+    parcAssertTrue(length < sizeof(size_t), "Length must be less then or equal to %zd", sizeof(size_t));
+    parcAssertTrue(length <= parcBuffer_Remaining(buffer), "Buffer does not contain at least %zd bytes", length);
 
     PARCVarint *result = parcVarint_Create();
-    assertNotNull(result, "PARCVarint out of memory.");
+    parcAssertNotNull(result, "PARCVarint out of memory.");
 
     for (size_t i = 0; i < length; i++) {
         parcVarint_ShiftLeft(result, 8);
@@ -63,11 +63,11 @@ parcVarint_DecodeBuffer(PARCBuffer *buffer, size_t length)
 PARCVarint *
 parcVarint_DecodeElasticByteBuffer(const PARCBuffer *buffer, size_t length)
 {
-    assertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
-    assertTrue(length < sizeof(size_t), "Length must be less then or equal to %zd", sizeof(size_t));
+    parcAssertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
+    parcAssertTrue(length < sizeof(size_t), "Length must be less then or equal to %zd", sizeof(size_t));
 
     PARCVarint *result = parcVarint_Create();
-    assertNotNull(result, "PARCVarint out of memory.");
+    parcAssertNotNull(result, "PARCVarint out of memory.");
 
     for (size_t i = 0; i < length; i++) {
         parcVarint_ShiftLeft(result, 8);
@@ -87,7 +87,7 @@ parcVarint_Set(PARCVarint *varint, uint64_t newValue)
 PARCVarint *
 parcVarint_FromElasticByteBuffer(const PARCBuffer *buffer)
 {
-    assertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
+    parcAssertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
     PARCVarint *result = parcVarint_Create();
 
     size_t length = parcBuffer_Remaining(buffer);
@@ -103,7 +103,7 @@ parcVarint_FromElasticByteBuffer(const PARCBuffer *buffer)
 PARCVarint *
 parcVarint_FromUTF8ByteBuffer(const PARCBuffer *buffer)
 {
-    assertNotNull(buffer, "Parameter must not be NULL.");
+    parcAssertNotNull(buffer, "Parameter must not be NULL.");
     PARCVarint *result = parcVarint_Create();
 
     if (result != NULL) {
@@ -121,7 +121,7 @@ parcVarint_FromUTF8ByteBuffer(const PARCBuffer *buffer)
 PARCVarint *
 parcVarint_FromUTF8Buffer(PARCBuffer *buffer)
 {
-    assertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
+    parcAssertNotNull(buffer, "Parameter must be a non-null PARCBuffer pointer.");
     PARCVarint *result = parcVarint_Create();
 
     if (result != NULL) {
@@ -180,8 +180,8 @@ parcVarint_FromUint64(uint64_t uint)
 void
 parcVarint_Destroy(PARCVarint **varintP)
 {
-    assertNotNull(varintP, "Parameter must be a non-null pointer to a pointer to a PARCVarint");
-    assertNotNull(*varintP, "Parameter must be a non-null pointer to a PARCVarint");
+    parcAssertNotNull(varintP, "Parameter must be a non-null pointer to a pointer to a PARCVarint");
+    parcAssertNotNull(*varintP, "Parameter must be a non-null pointer to a PARCVarint");
 
     parcMemory_Deallocate((void **) varintP);
     *varintP = NULL;
@@ -197,7 +197,7 @@ parcVarint_Destroy(PARCVarint **varintP)
 PARCVarint *
 parcVarint_ShiftLeft(PARCVarint *varint, int bits)
 {
-    assertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
+    parcAssertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
     varint->value <<= bits;
 
     return varint;
@@ -206,7 +206,7 @@ parcVarint_ShiftLeft(PARCVarint *varint, int bits)
 PARCVarint *
 parcVarint_Add(PARCVarint *varint, int addend)
 {
-    assertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
+    parcAssertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
     varint->value += addend;
 
     return varint;
@@ -215,7 +215,7 @@ parcVarint_Add(PARCVarint *varint, int addend)
 PARCVarint *
 parcVarint_Subtract(PARCVarint *varint, int subtrahend)
 {
-    assertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
+    parcAssertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
     varint->value -= subtrahend;
 
     return varint;
@@ -224,7 +224,7 @@ parcVarint_Subtract(PARCVarint *varint, int subtrahend)
 PARCVarint *
 parcVarint_Multiply(PARCVarint *varint, int multiplicand)
 {
-    assertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
+    parcAssertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
     varint->value *= multiplicand;
 
     return varint;
@@ -233,7 +233,7 @@ parcVarint_Multiply(PARCVarint *varint, int multiplicand)
 PARCVarint *
 parcVarint_Divide(PARCVarint *varint, int divisor)
 {
-    assertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
+    parcAssertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
     varint->value /= divisor;
 
     return varint;
@@ -249,7 +249,7 @@ parcVarint_Divide(PARCVarint *varint, int divisor)
 PARCVarint *
 parcVarint_ShiftRight(PARCVarint *varint, int bits)
 {
-    assertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
+    parcAssertNotNull(varint, "Parameter must be a non-null pointer to a PARCVarint.");
     varint->value >>= bits;
     return varint;
 }
@@ -265,8 +265,8 @@ parcVarint_ShiftRight(PARCVarint *varint, int bits)
 PARCVarint *
 parcVarint_And(PARCVarint *varint, PARCVarint *operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
-    assertNotNull(operand, "Parameter operand must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(operand, "Parameter operand must not be NULL.");
     varint->value &= operand->value;
     return varint;
 }
@@ -280,7 +280,7 @@ parcVarint_And(PARCVarint *varint, PARCVarint *operand)
 PARCVarint *
 parcVarint_AndUint8(PARCVarint *varint, uint8_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value &= operand;
     return varint;
 }
@@ -294,7 +294,7 @@ parcVarint_AndUint8(PARCVarint *varint, uint8_t operand)
 PARCVarint *
 parcVarint_AndUint16(PARCVarint *varint, uint16_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value &= operand;
     return varint;
 }
@@ -308,7 +308,7 @@ parcVarint_AndUint16(PARCVarint *varint, uint16_t operand)
 PARCVarint *
 parcVarint_AndUint32(PARCVarint *varint, uint32_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value &= operand;
     return varint;
 }
@@ -322,7 +322,7 @@ parcVarint_AndUint32(PARCVarint *varint, uint32_t operand)
 PARCVarint *
 parcVarint_AndUint64(PARCVarint *varint, uint64_t operand)
 {
-    assertNotNull(varint, "Parameter must be a non-null PARCVarint pointer.");
+    parcAssertNotNull(varint, "Parameter must be a non-null PARCVarint pointer.");
     varint->value &= operand;
     return varint;
 }
@@ -336,7 +336,7 @@ parcVarint_AndUint64(PARCVarint *varint, uint64_t operand)
 PARCVarint *
 parcVarint_Or(PARCVarint *varint, PARCVarint *operand)
 {
-    assertNotNull(varint, "Parameter must be a non-null PARCVarint pointer.");
+    parcAssertNotNull(varint, "Parameter must be a non-null PARCVarint pointer.");
     varint->value |= operand->value;
     return varint;
 }
@@ -351,7 +351,7 @@ parcVarint_Or(PARCVarint *varint, PARCVarint *operand)
 PARCVarint *
 parcVarint_OrUint8(PARCVarint *varint, uint8_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value |= operand;
     return varint;
 }
@@ -366,7 +366,7 @@ parcVarint_OrUint8(PARCVarint *varint, uint8_t operand)
 PARCVarint *
 parcVarint_OrUint16(PARCVarint *varint, uint16_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value |= operand;
     return varint;
 }
@@ -381,7 +381,7 @@ parcVarint_OrUint16(PARCVarint *varint, uint16_t operand)
 PARCVarint *
 parcVarint_OrUint32(PARCVarint *varint, uint32_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value |= operand;
     return varint;
 }
@@ -396,7 +396,7 @@ parcVarint_OrUint32(PARCVarint *varint, uint32_t operand)
 PARCVarint *
 parcVarint_OrUint64(PARCVarint *varint, uint64_t operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     varint->value |= operand;
     return varint;
 }
@@ -411,7 +411,7 @@ parcVarint_OrUint64(PARCVarint *varint, uint64_t operand)
 int
 parcVarint_Equals(PARCVarint *varint, PARCVarint *operand)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return varint->value == operand->value;
 }
 
@@ -424,7 +424,7 @@ parcVarint_Equals(PARCVarint *varint, PARCVarint *operand)
 int
 parcVarint_EqualsUint64(PARCVarint *varint, uint64_t value)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return varint->value == value;
 }
 
@@ -437,7 +437,7 @@ parcVarint_EqualsUint64(PARCVarint *varint, uint64_t value)
 int
 parcVarint_EqualsUint32(PARCVarint *varint, uint32_t value)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return parcVarint_EqualsUint64(varint, (uint64_t) value);
 }
 
@@ -450,7 +450,7 @@ parcVarint_EqualsUint32(PARCVarint *varint, uint32_t value)
 int
 parcVarint_EqualsUint16(PARCVarint *varint, uint16_t value)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return parcVarint_EqualsUint64(varint, (uint64_t) value);
 }
 
@@ -463,7 +463,7 @@ parcVarint_EqualsUint16(PARCVarint *varint, uint16_t value)
 int
 parcVarint_EqualsUint8(PARCVarint *varint, uint8_t value)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return parcVarint_EqualsUint64(varint, (uint64_t) value);
 }
 
@@ -476,7 +476,7 @@ parcVarint_EqualsUint8(PARCVarint *varint, uint8_t value)
 uint8_t
 parcVarint_AsUint8(const PARCVarint *varint)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return (uint8_t) varint->value;
 }
 
@@ -489,7 +489,7 @@ parcVarint_AsUint8(const PARCVarint *varint)
 uint16_t
 parcVarint_AsUint16(const PARCVarint *varint)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return (uint16_t) varint->value;
 }
 
@@ -502,14 +502,14 @@ parcVarint_AsUint16(const PARCVarint *varint)
 uint32_t
 parcVarint_AsUint32(const PARCVarint *varint)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return (uint32_t) varint->value;
 }
 
 uint64_t
 parcVarint_AsUint64(const PARCVarint *varint)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return varint->value;
 }
 
@@ -522,7 +522,7 @@ parcVarint_AsUint64(const PARCVarint *varint)
 size_t
 parcVarint_AsSize(const PARCVarint *varint)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     return (size_t) varint->value;
 }
 
@@ -536,8 +536,8 @@ parcVarint_AsSize(const PARCVarint *varint)
 char *
 parcVarint_ToString(char **string, PARCVarint *varint)
 {
-    assertNotNull(varint, "Parameter varint must not be NULL.");
+    parcAssertNotNull(varint, "Parameter varint must not be NULL.");
     int nwritten = asprintf(string, "%" PRIu64, varint->value);
-    assertTrue(nwritten >= 0, "Error calling asprintf");
+    parcAssertTrue(nwritten >= 0, "Error calling asprintf");
     return *string;
 }

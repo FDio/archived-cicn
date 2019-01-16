@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/security/parc_CryptoCache.h>
@@ -68,7 +68,7 @@ PARCCryptoCache *
 parcCryptoCache_Create()
 {
     PARCCryptoCache *cache = parcMemory_AllocateAndClear(sizeof(PARCCryptoCache));
-    assertNotNull(cache, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoCache));
+    parcAssertNotNull(cache, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoCache));
 
     // KeyIdDestroyer is NULL because we get the keyid out of the key, and it will be destroyed
     // when the key is destroyed.
@@ -88,8 +88,8 @@ parcCryptoCache_Create()
 void
 parcCryptoCache_Destroy(PARCCryptoCache **cryptoCachePtr)
 {
-    assertNotNull(cryptoCachePtr, "Parameter must be non-null double pointer");
-    assertNotNull(*cryptoCachePtr, "Parameter must dereference to non-null pointer");
+    parcAssertNotNull(cryptoCachePtr, "Parameter must be non-null double pointer");
+    parcAssertNotNull(*cryptoCachePtr, "Parameter must dereference to non-null pointer");
 
     PARCCryptoCache *cache = *cryptoCachePtr;
     parcHashCodeTable_Destroy(&cache->keyid_table);
@@ -111,8 +111,8 @@ parcCryptoCache_Destroy(PARCCryptoCache **cryptoCachePtr)
 bool
 parcCryptoCache_AddKey(PARCCryptoCache *cache, PARCKey *original_key)
 {
-    assertNotNull(cache, "Parameter cache must be non-null");
-    assertNotNull(original_key, "Parameter key must be non-null");
+    parcAssertNotNull(cache, "Parameter cache must be non-null");
+    parcAssertNotNull(original_key, "Parameter key must be non-null");
 
     PARCKey *key = parcKey_Copy(original_key);
     PARCKeyId *keyid = parcKey_GetKeyId(key);
@@ -133,8 +133,8 @@ parcCryptoCache_AddKey(PARCCryptoCache *cache, PARCKey *original_key)
 const PARCKey *
 parcCryptoCache_GetKey(PARCCryptoCache *cache, const PARCKeyId *keyid)
 {
-    assertNotNull(cache, "Parameter cache must be non-null");
-    assertNotNull(keyid, "Parameter keyid must be non-null");
+    parcAssertNotNull(cache, "Parameter cache must be non-null");
+    parcAssertNotNull(keyid, "Parameter keyid must be non-null");
 
     return parcHashCodeTable_Get(cache->keyid_table, keyid);
 }
@@ -150,8 +150,8 @@ parcCryptoCache_GetKey(PARCCryptoCache *cache, const PARCKeyId *keyid)
 void
 parcCryptoCache_RemoveKey(PARCCryptoCache *cache, const PARCKeyId *keyid)
 {
-    assertNotNull(cache, "Parameter cache must be non-null");
-    assertNotNull(keyid, "Parameter keyid must be non-null");
+    parcAssertNotNull(cache, "Parameter cache must be non-null");
+    parcAssertNotNull(keyid, "Parameter keyid must be non-null");
 
     parcHashCodeTable_Del(cache->keyid_table, keyid);
 }

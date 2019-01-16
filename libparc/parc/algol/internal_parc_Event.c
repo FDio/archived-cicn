@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Memory.h>
 #include "internal_parc_Event.h"
 
@@ -67,7 +67,7 @@ internal_parc_initializeLibevent(void)
     // CC = patchlevel
     //
     uint32_t version = event_get_version_number();
-    trapIllegalValueIf(version < 0x02001000UL,
+    parcTrapIllegalValueIf(version < 0x02001000UL,
                        "Libevent version must be at least 2.0.16, got %s",
                        event_get_version());
 
@@ -79,9 +79,9 @@ internal_parc_initializeLibevent(void)
     // Create a scheduler event base, an event, then free both of them.
     //
     struct event_base *evbase = event_base_new();
-    assertNotNull(evbase, "Libevent event_base_new returned NULL");
+    parcAssertNotNull(evbase, "Libevent event_base_new returned NULL");
     struct event *event = event_new(evbase, -1, 0, NULL, NULL);
-    assertNotNull(event, "Libevent event_new returned NULL");
+    parcAssertNotNull(event, "Libevent event_new returned NULL");
     event_del(event);
     event_base_free(evbase);
     event_free(event);
@@ -103,7 +103,7 @@ internal_libevent_priority_to_PARCEventPriority(short evpriority)
         case 2: priority = PARCEventPriority_Minimum;
             break;
         default:
-            assertTrue(0, "Unknown Libevent priority 0x%x\n", evpriority);
+            parcAssertTrue(0, "Unknown Libevent priority 0x%x\n", evpriority);
             break;
     }
     return priority;
@@ -121,7 +121,7 @@ internal_PARCEventPriority_to_libevent_priority(PARCEventPriority priority)
         case PARCEventPriority_Minimum: evpriority = 2;
             break;
         default:
-            assertTrue(0, "Unknown PARCEventPriority 0x%x\n", evpriority);
+            parcAssertTrue(0, "Unknown PARCEventPriority 0x%x\n", evpriority);
             break;
     }
     return evpriority;
@@ -139,7 +139,7 @@ internal_eventloop_options_to_PARCEventSchedulerDispatchType(short evoptions)
         case EVLOOP_NONBLOCK: options = PARCEventSchedulerDispatchType_NonBlocking;
             break;
         default:
-            assertTrue(0, "Unknown Libevent dispatcher flag 0x%x\n", evoptions);
+            parcAssertTrue(0, "Unknown Libevent dispatcher flag 0x%x\n", evoptions);
             break;
     }
     return options;
@@ -157,7 +157,7 @@ internal_PARCEventSchedulerDispatchType_to_eventloop_options(PARCEventSchedulerD
         case PARCEventSchedulerDispatchType_NonBlocking: evoptions = EVLOOP_NONBLOCK;
             break;
         default:
-            assertTrue(0, "Unknown PARCEventSchedulerDispatchType option 0x%x\n", evoptions);
+            parcAssertTrue(0, "Unknown PARCEventSchedulerDispatchType option 0x%x\n", evoptions);
             break;
     }
     return evoptions;
@@ -175,7 +175,7 @@ internal_bufferevent_options_to_PARCEventQueueOption(short evflags)
         flags |= PARCEventQueueOption_DeferCallbacks;
         evflags &= ~BEV_OPT_DEFER_CALLBACKS;
     }
-    assertTrue(evflags == 0, "Unknown Libevent option flag 0x%x\n", evflags);
+    parcAssertTrue(evflags == 0, "Unknown Libevent option flag 0x%x\n", evflags);
     return flags;
 }
 
@@ -191,7 +191,7 @@ internal_PARCEventQueueOption_to_bufferevent_options(PARCEventQueueOption flags)
         evflags |= BEV_OPT_DEFER_CALLBACKS;
         flags &= ~PARCEventQueueOption_DeferCallbacks;
     }
-    assertTrue(flags == 0, "Unknown PARCEventQueueOption flag 0x%x\n", flags);
+    parcAssertTrue(flags == 0, "Unknown PARCEventQueueOption flag 0x%x\n", flags);
     return evflags;
 }
 
@@ -223,7 +223,7 @@ internal_bufferevent_type_to_PARCEventQueueEventType(short evtypes)
         types |= PARCEventQueueEventType_Connected;
         evtypes &= ~BEV_EVENT_CONNECTED;
     }
-    assertTrue(evtypes == 0, "Unknown Libevent type flag 0x%x\n", evtypes);
+    parcAssertTrue(evtypes == 0, "Unknown Libevent type flag 0x%x\n", evtypes);
     return types;
 }
 
@@ -255,7 +255,7 @@ internal_PARCEventQueueEventType_to_bufferevent_type(PARCEventQueueEventType typ
         evtypes |= BEV_EVENT_CONNECTED;
         types &= ~PARCEventQueueEventType_Connected;
     }
-    assertTrue(types == 0, "Unknown PARCEventQueueEventType 0x%x\n", types);
+    parcAssertTrue(types == 0, "Unknown PARCEventQueueEventType 0x%x\n", types);
     return evtypes;
 }
 
@@ -287,7 +287,7 @@ internal_libevent_type_to_PARCEventType(short evtypes)
         types |= PARCEventType_EdgeTriggered;
         evtypes &= ~EV_ET;
     }
-    assertTrue(evtypes == 0, "Unknown Libevent event type 0x%x\n", evtypes);
+    parcAssertTrue(evtypes == 0, "Unknown Libevent event type 0x%x\n", evtypes);
     return types;
 }
 
@@ -319,6 +319,6 @@ internal_PARCEventType_to_libevent_type(PARCEventType types)
         evtypes |= EV_ET;
         types &= ~PARCEventType_EdgeTriggered;
     }
-    assertTrue(types == 0, "Unknown Libevent event type 0x%x\n", types);
+    parcAssertTrue(types == 0, "Unknown Libevent event type 0x%x\n", types);
     return evtypes;
 }

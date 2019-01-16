@@ -21,7 +21,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_BufferDictionary.h>
 
@@ -73,8 +73,8 @@ _init(PARCBufferDictionary *result)
 static void
 _destroy(PARCBufferDictionary **dictionaryPtr)
 {
-    assertNotNull(dictionaryPtr, "Double pointer dictionaryPtr must be non-NULL");
-    assertNotNull(*dictionaryPtr, "Double pointer dictionaryPtr must dereference to non-NULL");
+    parcAssertNotNull(dictionaryPtr, "Double pointer dictionaryPtr must be non-NULL");
+    parcAssertNotNull(*dictionaryPtr, "Double pointer dictionaryPtr must dereference to non-NULL");
 
     PARCBufferDictionary *dict = *dictionaryPtr;
 
@@ -102,9 +102,9 @@ parcObject_ImplementRelease(parcBufferDictionary, PARCBufferDictionary);
 PARCBuffer *
 parcBufferDictionary_Put(PARCBufferDictionary *dictionary, PARCBuffer *key, PARCBuffer *value)
 {
-    assertNotNull(dictionary, "Parameter dictionary must be non-NULL");
-    assertNotNull(key, "Parameter key must be non-NULL");
-    assertNotNull(value, "Parameter value must be non-NULL");
+    parcAssertNotNull(dictionary, "Parameter dictionary must be non-NULL");
+    parcAssertNotNull(key, "Parameter key must be non-NULL");
+    parcAssertNotNull(value, "Parameter value must be non-NULL");
 
     PARCBuffer *oldValue = NULL;
 
@@ -126,8 +126,8 @@ parcBufferDictionary_Put(PARCBufferDictionary *dictionary, PARCBuffer *key, PARC
 PARCBuffer *
 parcBufferDictionary_Get(PARCBufferDictionary *dictionary, PARCBuffer *key)
 {
-    assertNotNull(dictionary, "Parameter dictionary must be non-NULL");
-    assertNotNull(key, "Parameter key must be non-NULL");
+    parcAssertNotNull(dictionary, "Parameter dictionary must be non-NULL");
+    parcAssertNotNull(key, "Parameter key must be non-NULL");
 
     return parcHashCodeTable_Get(dictionary->hashtable, key);
 }
@@ -135,8 +135,8 @@ parcBufferDictionary_Get(PARCBufferDictionary *dictionary, PARCBuffer *key)
 PARCBuffer *
 parcBufferDictionary_Remove(PARCBufferDictionary *dictionary, PARCBuffer *key)
 {
-    assertNotNull(dictionary, "Parameter dictionary must be non-NULL");
-    assertNotNull(key, "Parameter key must be non-NULL");
+    parcAssertNotNull(dictionary, "Parameter dictionary must be non-NULL");
+    parcAssertNotNull(key, "Parameter key must be non-NULL");
 
     // parcHashCodeTable_Del will free the referece, to make a copy of it
     PARCBuffer *original = (PARCBuffer *) parcHashCodeTable_Get(dictionary->hashtable, key);

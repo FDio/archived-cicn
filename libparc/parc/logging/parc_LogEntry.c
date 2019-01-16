@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <inttypes.h>
 #include <stdarg.h>
@@ -89,7 +89,7 @@ parcLogEntry_Create(PARCLogLevel level,
 {
     PARCLogEntry *result = parcObject_CreateInstance(PARCLogEntry);
     if (result == NULL) {
-        trapOutOfMemory("Creating an instance of PARCLogEntry.");
+        parcTrapOutOfMemory("Creating an instance of PARCLogEntry.");
     }
     result->version = _parcLog_Version;
     result->timeStamp = timeStamp;

@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_JSONArray.h>
 
 #include <parc/algol/parc_Object.h>
@@ -54,8 +54,8 @@ static const PARCObjectDescriptor parcArrayValue_ObjInterface = {
 void
 parcJSONArray_AssertValid(const PARCJSONArray *array)
 {
-    assertNotNull(array, "Must be a non-null pointer to a PARCJSONArray instance.");
-    assertNotNull(array->array, "Must be a non-null pointer to a PARCDeque instance.");
+    parcAssertNotNull(array, "Must be a non-null pointer to a PARCJSONArray instance.");
+    parcAssertNotNull(array->array, "Must be a non-null pointer to a PARCDeque instance.");
 }
 
 PARCJSONArray *

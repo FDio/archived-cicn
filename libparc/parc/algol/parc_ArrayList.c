@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_ArrayList.h>
 #include <parc/algol/parc_Object.h>
@@ -85,7 +85,7 @@ _ensureCapacity(PARCArrayList *array, size_t newCapacity)
 static PARCArrayList *
 _ensureRemaining(PARCArrayList *array, size_t remnant)
 {
-    assertNotNull(array, "Parameter must be a non-null PARCArrayList pointer.");
+    parcAssertNotNull(array, "Parameter must be a non-null PARCArrayList pointer.");
 
     if (_remaining(array) < remnant) {
         size_t newCapacity = parcArrayList_Size(array) + remnant;
@@ -111,8 +111,8 @@ parcArrayList_IsValid(const PARCArrayList *instance)
 void
 parcArrayList_AssertValid(const PARCArrayList *instance)
 {
-    trapIllegalValueIf(instance == NULL, "Parameter must be a non-null PARC_ArrayList pointer.");
-    assertTrue(instance->numberOfElements == 0 ? true : instance->array != NULL, "PARC_ArrayList size is inconsistent.");
+    parcTrapIllegalValueIf(instance == NULL, "Parameter must be a non-null PARC_ArrayList pointer.");
+    parcAssertTrue(instance->numberOfElements == 0 ? true : instance->array != NULL, "PARC_ArrayList size is inconsistent.");
 }
 
 static PARCArrayList *
@@ -137,7 +137,7 @@ PARCArrayList *
 parcArrayList_Create(void (*destroyElement)(void **element))
 {
     PARCArrayList *result = parcMemory_AllocateAndClear(sizeof(PARCArrayList));
-    assertNotNull(result, "Memory allocation of PARCArrayList failed");
+    parcAssertNotNull(result, "Memory allocation of PARCArrayList failed");
 
     return _parcArrayList_Init(result, 0, 0, NULL, NULL, destroyElement);
 }
@@ -146,7 +146,7 @@ PARCArrayList *
 parcArrayList_Create_Capacity(bool (*equalsElement)(void *x, void *y), void (*destroyElement)(void **element), size_t size)
 {
     PARCArrayList *result = parcMemory_AllocateAndClear(sizeof(PARCArrayList));
-    assertNotNull(result, "Memory allocation of PARCArrayList failed");
+    parcAssertNotNull(result, "Memory allocation of PARCArrayList failed");
 
     _parcArrayList_Init(result, 0, 0, NULL, equalsElement, destroyElement);
 
@@ -163,7 +163,7 @@ parcArrayList_Add(PARCArrayList *array, const void *pointer)
     parcArrayList_OptionalAssertValid(array);
 
     if (_ensureRemaining(array, 1) == NULL) {
-        trapOutOfMemory("Cannot increase space for PARCArrayList.");
+        parcTrapOutOfMemory("Cannot increase space for PARCArrayList.");
     }
     array->array[array->numberOfElements++] = (void *) pointer;
 
@@ -221,7 +221,7 @@ parcArrayList_Equals(const PARCArrayList *a, const PARCArrayList *b)
 void *
 parcArrayList_RemoveAtIndex(PARCArrayList *array, size_t index)
 {
-    trapOutOfBoundsIf(index >= array->numberOfElements, "Index must be within the range [0, %zu)", array->numberOfElements);
+    parcTrapOutOfBoundsIf(index >= array->numberOfElements, "Index must be within the range [0, %zu)", array->numberOfElements);
 
     void *element = array->array[index];
 
@@ -237,7 +237,7 @@ parcArrayList_RemoveAtIndex(PARCArrayList *array, size_t index)
 void
 parcArrayList_Set(const PARCArrayList *array, size_t index, void *pointer)
 {
-    trapOutOfBoundsIf(index >= array->numberOfElements, "Index must be within the range [0, %zu)", array->numberOfElements);
+    parcTrapOutOfBoundsIf(index >= array->numberOfElements, "Index must be within the range [0, %zu)", array->numberOfElements);
 
     array->array[index] = pointer;
 }
@@ -245,7 +245,7 @@ parcArrayList_Set(const PARCArrayList *array, size_t index, void *pointer)
 void *
 parcArrayList_Get(const PARCArrayList *array, size_t index)
 {
-    trapOutOfBoundsIf(index >= array->numberOfElements, "Index must be within the range [0, %zu)", array->numberOfElements);
+    parcTrapOutOfBoundsIf(index >= array->numberOfElements, "Index must be within the range [0, %zu)", array->numberOfElements);
 
     return array->array[index];
 }
@@ -265,13 +265,13 @@ parcArrayList_Size(const PARCArrayList *pointerArray)
 void
 parcArrayList_Destroy(PARCArrayList **arrayPtr)
 {
-    assertNotNull(arrayPtr, "Parameter must be a non-null pointer to a PARC_ArrayList pointer.");
+    parcAssertNotNull(arrayPtr, "Parameter must be a non-null pointer to a PARC_ArrayList pointer.");
 
     PARCArrayList *array = *arrayPtr;
 
     parcArrayList_OptionalAssertValid(array);
 
-    assertTrue(array->numberOfElements == 0 ? true : array->array != NULL, "PARC_ArrayList is inconsistent.");
+    parcAssertTrue(array->numberOfElements == 0 ? true : array->array != NULL, "PARC_ArrayList is inconsistent.");
 
     if (array->destroyElement != NULL) {
         for (size_t i = 0; i < array->numberOfElements; i++) {
@@ -328,7 +328,7 @@ parcArrayList_RemoveAndDestroyAtIndex(PARCArrayList *array, size_t index)
 {
     parcArrayList_OptionalAssertValid(array);
 
-    assertTrue(index < array->numberOfElements, "Index must be ( 0 <= index < %zd). Actual=%zd", array->numberOfElements, index);
+    parcAssertTrue(index < array->numberOfElements, "Index must be ( 0 <= index < %zd). Actual=%zd", array->numberOfElements, index);
 
     if (index < array->numberOfElements) {
         // Destroy the element at the given index.
@@ -352,7 +352,7 @@ parcArrayList_InsertAtIndex(PARCArrayList *array, size_t index, const void *poin
     parcArrayList_OptionalAssertValid(array);
     size_t length = parcArrayList_Size(array);
 
-    assertTrue(index <= array->numberOfElements, "You can't insert beyond the end of the list");
+    parcAssertTrue(index <= array->numberOfElements, "You can't insert beyond the end of the list");
 
     // Create space and grow the array if needed
     _ensureRemaining(array, length + 1);

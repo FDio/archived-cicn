@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Memory.h>
@@ -67,7 +67,7 @@ parcLog_Create(const char *hostName, const char *applicationName, const char *pr
 
     PARCLog *result = parcObject_CreateInstance(PARCLog);
     if (result == NULL) {
-        trapOutOfMemory("Creating an instance of PARCLog.");
+        parcTrapOutOfMemory("Creating an instance of PARCLog.");
     }
 
     result->hostName = parcMemory_StringDuplicate(hostName, strlen(hostName));
@@ -103,7 +103,7 @@ _parcLog_CreateEntry(PARCLog *log, PARCLogLevel level, uint64_t messageId, const
 {
     char *cString;
     int nwritten = vasprintf(&cString, format, ap);
-    assertTrue(nwritten >= 0, "Error calling vasprintf");
+    parcAssertTrue(nwritten >= 0, "Error calling vasprintf");
 
     struct timeval timeStamp;
     gettimeofday(&timeStamp, NULL);

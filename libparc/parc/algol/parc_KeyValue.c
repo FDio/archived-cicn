@@ -24,7 +24,7 @@
 #include "parc_KeyValue.h"
 #include "parc_Object.h"
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 struct parc_key_value {
     PARCObject *key;
@@ -52,10 +52,10 @@ PARCKeyValue *
 parcKeyValue_Create(const PARCObject *key,
                     const PARCObject *value)
 {
-    assertNotNull(key, "Key may not be null in a KeyValue element");
+    parcAssertNotNull(key, "Key may not be null in a KeyValue element");
 
     PARCKeyValue *keyValue = parcObject_CreateInstance(PARCKeyValue);
-    assertNotNull(keyValue, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCKeyValue));
+    parcAssertNotNull(keyValue, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCKeyValue));
 
     keyValue->key = parcObject_Acquire(key);
     keyValue->value = NULL;
@@ -82,7 +82,7 @@ parcKeyValue_Copy(const PARCKeyValue *source)
 void
 parcKeyValue_SetValue(PARCKeyValue *keyValue, PARCObject *value)
 {
-    assertNotNull(keyValue, "Not a valid keyValue");
+    parcAssertNotNull(keyValue, "Not a valid keyValue");
     PARCObject *oldValue = keyValue->value;
     if (value != NULL) {
         keyValue->value = parcObject_Acquire(value);
@@ -97,7 +97,7 @@ parcKeyValue_SetValue(PARCKeyValue *keyValue, PARCObject *value)
 void
 parcKeyValue_SetKey(PARCKeyValue *keyValue, PARCObject *key)
 {
-    assertNotNull(keyValue, "Not a valid keyValue");
+    parcAssertNotNull(keyValue, "Not a valid keyValue");
     PARCObject *oldKey = keyValue->key;
     keyValue->key = parcObject_Acquire(key);
     parcObject_Release(&oldKey);
@@ -106,14 +106,14 @@ parcKeyValue_SetKey(PARCKeyValue *keyValue, PARCObject *key)
 PARCObject *
 parcKeyValue_GetValue(PARCKeyValue *keyValue)
 {
-    assertNotNull(keyValue, "Not a valid keyValue");
+    parcAssertNotNull(keyValue, "Not a valid keyValue");
     return keyValue->value;
 }
 
 PARCObject *
 parcKeyValue_GetKey(PARCKeyValue *keyValue)
 {
-    assertNotNull(keyValue, "Not a valid keyValue");
+    parcAssertNotNull(keyValue, "Not a valid keyValue");
     return keyValue->key;
 }
 

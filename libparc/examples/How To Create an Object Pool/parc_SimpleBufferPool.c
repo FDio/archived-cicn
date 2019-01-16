@@ -33,7 +33,7 @@ struct PARCSimpleBufferPool {
 static bool
 _parcSimpleBufferPool_Destructor(PARCSimpleBufferPool **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSimpleBufferPool pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSimpleBufferPool pointer.");
 
     PARCSimpleBufferPool *pool = *instancePtr;
 

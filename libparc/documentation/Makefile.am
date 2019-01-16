@@ -18,7 +18,6 @@ docs: doxygen-libparc
 doxygen-libparc: libparc.doxygen
 
 	${DOXYGEN_BIN} -s libparc.doxygen
-	${prefix}/bin/longbow-doxygen-report -a --doxygenlog libparc-doxygen.log
 
 website: libparc-doxygen.log
 	$(MAKE) -C Jekyll

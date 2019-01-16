@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -37,7 +37,7 @@ static const PARCMemoryInterface *parcMemory = &PARCStdlibMemoryAsPARCMemory;
 const PARCMemoryInterface *
 parcMemory_SetInterface(const PARCMemoryInterface *memoryProvider)
 {
-    assertFalse(memoryProvider == &PARCMemoryAsPARCMemory,
+    parcAssertFalse(memoryProvider == &PARCMemoryAsPARCMemory,
                 "You cannot use PARCMemoryAsPARCMemory as a memory provider for parcMemory.");
     const PARCMemoryInterface *result = parcMemory;
     parcMemory = memoryProvider;

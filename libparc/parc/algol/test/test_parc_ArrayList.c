@@ -641,11 +641,14 @@ LONGBOW_TEST_FIXTURE_TEARDOWN(Errors)
 LONGBOW_TEST_CASE_EXPECTS(Errors, PARC_ArrayList_InsertAtIndex_OutOfCapacity, .event = &LongBowAssertEvent)
 {
     PARCArrayList *array = longBowTestCase_GetClipBoardData(testCase);
-
+    printf("1\n");
     parcArrayList_Add(array, (void *) 1);
+        printf("2\n");
     parcArrayList_Add(array, (void *) 2);
+        printf("3\n");
 
     parcArrayList_InsertAtIndex(array, 200, (void *) 3);
+        printf("4\n");
 }
 
 int

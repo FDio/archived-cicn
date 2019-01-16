@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -93,7 +93,7 @@ _parsePercentEncoded(const char *string, unsigned char *value)
 static PARCBufferComposer *
 _parcURISegment_BuildString(const PARCURISegment *segment, PARCBufferComposer *composer)
 {
-    assertNotNull(composer, "Parameter must be a non-null pointer to a PARCBufferComposer.");
+    parcAssertNotNull(composer, "Parameter must be a non-null pointer to a PARCBufferComposer.");
 
     for (size_t i = 0; i < parcBuffer_Limit(segment->buffer) && composer != NULL; i++) {
         unsigned char c = parcBuffer_GetAtIndex(segment->buffer, i);
@@ -148,10 +148,10 @@ parcURISegment_Create(size_t length, const unsigned char segment[length])
 PARCURISegment *
 parcURISegment_Parse(const char *string, const char **pointer)
 {
-    assertFalse(*string == '/', "Input parameter '%s' must NOT point to an initial '/' character.", string);
+    parcAssertFalse(*string == '/', "Input parameter '%s' must NOT point to an initial '/' character.", string);
 
     unsigned char *segment = parcMemory_AllocateAndClear((strlen(string) + 1) * sizeof(unsigned char));
-    assertNotNull(segment, "parcMemory_AllocateAndClear(%zu) returned NULL", (strlen(string) + 1) * sizeof(unsigned char));
+    parcAssertNotNull(segment, "parcMemory_AllocateAndClear(%zu) returned NULL", (strlen(string) + 1) * sizeof(unsigned char));
     size_t length = 0;
 
     unsigned char *r = segment;
@@ -219,7 +219,7 @@ parcURISegment_Equals(const PARCURISegment *segmentA, const PARCURISegment *segm
 PARCURISegment *
 parcURISegment_Clone(const PARCURISegment *segment)
 {
-    assertNotNull(segment, "Parameter must be a non-null PARC_URISegment pointer.");
+    parcAssertNotNull(segment, "Parameter must be a non-null PARC_URISegment pointer.");
 
     PARCBuffer *copy = parcBuffer_Copy(segment->buffer);
     PARCURISegment *result = parcURISegment_CreateFromBuffer(copy);

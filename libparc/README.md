@@ -13,6 +13,10 @@ $ cd build
 $ cmake ..
 or, for MacOSX 10.12, you need to speficy openssl root folder 
 $ cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl/
+
+otherwise, if you want to build also the tests you need to specify the following flag
+$ cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl/ -DENABLE_TEST=on
+
 $ make
 $ make test
 $ make install
@@ -56,7 +60,6 @@ Basic dependencies:
 - OpenSSL
 - pthreads
 - Libevent
-- LongBow
 
 Documentation dependencies:
 
