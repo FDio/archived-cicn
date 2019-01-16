@@ -24,7 +24,7 @@ development and xUnit style unit testing. Using LongBow's to aid an offensive-de
 of using its entry and exit assertions in your code. Similarly using LongBow's unit-test framework uses the same entry
 and exit assertions in the unit test cases themselves. The runtime assertions and the unit-test assertions work
 together in the unit test framework and do not conflict. This framework grew out of the need for a unit testing for
-Test Driven Development on the CCNx Distillery software distribution.
+Test Driven Development on the CCNx Distillery software distribution. 
 Two other test frameworks were considered and used to develop unit tests: Unity and GoogleTest.  Ultimately Unity
 was not used (although this framework is indebted to Unity for inspiration) mainly due to ease-of-use problems,
 and Googletest was not used mainly because it is a C++ framework, is not compatible with some features of C99, and is
