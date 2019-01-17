@@ -213,7 +213,7 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
                           ec_key);
     parcAssertTrue(result == 1, "Got error from ECDSA_sign: %d", result);
     EC_KEY_free(ec_key);
-
+    return result;
 }
 
 static PARCSignature *
@@ -307,6 +307,8 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
         EVP_PKEY_free(privateKey);
         break;
       }
+    default:
+      break;
   }
   parcBuffer_Release(&privateKeyBuffer);
 

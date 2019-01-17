@@ -91,6 +91,8 @@ parcCertificateFactory_CreateSelfSignedCertificate(PARCCertificateFactory *facto
         case PARCSigningAlgorithm_ECDSA:
           certificate = parcX509Certificate_CreateSelfSignedCertificate(privateKey, subjectName, (int) keyLength, valdityDays, PARCKeyType_EC);
           break;
+        default:
+          break;
       }
 
         // This may fail.

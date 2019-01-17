@@ -609,6 +609,8 @@ parcX509Certificate_CreateSelfSignedCertificate(PARCBuffer **privateKeyBuffer, c
       return _createSelfSignedCertificate_RSA(privateKeyBuffer, subjectName, keyLength, validityDays);
     case PARCKeyType_EC:
       return _createSelfSignedCertificate_EC(privateKeyBuffer, subjectName, keyLength, validityDays);
+    default:
+      break;
   }
 
   return NULL;
