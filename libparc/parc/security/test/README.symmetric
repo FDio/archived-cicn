@@ -1,9 +1,0 @@
-
-# random bytes as a 32-byte (256-bit) key
-
-dd if=/dev/random of=test_symmetric_key.bin bs=32 count=1
-
-# compute its sha-256 hash
-openssl sha256 -binary -out test_symmetric_key.sha256 < test_symmetric_key.bin 
-
-
