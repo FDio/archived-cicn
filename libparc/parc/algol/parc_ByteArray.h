@@ -91,7 +91,7 @@ typedef struct parc_byte_array PARCByteArray;
 /**
  * Assert that an instance of `PARCByteArray` is valid.
  *
- * If the instance is not valid, terminate via {@link trapIllegalValue}
+ * If the instance is not valid, terminate via {@link parcTrapIllegalValue}
  *
  * Valid means the internal state of the type is consistent with its required current or future behaviour.
  * This may include the validation of internal instances of types.
@@ -331,7 +331,7 @@ int parcByteArray_Compare(const PARCByteArray *a, const PARCByteArray *b);
  *
  * @return The given `PARCByteArray` pointer
  *
- * @throws SIGABRT `trapOutOfBounds` if the underlying `PARCByteArray` is not large enough
+ * @throws SIGABRT `parcTrapOutOfBounds` if the underlying `PARCByteArray` is not large enough
  *
  * Example:
  * @code

@@ -30,7 +30,7 @@ struct PARCTimer {
 static void
 _parcTimer_Finalize(PARCTimer **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCTimer pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCTimer pointer.");
 
 
     /* cleanup the instance fields here */
@@ -46,7 +46,7 @@ parcObject_ExtendPARCObject(PARCTimer, _parcTimer_Finalize, parcTimer_Copy, parc
 void
 parcTimer_AssertValid(const PARCTimer *instance)
 {
-    assertTrue(parcTimer_IsValid(instance),
+    parcAssertTrue(parcTimer_IsValid(instance),
                "PARCTimer is not valid.");
 }
 

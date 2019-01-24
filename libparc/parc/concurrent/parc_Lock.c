@@ -37,7 +37,7 @@ struct PARCLock {
 static void
 _parcLock_Finalize(PARCLock **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCLock pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCLock pointer.");
 
     parcLock_OptionalAssertValid(*instancePtr);
 
@@ -53,7 +53,7 @@ parcObject_ExtendPARCObject(PARCLock, _parcLock_Finalize, NULL, parcLock_ToStrin
 void
 parcLock_AssertValid(const PARCLock *instance)
 {
-    assertTrue(parcLock_IsValid(instance),
+    parcAssertTrue(parcLock_IsValid(instance),
                "PARCLock is not valid.");
 }
 
@@ -179,7 +179,7 @@ parcLock_Wait(PARCLock *lock)
 {
     parcLock_OptionalAssertValid(lock);
 
-    trapUnexpectedStateIf(lock->locked == false,
+    parcTrapUnexpectedStateIf(lock->locked == false,
                           "You must Lock the object before calling parcLock_Wait");
 
     lock->notified = false;
@@ -193,7 +193,7 @@ parcLock_Notify(PARCLock *lock)
 {
     parcLock_OptionalAssertValid(lock);
 
-    trapUnexpectedStateIf(lock->locked == false,
+    parcTrapUnexpectedStateIf(lock->locked == false,
                           "You must Lock the object before calling parcLock_Notify");
 
     lock->notified = true;

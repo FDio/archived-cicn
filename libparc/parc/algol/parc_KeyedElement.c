@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_KeyedElement.h>
 #include <parc/algol/parc_Memory.h>
@@ -36,10 +36,10 @@ PARCKeyedElement *
 parcKeyedElement_Create(void *data, const void *key, size_t keylen)
 {
     PARCKeyedElement *keyedElement = parcMemory_Allocate(sizeof(PARCKeyedElement));
-    assertNotNull(keyedElement, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCKeyedElement));
+    parcAssertNotNull(keyedElement, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCKeyedElement));
     keyedElement->element = data;
     keyedElement->key = parcMemory_Allocate(sizeof(PARCKeyedElement));
-    assertNotNull(keyedElement->key, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCKeyedElement));
+    parcAssertNotNull(keyedElement->key, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCKeyedElement));
     memcpy(keyedElement->key, key, keylen);
     keyedElement->keylen = keylen;
     return keyedElement;

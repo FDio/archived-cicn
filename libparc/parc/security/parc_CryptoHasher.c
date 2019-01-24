@@ -30,7 +30,7 @@
 #include <parc/security/parc_CryptoHasher.h>
 #include <parc/algol/parc_Buffer.h>
 #include <parc/algol/parc_Memory.h>
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Object.h>
 
 #ifdef __APPLE__
@@ -137,7 +137,7 @@ PARCCryptoHasher *
 parcCryptoHasher_Create(PARCCryptoHashType type)
 {
     PARCCryptoHasher *hasher = parcObject_CreateInstance(PARCCryptoHasher);
-    assertNotNull(hasher, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHasher));
+    parcAssertNotNull(hasher, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHasher));
 
     hasher->type = type;
 
@@ -156,7 +156,7 @@ parcCryptoHasher_Create(PARCCryptoHashType type)
 
         default:
             parcMemory_Deallocate((void **) &hasher);
-            trapIllegalValue(type, "Unknown hasher type: %d", type);
+            parcTrapIllegalValue(type, "Unknown hasher type: %d", type);
     }
 
     hasher->hasher_ctx = hasher->functor.hasher_setup(hasher->functor.functor_env);
@@ -167,7 +167,7 @@ PARCCryptoHasher *
 parcCryptoHasher_CustomHasher(PARCCryptoHashType type, PARCCryptoHasherInterface functor)
 {
     PARCCryptoHasher *hasher = parcObject_CreateInstance(PARCCryptoHasher);
-    assertNotNull(hasher, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHasher));
+    parcAssertNotNull(hasher, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHasher));
     hasher->type = type;
     hasher->functor = functor;
     hasher->hasher_ctx = hasher->functor.hasher_setup(hasher->functor.functor_env);
@@ -186,7 +186,7 @@ parcCryptoHasher_CustomHasher(PARCCryptoHashType type, PARCCryptoHasherInterface
 int
 parcCryptoHasher_Init(PARCCryptoHasher *digester)
 {
-    assertNotNull(digester, "Parameter must be non-null");
+    parcAssertNotNull(digester, "Parameter must be non-null");
 
     int success = digester->functor.hasher_init(digester->hasher_ctx);
     return (success == 1) ? 0 : -1;
@@ -195,7 +195,7 @@ parcCryptoHasher_Init(PARCCryptoHasher *digester)
 int
 parcCryptoHasher_UpdateBytes(PARCCryptoHasher *digester, const void *buffer, size_t length)
 {
-    assertNotNull(digester, "Parameter must be non-null");
+    parcAssertNotNull(digester, "Parameter must be non-null");
     int success = digester->functor.hasher_update(digester->hasher_ctx, buffer, length);
     return (success == 1) ? 0 : -1;
 }
@@ -203,7 +203,7 @@ parcCryptoHasher_UpdateBytes(PARCCryptoHasher *digester, const void *buffer, siz
 int
 parcCryptoHasher_UpdateBuffer(PARCCryptoHasher *digester, const PARCBuffer *buffer)
 {
-    assertNotNull(digester, "Parameter must be non-null");
+    parcAssertNotNull(digester, "Parameter must be non-null");
     PARCBuffer *buf = parcBuffer_Slice(buffer);
     size_t length = parcBuffer_Limit(buf);
     void *byteArray = parcBuffer_Overlay(buf, length);
@@ -216,7 +216,7 @@ parcCryptoHasher_UpdateBuffer(PARCCryptoHasher *digester, const PARCBuffer *buff
 PARCCryptoHash *
 parcCryptoHasher_Finalize(PARCCryptoHasher *digester)
 {
-    assertNotNull(digester, "Parameter must be non-null");
+    parcAssertNotNull(digester, "Parameter must be non-null");
     PARCBuffer *digestBuffer = digester->functor.hasher_finalize(digester->hasher_ctx);
 
     if (parcBuffer_Position(digestBuffer) != 0) {
@@ -486,7 +486,7 @@ static void *
 _crc32_create(void *env __attribute__ ((unused)))
 {
     _CRC32CState *ctx = parcMemory_AllocateAndClear(sizeof(_CRC32CState));
-    assertNotNull(ctx, "parcMemory_AllocateAndClear(%zu) returned NULL for _CRC32CState", sizeof(_CRC32CState));
+    parcAssertNotNull(ctx, "parcMemory_AllocateAndClear(%zu) returned NULL for _CRC32CState", sizeof(_CRC32CState));
 
     // Now initialize it with our digest and key, so in hmac_init we can avoid using those
     return ctx;

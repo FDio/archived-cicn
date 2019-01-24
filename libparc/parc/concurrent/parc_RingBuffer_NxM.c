@@ -29,7 +29,7 @@
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/concurrent/parc_RingBuffer_1x1.h>
 #include <parc/concurrent/parc_RingBuffer_NxM.h>
@@ -55,7 +55,7 @@ static bool
 _lock(pthread_mutex_t *mutex)
 {
     int failure = pthread_mutex_lock(mutex);
-    assertFalse(failure, "Error locking mutex: (%d) %s\n", errno, strerror(errno));
+    parcAssertFalse(failure, "Error locking mutex: (%d) %s\n", errno, strerror(errno));
     return true;
 }
 
@@ -63,7 +63,7 @@ static bool
 _unlock(pthread_mutex_t *mutex)
 {
     int failure = pthread_mutex_unlock(mutex);
-    assertFalse(failure, "Error unlocking mutex: (%d) %s\n", errno, strerror(errno));
+    parcAssertFalse(failure, "Error unlocking mutex: (%d) %s\n", errno, strerror(errno));
     return true;
 }
 
@@ -88,7 +88,7 @@ static PARCRingBufferNxM *
 _create(uint32_t elements, RingBufferEntryDestroyer *destroyer)
 {
     PARCRingBufferNxM *ring = parcObject_CreateInstance(PARCRingBufferNxM);
-    assertNotNull(ring, "parcObject_Create returned NULL");
+    parcAssertNotNull(ring, "parcObject_Create returned NULL");
 
     ring->onebyone = parcRingBuffer1x1_Create(elements, destroyer);
     ring->destroyer = destroyer;

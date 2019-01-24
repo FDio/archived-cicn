@@ -41,7 +41,7 @@ struct PARCPublicKeySigner {
 static bool
 _parcPublicKeySigner_Finalize(PARCPublicKeySigner **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCPublicKeySigner pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCPublicKeySigner pointer.");
 
     PARCPublicKeySigner *instance = *instancePtr;
 
@@ -58,7 +58,7 @@ _parcPublicKeySigner_Finalize(PARCPublicKeySigner **instancePtr)
 void
 parcPublicKeySigner_AssertValid(const PARCPublicKeySigner *instance)
 {
-    assertTrue(parcPublicKeySigner_IsValid(instance), "PARCPublicKeySigner is not valid.");
+    parcAssertTrue(parcPublicKeySigner_IsValid(instance), "PARCPublicKeySigner is not valid.");
 }
 
 bool
@@ -140,28 +140,28 @@ parcPublicKeySigner_Create(PARCKeyStore *keyStore, PARCCryptoSuite suite)
 static PARCSigningAlgorithm
 _GetSigningAlgorithm(PARCPublicKeySigner *signer)
 {
-    assertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
+    parcAssertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
     return signer->signingAlgorithm;
 }
 
 static PARCCryptoHashType
 _GetCryptoHashType(PARCPublicKeySigner *signer)
 {
-    assertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
+    parcAssertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
     return signer->hashType;
 }
 
 static PARCCryptoHasher *
 _GetCryptoHasher(PARCPublicKeySigner *signer)
 {
-    assertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
+    parcAssertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
     return signer->hasher;
 }
 
 static PARCKeyStore *
 _GetKeyStore(PARCPublicKeySigner *signer)
 {
-    assertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
+    parcAssertNotNull(signer, "Parameter must be non-null PARCCryptoHasher");
     return signer->keyStore;
 }
 
@@ -175,7 +175,7 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
     RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
     *sig = parcMemory_Allocate(RSA_size(rsa));
 
-    assertNotNull(*sig, "parcMemory_Allocate(%u) returned NULL", RSA_size(rsa));
+    parcAssertNotNull(*sig, "parcMemory_Allocate(%u) returned NULL", RSA_size(rsa));
 
     *sigLength = 0;
     PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
@@ -185,7 +185,7 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
                           *sig,
                           sigLength,
                           rsa);
-    assertTrue(result == 1, "Got error from RSA_sign: %d", result);
+    parcAssertTrue(result == 1, "Got error from RSA_sign: %d", result);
     EVP_PKEY_free(privateKey);
     RSA_free(rsa);
     return result;
@@ -201,7 +201,7 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
     EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
 
     *sig = parcMemory_Allocate(ECDSA_size(ec_key));
-    assertNotNull(sig, "parcMemory_Allocate(%u) returned NULL", ECDSA_size(ec_key));
+    parcAssertNotNull(sig, "parcMemory_Allocate(%u) returned NULL", ECDSA_size(ec_key));
 
     *sigLength = 0;
     PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
@@ -211,9 +211,9 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
                           *sig,
                           sigLength,
                           ec_key);
-    assertTrue(result == 1, "Got error from ECDSA_sign: %d", result);
+    parcAssertTrue(result == 1, "Got error from ECDSA_sign: %d", result);
     EC_KEY_free(ec_key);
-
+    return result;
 }
 
 static PARCSignature *
@@ -221,8 +221,8 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
-    assertNotNull(digestToSign, "Buffer to sign must not be null");
+    parcAssertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
+    parcAssertNotNull(digestToSign, "Buffer to sign must not be null");
 
     // TODO: what is the best way to expose this?
     PARCKeyStore *keyStore = signer->keyStore;
@@ -240,7 +240,7 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
             opensslDigestType = NID_sha512;
             break;
         default:
-            trapUnexpectedState("Unknown digest type: %s",
+            parcTrapUnexpectedState("Unknown digest type: %s",
                                 parcCryptoHashType_ToString(parcCryptoHash_GetDigestType(digestToSign)));
     }
 
@@ -272,7 +272,7 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
 static size_t
 _GetSignatureSize(PARCPublicKeySigner *signer)
 {
-  assertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
+  parcAssertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
 
   // TODO: what is the best way to expose this?
   PARCKeyStore *keyStore = signer->keyStore;
@@ -307,6 +307,8 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
         EVP_PKEY_free(privateKey);
         break;
       }
+    default:
+      break;
   }
   parcBuffer_Release(&privateKeyBuffer);
 

@@ -24,7 +24,7 @@
 #include <parc/security/parc_Key.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Memory.h>
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 struct parc_key {
     PARCKeyId *keyid;
@@ -62,8 +62,8 @@ _parcKey_Create()
 PARCKey *
 parcKey_CreateFromDerEncodedPublicKey(PARCKeyId *keyid, PARCSigningAlgorithm signingAlg, PARCBuffer *derEncodedKey)
 {
-    assertNotNull(keyid, "Parameter keyid must be non-null");
-    assertNotNull(derEncodedKey, "Parameter derEncodedKey must be non-null");
+    parcAssertNotNull(keyid, "Parameter keyid must be non-null");
+    parcAssertNotNull(derEncodedKey, "Parameter derEncodedKey must be non-null");
 
     // Exclude the symmetric key algorithms
     switch (signingAlg) {
@@ -73,11 +73,11 @@ parcKey_CreateFromDerEncodedPublicKey(PARCKeyId *keyid, PARCSigningAlgorithm sig
             break;
 
         default:
-            trapIllegalValueIf(true, "Unknown key algorithm or symmetric key algorithm: %s\n", parcSigningAlgorithm_ToString(signingAlg));
+            parcTrapIllegalValueIf(true, "Unknown key algorithm or symmetric key algorithm: %s\n", parcSigningAlgorithm_ToString(signingAlg));
     }
 
     PARCKey *key = _parcKey_Create();
-    assertNotNull(key, "Unable to allocate memory for PARCKey");
+    parcAssertNotNull(key, "Unable to allocate memory for PARCKey");
 
     key->key = parcBuffer_Acquire(derEncodedKey);
     key->signingAlg = signingAlg;
@@ -95,8 +95,8 @@ parcKey_CreateFromDerEncodedPublicKey(PARCKeyId *keyid, PARCSigningAlgorithm sig
 PARCKey *
 parcKey_CreateFromSymmetricKey(PARCKeyId *keyid, PARCSigningAlgorithm signingAlg, PARCBuffer *secretkey)
 {
-    assertNotNull(keyid, "Parameter keyid must be non-null");
-    assertNotNull(secretkey, "Parameter derEncodedKey must be non-null");
+    parcAssertNotNull(keyid, "Parameter keyid must be non-null");
+    parcAssertNotNull(secretkey, "Parameter derEncodedKey must be non-null");
 
     // Exclude the symmetric key algorithms
     switch (signingAlg) {
@@ -104,11 +104,11 @@ parcKey_CreateFromSymmetricKey(PARCKeyId *keyid, PARCSigningAlgorithm signingAlg
             break;
 
         default:
-            trapIllegalValueIf(true, "Unknown key algorithm or symmetric key algorithm: %s\n", parcSigningAlgorithm_ToString(signingAlg));
+            parcTrapIllegalValueIf(true, "Unknown key algorithm or symmetric key algorithm: %s\n", parcSigningAlgorithm_ToString(signingAlg));
     }
 
     PARCKey *key = _parcKey_Create();
-    assertNotNull(key, "Unable to allocate memory for PARCKey");
+    parcAssertNotNull(key, "Unable to allocate memory for PARCKey");
 
     key->key = parcBuffer_Acquire(secretkey);
     key->signingAlg = signingAlg;
@@ -127,29 +127,29 @@ parcObject_ImplementRelease(parcKey, PARCKey);
 void
 parcKey_AssertValid(PARCKey *keyPtr)
 {
-    assertNotNull(keyPtr, "Parameter must be non-null double pointer");
-    assertNotNull(keyPtr->key, "Parameter key must not be null");
-    assertNotNull(keyPtr->keyid, "Parameter keyId must not be null");
+    parcAssertNotNull(keyPtr, "Parameter must be non-null double pointer");
+    parcAssertNotNull(keyPtr->key, "Parameter key must not be null");
+    parcAssertNotNull(keyPtr->keyid, "Parameter keyId must not be null");
 }
 
 PARCKeyId *
 parcKey_GetKeyId(const PARCKey *key)
 {
-    assertNotNull(key, "Parameter must be non-null");
+    parcAssertNotNull(key, "Parameter must be non-null");
     return key->keyid;
 }
 
 PARCSigningAlgorithm
 parcKey_GetSigningAlgorithm(const PARCKey *key)
 {
-    assertNotNull(key, "Parameter must be non-null");
+    parcAssertNotNull(key, "Parameter must be non-null");
     return key->signingAlg;
 }
 
 PARCBuffer *
 parcKey_GetKey(const PARCKey *key)
 {
-    assertNotNull(key, "Parameter must be non-null");
+    parcAssertNotNull(key, "Parameter must be non-null");
     return key->key;
 }
 
@@ -183,7 +183,7 @@ PARCKey *
 parcKey_Copy(const PARCKey *original)
 {
     PARCKey *newkey = _parcKey_Create();
-    assertNotNull(newkey, "Unable to allocate memory for a new key");
+    parcAssertNotNull(newkey, "Unable to allocate memory for a new key");
     newkey->key = parcBuffer_Copy(original->key);
     newkey->keyid = parcKeyId_Copy(original->keyid);
     newkey->signingAlg = original->signingAlg;
@@ -197,7 +197,7 @@ parcKey_ToString(const PARCKey *key)
     int failure = asprintf(&string, "PARCKey {.KeyID=\"%s\", .SigningAlgorithm=\"%s\" }",
                            parcKeyId_ToString(key->keyid),
                            parcSigningAlgorithm_ToString(key->signingAlg));
-    assertTrue(failure > -1, "Error asprintf");
+    parcAssertTrue(failure > -1, "Error asprintf");
 
     char *result = parcMemory_StringDuplicate(string, strlen(string));
     free(string);

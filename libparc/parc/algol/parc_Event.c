@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include "internal_parc_Event.h"
 #include <parc/algol/parc_EventScheduler.h>
@@ -70,7 +70,7 @@ PARCEvent *
 parcEvent_Create(PARCEventScheduler *parcEventScheduler, int fd, PARCEventType flags, PARCEvent_Callback *callback, void *callbackArgs)
 {
     PARCEvent *parcEvent = parcMemory_Allocate(sizeof(PARCEvent));
-    assertNotNull(parcEvent, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEvent));
+    parcAssertNotNull(parcEvent, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEvent));
 
     parcEvent->parcEventScheduler = parcEventScheduler;
     parcEvent->callback = callback;
@@ -78,7 +78,7 @@ parcEvent_Create(PARCEventScheduler *parcEventScheduler, int fd, PARCEventType f
 
     parcEvent->event = event_new(parcEventScheduler_GetEvBase(parcEventScheduler), fd,
                                  internal_PARCEventType_to_libevent_type(flags), _parc_event_callback, parcEvent);
-    assertNotNull(parcEvent->event, "Could not create a new event!");
+    parcAssertNotNull(parcEvent->event, "Could not create a new event!");
 
     parcEvent_LogDebug(parcEvent,
                        "parcEvent_Create(base=%p,fd=%x,events=%x,cb=%p,args=%p)\n",
@@ -91,7 +91,7 @@ int
 parcEvent_Start(PARCEvent *parcEvent)
 {
     parcEvent_LogDebug(parcEvent, "parcEvent_Start(%p)\n", parcEvent);
-    assertNotNull(parcEvent, "parcEvent_Start must be passed a valid event!");
+    parcAssertNotNull(parcEvent, "parcEvent_Start must be passed a valid event!");
 
     int result = event_add(parcEvent->event, NULL);
     return result;
@@ -101,7 +101,7 @@ int
 parcEvent_Stop(PARCEvent *parcEvent)
 {
     parcEvent_LogDebug(parcEvent, "parcEvent_Stop(%p)\n", parcEvent);
-    assertNotNull(parcEvent, "parcEvent_Stop must be passed a valid event!");
+    parcAssertNotNull(parcEvent, "parcEvent_Stop must be passed a valid event!");
 
     int result = event_del(parcEvent->event);
     return result;
@@ -111,7 +111,7 @@ int
 parcEvent_Poll(PARCEvent *parcEvent, PARCEventType event)
 {
     parcEvent_LogDebug(parcEvent, "parcEvent_Stop(%p)\n", parcEvent);
-    assertNotNull(parcEvent, "parcEvent_Stop must be passed a valid event!");
+    parcAssertNotNull(parcEvent, "parcEvent_Stop must be passed a valid event!");
 
     int result = event_pending(parcEvent->event, event, NULL);
     return result;
@@ -121,8 +121,8 @@ void
 parcEvent_Destroy(PARCEvent **parcEvent)
 {
     parcEvent_LogDebug((*parcEvent), "parcEvent_Destroy(%p)\n", *parcEvent);
-    assertNotNull(*parcEvent, "parcEvent_Destroy must be passed a valid parcEvent!");
-    assertNotNull((*parcEvent)->event, "parcEvent_Destroy passed a null event!");
+    parcAssertNotNull(*parcEvent, "parcEvent_Destroy must be passed a valid parcEvent!");
+    parcAssertNotNull((*parcEvent)->event, "parcEvent_Destroy passed a null event!");
 
     event_free((*parcEvent)->event);
     parcMemory_Deallocate((void **) parcEvent);

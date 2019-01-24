@@ -35,7 +35,7 @@ struct PARCScheduledTask {
 static bool
 _parcScheduledTask_Destructor(PARCScheduledTask **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCScheduledTask pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCScheduledTask pointer.");
     PARCScheduledTask *task = *instancePtr;
 
     parcFutureTask_Release(&task->task);
@@ -59,7 +59,7 @@ parcObject_Override(PARCScheduledTask, PARCObject,
 void
 parcScheduledTask_AssertValid(const PARCScheduledTask *instance)
 {
-    assertTrue(parcScheduledTask_IsValid(instance),
+    parcAssertTrue(parcScheduledTask_IsValid(instance),
                "PARCScheduledTask is not valid.");
 }
 

@@ -83,7 +83,7 @@ PARCBufferComposer *parcBufferComposer_Allocate(size_t length);
 /**
  * Assert that an instance of `PARCBufferComposer` is valid.
  *
- * If the instance is not valid, terminate via `trapIllegalValue()`.
+ * If the instance is not valid, terminate via `parcTrapIllegalValue()`.
  *
  * Valid means the internal state of the type is consistent with its required current or future behaviour.
  * This may include the validation of internal instances of types.

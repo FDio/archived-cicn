@@ -36,7 +36,7 @@ struct PARCThread {
 static bool
 _parcThread_Destructor(PARCThread **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCThread pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCThread pointer.");
     PARCThread *thread = *instancePtr;
 
     if (thread->argument != NULL) {
@@ -67,14 +67,14 @@ parcObject_Override(PARCThread, PARCObject,
 void
 parcThread_AssertValid(const PARCThread *instance)
 {
-    assertTrue(parcThread_IsValid(instance),
+    parcAssertTrue(parcThread_IsValid(instance),
                "PARCThread is not valid.");
 }
 
 PARCThread *
 parcThread_Create(void *(*runFunction)(PARCThread *, PARCObject *), PARCObject *restrict parameter)
 {
-    assertNotNull(parameter, "Parameter cannot be NULL.");
+    parcAssertNotNull(parameter, "Parameter cannot be NULL.");
 
     PARCThread *result = parcObject_CreateAndClearInstance(PARCThread);
 

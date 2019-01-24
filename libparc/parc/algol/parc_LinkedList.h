@@ -421,7 +421,7 @@ bool parcLinkedList_IsEmpty(const PARCLinkedList *list);
  * @param [in] list A pointer to a `PARCLinkedList` instance.
  * @param [in] index The index of the element to be retrieved.
  *
- * @throws `trapOutOfBounds`
+ * @throws `parcTrapOutOfBounds`
  *
  * Example:
  * @code
@@ -437,7 +437,7 @@ PARCObject *parcLinkedList_GetAtIndex(const PARCLinkedList *list, size_t index);
  * @param [in] index The index of the element to be replaced.
  * @param [in] element A pointer to a valid PARCObject instance that will replace the current element at @p index.
  *
- * @throws `trapOutOfBounds`
+ * @throws `parcTrapOutOfBounds`
  *
  * Example:
  * @code

@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -40,7 +40,7 @@ struct parc_uri_path {
 static void
 _parcURIPath_Finalize(PARCURIPath **pathPtr)
 {
-    assertNotNull(pathPtr, "Parameter must be a non-null pointer to a pointer to a PARCURIPath instance.");
+    parcAssertNotNull(pathPtr, "Parameter must be a non-null pointer to a pointer to a PARCURIPath instance.");
 
     PARCURIPath *path = *pathPtr;
     if (path != NULL) {
@@ -89,7 +89,7 @@ parcURIPath_Trim(PARCURIPath *path, size_t numberToRemove)
 //
 //    result->segments = parcArrayList_Create((void (*)(void **))parcURISegment_Release);
 //    if (*string != 0) {
-//        assertTrue(*string == '/', "Expected initial '/' character.");
+//        parcAssertTrue(*string == '/', "Expected initial '/' character.");
 //        *pointer = string;
 //        while (**pointer != 0 && **pointer != '?' && **pointer != '#') {
 //            PARCURISegment *segment = parcURISegment_Parse(++(*pointer), pointer);
@@ -148,7 +148,7 @@ parcURIPath_Equals(const PARCURIPath *pathA, const PARCURIPath *pathB)
 PARCURIPath *
 parcURIPath_Copy(const PARCURIPath *path)
 {
-    assertNotNull(path, "Parameter must be a non-null PARC_URIPath pointer.");
+    parcAssertNotNull(path, "Parameter must be a non-null PARC_URIPath pointer.");
 
     PARCURIPath *result = parcURIPath_Create();
     result->segments = parcArrayList_Create((void (*)(void **))parcURISegment_Release);

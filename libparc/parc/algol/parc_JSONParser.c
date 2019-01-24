@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <ctype.h>
 #include <string.h>
@@ -59,7 +59,7 @@ parcJSONParser_Create(PARCBuffer *buffer)
 void
 parcJSONParser_AssertValid(const PARCJSONParser *parser)
 {
-    assertNotNull(parser, "PARCJSONParser cannot be NULL");
+    parcAssertNotNull(parser, "PARCJSONParser cannot be NULL");
     parcBuffer_OptionalAssertValid(parser->buffer);
 }
 
@@ -166,7 +166,7 @@ parcJSONParser_ParseString(PARCJSONParser *parser)
                     c = '\t';
                 } else if (c == 'u') {
                     // Not supporting unicode at this point.
-                    trapNotImplemented("Unicode is not supported.");
+                    parcTrapNotImplemented("Unicode is not supported.");
                 }
             } else if (iscntrl(c)) {
                 // !! Syntax Error.

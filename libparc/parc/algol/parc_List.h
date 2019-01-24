@@ -364,7 +364,7 @@ void parcList_Release(PARCList **listPtr);
  * @return NULL Memory could not be allocated.
  * @return non-NULL A pointer to a new `PARCList` instance.
  *
- * @throws trapIllegalValue if @p instance is NULL.
+ * @throws parcTrapIllegalValue if @p instance is NULL.
  *
  * Example:
  * @code
@@ -429,7 +429,7 @@ bool parcList_Add(PARCList *list, void *element);
  *   parcList_AddAll(array, 3, elements);
  *   size_t actual = parcList_Length(array);
  *
- *   assertTrue(3 == actual, "Expected=%d, actual=%d", 3, actual);
+ *   parcAssertTrue(3 == actual, "Expected=%d, actual=%d", 3, actual);
  *
  *   parcListRelease(&array);
  * }

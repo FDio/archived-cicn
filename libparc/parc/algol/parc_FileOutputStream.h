@@ -130,7 +130,7 @@ void parcFileOutputStream_Release(PARCFileOutputStream **streamPtr);
  *
  *     parcFileOutputStream_Write(stream, buffer);
  *
- *     assertFalse(parcBuffer_HasRemaining(buffer), "Expected the buffer to be emtpy");
+ *     parcAssertFalse(parcBuffer_HasRemaining(buffer), "Expected the buffer to be emtpy");
  *
  *     parcBuffer_Release(&buffer);
  *

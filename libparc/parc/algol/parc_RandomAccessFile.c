@@ -33,7 +33,7 @@ struct PARCRandomAccessFile {
 static void
 _parcRandomAccessFile_Finalize(PARCRandomAccessFile **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCRandomAccessFile pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCRandomAccessFile pointer.");
     PARCRandomAccessFile *instance = *instancePtr;
     if (instance->fhandle != NULL) {
         fclose(instance->fhandle);
@@ -55,7 +55,7 @@ parcObject_ExtendPARCObject(PARCRandomAccessFile, _parcRandomAccessFile_Finalize
 void
 parcRandomAccessFile_AssertValid(const PARCRandomAccessFile *instance)
 {
-    assertTrue(parcRandomAccessFile_IsValid(instance),
+    parcAssertTrue(parcRandomAccessFile_IsValid(instance),
                "PARCRandomAccessFile is not valid.");
 }
 
@@ -138,7 +138,7 @@ parcRandomAccessFile_Open(PARCFile *file)
 bool
 parcRandomAccessFile_Close(PARCRandomAccessFile *fileHandle)
 {
-    assertNotNull(fileHandle->fhandle, "Can't fclose a null pointer. How did they get one anyway?");
+    parcAssertNotNull(fileHandle->fhandle, "Can't fclose a null pointer. How did they get one anyway?");
     bool result = fclose(fileHandle->fhandle) == 0;
     fileHandle->fhandle = NULL;
     parcMemory_Deallocate(&fileHandle->fname);
@@ -179,7 +179,7 @@ parcRandomAccessFile_Seek(PARCRandomAccessFile *fileHandle, long offset, PARCRan
             result = fseek(fileHandle->fhandle, offset, SEEK_END); // end of the file
             break;
         default:
-            assertTrue(false, "Invalid position %d", position);
+            parcAssertTrue(false, "Invalid position %d", position);
     }
     return result;
 }

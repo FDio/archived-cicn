@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Deque.h>
@@ -34,7 +34,7 @@ PARCStack *
 parcStack(void *instance, PARCStackInterface *interface)
 {
     PARCStack *result = parcMemory_AllocateAndClear(sizeof(PARCStack));
-    assertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCStack));
+    parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCStack));
     result->instance = instance;
     result->interface = interface;
 

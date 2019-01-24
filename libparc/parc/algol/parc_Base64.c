@@ -39,7 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Base64.h>
 #include <parc/algol/parc_Memory.h>
@@ -80,7 +80,7 @@ const uint8_t decodeTable[256] = {
 static void
 _encodeWithPad(PARCBufferComposer *output, const uint8_t *quantum, size_t padLength)
 {
-    assertTrue(padLength < 3, "Degenerate case -- should never pad all 3 bytes!");
+    parcAssertTrue(padLength < 3, "Degenerate case -- should never pad all 3 bytes!");
 
     unsigned index;
 

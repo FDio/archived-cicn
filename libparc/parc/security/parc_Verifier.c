@@ -18,7 +18,7 @@
 #include <config.h>
 #include <stdio.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_Verifier.h>
 #include <parc/algol/parc_Memory.h>
@@ -41,7 +41,7 @@ _parcVerifier_FinalRelease(PARCVerifier **verifierPtr)
 void
 parcVerifier_AssertValid(const PARCVerifier *verifier)
 {
-    assertNotNull(verifier, "Parameter must be non-null PARCVerifier");
+    parcAssertNotNull(verifier, "Parameter must be non-null PARCVerifier");
 }
 
 parcObject_ImplementAcquire(parcVerifier, PARCVerifier);
@@ -53,11 +53,11 @@ parcObject_Override(PARCVerifier, PARCObject,
 PARCVerifier *
 parcVerifier_Create(PARCObject *instance, PARCVerifierInterface *interfaceContext)
 {
-    assertNotNull(interfaceContext, "Parameter `interfaceContext` must be non-null interface pointer");
-    assertNotNull(instance, "Parameter `instance` must be non-null PARCObject pointer");
+    parcAssertNotNull(interfaceContext, "Parameter `interfaceContext` must be non-null interface pointer");
+    parcAssertNotNull(instance, "Parameter `instance` must be non-null PARCObject pointer");
 
     PARCVerifier *verifier = parcObject_CreateInstance(PARCVerifier);
-    assertNotNull(verifier, "parcObject_CreateInstance returned NULL");
+    parcAssertNotNull(verifier, "parcObject_CreateInstance returned NULL");
 
     verifier->instance = parcObject_Acquire(instance);
     verifier->interface = interfaceContext;
@@ -69,9 +69,9 @@ bool
 parcVerifier_VerifyDigestSignature(PARCVerifier *verifier, PARCKeyId *keyid, PARCCryptoHash *locallyComputedHash,
                                    PARCCryptoSuite suite, PARCSignature *signatureToVerify)
 {
-    assertNotNull(verifier, "Parameter must be non-null PARCVerifier");
-    assertNotNull(locallyComputedHash, "cryptoHash to verify must not be null");
-    assertNotNull(signatureToVerify, "Signature to verify must not be null");
+    parcAssertNotNull(verifier, "Parameter must be non-null PARCVerifier");
+    parcAssertNotNull(locallyComputedHash, "cryptoHash to verify must not be null");
+    parcAssertNotNull(signatureToVerify, "Signature to verify must not be null");
 
     // null keyid is allowed now that we support CRCs, etc.
 
@@ -81,27 +81,27 @@ parcVerifier_VerifyDigestSignature(PARCVerifier *verifier, PARCKeyId *keyid, PAR
 bool
 parcVerifier_AllowedCryptoSuite(PARCVerifier *verifier, PARCKeyId *keyid, PARCCryptoSuite suite)
 {
-    assertNotNull(verifier, "Parameter must be non-null PARCVerifier");
+    parcAssertNotNull(verifier, "Parameter must be non-null PARCVerifier");
     return verifier->interface->AllowedCryptoSuite(verifier->instance, keyid, suite);
 }
 
 PARCCryptoHasher*
 parcVerifier_GetCryptoHasher(PARCVerifier *verifier, PARCKeyId *keyid, PARCCryptoHashType hashType)
 {
-    assertNotNull(verifier, "Parameter must be non-null PARCVerifier");
+    parcAssertNotNull(verifier, "Parameter must be non-null PARCVerifier");
     return verifier->interface->GetCryptoHasher(verifier->instance, keyid, hashType);
 }
 
 void
 parcVerifier_AddKey(PARCVerifier *verifier, PARCKey *key)
 {
-    assertNotNull(verifier, "Parameter must be non-null PARCVerifier");
+    parcAssertNotNull(verifier, "Parameter must be non-null PARCVerifier");
     verifier->interface->AddKey(verifier->instance, key);
 }
 
 void
 parcVerifier_RemoveKeyId(PARCVerifier *verifier, PARCKeyId *keyid)
 {
-    assertNotNull(verifier, "Parameter must be non-null PARCVerifier");
+    parcAssertNotNull(verifier, "Parameter must be non-null PARCVerifier");
     verifier->interface->RemoveKeyId(verifier->instance, keyid);
 }

@@ -81,7 +81,7 @@
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/concurrent/parc_RingBuffer_1x1.h>
 
@@ -141,10 +141,10 @@ static PARCRingBuffer1x1 *
 _create(uint32_t elements, RingBufferEntryDestroyer *destroyer)
 {
     PARCRingBuffer1x1 *ring = parcObject_CreateInstance(PARCRingBuffer1x1);
-    assertNotNull(ring, "parcObject_Create returned NULL");
+    parcAssertNotNull(ring, "parcObject_Create returned NULL");
 
     ring->buffer = parcMemory_AllocateAndClear(sizeof(void *) * elements);
-    assertNotNull((ring->buffer), "parcMemory_AllocateAndClear() failed to allocate array of %u pointers", elements);
+    parcAssertNotNull((ring->buffer), "parcMemory_AllocateAndClear() failed to allocate array of %u pointers", elements);
 
     ring->writer_head = 0;
     ring->reader_tail = 0;
@@ -158,7 +158,7 @@ _create(uint32_t elements, RingBufferEntryDestroyer *destroyer)
 PARCRingBuffer1x1 *
 parcRingBuffer1x1_Create(uint32_t elements, RingBufferEntryDestroyer *destroyer)
 {
-    assertTrue(_isPowerOfTwo(elements), "Parameter elements must be a power of 2, got %u", elements);
+    parcAssertTrue(_isPowerOfTwo(elements), "Parameter elements must be a power of 2, got %u", elements);
     return _create(elements, destroyer);
 }
 
@@ -189,7 +189,7 @@ parcRingBuffer1x1_Put(PARCRingBuffer1x1 *ring, void *data)
         return false;
     }
 
-    assertNull(ring->buffer[writer_head], "Ring index %u is not null!", writer_head);
+    parcAssertNull(ring->buffer[writer_head], "Ring index %u is not null!", writer_head);
     ring->buffer[writer_head] = data;
 
     // we're using this just for atomic write to the integer

@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_KeyId.h>
 
@@ -46,7 +46,7 @@ parcObject_ExtendPARCObject(PARCKeyId, _parcKeyId_Destroy, NULL, NULL, NULL, NUL
 void
 parcKeyId_AssertValid(const PARCKeyId *keyId)
 {
-    assertNotNull(keyId, "Pointer must be a non-null pointer to a PARCKeyId");
+    parcAssertNotNull(keyId, "Pointer must be a non-null pointer to a PARCKeyId");
 }
 
 PARCKeyId *

@@ -88,18 +88,18 @@ set(LIBPARC_ALGOL_SOURCE_FILES
 	algol/parc_Base64.c
 	algol/parc_BitVector.c
 	algol/parc_Buffer.c
-        algol/parc_BufferChunker.c
+    algol/parc_BufferChunker.c
 	algol/parc_BufferComposer.c
 	algol/parc_BufferDictionary.c
 	algol/parc_ByteArray.c
 	algol/parc_Clock.c
-        algol/parc_Chunker.c
+    algol/parc_Chunker.c
 	algol/parc_Deque.c
 	algol/parc_Dictionary.c
 	algol/parc_DisplayIndented.c
 	algol/parc_Environment.c
 	algol/parc_File.c
-        algol/parc_FileChunker.c
+    algol/parc_FileChunker.c
 	algol/parc_FileInputStream.c
 	algol/parc_FileOutputStream.c
 	algol/parc_Hash.c
@@ -152,15 +152,17 @@ set(LIBPARC_ALGOL_SOURCE_FILES
     algol/parc_Unsigned.c
 	)
 
-set(LIBPARC_TESTING_HEADER_FILES
-	testing/parc_MemoryTesting.h
-	testing/parc_ObjectTesting.h
-	)
+if(ENABLE_TEST)
+	set(LIBPARC_TESTING_HEADER_FILES
+		testing/parc_MemoryTesting.h
+		testing/parc_ObjectTesting.h
+		)
 
-set(LIBPARC_TESTING_SOURCE_FILES
-	testing/parc_MemoryTesting.c
-	testing/parc_ObjectTesting.c
-	)
+	set(LIBPARC_TESTING_SOURCE_FILES
+		testing/parc_MemoryTesting.c
+		testing/parc_ObjectTesting.c
+		)
+endif()
 
 set(LIBPARC_SECURITY_HEADER_FILES
 	security/parc_CryptoHasher.h
@@ -177,9 +179,9 @@ set(LIBPARC_SECURITY_HEADER_FILES
 	security/parc_IdentityFile.h
 	security/parc_Key.h
 	security/parc_KeyId.h
-        security/parc_KeyStore.h
-        security/parc_Pkcs12KeyStore.h
-        security/parc_PublicKeySigner.h
+    security/parc_KeyStore.h
+    security/parc_Pkcs12KeyStore.h
+    security/parc_PublicKeySigner.h
 	security/parc_SecureRandom.h
 	security/parc_Security.h
 	security/parc_Signature.h
@@ -279,6 +281,10 @@ set(LIBPARC_LOGGING_HEADER_FILES
 	logging/parc_LogFormatSyslog.h
 	)
 
+set (LIBPARC_ASSERT_HEADER_FILES
+    assert/parc_Assert.h
+    )
+
 set(LIBPARC_LOGGING_SOURCE_FILES
 	logging/parc_Log.c
 	logging/parc_LogEntry.c
@@ -324,13 +330,11 @@ set(LIBPARC_SOURCE_FILES
     ${LIBPARC_ALGOL_SOURCE_FILES}
     ${LIBPARC_CONCURRENT_SOURCE_FILES}
 	${LIBPARC_SECURITY_SOURCE_FILES}
-	${LIBPARC_TESTING_SOURCE_FILES}
 	${LIBPARC_LOGGING_SOURCE_FILES}
 	${LIBPARC_DEVELOPER_SOURCE_FILES}
 	${LIBPARC_BASE_HEADER_FILES}
 	${LIBPARC_ALGOL_HEADER_FILES}
 	${LIBPARC_PRIVATE_HEADER_FILES}
-	${LIBPARC_TESTING_HEADER_FILES}
 	${LIBPARC_SECURITY_HEADER_FILES}
 	${LIBPARC_CONCURRENT_HEADER_FILES}
 	${LIBPARC_CONCURRENT_SOURCE_FILES}
@@ -338,20 +342,31 @@ set(LIBPARC_SOURCE_FILES
 	${LIBPARC_DEVELOPER_HEADER_FILES}
     ${LIBPARC_STATISTICS_HEADER_FILES} ${LIBPARC_STATISTICS_SOURCE_FILES}
     ${LIBPARC_MEMORY_HEADER_FILES} ${LIBPARC_MEMORY_SOURCE_FILES}
+	${LIBPARC_ASSERT_HEADER_FILES}
+)
+
+if(ENABLE_TEST)
+	list(APPEND LIBPARC_SOURCE_FILES
+		${LIBPARC_TESTING_SOURCE_FILES}
+		${LIBPARC_TESTING_HEADER_FILES}
 	)
+endif()
 
 set(LIBPARC_ALGOL_FILES ${LIBPARC_ALGOL_SOURCE_FILES} ${LIBPARC_ALGOL_HEADER_FILES})
 list(SORT LIBPARC_ALGOL_FILES)
 source_group(algol FILES ${LIBPARC_ALGOL_FILES})
 
-#source_group(algol FILES ${LIBPARC_ALGOL_SOURCE_FILES} ${LIBPARC_ALGOL_HEADER_FILES})
 source_group(concurrent FILES ${LIBPARC_CONCURRENT_SOURCE_FILES} ${LIBPARC_CONCURRENT_HEADER_FILES})
 source_group(security FILES ${LIBPARC_SECURITY_SOURCE_FILES} ${LIBPARC_SECURITY_HEADER_FILES})
 source_group(developer FILES ${LIBPARC_DEVELOPER_SOURCE_FILES} ${LIBPARC_DEVELOPER_HEADER_FILES})
 source_group(logging FILES ${LIBPARC_LOGGING_SOURCE_FILES} ${LIBPARC_LOGGING_HEADER_FILES})
-source_group(testing FILES ${LIBPARC_TESTING_SOURCE_FILES} ${LIBPARC_TESTING_HEADER_FILES})
 source_group(statistics FILES ${LIBPARC_STATISTICS_SOURCE_FILES} ${LIBPARC_STATISTICS_HEADER_FILES})
 source_group(memory FILES ${LIBPARC_MEMORY_SOURCE_FILES} ${LIBPARC_MEMORY_HEADER_FILES})
+source_group(assert FILES ${LIBPARC_ASSERT_HEADER_FILES})
+
+if(ENABLE_TEST)
+	source_group(testing FILES ${LIBPARC_TESTING_SOURCE_FILES} ${LIBPARC_TESTING_HEADER_FILES})
+endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR COMPILE_FOR_IOS)
     set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
@@ -390,21 +405,32 @@ endforeach()
 install(FILES ${LIBPARC_ALGOL_HEADER_FILES}      DESTINATION include/parc/algol COMPONENT headers)
 install(FILES ${LIBPARC_SECURITY_HEADER_FILES}   DESTINATION include/parc/security COMPONENT headers)
 install(FILES ${LIBPARC_LOGGING_HEADER_FILES}    DESTINATION include/parc/logging COMPONENT headers)
-install(FILES ${LIBPARC_TESTING_HEADER_FILES}    DESTINATION include/parc/testing COMPONENT headers)
 install(FILES ${LIBPARC_CONCURRENT_HEADER_FILES} DESTINATION include/parc/concurrent COMPONENT headers)
 install(FILES ${LIBPARC_DEVELOPER_HEADER_FILES}  DESTINATION include/parc/developer COMPONENT headers)
 install(FILES ${LIBPARC_BASE_HEADER_FILES}       DESTINATION include/parc COMPONENT headers)
 install(FILES ${LIBPARC_STATISTICS_HEADER_FILES} DESTINATION include/parc/statistics COMPONENT headers)
 install(FILES ${LIBPARC_MEMORY_HEADER_FILES}     DESTINATION include/parc/memory COMPONENT headers)
+install(FILES ${LIBPARC_ASSERT_HEADER_FILES}     DESTINATION include/parc/assert COMPONENT headers)
 
-if(NOT COMPILE_FOR_IOS)
-  add_subdirectory(security/command-line)
-  add_subdirectory(algol/test)
-  add_subdirectory(concurrent/test)
-  add_subdirectory(developer/test)
-  add_subdirectory(security/test)
-  add_subdirectory(logging/test)
-  add_subdirectory(testing/test)
-  add_subdirectory(statistics/test)
-  add_subdirectory(memory/test)
+if(ENABLE_TEST)
+	install(FILES ${LIBPARC_TESTING_HEADER_FILES}    DESTINATION include/parc/testing COMPONENT headers)
 endif()
+
+if(ENABLE_TEST)
+  if(NOT COMPILE_FOR_IOS)
+	add_subdirectory(security/command-line)
+	add_subdirectory(algol/test)
+	add_subdirectory(concurrent/test)
+	add_subdirectory(developer/test)
+	add_subdirectory(security/test)
+	add_subdirectory(logging/test)
+	add_subdirectory(testing/test)
+	add_subdirectory(statistics/test)
+	add_subdirectory(memory/test)
+  endif()
+else()
+  if(NOT COMPILE_FOR_IOS)
+	add_subdirectory(security/command-line)
+  endif()
+endif()
+

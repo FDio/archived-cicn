@@ -35,7 +35,7 @@ struct parc_securerandom {
 static bool
 _parcSecureRandom_Destructor(PARCSecureRandom **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSecureRandom pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSecureRandom pointer.");
     PARCSecureRandom *instance = *instancePtr;
 
     close(instance->randomfd);
@@ -51,7 +51,7 @@ parcObject_Override(PARCSecureRandom, PARCObject,
 void
 parcSecureRandom_AssertValid(const PARCSecureRandom *instance)
 {
-    assertTrue(parcSecureRandom_IsValid(instance),
+    parcAssertTrue(parcSecureRandom_IsValid(instance),
                "PARCSecureRandom is not valid.");
 }
 
@@ -77,7 +77,7 @@ static void
 _parcSecureRandom_ReSeed(PARCSecureRandom *random, PARCBuffer *buffer)
 {
     size_t length = parcBuffer_Remaining(buffer);
-    write(random->randomfd, parcBuffer_Overlay(buffer, length), length);
+    int wrote_bytes = write(random->randomfd, parcBuffer_Overlay(buffer, length), length);
 }
 
 PARCSecureRandom *
@@ -96,7 +96,7 @@ uint32_t
 parcSecureRandom_Next(PARCSecureRandom *random)
 {
     uint32_t value;
-    read(random->randomfd, &value, sizeof(value));
+    int read_bytes = read(random->randomfd, &value, sizeof(value));
     return value;
 }
 

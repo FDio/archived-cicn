@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_CertificateType.h>
 

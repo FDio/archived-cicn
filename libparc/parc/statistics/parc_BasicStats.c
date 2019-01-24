@@ -42,7 +42,7 @@ _parcBasicStats_FloatEquals(double x, double y, double e)
 static bool
 _parcBasicStats_Destructor(PARCBasicStats **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCBasicStats pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCBasicStats pointer.");
 
     return true;
 }
@@ -65,7 +65,7 @@ parcObject_Override(
 void
 parcBasicStats_AssertValid(const PARCBasicStats *instance)
 {
-    assertTrue(parcBasicStats_IsValid(instance),
+    parcAssertTrue(parcBasicStats_IsValid(instance),
                "PARCBasicStats is not valid.");
 }
 

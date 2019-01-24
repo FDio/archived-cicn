@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 
@@ -167,7 +167,7 @@ static _RBNode *
 _rbNodeCreate(PARCTreeMap *tree, int color)
 {
     _RBNode *node = parcMemory_AllocateAndClear(sizeof(_RBNode));
-    assertNotNull(node, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(_RBNode));
+    parcAssertNotNull(node, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(_RBNode));
     node->color = color;
     node->leftChild = tree->nil;
     node->rightChild = tree->nil;
@@ -353,28 +353,28 @@ static void
 _rbNodeAssertNodeInvariants(_RBNode *node, PARCObject *data)
 {
     PARCTreeMap *tree = (PARCTreeMap *) data;
-    assertNotNull(node->parent, "Node has NULL parent");
-    assertNotNull(node->leftChild, "Left child NULL");
-    assertNotNull(node->rightChild, "Richt child NULL");
+    parcAssertNotNull(node->parent, "Node has NULL parent");
+    parcAssertNotNull(node->leftChild, "Left child NULL");
+    parcAssertNotNull(node->rightChild, "Richt child NULL");
     if (node != tree->root) {
-        assertTrue(node->parent != tree->nil, "Paren't can't be nill for node!");
+        parcAssertTrue(node->parent != tree->nil, "Paren't can't be nill for node!");
         // Don't need to compare to parent, they compared to us
     }
-    assertNotNull(node->element, "We have a null element!!");
-    assertNotNull(parcKeyValue_GetKey(node->element), "We have a null key!!");
-    assertNotNull(parcKeyValue_GetValue(node->element), "We have a null value!!");
+    parcAssertNotNull(node->element, "We have a null element!!");
+    parcAssertNotNull(parcKeyValue_GetKey(node->element), "We have a null key!!");
+    parcAssertNotNull(parcKeyValue_GetValue(node->element), "We have a null value!!");
     if (node->leftChild != tree->nil) {
         if (tree->customCompare != NULL) {
-            assertTrue(tree->customCompare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->leftChild->element)) > 0, "Left child not smaller?");
+            parcAssertTrue(tree->customCompare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->leftChild->element)) > 0, "Left child not smaller?");
         } else {
-            assertTrue(parcObject_Compare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->leftChild->element)) > 0, "Left child not smaller?");
+            parcAssertTrue(parcObject_Compare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->leftChild->element)) > 0, "Left child not smaller?");
         }
     }
     if (node->rightChild != tree->nil) {
         if (tree->customCompare != NULL) {
-            assertTrue(tree->customCompare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->rightChild->element)) < 0, "Right child not bigger?");
+            parcAssertTrue(tree->customCompare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->rightChild->element)) < 0, "Right child not bigger?");
         } else {
-            assertTrue(parcObject_Compare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->rightChild->element)) < 0, "Right child not bigger?");
+            parcAssertTrue(parcObject_Compare(parcKeyValue_GetKey(node->element), parcKeyValue_GetKey(node->rightChild->element)) < 0, "Right child not bigger?");
         }
     }
 }
@@ -383,11 +383,11 @@ static
 void
 _rbNodeAssertTreeInvariants(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree is null!");
-    assertTrue(tree->size >= 0, "Tree has negative size");
+    parcAssertNotNull(tree, "Tree is null!");
+    parcAssertTrue(tree->size >= 0, "Tree has negative size");
     if (tree->size != 0) {
-        assertTrue(tree->root != tree->nil, "Tree size = %d > 0 but root is nil", tree->size);
-        assertNotNull(tree->root, "Tree size > 0 but root is NULL");
+        parcAssertTrue(tree->root != tree->nil, "Tree size = %d > 0 but root is nil", tree->size);
+        parcAssertNotNull(tree->root, "Tree size > 0 but root is NULL");
 #ifdef ASSERT_INVARIANTS
         _rbNodeRecursiveRun((PARCTreeMap *) tree, tree->root, _rbNodeAssertNodeInvariants, (PARCObject *) tree);
 #endif
@@ -558,8 +558,8 @@ _rbNodeRemove(PARCTreeMap *tree, _RBNode *node)
 static void
 _parcTreeMap_Destroy(PARCTreeMap **treePointer)
 {
-    assertNotNull(treePointer, "pointer to pointer to tree can't be null");
-    assertNotNull(*treePointer, "pointer to tree can't be null");
+    parcAssertNotNull(treePointer, "pointer to pointer to tree can't be null");
+    parcAssertNotNull(*treePointer, "pointer to tree can't be null");
     _rbNodeAssertTreeInvariants(*treePointer);
 
     if ((*treePointer)->size > 0) {
@@ -582,7 +582,7 @@ PARCTreeMap *
 parcTreeMap_CreateCustom(PARCTreeMap_CustomCompare *customCompare)
 {
     PARCTreeMap *tree = parcObject_CreateInstance(PARCTreeMap);
-    assertNotNull(tree, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCTreeMap));
+    parcAssertNotNull(tree, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCTreeMap));
     tree->nil = _rbNodeCreate(tree, BLACK);
     tree->nil->leftChild = tree->nil;
     tree->nil->rightChild = tree->nil;
@@ -602,9 +602,9 @@ parcTreeMap_Create(void)
 void
 parcTreeMap_Put(PARCTreeMap *tree, const PARCObject *key, const PARCObject *value)
 {
-    assertNotNull(tree, "Tree can't be NULL");
-    assertNotNull(key, "Key can't be NULL");
-    assertNotNull(value, "Value can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(key, "Key can't be NULL");
+    parcAssertNotNull(value, "Value can't be NULL");
 
     _RBNode *newNode = _rbNodeCreate(tree, RED);
     _RBNode *parent = tree->nil;
@@ -660,7 +660,7 @@ parcTreeMap_Put(PARCTreeMap *tree, const PARCObject *key, const PARCObject *valu
 PARCObject *
 parcTreeMap_Get(PARCTreeMap *tree, const PARCObject *key)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     PARCObject *result = NULL;
@@ -678,8 +678,8 @@ parcTreeMap_Get(PARCTreeMap *tree, const PARCObject *key)
 PARCObject *
 parcTreeMap_Remove(PARCTreeMap *tree, const PARCObject *key)
 {
-    assertNotNull(tree, "Tree can't be NULL");
-    assertNotNull(key, "Key can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(key, "Key can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     PARCObject *result = NULL;
@@ -703,8 +703,8 @@ parcTreeMap_Remove(PARCTreeMap *tree, const PARCObject *key)
 void
 parcTreeMap_RemoveAndRelease(PARCTreeMap *tree, const PARCObject *key)
 {
-    assertNotNull(tree, "Tree can't be NULL");
-    assertNotNull(key, "Key can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(key, "Key can't be NULL");
 
     _RBNode *node = _rbFindNode(tree, tree->root, key);
 
@@ -719,7 +719,7 @@ parcTreeMap_RemoveAndRelease(PARCTreeMap *tree, const PARCObject *key)
 PARCKeyValue *
 parcTreeMap_GetLastEntry(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
     _RBNode *node = tree->root;
 
@@ -752,7 +752,7 @@ parcTreeMap_GetLastKey(const PARCTreeMap *tree)
 PARCKeyValue *
 parcTreeMap_GetFirstEntry(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     if (tree->size == 0) {
@@ -840,7 +840,7 @@ parcTreeMap_GetLowerKey(const PARCTreeMap *tree, const PARCObject *key)
 size_t
 parcTreeMap_Size(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     return tree->size;
@@ -867,7 +867,7 @@ _rbAddElementToList(_RBNode *node, PARCList *list)
 PARCList *
 parcTreeMap_AcquireKeys(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     PARCList *keys = parcList(parcArrayList_Create_Capacity((bool (*)(void *x, void *y))parcObject_Equals,
@@ -883,7 +883,7 @@ parcTreeMap_AcquireKeys(const PARCTreeMap *tree)
 PARCList *
 parcTreeMap_AcquireValues(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     PARCList *values = parcList(parcArrayList_Create_Capacity((bool (*)(void *x, void *y))parcObject_Equals,
@@ -899,7 +899,7 @@ parcTreeMap_AcquireValues(const PARCTreeMap *tree)
 static PARCList *
 _parcTreeMap_Elements(const PARCTreeMap *tree)
 {
-    assertNotNull(tree, "Tree can't be NULL");
+    parcAssertNotNull(tree, "Tree can't be NULL");
     _rbNodeAssertTreeInvariants(tree);
 
     PARCList *elements = parcList(parcArrayList_Create_Capacity((bool (*)(void *x, void *y))parcObject_Equals,
@@ -917,8 +917,8 @@ parcTreeMap_Equals(const PARCTreeMap *tree1, const PARCTreeMap *tree2)
 {
     _rbNodeAssertTreeInvariants(tree1);
     _rbNodeAssertTreeInvariants(tree2);
-    assertNotNull(tree1, "Tree can't be NULL");
-    assertNotNull(tree2, "Tree can't be NULL");
+    parcAssertNotNull(tree1, "Tree can't be NULL");
+    parcAssertNotNull(tree2, "Tree can't be NULL");
 
     bool result = false;
 
@@ -968,7 +968,7 @@ PARCTreeMap *
 parcTreeMap_Copy(const PARCTreeMap *sourceTree)
 {
     _rbNodeAssertTreeInvariants(sourceTree);
-    assertNotNull(sourceTree, "Tree can't be NULL");
+    parcAssertNotNull(sourceTree, "Tree can't be NULL");
 
     PARCObject *keySource;
     PARCObject *keyCopy;
@@ -1019,7 +1019,7 @@ _parcTreeMapIterator_Init(PARCTreeMap *map)
         state->list = _parcTreeMap_Elements(map);
         state->currentIndex = 0;
         state->currentElement = parcList_GetAtIndex(state->list, 0);
-        trapOutOfMemoryIf(state->list == NULL, "Cannot create parcList");
+        parcTrapOutOfMemoryIf(state->list == NULL, "Cannot create parcList");
     }
 
     return state;

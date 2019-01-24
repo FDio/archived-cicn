@@ -23,7 +23,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/concurrent/parc_Notifier.h>
 #include <parc/algol/parc_Object.h>
@@ -83,7 +83,7 @@ parcNotifier_Create(void)
         notifier->skippedNotify = false;
 
         int failure = pipe(notifier->fds);
-        assertFalse(failure, "Error on pipe: %s", strerror(errno));
+        parcAssertFalse(failure, "Error on pipe: %s", strerror(errno));
 
         if (!_parcNotifier_MakeNonblocking(notifier)) {
             parcObject_Release((void **) &notifier);
@@ -113,7 +113,7 @@ parcNotifier_Notify(PARCNotifier *notifier)
         ssize_t written;
         do {
             written = write(notifier->fds[PARCNotifierWriteFd], &one, 1);
-            assertTrue(written >= 0, "Error writing to socket %d: %s", notifier->fds[PARCNotifierWriteFd], strerror(errno));
+            parcAssertTrue(written >= 0, "Error writing to socket %d: %s", notifier->fds[PARCNotifierWriteFd], strerror(errno));
         } while (written == 0);
 
         return true;

@@ -23,8 +23,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <LongBow/runtime.h>
-#include <LongBow/longBow_Compiler.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 
@@ -65,7 +64,7 @@ struct parc_pkcs12_keystore {
 static bool
 _parcPkcs12KeyStore_Finalize(PARCPkcs12KeyStore **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCPkcs12KeyStore pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCPkcs12KeyStore pointer.");
     PARCPkcs12KeyStore *keystore = *instancePtr;
 
     EVP_PKEY_free(keystore->private_key);
@@ -105,7 +104,7 @@ _parcPkcs12KeyStore_ParseFile(PARCPkcs12KeyStore *keystore, const char *filename
 
     FILE *fp = fopen(filename, "rb");
 
-    assertNotNull(fp, "Error opening %s: %s", filename, strerror(errno));
+    parcAssertNotNull(fp, "Error opening %s: %s", filename, strerror(errno));
     if (fp == NULL) {
         return -1;
     }
@@ -148,10 +147,6 @@ _parcPkcs12KeyStore_ParseFile(PARCPkcs12KeyStore *keystore, const char *filename
     }
     return 0;
 }
-
-// =============================================================
-LONGBOW_STOP_DEPRECATED_WARNINGS
-// =============================================================
 
 PKCS12 *_createPkcs12KeyStore_RSA(
     PARCBuffer *privateKeyBuffer,
@@ -264,11 +259,11 @@ parcPkcs12KeyStore_CreateFile(
                     fclose(fp);
                     result = true;
                 } else {
-                    trapUnrecoverableState("Cannot fdopen(3) the file descriptor %d", fd);
+                    parcTrapUnrecoverableState("Cannot fdopen(3) the file descriptor %d", fd);
                 }
                 close(fd);
             } else {
-                trapUnrecoverableState("Cannot open(2) the file '%s': %s", filename, strerror(errno));
+                parcTrapUnrecoverableState("Cannot open(2) the file '%s': %s", filename, strerror(errno));
             }
             PKCS12_free(pkcs12);
         } else {
@@ -276,7 +271,7 @@ parcPkcs12KeyStore_CreateFile(
             while ((errcode = ERR_get_error()) != 0) {
                 fprintf(stderr, "openssl error: %s\n", ERR_error_string(errcode, NULL));
             }
-            trapUnrecoverableState("PKCS12_create returned a NULL value.");
+            parcTrapUnrecoverableState("PKCS12_create returned a NULL value.");
         }
     }
 
@@ -313,7 +308,7 @@ _GetPublickKeyDigest(PARCPkcs12KeyStore *keystore)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
+    parcAssertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
 
 #if 0
     if (keystore->public_key_digest == NULL) {
@@ -341,7 +336,7 @@ _GetPublickKeyDigest(PARCPkcs12KeyStore *keystore)
                                       digestBuffer,
                                       NULL);
         if (result != 1) {
-            assertTrue(0, "Could not compute digest over certificate public key");
+            parcAssertTrue(0, "Could not compute digest over certificate public key");
         } else {
             keystore->public_key_digest =
                 parcBuffer_PutArray(parcBuffer_Allocate(SHA256_DIGEST_LENGTH), SHA256_DIGEST_LENGTH, digestBuffer);
@@ -359,7 +354,7 @@ _GetCertificateDigest(PARCPkcs12KeyStore *keystore)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
+    parcAssertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
 
     if (keystore->certificate_digest == NULL) {
         uint8_t digestBuffer[SHA256_DIGEST_LENGTH];
@@ -379,7 +374,7 @@ _GetDEREncodedCertificate(PARCPkcs12KeyStore *keystore)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
+    parcAssertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
 
     if (keystore->certificate_der == NULL) {
         uint8_t *der = NULL;
@@ -401,7 +396,7 @@ _GetDEREncodedPublicKey(PARCPkcs12KeyStore *keystore)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
+    parcAssertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
 
     if (keystore->public_key_der == NULL) {
         uint8_t *der = NULL;
@@ -423,7 +418,7 @@ _GetDEREncodedPrivateKey(PARCPkcs12KeyStore *keystore)
 {
     parcSecurity_AssertIsInitialized();
 
-    assertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
+    parcAssertNotNull(keystore, "Parameter must be non-null PARCPkcs12KeyStore");
 
     if (keystore->private_key_der == NULL) {
         uint8_t *der = NULL;
@@ -449,6 +444,3 @@ PARCKeyStoreInterface *PARCPkcs12KeyStoreAsKeyStore = &(PARCKeyStoreInterface) {
     .getSigningAlgorithm = (PARCKeyStoreGetSigningAlgorithm *) _GetSigningAlgorithm,
 };
 
-// =============================================================
-LONGBOW_START_DEPRECATED_WARNINGS
-// =============================================================

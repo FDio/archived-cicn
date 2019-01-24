@@ -36,7 +36,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #if defined(_WIN64)
 #  define backtrace(...) (0)
@@ -340,7 +340,7 @@ _parcSafeMemory_Report(const PARCSafeMemoryUsable *safeMemory, int outputFd)
                                         (void *) safeMemory,
                                         (void *) prefix,
                                         _parcSafeMemory_StateToString(_parcSafeMemory_GetState(safeMemory)));
-        trapUnexpectedStateIf(charactersPrinted < 0, "Cannot write to file descriptor %d", outputFd);
+        parcTrapUnexpectedStateIf(charactersPrinted < 0, "Cannot write to file descriptor %d", outputFd);
     }
     _backtraceReport(prefix->backtrace, outputFd);
 }
@@ -359,7 +359,7 @@ parcSafeMemory_ReportAllocation(int outputFd)
             int charactersPrinted = dprintf(outputFd,
                                             "\n%u SafeMemory@%p: %p={ .requestedLength=%zd, .actualLength=%zd, .alignment=%zd }\n",
                                             index, e->memory, (void *) prefix, prefix->requestedLength, prefix->actualLength, prefix->alignment);
-            trapUnexpectedStateIf(charactersPrinted < 0, "Cannot write to file descriptor %d", outputFd)
+            parcTrapUnexpectedStateIf(charactersPrinted < 0, "Cannot write to file descriptor %d", outputFd)
             {
                 pthread_mutex_unlock(&head_mutex);
             }
@@ -394,7 +394,7 @@ _parcSafeMemory_Destroy(void **memoryPointer)
     PARCSafeMemoryUsable *memory = *memoryPointer;
 
     PARCSafeMemoryState state = _parcSafeMemory_GetState(memory);
-    trapUnexpectedStateIf(state != PARCSafeMemoryState_OK,
+    parcTrapUnexpectedStateIf(state != PARCSafeMemoryState_OK,
                           "Expected PARCSafeMemoryState_OK, actual %s (see parc_SafeMemory.h)",
                           _parcSafeMemory_StateToString(state))
     {
@@ -474,7 +474,7 @@ _parcSafeMemory_FormatPrefix(PARCSafeMemoryOrigin *origin, size_t requestedLengt
 
     PARCSafeMemoryUsable *result = _pointerAdd(origin, prefixSize);
 
-    assertAligned(result, alignment, "Return value is not properly aligned to %zu", alignment);
+    parcAssertAligned(result, alignment, "Return value is not properly aligned to %zu", alignment);
     return result;
 }
 

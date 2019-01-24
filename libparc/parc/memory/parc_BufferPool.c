@@ -39,7 +39,7 @@ struct PARCBufferPool {
 static bool
 _parcBufferPool_Destructor(PARCBufferPool **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCBufferPool pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCBufferPool pointer.");
 
     PARCBufferPool *pool = *instancePtr;
 
@@ -91,7 +91,7 @@ parcObject_Override(PARCBufferPool, PARCObject,
 void
 parcBufferPool_AssertValid(const PARCBufferPool *instance)
 {
-    assertTrue(parcBufferPool_IsValid(instance),
+    parcAssertTrue(parcBufferPool_IsValid(instance),
                "PARCBufferPool is not valid.");
 }
 

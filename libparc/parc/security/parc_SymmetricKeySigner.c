@@ -68,13 +68,13 @@ _hmacCreate(void *env)
 #else
     // HMAC_Init_ex seems to overrun the size of HMAC_CTX, so make it bigger
     HMAC_CTX *ctx = parcMemory_Allocate(sizeof(HMAC_CTX) * 2);
-    assertNotNull(ctx, "parcMemory_Allocate(%zu) returned NULL for HMAC_CTX", sizeof(HMAC_CTX) * 2);
+    parcAssertNotNull(ctx, "parcMemory_Allocate(%zu) returned NULL for HMAC_CTX", sizeof(HMAC_CTX) * 2);
     HMAC_CTX_init(ctx);
 #endif
 
     // Now initialize it with our digest and key, so in hmac_init we can avoid using those
     PARCBuffer *secretKey = parcSymmetricKeyStore_GetKey(signer->keyStore);
-    assertTrue(parcBuffer_Remaining(secretKey) < 512, "The keystore secret key cannot be longer than %d", 512);
+    parcAssertTrue(parcBuffer_Remaining(secretKey) < 512, "The keystore secret key cannot be longer than %d", 512);
 
     HMAC_Init_ex(ctx, parcByteArray_Array(parcBuffer_Array(secretKey)), (int) parcBuffer_Remaining(secretKey), signer->opensslMd, NULL);
 
@@ -133,7 +133,7 @@ static PARCCryptoHasherInterface functor_hmac = {
 static bool
 _parcSymmetricKeySigner_Finalize(PARCSymmetricKeySigner **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSymmetricKeySigner pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSymmetricKeySigner pointer.");
     PARCSymmetricKeySigner *signer = (PARCSymmetricKeySigner *) *instancePtr;
     if (signer->secretKeyHash != NULL) {
         parcCryptoHash_Release(&signer->secretKeyHash);
@@ -161,7 +161,7 @@ parcObject_Override(PARCSymmetricKeySigner, PARCObject,
 void
 parcSymmetricKeySigner_AssertValid(const PARCSymmetricKeySigner *instance)
 {
-    assertTrue(parcSymmetricKeySigner_IsValid(instance),
+    parcAssertTrue(parcSymmetricKeySigner_IsValid(instance),
                "PARCSymmetricKeySigner is not valid.");
 }
 
@@ -185,7 +185,7 @@ parcSymmetricKeySigner_Create(PARCSymmetricKeyStore *keyStore, PARCCryptoHashTyp
 
             default:
                 parcObject_Release((void **) &result);
-                trapIllegalValue(hmacHashType, "Unknown HMAC hash type: %d", hmacHashType);
+                parcTrapIllegalValue(hmacHashType, "Unknown HMAC hash type: %d", hmacHashType);
         }
 
         // the signer key digest is SHA256, independent of the HMAC digest
@@ -243,7 +243,7 @@ _getKeyStore(PARCSymmetricKeySigner *signer)
 static size_t
 _GetSignatureSize(PARCSymmetricKeySigner *signer)
 {
-  assertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
+  parcAssertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
 
   // TODO: what is the best way to expose this?
   PARCSymmetricKeyStore *keyStore = signer->keyStore;

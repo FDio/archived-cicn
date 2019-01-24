@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include "internal_parc_Event.h"
 #include <parc/algol/parc_EventScheduler.h>
@@ -66,7 +66,7 @@ PARCEventSignal *
 parcEventSignal_Create(PARCEventScheduler *eventScheduler, int signal, PARCEventType flags, PARCEvent_Callback *callback, void *callbackArgs)
 {
     PARCEventSignal *parcEventSignal = parcMemory_Allocate(sizeof(PARCEventSignal));
-    assertNotNull(parcEventSignal, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventSignal));
+    parcAssertNotNull(parcEventSignal, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventSignal));
 
     parcEventSignal->eventScheduler = eventScheduler;
     parcEventSignal->callback = callback;
@@ -75,7 +75,7 @@ parcEventSignal_Create(PARCEventScheduler *eventScheduler, int signal, PARCEvent
     parcEventSignal->event = event_new(parcEventScheduler_GetEvBase(eventScheduler), signal,
                                        internal_PARCEventType_to_libevent_type(flags),
                                        _parc_event_signal_callback, parcEventSignal);
-    assertNotNull(parcEventSignal->event, "Could not create a new event!");
+    parcAssertNotNull(parcEventSignal->event, "Could not create a new event!");
 
     parcEventSignal_LogDebug(parcEventSignal,
                              "parcEventSignal_Create(base=%p,signal=%x,flags=%x,cb=%p,args=%p) = %p\n",
@@ -88,7 +88,7 @@ int
 parcEventSignal_Start(PARCEventSignal *parcEventSignal)
 {
     parcEventSignal_LogDebug(parcEventSignal, "parcEventSignal_Start(event=%p)\n", parcEventSignal);
-    assertNotNull(parcEventSignal, "parcEventStart_Signal must be passed a valid event!");
+    parcAssertNotNull(parcEventSignal, "parcEventStart_Signal must be passed a valid event!");
 
     int result = event_add(parcEventSignal->event, NULL);
     return result;
@@ -98,7 +98,7 @@ int
 parcEventSignal_Stop(PARCEventSignal *parcEventSignal)
 {
     parcEventSignal_LogDebug(parcEventSignal, "parcEventSignal_Stop(event=%p)\n", parcEventSignal);
-    assertNotNull(parcEventSignal, "parcEvent_Stop must be passed a valid event!");
+    parcAssertNotNull(parcEventSignal, "parcEvent_Stop must be passed a valid event!");
 
     int result = event_del(parcEventSignal->event);
     return result;
@@ -108,8 +108,8 @@ void
 parcEventSignal_Destroy(PARCEventSignal **parcEventSignal)
 {
     parcEventSignal_LogDebug((*parcEventSignal), "parcEventSignal_Destroy(event=%p)\n", parcEventSignal);
-    assertNotNull(*parcEventSignal, "parcEvent_Destroy must be passed a valid parcEventSignal!");
-    assertNotNull((*parcEventSignal)->event, "parcEvent_Destroy passed a null event!");
+    parcAssertNotNull(*parcEventSignal, "parcEvent_Destroy must be passed a valid parcEventSignal!");
+    parcAssertNotNull((*parcEventSignal)->event, "parcEvent_Destroy passed a null event!");
     event_free((*parcEventSignal)->event);
     parcMemory_Deallocate((void **) parcEventSignal);
 }

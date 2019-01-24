@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <sys/queue.h>
@@ -104,27 +104,27 @@ _parcDequeNode_Destroy(PARCDeque *deque __attribute__((unused)), struct parc_deq
 static void
 _parcDequeNode_AssertInvariants(struct parc_deque_node *node)
 {
-    assertNotNull(node, "Expected non-null node pointer.");
+    parcAssertNotNull(node, "Expected non-null node pointer.");
     if (node->next != NULL) {
-        assertTrue(node->next->previous == node, "Expected next node to point to this node.");
+        parcAssertTrue(node->next->previous == node, "Expected next node to point to this node.");
     }
     if (node->previous != NULL) {
-        assertTrue(node->previous->next == node, "Expected previous node to point to this node.");
+        parcAssertTrue(node->previous->next == node, "Expected previous node to point to this node.");
     }
 }
 
 static void
 _parcDeque_AssertInvariants(const PARCDeque *deque)
 {
-    assertNotNull(deque, "Parameter cannot be null.");
+    parcAssertNotNull(deque, "Parameter cannot be null.");
     if (deque->head != NULL) {
-        assertTrue(deque->size != 0, "PARCDeque head is not-null, but size is zero.");
-        assertNotNull(deque->tail, "PARCDeque head is not-null, but tail is null.");
+        parcAssertTrue(deque->size != 0, "PARCDeque head is not-null, but size is zero.");
+        parcAssertNotNull(deque->tail, "PARCDeque head is not-null, but tail is null.");
         _parcDequeNode_AssertInvariants(deque->head);
         _parcDequeNode_AssertInvariants(deque->tail);
     } else {
-        assertNull(deque->tail, "PARCDeque head is null, but tail is not null.");
-        assertTrue(deque->size == 0, "PARCDeque head is null, but size is not zero.");
+        parcAssertNull(deque->tail, "PARCDeque head is null, but tail is not null.");
+        parcAssertTrue(deque->size == 0, "PARCDeque head is null, but size is not zero.");
     }
 }
 
@@ -159,7 +159,7 @@ _parcDequeNode_Next(PARCDeque *deque __attribute__((unused)), const struct parc_
     if (node == NULL) {
         return deque->head;
     }
-    trapOutOfBoundsIf(node->next == NULL, "No more elements.");
+    parcTrapOutOfBoundsIf(node->next == NULL, "No more elements.");
     return node->next;
 }
 
@@ -386,7 +386,7 @@ void *
 parcDeque_GetAtIndex(const PARCDeque *deque, size_t index)
 {
     if (index > (parcDeque_Size(deque) - 1)) {
-        trapOutOfBounds(index, "[0, %zd]", parcDeque_Size(deque) - 1);
+        parcTrapOutOfBounds(index, "[0, %zd]", parcDeque_Size(deque) - 1);
     }
     struct parc_deque_node *node = deque->head;
     while (index--) {

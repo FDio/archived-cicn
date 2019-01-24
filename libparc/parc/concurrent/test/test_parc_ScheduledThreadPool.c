@@ -80,7 +80,7 @@ LONGBOW_TEST_CASE(CreateAcquireRelease, CreateRelease)
     parcObjectTesting_AssertAcquireReleaseContract(parcScheduledThreadPool_Acquire, instance);
     parcScheduledThreadPool_ShutdownNow(instance);
 
-    assertTrue(parcObject_GetReferenceCount(instance) == 1, "Expected 1 reference count. Actual %llu", parcObject_GetReferenceCount(instance));
+    assertTrue(parcObject_GetReferenceCount(instance) == 1, "Expected 1 reference count. Actual %lu", parcObject_GetReferenceCount(instance));
 
     parcScheduledThreadPool_Release(&instance);
     assertNull(instance, "Expected null result from parcScheduledThreadPool_Release();");
@@ -260,7 +260,7 @@ LONGBOW_TEST_CASE(Specialization, OneJob)
     PARCFutureTask *task = parcFutureTask_Create(_function, _function);
 
     parcScheduledThreadPool_Schedule(pool, task, parcTimeout_MilliSeconds(2000));
-    printf("references %lld\n", parcObject_GetReferenceCount(task));
+    printf("references %lu\n", parcObject_GetReferenceCount(task));
     parcFutureTask_Release(&task);
 
     sleep(5);

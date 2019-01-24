@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/security/parc_Signature.h>
@@ -42,10 +42,10 @@ parcObject_ExtendPARCObject(PARCSignature, _parcSignature_FinalRelease, NULL, NU
 PARCSignature *
 parcSignature_Create(PARCSigningAlgorithm signingAlgorithm, PARCCryptoHashType hashType, PARCBuffer *signatureBits)
 {
-    assertNotNull(signatureBits, "SignatureBits Parameter cannot be null");
+    parcAssertNotNull(signatureBits, "SignatureBits Parameter cannot be null");
 
     PARCSignature *signature = parcObject_CreateInstance(PARCSignature);
-    assertNotNull(signature, "parcObject_CreateInstance(%zu) returned NULL", sizeof(PARCSignature));
+    parcAssertNotNull(signature, "parcObject_CreateInstance(%zu) returned NULL", sizeof(PARCSignature));
 
     signature->signingAlgorithm = signingAlgorithm;
     signature->hashType = hashType;
@@ -62,28 +62,28 @@ parcObject_ImplementRelease(parcSignature, PARCSignature);
 PARCSigningAlgorithm
 parcSignature_GetSigningAlgorithm(const PARCSignature *signature)
 {
-    assertNotNull(signature, "Parameter must be non-null");
+    parcAssertNotNull(signature, "Parameter must be non-null");
     return signature->signingAlgorithm;
 }
 
 PARCCryptoHashType
 parcSignature_GetHashType(const PARCSignature *signature)
 {
-    assertNotNull(signature, "Parameter must be non-null");
+    parcAssertNotNull(signature, "Parameter must be non-null");
     return signature->hashType;
 }
 
 PARCBuffer *
 parcSignature_GetSignature(const PARCSignature *signature)
 {
-    assertNotNull(signature, "Parameter must be non-null");
+    parcAssertNotNull(signature, "Parameter must be non-null");
     return signature->signatureBits;
 }
 
 char *
 parcSignature_ToString(const PARCSignature *signature)
 {
-    assertNotNull(signature, "Parameter must be a non-null CCNxSignature pointer");
+    parcAssertNotNull(signature, "Parameter must be a non-null CCNxSignature pointer");
 
     char *bits = parcBuffer_ToString(signature->signatureBits);
 
@@ -92,7 +92,7 @@ parcSignature_ToString(const PARCSignature *signature)
                             signature->signingAlgorithm,
                             signature->hashType,
                             bits);
-    assertTrue(nwritten >= 0, "Error calling asprintf");
+    parcAssertTrue(nwritten >= 0, "Error calling asprintf");
 
     parcMemory_Deallocate((void **) &bits);
 

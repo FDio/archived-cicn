@@ -22,7 +22,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Time.h>
 #include <parc/algol/parc_Memory.h>
@@ -32,7 +32,7 @@ parcTime_TimevalAsString(struct timeval timeval)
 {
     char *string;
     int nwritten = asprintf(&string, "%ld.%06ld", timeval.tv_sec, (long) timeval.tv_usec);
-    assertTrue(nwritten >= 0, "Error calling asprintf");
+    parcAssertTrue(nwritten >= 0, "Error calling asprintf");
 
     char *result = parcMemory_StringDuplicate(string, strlen(string));
     free(string);

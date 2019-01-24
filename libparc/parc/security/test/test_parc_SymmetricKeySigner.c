@@ -246,7 +246,7 @@ LONGBOW_TEST_CASE(Global, parcSymmetricSigner_SignatureSize)
 
     PARCSigner *signer = parcSigner_Create(symmetricSigner, PARCSymmetricKeySignerAsSigner);
 
-    assertTrue(parcSigner_GetSignatureSize(signer) == 32, "Key size unexpected %d ", parcSigner_GetSignatureSize(signer));
+    assertTrue(parcSigner_GetSignatureSize(signer) == 32, "Key size unexpected %zu ", parcSigner_GetSignatureSize(signer));
     parcSigner_Release(&signer);
     parcSymmetricKeySigner_Release(&symmetricSigner);
 }

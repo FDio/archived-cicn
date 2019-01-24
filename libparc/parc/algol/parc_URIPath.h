@@ -332,7 +332,7 @@ PARCURIPath *parcURIPath_Append(PARCURIPath *path, const PARCURISegment *segment
  * Retrieve the URI path segment at the specified index.
  *
  *   The index must be within the range [0, number of segments]
- *   prior to invocation.  Otherwise, the program is terminated with LongBow trapOutOfBounds.
+ *   prior to invocation.  Otherwise, the program is terminated with parcTrapOutOfBounds.
  *
  * @param [in] path A `PARCURIPath` instance to be examined.
  * @param [in] index The index of the URI segment to retrieve.

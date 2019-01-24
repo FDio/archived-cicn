@@ -62,7 +62,7 @@ typedef struct parc_iterator PARCIterator;
  *
  * * `next`
  * Returns the next element in the iteration.
- * If there are no remaining elements in the iteration, then this function must induce a trapOutOfBounds
+ * If there are no remaining elements in the iteration, then this function must induce a parcTrapOutOfBounds
  *
  * * `remove`
  * Removes the element returned by the `next` function.

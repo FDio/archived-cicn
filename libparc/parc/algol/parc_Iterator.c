@@ -77,12 +77,12 @@ parcIterator_Create(PARCObject *object,
                     void (*fini)(PARCObject *, void *),
                     void (*assertValid)(const void *))
 {
-    assertNotNull(object, "PARCObject cannot be NULL.");
-    assertNotNull(init, "'init' function cannot be NULL.");
-    assertNotNull(hasNext, "'hasNext' function cannot be NULL.");
-    assertNotNull(next, "'next' function cannot be NULL.");
-    assertNotNull(element, "'element' function cannot be NULL.");
-    assertNotNull(fini, "'fini' function cannot be NULL.");
+    parcAssertNotNull(object, "PARCObject cannot be NULL.");
+    parcAssertNotNull(init, "'init' function cannot be NULL.");
+    parcAssertNotNull(hasNext, "'hasNext' function cannot be NULL.");
+    parcAssertNotNull(next, "'next' function cannot be NULL.");
+    parcAssertNotNull(element, "'element' function cannot be NULL.");
+    parcAssertNotNull(fini, "'fini' function cannot be NULL.");
 
     PARCIterator *result = parcObject_CreateInstance(PARCIterator);
 
@@ -120,7 +120,7 @@ parcIterator_IsValid(const PARCIterator *iterator)
 void
 parcIterator_AssertValid(const PARCIterator *iterator)
 {
-    assertTrue(parcIterator_IsValid(iterator), "PARCIterator is not valid.");
+    parcAssertTrue(parcIterator_IsValid(iterator), "PARCIterator is not valid.");
 }
 
 parcObject_ImplementAcquire(parcIterator, PARCIterator);

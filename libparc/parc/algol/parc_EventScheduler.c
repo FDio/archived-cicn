@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -76,17 +76,17 @@ parcEventScheduler_Create(void)
     internal_parc_initializeLibevent();
 
     PARCEventScheduler *parcEventScheduler = parcMemory_Allocate(sizeof(PARCEventScheduler));
-    assertNotNull(parcEventScheduler, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventScheduler));
+    parcAssertNotNull(parcEventScheduler, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCEventScheduler));
 
     // Initialize libevent base pointer.
     parcEventScheduler->evbase = event_base_new();
 
-    assertNotNull(parcEventScheduler->evbase, "Could not obtain an event base!");
+    parcAssertNotNull(parcEventScheduler->evbase, "Could not obtain an event base!");
     int result = event_base_priority_init(parcEventScheduler->evbase, PARCEventPriority_NumberOfPriorities);
-    assertTrue(result == 0, "Could not set scheduler priorities (%d)", result);
+    parcAssertTrue(result == 0, "Could not set scheduler priorities (%d)", result);
 
     parcEventScheduler->log = _parc_logger_create();
-    assertNotNull(parcEventScheduler->log, "Could not create parc logger");
+    parcAssertNotNull(parcEventScheduler->log, "Could not create parc logger");
 
     parcEventScheduler_LogDebug(parcEventScheduler, "parcEventScheduler_Create() = %p\n", parcEventScheduler);
 
@@ -97,7 +97,7 @@ int
 parcEventScheduler_Start(PARCEventScheduler *parcEventScheduler, PARCEventSchedulerDispatchType type)
 {
     parcEventScheduler_LogDebug(parcEventScheduler, "parcEventScheduler_Start(%p, %d)\n", parcEventScheduler, type);
-    assertNotNull(parcEventScheduler, "parcEventScheduler_Start must be passed a valid base parcEventScheduler!");
+    parcAssertNotNull(parcEventScheduler, "parcEventScheduler_Start must be passed a valid base parcEventScheduler!");
     int result = event_base_loop(parcEventScheduler->evbase,
                                  internal_PARCEventSchedulerDispatchType_to_eventloop_options(type));
     return result;
@@ -119,7 +119,7 @@ int
 parcEventScheduler_Stop(PARCEventScheduler *parcEventScheduler, struct timeval *delay)
 {
     parcEventScheduler_LogDebug(parcEventScheduler, "parcEventScheduler_Stop(%p, %p)\n", parcEventScheduler, delay);
-    assertNotNull(parcEventScheduler, "parcEventScheduler_Stop must be passed a valid base parcEventScheduler!");
+    parcAssertNotNull(parcEventScheduler, "parcEventScheduler_Stop must be passed a valid base parcEventScheduler!");
     int result = event_base_loopexit(parcEventScheduler->evbase, delay);
     return result;
 }
@@ -128,7 +128,7 @@ int
 parcEventScheduler_Abort(PARCEventScheduler *parcEventScheduler)
 {
     parcEventScheduler_LogDebug(parcEventScheduler, "parcEventScheduler_Abort(%p)\n", parcEventScheduler);
-    assertNotNull(parcEventScheduler, "parcEventScheduler_Abort must be passed a valid base parcEventScheduler!");
+    parcAssertNotNull(parcEventScheduler, "parcEventScheduler_Abort must be passed a valid base parcEventScheduler!");
     int result = event_base_loopbreak(parcEventScheduler->evbase);
     return result;
 }
@@ -156,8 +156,8 @@ parcEventScheduler_Destroy(PARCEventScheduler **parcEventScheduler)
 {
     parcEventScheduler_LogDebug((*parcEventScheduler), "parcEventScheduler_Destroy(%p)\n", *parcEventScheduler);
 
-    assertNotNull(*parcEventScheduler, "parcEventScheduler_Destroy must be passed a valid base parcEventScheduler!");
-    assertNotNull((*parcEventScheduler)->evbase, "parcEventScheduler_Destroy passed a NULL event base member!");
+    parcAssertNotNull(*parcEventScheduler, "parcEventScheduler_Destroy must be passed a valid base parcEventScheduler!");
+    parcAssertNotNull((*parcEventScheduler)->evbase, "parcEventScheduler_Destroy passed a NULL event base member!");
 
     event_base_free((*parcEventScheduler)->evbase);
     parcLog_Release(&((*parcEventScheduler)->log));

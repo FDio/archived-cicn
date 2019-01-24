@@ -55,24 +55,24 @@ typedef uint16_t in_port_t;
  * {
  *    struct sockaddr *addr;
  *    addr = parcNetwork_SockAddress("1.2.3.4", 555);
- *    assertTrue(addr && addr->sa_family == AF_INET, "Addr not IPv4 for a dotted quad.");
+ *    parcAssertTrue(addr && addr->sa_family == AF_INET, "Addr not IPv4 for a dotted quad.");
  *    struct sockaddr_in *addr_in = (struct sockaddr_in *) addr;
  *    // ...
  *    parcMemory_Deallocate((void **)&addr);
  *
  *    addr = parcNetwork_SockAddress("fe80::aa20:66ff:fe00:314a", 555);
- *    assertTrue(addr && addr->sa_family == AF_INET6, "Addr not IPv6.");
+ *    parcAssertTrue(addr && addr->sa_family == AF_INET6, "Addr not IPv6.");
  *    struct sockaddr_in6 *addr_in6 = (struct sockaddr_in6 *) addr;
  *    // ...
  *    parcMemory_Deallocate((void **)&addr);
  *
  *    addr = parcNetwork_SockAddress("alpha.parc.com", 555);
- *    assertTrue(addr && addr->sa_family == AF_INET, "Addr not IPv4 hostname with only ipv4 address.");
+ *    parcAssertTrue(addr && addr->sa_family == AF_INET, "Addr not IPv4 hostname with only ipv4 address.");
  *    // ...
  *    parcMemory_Deallocate((void **)&addr);
  *
  *    addr = parcNetwork_SockAddress("Over the rainbow, way up high", 555);
- *    assertNull(addr, "Addr no null for bogus name.");
+ *    parcAssertNull(addr, "Addr no null for bogus name.");
  *
  * }
  * @endcode
@@ -256,7 +256,7 @@ struct sockaddr_in *parcNetwork_ParseInet4Address(const char *addressURI);
  * @code
  * {
  *   struct sockaddr *s = parcNetwork_SockAddress("127.1.1.1", 5900);
- *   assertTrue(parcNetwork_IsSocketLocal(s), "This will not assert");
+ *   parcAssertTrue(parcNetwork_IsSocketLocal(s), "This will not assert");
  *   parcMemory_Deallocate((void **)&s);
  * }
  * @endcode

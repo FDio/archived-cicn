@@ -46,7 +46,7 @@ _parcFutureTask_Initialise(PARCFutureTask *futureTask)
 static bool
 _parcFutureTask_Destructor(PARCFutureTask **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCFutureTask pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCFutureTask pointer.");
     PARCFutureTask *task = *instancePtr;
 
     if (parcObject_IsInstanceOf(task->parameter, &PARCObject_Descriptor)) {
@@ -73,7 +73,7 @@ parcObject_Override(PARCFutureTask, PARCObject,
 void
 parcFutureTask_AssertValid(const PARCFutureTask *task)
 {
-    assertTrue(parcFutureTask_IsValid(task),
+    parcAssertTrue(parcFutureTask_IsValid(task),
                "PARCFutureTask is not valid.");
 }
 
@@ -273,7 +273,7 @@ parcFutureTask_Run(PARCFutureTask *task)
         }
         parcFutureTask_Unlock(task);
     } else {
-        trapCannotObtainLock("Cannot lock PARCFutureTask");
+        parcTrapCannotObtainLock("Cannot lock PARCFutureTask");
     }
     return task->result;
 }
@@ -291,7 +291,7 @@ parcFutureTask_RunAndReset(PARCFutureTask *task)
         }
         parcFutureTask_Unlock(task);
     } else {
-        trapCannotObtainLock("Cannot lock PARCFutureTask");
+        parcTrapCannotObtainLock("Cannot lock PARCFutureTask");
     }
 
     return result;

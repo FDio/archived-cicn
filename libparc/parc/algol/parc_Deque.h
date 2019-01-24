@@ -282,7 +282,7 @@ bool parcDeque_IsEmpty(const PARCDeque *deque);
  * @param [in] deque A pointer to a `PARCDeque` instance.
  * @param [in] index The index of the element to be retrieved.
  *
- * @throws `trapOutOfBounds`
+ * @throws `parcTrapOutOfBounds`
  *
  * Example:
  * @code

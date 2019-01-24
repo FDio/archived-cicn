@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <inttypes.h>
@@ -246,7 +246,7 @@ _parcObject_ToString(const PARCObject *object)
                             "Object@%p { .references=%" PRId64 ", .objectLength = %zd, .objectAlignment=%u } data %p\n",
                             (void *) header,
                             header->references, header->descriptor->objectSize, header->descriptor->objectAlignment, object);
-    assertTrue(nwritten >= 0, "Error calling asprintf");
+    parcAssertTrue(nwritten >= 0, "Error calling asprintf");
     char *result = parcMemory_StringDuplicate(string, strlen(string));
     free(string);
     return result;
@@ -265,7 +265,7 @@ _parcObject_ToJSON(const PARCObject *object)
 
     char *addressString;
     int nwritten = asprintf(&addressString, "%p", object);
-    assertTrue(nwritten >= 0, "Error calling asprintf");
+    parcAssertTrue(nwritten >= 0, "Error calling asprintf");
 
     parcJSON_AddString(json, "address", addressString);
 
@@ -335,17 +335,17 @@ parcObject_IsValid(const PARCObject *object)
 static inline void
 _parcObjectHeader_AssertValid(const _PARCObjectHeader *header, const PARCObject *object)
 {
-    trapIllegalValueIf(header->magicGuardNumber != PARCObject_HEADER_MAGIC_GUARD_NUMBER, "PARCObject@%p is corrupt.", object);
-    trapIllegalValueIf(header->descriptor == NULL, "PARCObject@%p descriptor cannot be NULL.", object);
+    parcTrapIllegalValueIf(header->magicGuardNumber != PARCObject_HEADER_MAGIC_GUARD_NUMBER, "PARCObject@%p is corrupt.", object);
+    parcTrapIllegalValueIf(header->descriptor == NULL, "PARCObject@%p descriptor cannot be NULL.", object);
     if (header->descriptor->isLockable) {
-        trapIllegalValueIf(header->locking == NULL, "PARCObject@%p is corrupt. Is Lockable but no locking structure", object);
+        parcTrapIllegalValueIf(header->locking == NULL, "PARCObject@%p is corrupt. Is Lockable but no locking structure", object);
     }
 }
 
 static inline void
 _parcObject_AssertValid(const PARCObject *object)
 {
-    trapIllegalValueIf(object == NULL, "PARCObject must be a non-null pointer.");
+    parcTrapIllegalValueIf(object == NULL, "PARCObject must be a non-null pointer.");
 
     _PARCObjectHeader *header = _parcObject_Header(object);
     _parcObjectHeader_AssertValid(header, object);
@@ -628,7 +628,7 @@ parcObject_Release(PARCObject **objectPointer)
 
     _PARCObjectHeader *header = _parcObject_Header(object);
 
-    trapIllegalValueIf(header->references == 0, "PARCObject@%p references must be > 0", object);
+    parcTrapIllegalValueIf(header->references == 0, "PARCObject@%p references must be > 0", object);
 
     PARCReferenceCount result = parcAtomicUint64_Decrement(&header->references);
 
@@ -641,9 +641,9 @@ parcObject_Release(PARCObject **objectPointer)
                 void *origin = _parcObject_Origin(object);
                 parcMemory_Deallocate(&origin);
             }
-            assertNotNull(*objectPointer, "Class implementation unnecessarily clears the object pointer.");
+            parcAssertNotNull(*objectPointer, "Class implementation unnecessarily clears the object pointer.");
         } else {
-            assertNull(*objectPointer, "Class implementation must clear the object pointer.");
+            parcAssertNull(*objectPointer, "Class implementation must clear the object pointer.");
         }
     }
 
@@ -675,7 +675,7 @@ const PARCObjectDescriptor *
 parcObject_SetDescriptor(PARCObject *object, const PARCObjectDescriptor *descriptor)
 {
     parcObject_OptionalAssertValid(object);
-    assertNotNull(descriptor, "PARCObjectDescriptor cannot be NULL.");
+    parcAssertNotNull(descriptor, "PARCObjectDescriptor cannot be NULL.");
 
     _PARCObjectHeader *header = _parcObject_Header(object);
 
@@ -702,7 +702,7 @@ parcObjectDescriptor_Create(const char *name,
                             const PARCObjectDescriptor *superType,
                             PARCObjectTypeState *typeState)
 {
-    assertNotNull(superType, "Supertype descriptor cannot be NULL.");
+    parcAssertNotNull(superType, "Supertype descriptor cannot be NULL.");
 
     PARCObjectDescriptor *result = parcMemory_AllocateAndClear(sizeof(PARCObjectDescriptor));
     if (result != NULL) {
@@ -773,7 +773,7 @@ parcObject_Unlock(const PARCObject *object)
                 locking->locker = (pthread_t) NULL;
                 result = (pthread_mutex_unlock(&locking->lock) == 0);
 
-                assertTrue(result, "Attempted to unlock an unowned lock.");
+                parcAssertTrue(result, "Attempted to unlock an unowned lock.");
             }
         }
     }
@@ -793,7 +793,7 @@ parcObject_Lock(const PARCObject *object)
     if (object != NULL) {
         _PARCObjectLocking *locking = _parcObjectHeader_Locking(object);
         if (locking != NULL) {
-            trapCannotObtainLockIf(pthread_equal(locking->locker, pthread_self()),
+            parcTrapCannotObtainLockIf(pthread_equal(locking->locker, pthread_self()),
                                    "Recursive locks on %p are not supported.", object);
 
             errno = pthread_mutex_lock(&locking->lock);
@@ -818,7 +818,7 @@ parcObject_TryLock(const PARCObject *object)
 
         _PARCObjectLocking *locking = _parcObjectHeader_Locking(object);
         if (locking != NULL) {
-            trapCannotObtainLockIf(pthread_equal(locking->locker, pthread_self()), "Recursive locks are not supported.");
+            parcTrapCannotObtainLockIf(pthread_equal(locking->locker, pthread_self()), "Recursive locks are not supported.");
 
             int lockStatus = pthread_mutex_trylock(&locking->lock);
 

@@ -20,7 +20,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -49,7 +49,7 @@ _destroyJSONPair(PARCJSONPair **pairPtr)
 {
     if (pairPtr != NULL) {
         PARCJSONPair *pair = *pairPtr;
-        assertNotNull(pair, "Parameter must be a non-null pointer to a valid PARCJSONPair.");
+        parcAssertNotNull(pair, "Parameter must be a non-null pointer to a valid PARCJSONPair.");
         parcBuffer_Release(&pair->name);
         parcJSONValue_Release(&pair->value);
     }

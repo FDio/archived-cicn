@@ -96,7 +96,7 @@ _parcThreadPool_JoinAll(const PARCThreadPool *pool)
 static bool
 _parcThreadPool_Destructor(PARCThreadPool **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCThreadPool pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCThreadPool pointer.");
     PARCThreadPool *pool = *instancePtr;
 
     if (pool->isShutdown == false) {
@@ -130,7 +130,7 @@ parcObject_Override(PARCThreadPool, PARCObject,
 void
 parcThreadPool_AssertValid(const PARCThreadPool *instance)
 {
-    assertTrue(parcThreadPool_IsValid(instance),
+    parcAssertTrue(parcThreadPool_IsValid(instance),
                "PARCThreadPool is not valid.");
 }
 

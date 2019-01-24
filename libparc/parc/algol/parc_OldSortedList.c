@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_SortedList.h>
 
@@ -33,7 +33,7 @@ PARCSortedList *
 parcSortedList_Create(parcSortedList_Compare compareFunction)
 {
     PARCSortedList *sortedList = parcMemory_Allocate(sizeof(PARCSortedList));
-    assertNotNull(sortedList, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCSortedList));
+    parcAssertNotNull(sortedList, "parcMemory_Allocate(%zu) returned NULL", sizeof(PARCSortedList));
     sortedList->arrayList = parcArrayList_Create(NULL);
     sortedList->compare = compareFunction;
     return sortedList;
@@ -50,9 +50,9 @@ parcSortedList_Destroy(PARCSortedList **parcSortedListPointer)
 void
 parcSortedList_Add(PARCSortedList *parcSortedList, void *newItem)
 {
-    assertNotNull(parcSortedList, "sortedList parameter can't be null");
-    assertNotNull(parcSortedList->arrayList, "arrayList can't be null");
-    assertNotNull(newItem, "newItem can't be null");
+    parcAssertNotNull(parcSortedList, "sortedList parameter can't be null");
+    parcAssertNotNull(parcSortedList->arrayList, "arrayList can't be null");
+    parcAssertNotNull(newItem, "newItem can't be null");
 
     size_t total_items = parcArrayList_Size(parcSortedList->arrayList);
     for (size_t i = 0; i < total_items; i++) {
@@ -77,8 +77,8 @@ parcSortedList_Length(PARCSortedList *parcSortedList)
 void *
 parcSortedList_PopFirst(PARCSortedList *parcSortedList)
 {
-    assertNotNull(parcSortedList, "sortedList parameter can't be null");
-    assertNotNull(parcSortedList->arrayList, "arrayList can't be null");
+    parcAssertNotNull(parcSortedList, "sortedList parameter can't be null");
+    parcAssertNotNull(parcSortedList->arrayList, "arrayList can't be null");
 
     if (parcArrayList_Size(parcSortedList->arrayList) == 0) {
         return NULL;
@@ -91,8 +91,8 @@ parcSortedList_PopFirst(PARCSortedList *parcSortedList)
 void *
 parcSortedList_GetFirst(PARCSortedList *parcSortedList)
 {
-    assertNotNull(parcSortedList, "sortedList parameter can't be null");
-    assertNotNull(parcSortedList->arrayList, "arrayList can't be null");
+    parcAssertNotNull(parcSortedList, "sortedList parameter can't be null");
+    parcAssertNotNull(parcSortedList->arrayList, "arrayList can't be null");
 
     if (parcArrayList_Size(parcSortedList->arrayList) == 0) {
         return NULL;

@@ -28,7 +28,7 @@
 #include <config.h>
 #include <stdio.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/security/parc_CryptoHash.h>
 #include <parc/algol/parc_Memory.h>
@@ -62,7 +62,7 @@ PARCCryptoHash *
 parcCryptoHash_Create(PARCCryptoHashType digestType, const PARCBuffer *digestBuffer)
 {
     PARCCryptoHash *parcDigest = parcObject_CreateInstance(PARCCryptoHash);
-    assertNotNull(parcDigest, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHash));
+    parcAssertNotNull(parcDigest, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHash));
     parcDigest->type = digestType;
 
     parcDigest->digestBuffer = parcBuffer_Acquire((PARCBuffer *) digestBuffer); // casting to un-const
@@ -82,7 +82,7 @@ PARCCryptoHash *
 parcCryptoHash_CreateFromArray(PARCCryptoHashType digestType, const void *buffer, size_t length)
 {
     PARCCryptoHash *parcDigest = parcObject_CreateInstance(PARCCryptoHash);
-    assertNotNull(parcDigest, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHash));
+    parcAssertNotNull(parcDigest, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCCryptoHash));
     parcDigest->type = digestType;
 
     // create a reference counted copy
@@ -103,7 +103,7 @@ parcCryptoHash_CreateFromArray(PARCCryptoHashType digestType, const void *buffer
 PARCCryptoHashType
 parcCryptoHash_GetDigestType(const PARCCryptoHash *parcDigest)
 {
-    assertNotNull(parcDigest, "Parameter must be non-null");
+    parcAssertNotNull(parcDigest, "Parameter must be non-null");
     return parcDigest->type;
 }
 
@@ -129,6 +129,6 @@ parcCryptoHash_Equals(const PARCCryptoHash *a, const PARCCryptoHash *b)
 PARCBuffer *
 parcCryptoHash_GetDigest(const PARCCryptoHash *parcDigest)
 {
-    assertNotNull(parcDigest, "Parameter must be non-null");
+    parcAssertNotNull(parcDigest, "Parameter must be non-null");
     return parcDigest->digestBuffer;
 }

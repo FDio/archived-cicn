@@ -32,7 +32,7 @@ struct PARCSortedList {
 static void
 _parcSortedList_Finalize(PARCSortedList **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSortedList pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCSortedList pointer.");
     PARCSortedList *instance = *instancePtr;
 
     parcSortedList_OptionalAssertValid(instance);
@@ -50,7 +50,7 @@ parcObject_ExtendPARCObject(PARCSortedList, _parcSortedList_Finalize, parcSorted
 void
 parcSortedList_AssertValid(const PARCSortedList *instance)
 {
-    assertTrue(parcSortedList_IsValid(instance),
+    parcAssertTrue(parcSortedList_IsValid(instance),
                "PARCSortedList is not valid.");
 }
 
@@ -245,7 +245,7 @@ void
 parcSortedList_Add(PARCSortedList *instance, PARCObject *element)
 {
     size_t insertionPoint = _parcSortedList_GetInsertionIndex(instance, element);
-    assertTrue(insertionPoint >= 0 && insertionPoint <= parcLinkedList_Size(instance->list),
+    parcAssertTrue(insertionPoint >= 0 && insertionPoint <= parcLinkedList_Size(instance->list),
                "%zd is bad insertion point.  Must be >=0 and <= %zd", insertionPoint, parcLinkedList_Size(instance->list));
 
     parcLinkedList_InsertAtIndex(instance->list, insertionPoint, element);

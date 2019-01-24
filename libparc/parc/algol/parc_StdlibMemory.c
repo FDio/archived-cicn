@@ -25,7 +25,7 @@
 #include <strings.h>
 #include <pthread.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_StdlibMemory.h>
 
@@ -132,7 +132,7 @@ void
 parcStdlibMemory_Deallocate(void **pointer)
 {
 #ifndef PARCLibrary_DISABLE_VALIDATION
-    trapIllegalValueIf(_parcStdlibMemory_OutstandingAllocations == 0,
+    parcTrapIllegalValueIf(_parcStdlibMemory_OutstandingAllocations == 0,
                        "parcStdlibMemory_Deallocate invoked with nothing left to free (double free somewhere?)\n");
 #endif
     free(*pointer);

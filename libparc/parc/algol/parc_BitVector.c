@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
-/**
- */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_BitVector.h>
@@ -61,10 +59,10 @@ PARCBitVector *
 parcBitVector_Create(void)
 {
     PARCBitVector *parcBitVector = parcObject_CreateInstance(PARCBitVector);
-    assertNotNull(parcBitVector, "parcObject_CreateInstance returned NULL");
+    parcAssertNotNull(parcBitVector, "parcObject_CreateInstance returned NULL");
 
     parcBitVector->bitArray = parcMemory_AllocateAndClear(DEFAULT_BITARRAY_SIZE);
-    assertNotNull(parcBitVector->bitArray, "parcMemory_AllocateAndClear(%d) returned NULL", DEFAULT_BITARRAY_SIZE);
+    parcAssertNotNull(parcBitVector->bitArray, "parcMemory_AllocateAndClear(%d) returned NULL", DEFAULT_BITARRAY_SIZE);
     parcBitVector->bitLength = DEFAULT_BITARRAY_SIZE * BITS_PER_BYTE;
     parcBitVector->numberOfBitsSet = 0;
     parcBitVector->firstBitSet = -1;
@@ -77,7 +75,7 @@ PARCBitVector *
 parcBitVector_Copy(const PARCBitVector *source)
 {
     PARCBitVector *parcBitVector = parcObject_CreateInstance(PARCBitVector);
-    assertNotNull(parcBitVector, "parcObject_CreateInstance returned NULL");
+    parcAssertNotNull(parcBitVector, "parcObject_CreateInstance returned NULL");
 
     size_t byteLength = source->bitLength / BITS_PER_BYTE;
     parcBitVector->bitArray = parcMemory_Allocate(byteLength);
@@ -111,8 +109,8 @@ parcBitVector_Equals(const PARCBitVector *a, const PARCBitVector *b)
 static void
 _parc_bit_vector_resize(PARCBitVector *parcBitVector, unsigned bit)
 {
-    assertNotNull(parcBitVector, "_parc_bit_vector_resize passed a NULL parcBitVector");
-    assertTrue(bit < MAX_BIT_VECTOR_INDEX, "_parc_bit_vector_resize passed a bit index that's too large");
+    parcAssertNotNull(parcBitVector, "_parc_bit_vector_resize passed a NULL parcBitVector");
+    parcAssertTrue(bit < MAX_BIT_VECTOR_INDEX, "_parc_bit_vector_resize passed a bit index that's too large");
 
     unsigned neededBits = bit + 1;
     if (neededBits > parcBitVector->bitLength) {
@@ -120,12 +118,12 @@ _parc_bit_vector_resize(PARCBitVector *parcBitVector, unsigned bit)
         int oldSize = (parcBitVector->bitLength / BITS_PER_BYTE) + ((parcBitVector->bitLength % BITS_PER_BYTE) ? 1 : 0);
 
         uint8_t *newArray = parcMemory_Reallocate(parcBitVector->bitArray, newSize);
-        assertTrue(newArray, "parcMemory_Reallocate(%d) failed", newSize);
+        parcAssertTrue(newArray, "parcMemory_Reallocate(%d) failed", newSize);
         // Reallocate does not guarantee that additional memory is zero-filled.
         memset((void *) &(newArray[oldSize]), parcBitVector->fillValue, newSize - oldSize);
 
         parcBitVector->bitArray = newArray;
-        assertNotNull(newArray, "parcMemory_Reallocate(%d) returned NULL", newSize);
+        parcAssertNotNull(newArray, "parcMemory_Reallocate(%d) returned NULL", newSize);
         parcBitVector->bitLength = newSize * BITS_PER_BYTE;
     }
 }
@@ -133,7 +131,7 @@ _parc_bit_vector_resize(PARCBitVector *parcBitVector, unsigned bit)
 int
 parcBitVector_Get(const PARCBitVector *parcBitVector, unsigned bit)
 {
-    assertTrue(bit < MAX_BIT_VECTOR_INDEX, "parcBitVector_Set passed a bit index that's too large");
+    parcAssertTrue(bit < MAX_BIT_VECTOR_INDEX, "parcBitVector_Set passed a bit index that's too large");
 
     if ((parcBitVector == NULL) || (bit >= parcBitVector->bitLength)) {
         return -1;
@@ -151,8 +149,8 @@ parcBitVector_Get(const PARCBitVector *parcBitVector, unsigned bit)
 void
 parcBitVector_Set(PARCBitVector *parcBitVector, unsigned bit)
 {
-    assertNotNull(parcBitVector, "parcBitVector_Set passed a NULL parcBitVector");
-    assertTrue(bit < MAX_BIT_VECTOR_INDEX, "parcBitVector_Set passed a bit index that's too huge");
+    parcAssertNotNull(parcBitVector, "parcBitVector_Set passed a NULL parcBitVector");
+    parcAssertTrue(bit < MAX_BIT_VECTOR_INDEX, "parcBitVector_Set passed a bit index that's too huge");
     if (bit >= parcBitVector->bitLength) {
         _parc_bit_vector_resize(parcBitVector, bit);
     }
@@ -170,12 +168,12 @@ parcBitVector_Set(PARCBitVector *parcBitVector, unsigned bit)
 void
 parcBitVector_SetVector(PARCBitVector *parcBitVector, const PARCBitVector *bitsToSet)
 {
-    assertNotNull(parcBitVector, "parcBitVector_SetVector passed a NULL parcBitVector");
-    assertNotNull(parcBitVector, "parcBitVector_SetVector passed a NULL vector of bits to set");
+    parcAssertNotNull(parcBitVector, "parcBitVector_SetVector passed a NULL parcBitVector");
+    parcAssertNotNull(parcBitVector, "parcBitVector_SetVector passed a NULL vector of bits to set");
     int settingBit = 0;
     for (int i = 0; i < bitsToSet->numberOfBitsSet; i++) {
         settingBit = parcBitVector_NextBitSet(bitsToSet, settingBit);
-        assertTrue(settingBit != -1, "Number of bits claimed set inconsistent with bits found");
+        parcAssertTrue(settingBit != -1, "Number of bits claimed set inconsistent with bits found");
         parcBitVector_Set(parcBitVector, settingBit);
         settingBit++;
     }
@@ -194,8 +192,8 @@ parcBitVector_Reset(PARCBitVector *parcBitVector)
 void
 parcBitVector_Clear(PARCBitVector *parcBitVector, unsigned bit)
 {
-    assertNotNull(parcBitVector, "parcBitVector_Clear passed a NULL parcBitVector");
-    assertTrue(bit < MAX_BIT_VECTOR_INDEX, "parcBitVector_Clear passed a bit index that's too huge");
+    parcAssertNotNull(parcBitVector, "parcBitVector_Clear passed a NULL parcBitVector");
+    parcAssertTrue(bit < MAX_BIT_VECTOR_INDEX, "parcBitVector_Clear passed a bit index that's too huge");
     if (bit > parcBitVector->bitLength) {
         _parc_bit_vector_resize(parcBitVector, bit);
     }
@@ -213,8 +211,8 @@ parcBitVector_Clear(PARCBitVector *parcBitVector, unsigned bit)
 void
 parcBitVector_ClearVector(PARCBitVector *parcBitVector, const PARCBitVector *bitsToClear)
 {
-    assertNotNull(parcBitVector, "parcBitVector_ClearVector passed a NULL parcBitVector");
-    assertNotNull(bitsToClear, "parcBitVector_ClearVector passed a NULL for vector of bitsToClear");
+    parcAssertNotNull(parcBitVector, "parcBitVector_ClearVector passed a NULL parcBitVector");
+    parcAssertNotNull(bitsToClear, "parcBitVector_ClearVector passed a NULL for vector of bitsToClear");
 
     // If we're clearing ourself, we just need a reset
     if (parcBitVector == bitsToClear) {

@@ -95,7 +95,7 @@ void parcJSONArray_Release(PARCJSONArray **arrayPtr);
 /**
  * Assert that an instance of `PARCJSONArray` is valid.
  *
- * If the instance is not valid, terminate via {@link trapIllegalValue}
+ * If the instance is not valid, terminate via {@link parcTrapIllegalValue}
  *
  * Valid means the internal state of the type is consistent with its required current or future behaviour.
  * This may include the validation of internal instances of types.

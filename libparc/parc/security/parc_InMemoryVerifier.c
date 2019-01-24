@@ -27,7 +27,7 @@
 #include <config.h>
 #include <stdio.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 #include <parc/security/parc_InMemoryVerifier.h>
 #include <parc/security/parc_CryptoHasher.h>
 #include <parc/security/parc_CryptoCache.h>
@@ -88,7 +88,7 @@ _parcInMemoryVerifier_GetCryptoHasher(void *interfaceContext, PARCKeyId *keyid, 
         return false;
     }
 
-    assertFalse(parcKey_GetSigningAlgorithm(key) == PARCSigningAlgorithm_HMAC, "HMAC not supported yet");
+    parcAssertFalse(parcKey_GetSigningAlgorithm(key) == PARCSigningAlgorithm_HMAC, "HMAC not supported yet");
 
     switch (hashType) {
         case PARCCryptoHashType_SHA256:
@@ -98,7 +98,7 @@ _parcInMemoryVerifier_GetCryptoHasher(void *interfaceContext, PARCKeyId *keyid, 
             return verifier->hasher_sha512;
 
         default:
-            trapUnexpectedState("unsupported hash type: %d", hashType);
+            parcTrapUnexpectedState("unsupported hash type: %d", hashType);
     }
 }
 
@@ -154,7 +154,7 @@ _parcInMemoryVerifier_AllowedCryptoSuite(void *interfaceContext, PARCKeyId *keyi
             break;
 
         default:
-            trapUnexpectedState("Unknown signing algorithm: %s",
+            parcTrapUnexpectedState("Unknown signing algorithm: %s",
                                 parcSigningAlgorithm_ToString(parcKey_GetSigningAlgorithm(key)));
             return false;
     }
@@ -190,7 +190,7 @@ _parcInMemoryVerifier_VerifyDigest(void *interfaceContext, PARCKeyId *keyid, PAR
         return false;
     }
 
-    assertTrue(_parcInMemoryVerifier_AllowedCryptoSuite(interfaceContext, keyid, suite), "Invalid crypto suite for keyid");
+    parcAssertTrue(_parcInMemoryVerifier_AllowedCryptoSuite(interfaceContext, keyid, suite), "Invalid crypto suite for keyid");
 
     if (parcKey_GetSigningAlgorithm(key) != parcSignature_GetSigningAlgorithm(objectSignature)) {
         fprintf(stdout, "Signatured failed, signing algorithms do not match: key %s sig %s\n",
@@ -214,15 +214,15 @@ _parcInMemoryVerifier_VerifyDigest(void *interfaceContext, PARCKeyId *keyid, PAR
             return _parcInMemoryVerifier_ECDSAKey_Verify(verifier, locallyComputedHash, objectSignature, parcKey_GetKey(key));
 
         case PARCSigningAlgorithm_DSA:
-            trapNotImplemented("DSA not supported");
+            parcTrapNotImplemented("DSA not supported");
             break;
 
         case PARCSigningAlgorithm_HMAC:
-            trapNotImplemented("HMAC not supported");
+            parcTrapNotImplemented("HMAC not supported");
             break;
 
         default:
-            trapUnexpectedState("Unknown signing algorithm: %d", parcSignature_GetSigningAlgorithm(objectSignature));
+            parcTrapUnexpectedState("Unknown signing algorithm: %d", parcSignature_GetSigningAlgorithm(objectSignature));
     }
 
 
@@ -232,19 +232,19 @@ _parcInMemoryVerifier_VerifyDigest(void *interfaceContext, PARCKeyId *keyid, PAR
 static void
 _parcInMemoryVerifier_AddKey(void *interfaceContext, PARCKey *key)
 {
-    assertNotNull(interfaceContext, "interfaceContext must be non-null");
-    assertNotNull(key, "key must be non-null");
+    parcAssertNotNull(interfaceContext, "interfaceContext must be non-null");
+    parcAssertNotNull(key, "key must be non-null");
 
     PARCInMemoryVerifier *verifier = (PARCInMemoryVerifier *) interfaceContext;
     bool success = parcCryptoCache_AddKey(verifier->key_cache, key);
-    assertTrue(success, "could not add key, it must be a duplicate");
+    parcAssertTrue(success, "could not add key, it must be a duplicate");
 }
 
 static void
 _parcInMemoryVerifier_RemoveKeyId(void *interfaceContext, PARCKeyId *keyid)
 {
-    assertNotNull(interfaceContext, "interfaceContent must be non-null");
-    assertNotNull(keyid, "key must be non-null");
+    parcAssertNotNull(interfaceContext, "interfaceContent must be non-null");
+    parcAssertNotNull(keyid, "key must be non-null");
 
     PARCInMemoryVerifier *verifier = (PARCInMemoryVerifier *) interfaceContext;
     parcCryptoCache_RemoveKey(verifier->key_cache, keyid);
@@ -293,7 +293,7 @@ _parcInMemoryVerifier_RSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHa
                     openssl_digest_type = NID_sha512;
                     break;
                 default:
-                    trapUnexpectedState("Unknown digest type: %s",
+                    parcTrapUnexpectedState("Unknown digest type: %s",
                                         parcCryptoHashType_ToString(parcCryptoHash_GetDigestType(localHash)));
             }
 
@@ -355,7 +355,7 @@ _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCrypto
                     openssl_digest_type = NID_sha512;
                     break;
                 default:
-                    trapUnexpectedState("Unknown digest type: %s",
+                    parcTrapUnexpectedState("Unknown digest type: %s",
                                         parcCryptoHashType_ToString(parcCryptoHash_GetDigestType(localHash)));
             }
 

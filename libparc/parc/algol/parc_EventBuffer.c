@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include "internal_parc_Event.h"
 #include <parc/algol/parc_Event.h>
@@ -55,10 +55,10 @@ parcEventBuffer_Create(void)
 {
     internal_parc_initializeLibevent();
     struct evbuffer *new_evbuffer = evbuffer_new();
-    assertNotNull(new_evbuffer, "libevent returned a null evbuffer.\n");
+    parcAssertNotNull(new_evbuffer, "libevent returned a null evbuffer.\n");
 
     PARCEventBuffer *parcEventBuffer = parcMemory_AllocateAndClear(sizeof(PARCEventBuffer));
-    assertNotNull(parcEventBuffer, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventBuffer));
+    parcAssertNotNull(parcEventBuffer, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventBuffer));
     parcEventBuffer->allocated_evbuffer = new_evbuffer;
     parcEventBuffer->evbuffer = parcEventBuffer->allocated_evbuffer;
 
@@ -71,8 +71,8 @@ void
 parcEventBuffer_Destroy(PARCEventBuffer **parcEventBuffer)
 {
     parcEventBuffer_LogDebug((*parcEventBuffer), "parcEventBuffer_Destroy(parcEventBuffer=%p)\n", *parcEventBuffer);
-    assertNotNull(parcEventBuffer, "parcEventBuffer_Destroy was passed a null parcEventBuffer pointer\n");
-    assertNotNull(*parcEventBuffer, "parcEventBuffer_Destroy was passed a null parcEventBuffer\n");
+    parcAssertNotNull(parcEventBuffer, "parcEventBuffer_Destroy was passed a null parcEventBuffer pointer\n");
+    parcAssertNotNull(*parcEventBuffer, "parcEventBuffer_Destroy was passed a null parcEventBuffer\n");
 
     // Destroy allocated eveventBuffer if it was allocated by us, otherwise it's owned by bufferevent
     if ((*parcEventBuffer)->allocated_evbuffer) {
@@ -100,7 +100,7 @@ parcEventBuffer_IsValid(const PARCEventBuffer *eventBuffer)
 void
 parcEventBuffer_AssertValid(const PARCEventBuffer *eventBuffer)
 {
-    assertTrue(parcEventBuffer_IsValid(eventBuffer),
+    parcAssertTrue(parcEventBuffer_IsValid(eventBuffer),
                "PARCEventBuffer@%p is not valid.", (void *) eventBuffer);
 }
 
@@ -109,7 +109,7 @@ parcEventBuffer_GetLength(PARCEventBuffer *parcEventBuffer)
 {
     parcEventBuffer_LogDebug(parcEventBuffer, "parcEventBuffer_GetLength(parcEventBuffer=%p)\n", parcEventBuffer);
 //    parcEventBuffer_OptionalAssertValid(parcEventBuffer);
-    assertNotNull(parcEventBuffer, "parcEventBuffer_GetLength was passed a null parcEventBuffer\n");
+    parcAssertNotNull(parcEventBuffer, "parcEventBuffer_GetLength was passed a null parcEventBuffer\n");
 
     if (parcEventBuffer->evbuffer) {
         return evbuffer_get_length(parcEventBuffer->evbuffer);
@@ -124,8 +124,8 @@ parcEventBuffer_Pullup(PARCEventBuffer *parcEventBuffer, ssize_t size)
     parcEventBuffer_LogDebug(parcEventBuffer, "parcEventBuffer_Pullup(parcEventBuffer=%p,size=%zx)\n", parcEventBuffer, size);
 
     parcEventBuffer_OptionalAssertValid(parcEventBuffer);
-//    assertNotNull(parcEventBuffer, "parcEventBuffer_Pullup was passed a null parcEventBuffer\n");
-//    assertNotNull(parcEventBuffer->evbuffer, "parcEventBuffer_Pullup was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(parcEventBuffer, "parcEventBuffer_Pullup was passed a null parcEventBuffer\n");
+//    parcAssertNotNull(parcEventBuffer->evbuffer, "parcEventBuffer_Pullup was passed a null libevent evbuffer\n");
 
     return evbuffer_pullup(parcEventBuffer->evbuffer, (ev_ssize_t) size);
 }
@@ -135,10 +135,10 @@ parcEventBuffer_ReadIntoBuffer(PARCEventBuffer *source, PARCEventBuffer *destina
 {
     parcEventBuffer_OptionalAssertValid(source);
     parcEventBuffer_OptionalAssertValid(destination);
-//    assertNotNull(source, "parcEventBuffer_ReadIntoBuffer was passed a null source buffer\n");
-//    assertNotNull(source->evbuffer, "parcEventBuffer_ReadIntoBuffer was passed a null source evbuffer\n");
-//    assertNotNull(destination, "parcEventBuffer_ReadIntoBuffer was passed a null destination buffer\n");
-//    assertNotNull(destination->evbuffer, "parcEventBuffer_ReadIntoBuffer was passed a null destination evbuffer\n");
+//    parcAssertNotNull(source, "parcEventBuffer_ReadIntoBuffer was passed a null source buffer\n");
+//    parcAssertNotNull(source->evbuffer, "parcEventBuffer_ReadIntoBuffer was passed a null source evbuffer\n");
+//    parcAssertNotNull(destination, "parcEventBuffer_ReadIntoBuffer was passed a null destination buffer\n");
+//    parcAssertNotNull(destination->evbuffer, "parcEventBuffer_ReadIntoBuffer was passed a null destination evbuffer\n");
 
     return evbuffer_remove_buffer(source->evbuffer, destination->evbuffer, length);
 }
@@ -147,8 +147,8 @@ int
 parcEventBuffer_Read(PARCEventBuffer *readBuffer, void *data, size_t length)
 {
     parcEventBuffer_OptionalAssertValid(readBuffer);
-//    assertNotNull(readBuffer, "parcEventBuffer_Read was passed a null buffer\n");
-//    assertNotNull(readBuffer->evbuffer, "parcEventBuffer_Read was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(readBuffer, "parcEventBuffer_Read was passed a null buffer\n");
+//    parcAssertNotNull(readBuffer->evbuffer, "parcEventBuffer_Read was passed a null libevent evbuffer\n");
 
     if (data == NULL) {
         return evbuffer_drain(readBuffer->evbuffer, length);
@@ -160,7 +160,7 @@ parcEventBuffer_Read(PARCEventBuffer *readBuffer, void *data, size_t length)
 int
 parcEventBuffer_copyOut(PARCEventBuffer *readBuffer, void *data_out, size_t length)
 {
-    assertNotNull(data_out, "parcEventBuffer_Copy was passed a null data_out buffer\n");
+    parcAssertNotNull(data_out, "parcEventBuffer_Copy was passed a null data_out buffer\n");
     parcEventBuffer_OptionalAssertValid(readBuffer);
     return evbuffer_copyout(readBuffer->evbuffer, data_out, length);
 }
@@ -170,8 +170,8 @@ parcEventBuffer_WriteToFileDescriptor(PARCEventBuffer *writeBuffer, int fd, ssiz
 {
     parcEventBuffer_OptionalAssertValid(writeBuffer);
 
-//    assertNotNull(writeBuffer, "parcEventBuffer_WriteToFileDescriptor was passed a null buffer\n");
-//    assertNotNull(writeBuffer->evbuffer, "parcEventBuffer_WriteToFileDescriptor was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(writeBuffer, "parcEventBuffer_WriteToFileDescriptor was passed a null buffer\n");
+//    parcAssertNotNull(writeBuffer->evbuffer, "parcEventBuffer_WriteToFileDescriptor was passed a null libevent evbuffer\n");
 
     return evbuffer_write_atmost(writeBuffer->evbuffer, fd, length);
 }
@@ -180,8 +180,8 @@ int
 parcEventBuffer_ReadFromFileDescriptor(PARCEventBuffer *readBuffer, int fd, size_t length)
 {
     parcEventBuffer_OptionalAssertValid(readBuffer);
-//    assertNotNull(readBuffer, "parcEventBuffer_ReadFromFileDescriptor was passed a null buffer\n");
-//    assertNotNull(readBuffer->evbuffer, "parcEventBuffer_ReadFromFileDescriptor was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(readBuffer, "parcEventBuffer_ReadFromFileDescriptor was passed a null buffer\n");
+//    parcAssertNotNull(readBuffer->evbuffer, "parcEventBuffer_ReadFromFileDescriptor was passed a null libevent evbuffer\n");
 
     return evbuffer_read(readBuffer->evbuffer, fd, (int) length);
 }
@@ -190,8 +190,8 @@ void
 parcEventBuffer_FreeLine(PARCEventBuffer *readBuffer, char **line)
 {
     parcEventBuffer_OptionalAssertValid(readBuffer);
-//    assertNotNull(readBuffer, "parcEventBuffer_ReadLine was passed a null readBuffer\n");
-//    assertNotNull(readBuffer->evbuffer, "parcEventBuffer_ReadLine was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(readBuffer, "parcEventBuffer_ReadLine was passed a null readBuffer\n");
+//    parcAssertNotNull(readBuffer->evbuffer, "parcEventBuffer_ReadLine was passed a null libevent evbuffer\n");
 
     parcMemory_Deallocate((void **) line);
 }
@@ -200,8 +200,8 @@ char *
 parcEventBuffer_ReadLine(PARCEventBuffer *readBuffer, size_t *length)
 {
     parcEventBuffer_OptionalAssertValid(readBuffer);
-//    assertNotNull(readBuffer, "parcEventBuffer_ReadLine was passed a null readBuffer\n");
-//    assertNotNull(readBuffer->evbuffer, "parcEventBuffer_ReadLine was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(readBuffer, "parcEventBuffer_ReadLine was passed a null readBuffer\n");
+//    parcAssertNotNull(readBuffer->evbuffer, "parcEventBuffer_ReadLine was passed a null libevent evbuffer\n");
 
     return evbuffer_readln(readBuffer->evbuffer, length, EVBUFFER_EOL_CRLF);
 }
@@ -211,10 +211,10 @@ parcEventBuffer_AppendBuffer(PARCEventBuffer *source, PARCEventBuffer *destinati
 {
     parcEventBuffer_OptionalAssertValid(source);
     parcEventBuffer_OptionalAssertValid(destination);
-//    assertNotNull(source, "parcEventBuffer_AppendBuffer was passed a null source parcEventBuffer\n");
-//    assertNotNull(destination, "parcEventBuffer_AppendBuffer was passed a null destination parcEventBuffer\n");
-//    assertNotNull(source->evbuffer, "parcEventBuffer_AppendBuffer was passed a null source libevent evbuffer\n");
-//    assertNotNull(destination->evbuffer, "parcEventBuffer_AppendBuffer was passed a null destination libevent evbuffer\n");
+//    parcAssertNotNull(source, "parcEventBuffer_AppendBuffer was passed a null source parcEventBuffer\n");
+//    parcAssertNotNull(destination, "parcEventBuffer_AppendBuffer was passed a null destination parcEventBuffer\n");
+//    parcAssertNotNull(source->evbuffer, "parcEventBuffer_AppendBuffer was passed a null source libevent evbuffer\n");
+//    parcAssertNotNull(destination->evbuffer, "parcEventBuffer_AppendBuffer was passed a null destination libevent evbuffer\n");
 
     return evbuffer_add_buffer(destination->evbuffer, source->evbuffer);
 }
@@ -223,9 +223,9 @@ int
 parcEventBuffer_Append(PARCEventBuffer *parcEventBuffer, void *data, size_t length)
 {
     parcEventBuffer_OptionalAssertValid(parcEventBuffer);
-//    assertNotNull(parcEventBuffer, "parcEventBuffer_Append was passed a null parcEventBuffer\n");
-//    assertNotNull(parcEventBuffer->evbuffer, "parcEventBuffer_Append was passed a null libevent evbuffer\n");
-    assertNotNull(data, "parcEventBuffer_Append was passed a null data buffer\n");
+//    parcAssertNotNull(parcEventBuffer, "parcEventBuffer_Append was passed a null parcEventBuffer\n");
+//    parcAssertNotNull(parcEventBuffer->evbuffer, "parcEventBuffer_Append was passed a null libevent evbuffer\n");
+    parcAssertNotNull(data, "parcEventBuffer_Append was passed a null data buffer\n");
 
     return evbuffer_add(parcEventBuffer->evbuffer, data, length);
 }
@@ -234,9 +234,9 @@ int
 parcEventBuffer_Prepend(PARCEventBuffer *readBuffer, void *data, size_t length)
 {
     parcEventBuffer_OptionalAssertValid(readBuffer);
-//    assertNotNull(readBuffer->evbuffer, "parcEventBuffer_Prepend was passed a null libevent evbuffer\n");
-//    assertNotNull(readBuffer, "parcEventBuffer_Prepend was passed a null buffer\n");
-    assertNotNull(data, "parcEventBuffer_Prepend was passed a null data buffer\n");
+//    parcAssertNotNull(readBuffer->evbuffer, "parcEventBuffer_Prepend was passed a null libevent evbuffer\n");
+//    parcAssertNotNull(readBuffer, "parcEventBuffer_Prepend was passed a null buffer\n");
+    parcAssertNotNull(data, "parcEventBuffer_Prepend was passed a null data buffer\n");
 
     return evbuffer_prepend(readBuffer->evbuffer, data, length);
 }
@@ -244,10 +244,10 @@ parcEventBuffer_Prepend(PARCEventBuffer *readBuffer, void *data, size_t length)
 PARCEventBuffer *
 parcEventBuffer_GetQueueBufferInput(PARCEventQueue *queue)
 {
-    assertNotNull(queue, "parcEventBuffer_GetQueueBufferInput was passed a null queue\n");
+    parcAssertNotNull(queue, "parcEventBuffer_GetQueueBufferInput was passed a null queue\n");
 
     PARCEventBuffer *parcEventBuffer = parcMemory_AllocateAndClear(sizeof(PARCEventBuffer));
-    assertNotNull(parcEventBuffer, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventBuffer));
+    parcAssertNotNull(parcEventBuffer, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventBuffer));
 
     parcEventBuffer->evbuffer = internal_parcEventQueue_GetEvInputBuffer(queue);
     parcEventBuffer_LogDebug(parcEventBuffer, "parcEventBuffer_GetQueueBufferInput(queue=%p)\n", queue);
@@ -258,10 +258,10 @@ parcEventBuffer_GetQueueBufferInput(PARCEventQueue *queue)
 PARCEventBuffer *
 parcEventBuffer_GetQueueBufferOutput(PARCEventQueue *queue)
 {
-    assertNotNull(queue, "parcEventBuffer_GetQueueBufferOutput was passed a null queue\n");
+    parcAssertNotNull(queue, "parcEventBuffer_GetQueueBufferOutput was passed a null queue\n");
 
     PARCEventBuffer *parcEventBuffer = parcMemory_AllocateAndClear(sizeof(PARCEventBuffer));
-    assertNotNull(parcEventBuffer, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventBuffer));
+    parcAssertNotNull(parcEventBuffer, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(PARCEventBuffer));
 
     parcEventBuffer->evbuffer = internal_parcEventQueue_GetEvOutputBuffer(queue);
     parcEventBuffer_LogDebug(parcEventBuffer, "parcEventBuffer_GetQueueBufferInput(queue=%p)\n", queue);

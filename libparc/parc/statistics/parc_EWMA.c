@@ -41,7 +41,7 @@ _parcEWMA_FloatEquals(double x, double y, double e)
 static bool
 _parcEWMA_Destructor(PARCEWMA **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCEWMA pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCEWMA pointer.");
 
     return true;
 }
@@ -63,7 +63,7 @@ parcObject_Override(
 void
 parcEWMA_AssertValid(const PARCEWMA *instance)
 {
-    assertTrue(parcEWMA_IsValid(instance),
+    parcAssertTrue(parcEWMA_IsValid(instance),
                "PARCEWMA is not valid.");
 }
 

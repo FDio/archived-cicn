@@ -130,7 +130,7 @@ parcDiffieHellmanKeyShare_Create(PARCDiffieHellmanGroup groupType)
         }
 
         if (keyShare->privateKey == NULL) {
-            assertTrue(false, "Unable to instantiate a private key.");
+            parcAssertTrue(false, "Unable to instantiate a private key.");
             parcDiffieHellmanKeyShare_Release(&keyShare);
         }
     }

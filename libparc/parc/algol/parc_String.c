@@ -30,7 +30,7 @@ struct PARCString {
 static bool
 _parcString_Destructor(PARCString **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCString pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a PARCString pointer.");
     PARCString *string = *instancePtr;
 
     parcMemory_Deallocate(&string->string);
@@ -55,7 +55,7 @@ parcObject_Override(PARCString, PARCObject,
 void
 parcString_AssertValid(const PARCString *instance)
 {
-    assertTrue(parcString_IsValid(instance),
+    parcAssertTrue(parcString_IsValid(instance),
                "PARCString is not valid.");
 }
 

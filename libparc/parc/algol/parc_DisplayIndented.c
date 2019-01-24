@@ -17,7 +17,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +39,7 @@ _indent(int indentation)
 
     if (indentation > 0) {
         result = write(1, _spaces, indentation * _indentationFactor);
-        assertTrue(result == (indentation * _indentationFactor),
+        parcAssertTrue(result == (indentation * _indentationFactor),
                    "Write(2) failed to write %zd bytes.", indentation * _indentationFactor);
     }
     return result;
@@ -55,11 +55,11 @@ _parcDisplayIndented_Print(int indentation, char *string)
         _indent(indentation);
         if (end != NULL) {
             ssize_t nwritten = write(1, start, end - start + 1);
-            assertTrue(nwritten >= 0, "Error calling write");
+            parcAssertTrue(nwritten >= 0, "Error calling write");
             start = end + 1;
         } else {
             ssize_t nwritten = write(1, start, strlen(start));
-            assertTrue(nwritten >= 0, "Error calling write");
+            parcAssertTrue(nwritten >= 0, "Error calling write");
             break;
         }
         end = strchr(start, '\n');
@@ -74,14 +74,14 @@ parcDisplayIndented_PrintLine(int indentation, const char *format, ...)
 
     char *cString;
     int length = vasprintf(&cString, format, ap);
-    assertTrue(length >= 0, "Error in vasprintf");
+    parcAssertTrue(length >= 0, "Error in vasprintf");
 
     va_end(ap);
 
     _parcDisplayIndented_Print(indentation, cString);
 
     ssize_t nwritten = write(1, "\n", 1);
-    assertTrue(nwritten >= 0, "Error calling write");
+    parcAssertTrue(nwritten >= 0, "Error calling write");
 
     free(cString);
 }
@@ -98,7 +98,7 @@ parcDisplayIndented_PrintMemory(int indentation, size_t length, const char memor
     char *cString;
     for (size_t offset = 0; offset < length; /**/) {
         int nwritten = asprintf(&cString, "%p=[", &memory[offset]);
-        assertTrue(nwritten >= 0, "Error calling asprintf");
+        parcAssertTrue(nwritten >= 0, "Error calling asprintf");
         _parcDisplayIndented_Print(indentation, cString);
         free(cString);
 

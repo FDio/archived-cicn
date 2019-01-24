@@ -18,7 +18,7 @@
  */
 #include <config.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -61,7 +61,7 @@ struct parc_uri {
 static void
 _parcURI_Finalize(PARCURI **uriPtr)
 {
-    assertNotNull(uriPtr, "Parameter must be a non-null pointer to a pointer to a PARCURI instance.");
+    parcAssertNotNull(uriPtr, "Parameter must be a non-null pointer to a pointer to a PARCURI instance.");
 
     PARCURI *uri = *uriPtr;
 

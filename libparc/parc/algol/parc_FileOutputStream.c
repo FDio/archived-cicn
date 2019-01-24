@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/algol/parc_FileOutputStream.h>
 #include <parc/algol/parc_Object.h>
@@ -48,7 +48,7 @@ parcObject_ExtendPARCObject(PARCFileOutputStream, _destroy, NULL, NULL, NULL, NU
 PARCFileOutputStream *
 parcFileOutputStream_Create(int fileDescriptor)
 {
-    assertTrue(fileDescriptor != -1, "Invalid file descriptor");
+    parcAssertTrue(fileDescriptor != -1, "Invalid file descriptor");
 
     PARCFileOutputStream *result = parcObject_CreateInstance(PARCFileOutputStream);
     result->fd = fileDescriptor;

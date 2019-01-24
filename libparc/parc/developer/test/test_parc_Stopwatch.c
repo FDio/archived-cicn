@@ -214,7 +214,7 @@ LONGBOW_TEST_CASE(Specialization, parcStopwatch_Multi)
     parcStopwatch_Start(a, b, c);
     sleep(2);
     uint64_t nanos = parcStopwatch_ElapsedTimeNanos(a);
-    printf("%llu %llu\n", nanos, nanos / 1000000000);
+    printf("%lu %lu\n", nanos, nanos / 1000000000);
     if (nanos > (3000000000)) {
         parcStopwatch_Display(a, 0);
     }
@@ -231,7 +231,7 @@ LONGBOW_TEST_CASE(Specialization, parcStopwatch_ElapsedTimeNanos)
     parcStopwatch_StartImpl(instance, NULL);
     sleep(2);
     uint64_t nanos = parcStopwatch_ElapsedTimeNanos(instance);
-    printf("%llu %llu\n", nanos, nanos / 1000000000);
+    printf("%lu %lu\n", nanos, nanos / 1000000000);
     if (nanos > (3000000000)) {
         parcStopwatch_Display(instance, 0);
     }

@@ -27,7 +27,7 @@
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
-#include <LongBow/runtime.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <parc/concurrent/parc_RingBuffer.h>
 

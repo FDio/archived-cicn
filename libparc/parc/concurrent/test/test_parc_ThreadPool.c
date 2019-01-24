@@ -255,7 +255,7 @@ LONGBOW_TEST_CASE(Object, parcThreadPool_Execute)
     assertTrue(shutdownSuccess, "parcThreadPool_AwaitTermination timed-out");
 
     uint64_t count = parcThreadPool_GetCompletedTaskCount(pool);
-    assertTrue(count == 5, "Expected 5, actual %lld", count);
+    assertTrue(count == 5, "Expected 5, actual %lu", count);
 
 
     parcThreadPool_Release(&pool);
