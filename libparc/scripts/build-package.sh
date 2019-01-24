@@ -63,7 +63,6 @@ update_fdio_repo() {
     REPO_VPP_URL=""
 
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
-
         if [ "$DISTRIB_CODENAME" == "xenial" ]; then
             REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.xenial.main/"
             REPO=${REPO_NAME:-"master.ubuntu.xenial.main"}
@@ -79,7 +78,6 @@ update_fdio_repo() {
 
         echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
         echo "deb ${REPO_CICN_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.master.list
-
     elif [ "$DISTRIB_ID" == "CentOS" ]; then
         REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.centos7/"
         REPO=${REPO_NAME:-"master.centos7"}
