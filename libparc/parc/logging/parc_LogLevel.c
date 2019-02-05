@@ -74,7 +74,7 @@ parcLogLevel_FromString(const char *levelAsString)
     PARCLogLevel result = PARCLogLevel_All;
     for (size_t i = 0; levelToString[i] != NULL; i++) {
         if (strcasecmp(levelAsString, levelToString[i]) == 0) {
-            result = i;
+            result = (PARCLogLevel)i;
         }
     }
 

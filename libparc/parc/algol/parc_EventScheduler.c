@@ -13,16 +13,15 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
-#include <stdio.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
+#include <config.h>
+#include <stdio.h>
 
 #include "internal_parc_Event.h"
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_EventScheduler.h>
 #include <parc/algol/parc_FileOutputStream.h>
 #include <parc/logging/parc_Log.h>

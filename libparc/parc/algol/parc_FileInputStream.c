@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
+#ifndef _WIN32
+#include <sys/uio.h>
+#include <unistd.h>
+#endif
 
+#include <config.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <sys/uio.h>
-#include <unistd.h>
 #include <sys/stat.h>
 
 #include <parc/assert/parc_Assert.h>
@@ -88,7 +88,7 @@ parcFileInputStream_Read(PARCFileInputStream *inputStream, PARCBuffer *buffer)
 {
     while (parcBuffer_HasRemaining(buffer)) {
         void *buf = parcBuffer_Overlay(buffer, 0);
-        ssize_t nread = read(inputStream->fd, buf, parcBuffer_Remaining(buffer));
+        ssize_t nread = read(inputStream->fd, buf, (unsigned int)parcBuffer_Remaining(buffer));
         if (nread < 0) {
             break;
         }

@@ -345,7 +345,7 @@ bool parcDeque_Equals(const PARCDeque *x, const PARCDeque *y);
  * @endcode
  *
  */
-void parcDeque_Display(const PARCDeque *deque, int indentation);
+void parcDeque_Display(const PARCDeque *deque, const int indentation);
 
 /**
  * Wakes up a single thread that is waiting on this object (see `parcDeque_Wait)`.

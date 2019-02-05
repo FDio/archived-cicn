@@ -499,7 +499,7 @@ bool parcLinkedList_Equals(const PARCLinkedList *x, const PARCLinkedList *y);
  * @endcode
  *
  */
-void parcLinkedList_Display(const PARCLinkedList *list, int indentation);
+void parcLinkedList_Display(const PARCLinkedList *list, const int indentation);
 
 /**
  * Wakes up a single thread that is waiting on this object (see `parcLinkedList_Wait)`.

@@ -30,6 +30,8 @@ elseif(COMPILE_FOR_IOS)
   message("############ Detected cross compile for $ENV{CMAKE_SYSTEM_NAME}")
   message("############ This build will not include doxygen, tools, or tests")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+elseif(WIN32)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4146")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
   find_package( Doxygen )
@@ -48,20 +50,32 @@ include_directories(${PROJECT_BINARY_DIR}/parc ${PROJECT_SOURCE_DIR})
 if (DOC_ONLY)
   message("############ Skipping check of required dependencies.")
 elseif(COMPILE_FOR_IOS)
-find_host_package( LibEvent REQUIRED )
+  find_host_package( LibEvent REQUIRED )
   include_directories(${LIBEVENT_INCLUDE_DIRS})
-
+  find_package ( Threads REQUIRED )
   find_host_package ( OpenSSL REQUIRED )
 else()
   find_package( LibEvent REQUIRED )
   include_directories(${LIBEVENT_INCLUDE_DIRS})
+  if(NOT WIN32)
+    if(ENABLE_TEST)
+      find_package( LongBow REQUIRED )
+      include_directories(${LONGBOW_INCLUDE_DIRS})
+    endif()
+    find_package ( Threads REQUIRED )
+  else()
 
-  if(ENABLE_TEST)
-    find_package( LongBow REQUIRED )
-    include_directories(${LONGBOW_INCLUDE_DIRS})
+    find_package( PThread REQUIRED )
+    include_directories( ${PTHREAD_INCLUDE_DIRS} )
+
+    find_package ( OpenSSL REQUIRED )
+    include_directories( ${OPENSSL_INCLUDE_DIR} )
+    add_definitions(-D_TIMESPEC_DEFINED=1)
+    find_library(WSOCK32_LIBRARY wsock32 required)
+    find_library(WS2_32_LIBRARY ws2_32 required)
   endif()
 
-  find_package ( Threads REQUIRED )
+
 
   find_package ( OpenSSL REQUIRED )
   include_directories(${OPENSSL_INCLUDE_DIR})
@@ -82,6 +96,9 @@ else()
     ${LIBEVENT_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
+    ${PTHREAD_LIBRARIES}
+    ${WSOCK32_LIBRARY}
+    ${WS2_32_LIBRARY}
     )
 endif()
 

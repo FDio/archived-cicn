@@ -57,7 +57,7 @@ _workerThread(PARCThread *thread, PARCScheduledThreadPool *pool)
 
                     parcSortedList_Notify(pool->workQueue);
                 } else {
-                    parcSortedList_WaitFor(pool->workQueue, executionDelay);
+                    parcSortedList_WaitFor(pool->workQueue, (const unsigned long)executionDelay);
                 }
             } else {
                 parcSortedList_Wait(pool->workQueue);

@@ -71,7 +71,9 @@ const uint8_t decodeTable[256] = {
     '~',       '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~'
 };
 
+#ifndef min
 #define min(a, b) ((a < b) ? a : b)
+#endif
 
 /**
  * Encode the 3-byte quantum pointed to by <code>quantum</code> into 4 encoded characters.
@@ -198,7 +200,7 @@ parcBase64_Encode(PARCBufferComposer *result, PARCBuffer *plainText)
 }
 
 PARCBufferComposer *
-parcBase64_EncodeArray(PARCBufferComposer *output, size_t length, const uint8_t array[length])
+parcBase64_EncodeArray(PARCBufferComposer *output, size_t length, const uint8_t *array)
 {
     size_t offset = 0;
 
@@ -233,7 +235,7 @@ parcBase64_DecodeString(PARCBufferComposer *output, const char *encodedString)
 }
 
 PARCBufferComposer *
-parcBase64_DecodeArray(PARCBufferComposer *output, size_t length, const uint8_t array[length])
+parcBase64_DecodeArray(PARCBufferComposer *output, size_t length, const uint8_t *array)
 {
     size_t offset = 0;
     bool success = true;

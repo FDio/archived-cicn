@@ -16,18 +16,17 @@
 /**
  */
 
+#ifndef _WIN32
 #include <config.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Buffer.h>
 #include <parc/algol/parc_Memory.h>
-
 #include <parc/algol/parc_RandomAccessFile.h>
-
 #include <parc/algol/parc_FileChunker.h>
 
 PARCChunkerInterface *PARCFileChunkerAsChunker = &(PARCChunkerInterface) {
@@ -174,7 +173,7 @@ _parcChunker_NextFromBuffer(PARCFileChunker *chunker, _ChunkerState *state)
 {
     size_t chunkSize = state->nextChunkSize;
 
-    parcRandomAccessFile_Seek(chunker->fhandle, state->position, PARCRandomAccessFilePosition_Start);
+    parcRandomAccessFile_Seek(chunker->fhandle, (long)(state->position), PARCRandomAccessFilePosition_Start);
 
     PARCBuffer *slice = parcBuffer_Allocate(chunkSize);
     parcRandomAccessFile_Read(chunker->fhandle, slice);

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <sys/time.h>
+#endif
+
 #include <config.h>
 
 #include <stdio.h>
-#include <sys/time.h>
 
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Memory.h>
 
@@ -138,7 +138,7 @@ parcLog_MessageVaList(PARCLog *log, PARCLogLevel level, uint64_t messageId, cons
 }
 
 bool
-parcLog_Message(PARCLog *log, PARCLogLevel level, uint64_t messageId, const char *format, ...)
+parcLog_Message(PARCLog *log, PARCLogLevel level, uint64_t messageId, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -149,7 +149,7 @@ parcLog_Message(PARCLog *log, PARCLogLevel level, uint64_t messageId, const char
 }
 
 bool
-parcLog_Warning(PARCLog *logger, const char *format, ...)
+parcLog_Warning(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -160,7 +160,7 @@ parcLog_Warning(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Info(PARCLog *logger, const char *format, ...)
+parcLog_Info(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -171,7 +171,7 @@ parcLog_Info(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Notice(PARCLog *logger, const char *format, ...)
+parcLog_Notice(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -182,7 +182,7 @@ parcLog_Notice(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Debug(PARCLog *logger, const char *format, ...)
+parcLog_Debug(PARCLog *logger, const char *restrict format, ...)
 {
     bool result = false;
 
@@ -197,7 +197,7 @@ parcLog_Debug(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Error(PARCLog *logger, const char *format, ...)
+parcLog_Error(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -208,7 +208,7 @@ parcLog_Error(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Critical(PARCLog *logger, const char *format, ...)
+parcLog_Critical(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -219,7 +219,7 @@ parcLog_Critical(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Alert(PARCLog *logger, const char *format, ...)
+parcLog_Alert(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -230,7 +230,7 @@ parcLog_Alert(PARCLog *logger, const char *format, ...)
 }
 
 bool
-parcLog_Emergency(PARCLog *logger, const char *format, ...)
+parcLog_Emergency(PARCLog *logger, const char *restrict format, ...)
 {
     va_list ap;
     va_start(ap, format);

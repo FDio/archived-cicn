@@ -1,6 +1,10 @@
 /* CPU Cache line size */
 #define LEVEL1_DCACHE_LINESIZE @LEVEL1_DCACHE_LINESIZE@
 
+#ifndef _WIN32
 #define _GNU_SOURCE
+#else
+#include <parc/windows/parc_Utils.h>
+#endif
 
 #define HAVE_REALLOC @HAVE_REALLOC@

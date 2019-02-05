@@ -162,7 +162,7 @@ parcEventBuffer_copyOut(PARCEventBuffer *readBuffer, void *data_out, size_t leng
 {
     parcAssertNotNull(data_out, "parcEventBuffer_Copy was passed a null data_out buffer\n");
     parcEventBuffer_OptionalAssertValid(readBuffer);
-    return evbuffer_copyout(readBuffer->evbuffer, data_out, length);
+    return (int)evbuffer_copyout(readBuffer->evbuffer, data_out, length);
 }
 
 int

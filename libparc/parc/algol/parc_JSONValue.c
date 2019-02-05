@@ -757,7 +757,7 @@ parcJSONValue_GetBoolean(const PARCJSONValue *value)
 static long double
 _parcJSONValue_GetNumber(const PARCJSONValue *value)
 {
-    long double fraction = value->value.number.fraction / powl(10.0, value->value.number.fractionLog10);
+    long double fraction =  (long double)value->value.number.fraction / (long double)powl(10.0, (long double) value->value.number.fractionLog10);
     long double number = (long double) value->value.number.sign * ((long double) value->value.number.whole + fraction);
 
     long double result = number * powl(10.0, (long double) value->value.number.exponent);
@@ -815,7 +815,7 @@ parcJSONValue_GetTimeval(const PARCJSONValue *jsonTimeval, struct timeval *timev
 
     PARCJSON *json = parcJSONValue_GetJSON(jsonTimeval);
     PARCJSONValue *value = parcJSON_GetValueByName(json, "seconds");
-    timeval->tv_sec = parcJSONValue_GetInteger(value);
+    timeval->tv_sec = (long)parcJSONValue_GetInteger(value);
     value = parcJSON_GetValueByName(json, "micros");
     timeval->tv_usec = (int) parcJSONValue_GetInteger(value);
 

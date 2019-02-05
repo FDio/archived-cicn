@@ -62,14 +62,16 @@
 #  include <execinfo.h>
 #endif
 
+#ifndef _WIN32
 #include <unistd.h>
+#include <sys/errno.h>
+#include <sys/queue.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/errno.h>
-#include <sys/queue.h>
 #include <pthread.h>
-
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -565,7 +567,7 @@ parcSafeMemory_IsValid(const void *memory)
 {
     bool result = true;
 
-    PARCSafeMemoryState state = _parcSafeMemory_GetState(memory);
+    PARCSafeMemoryState state = _parcSafeMemory_GetState((const PARCSafeMemoryUsable *)memory);
     if (state != PARCSafeMemoryState_OK) {
         return false;
     }
@@ -629,12 +631,12 @@ parcSafeMemory_Display(const void *memory, int indentation)
     if (memory == NULL) {
         parcDisplayIndented_PrintLine(indentation, "PARCSafeMemory@NULL");
     } else {
-        _MemoryPrefix *prefix = _parcSafeMemory_GetPrefix(memory);
+        _MemoryPrefix *prefix = _parcSafeMemory_GetPrefix((const PARCSafeMemoryUsable *)memory);
 
         parcDisplayIndented_PrintLine(indentation, "PARCSafeMemory@%p {", (void *) memory);
         parcDisplayIndented_PrintLine(indentation + 1,
                                       "%p=[ magic=0x%" PRIx64 " requestedLength=%zd, actualLength=%zd, alignment=%zd, guard=0x%" PRIx64 "]",
-                                      _parcSafeMemory_GetOrigin(memory),
+                                      _parcSafeMemory_GetOrigin((const PARCSafeMemoryUsable *)memory),
                                       prefix->magic,
                                       prefix->requestedLength,
                                       prefix->actualLength,

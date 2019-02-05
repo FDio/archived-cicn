@@ -13,23 +13,20 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <config.h>
+#include <sys/stat.h>
 
 #include <parc/assert/parc_Assert.h>
-
-#include <sys/stat.h>
-#include <unistd.h>
-
 #include <parc/security/parc_Identity.h>
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_DisplayIndented.h>
-
 #include <parc/security/parc_Pkcs12KeyStore.h>
 #include <parc/security/parc_PublicKeySigner.h>
-
 #include <parc/security/parc_IdentityFile.h>
 
 struct parc_identity_file {

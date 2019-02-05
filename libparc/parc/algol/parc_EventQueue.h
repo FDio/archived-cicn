@@ -27,8 +27,11 @@
 #ifndef libparc_parc_EventQueue_h
 #define libparc_parc_EventQueue_h
 
-#include <sys/types.h>
+#ifndef _WIN32
 #include <sys/socket.h>
+#endif
+
+#include <sys/types.h>
 
 #include <parc/algol/parc_Event.h>
 

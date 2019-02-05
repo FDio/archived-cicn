@@ -18,11 +18,13 @@
  * website for details on the algorithm: http://www.isthe.com/chongo/tech/comp/fnv
  *
  */
-#include <config.h>
 
-#include <stdint.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
+#include <config.h>
+#include <stdint.h>
 #include <parc/algol/parc_Hash.h>
 #include <parc/algol/parc_Object.h>
 

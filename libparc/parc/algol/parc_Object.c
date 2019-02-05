@@ -13,25 +13,23 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#include <sys/errno.h>
+#include <sys/time.h>
+#endif
+
 #include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
 #include <stdio.h>
 #include <inttypes.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/errno.h>
 #include <pthread.h>
 #include <time.h>
-#include <sys/time.h>
-
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_DisplayIndented.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Memory.h>
@@ -364,7 +362,11 @@ parcObject_Acquire(const PARCObject *object)
 
     _PARCObjectHeader *header = _parcObject_Header(object);
 
+#ifndef _WIN32
     parcAtomicUint64_Increment(&header->references);
+#else
+    InterlockedIncrement((unsigned volatile *)(&header->references));
+#endif
 
     return (PARCObject *) object;
 }
@@ -528,7 +530,12 @@ _parcObject_InitializeLocking(_PARCObjectLocking *locking)
         pthread_mutex_init(&locking->lock, &_parcObject_GlobalLockAttributes);
         pthread_cond_init(&locking->notification, NULL);
 
-        locking->locker = (pthread_t) NULL;
+#ifndef _WIN32
+        locking->locker = (pthread_t)NULL;
+#else
+        locking->locker = (pthread_t) { NULL, 0 };
+#endif
+
     }
 }
 
@@ -578,6 +585,8 @@ parcObject_CreateInstanceImpl(const PARCObjectDescriptor *descriptor)
     size_t totalMemoryLength = prefixLength + descriptor->objectSize;
 
     void *origin = NULL;
+
+    //origin = parcMemory_AllocateAndClear(totalMemoryLength);
     parcMemory_MemAlign(&origin, sizeof(void *), totalMemoryLength);
 
     if (origin == NULL) {
@@ -630,7 +639,11 @@ parcObject_Release(PARCObject **objectPointer)
 
     parcTrapIllegalValueIf(header->references == 0, "PARCObject@%p references must be > 0", object);
 
+#ifndef _WIN32
     PARCReferenceCount result = parcAtomicUint64_Decrement(&header->references);
+#else
+    PARCReferenceCount result = InterlockedDecrement((unsigned volatile *)(&header->references));
+#endif
 
     if (result == 0) {
         if (_parcObject_Destructor(header->descriptor, objectPointer)) {
@@ -639,7 +652,11 @@ parcObject_Release(PARCObject **objectPointer)
             }
             if (header->isAllocated) {
                 void *origin = _parcObject_Origin(object);
+#ifndef _WIN32
                 parcMemory_Deallocate(&origin);
+#else
+                parcMemory_DeallocateAlign(&origin);
+#endif
             }
             parcAssertNotNull(*objectPointer, "Class implementation unnecessarily clears the object pointer.");
         } else {
@@ -770,7 +787,13 @@ parcObject_Unlock(const PARCObject *object)
         if (object != NULL) {
             _PARCObjectLocking *locking = _parcObjectHeader_Locking(object);
             if (locking != NULL) {
-                locking->locker = (pthread_t) NULL;
+
+#ifndef _WIN32
+                locking->locker = (pthread_t)NULL;
+#else
+                locking->locker = (pthread_t) { NULL, 0 };
+#endif
+
                 result = (pthread_mutex_unlock(&locking->lock) == 0);
 
                 parcAssertTrue(result, "Attempted to unlock an unowned lock.");
@@ -840,7 +863,11 @@ parcObject_IsLocked(const PARCObject *object)
 
     _PARCObjectLocking *locking = _parcObjectHeader_Locking(object);
     if (locking != NULL) {
-        result = locking->locker != (pthread_t) NULL;
+#ifndef _WIN32
+        result = locking->locker != (pthread_t)NULL;
+#else
+        result = locking->locker.p != NULL;
+#endif
     }
 
     return result;
@@ -890,7 +917,7 @@ parcObject_WaitFor(const PARCObject *object, const uint64_t nanoSeconds)
         .tv_sec  = now.tv_sec,
         .tv_nsec = (now.tv_usec * 1000)
     };
-    time.tv_nsec += nanoSeconds;
+    time.tv_nsec += (long)nanoSeconds;
     time.tv_sec += time.tv_nsec / 1000000000;
     time.tv_nsec = time.tv_nsec % 1000000000;
 
@@ -932,8 +959,11 @@ bool
 parcObject_BarrierSet(const PARCObject *object)
 {
     _PARCObjectHeader *header = _parcObject_Header(object);
-
+#ifndef _WIN32
     while (__sync_bool_compare_and_swap(&header->barrier, false, true) == false) {
+#else
+    while (InterlockedCompareExchange((unsigned volatile *)&header->barrier, false, true) != header->barrier) {
+#endif
         ;
     }
     return true;
@@ -944,7 +974,12 @@ parcObject_BarrierUnset(const PARCObject *object)
 {
     _PARCObjectHeader *header = _parcObject_Header(object);
 
+#ifndef _WIN32
     while (__sync_bool_compare_and_swap(&header->barrier, true, false) == false) {
+#else
+    while (InterlockedCompareExchange((unsigned volatile *)&header->barrier, true, false) != header->barrier) {
+#endif
+
         ;
     }
 

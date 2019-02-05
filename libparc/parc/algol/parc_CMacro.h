@@ -35,7 +35,10 @@
  * parcCMacro_IfElse is a c-macro trick for implementing a macro If-Else switch.
  * It uses parcCMacro_ThirdParam to select between A or B depending on whether __VA_ARGS__ expands to a comma.
  */
-#define parcCMacro_IfElse(A, B, ...) parcCMacro_ThirdParam(__VA_ARGS__, A, B, NOOP)
+
+
+#define EXPAND( x ) x
+#define parcCMacro_IfElse(A, B, ...) EXPAND(parcCMacro_ThirdParam( __VA_ARGS__ , A, B, NOOP))
 
 /** \cond */
 #define _parcCMacro_Cat_(A, B) A ## B

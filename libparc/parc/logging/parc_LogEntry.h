@@ -34,10 +34,13 @@
 #ifndef PARC_Library_parc_LogEntry_h
 #define PARC_Library_parc_LogEntry_h
 
-#include <stdlib.h>
-
-#include <parc/algol/parc_Buffer.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
+
+#include <stdlib.h>
+#include <parc/algol/parc_Buffer.h>
+
 
 struct PARCLogEntry;
 typedef struct PARCLogEntry PARCLogEntry;

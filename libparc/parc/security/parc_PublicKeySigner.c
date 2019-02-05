@@ -170,7 +170,7 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
     EVP_PKEY *privateKey = NULL;
     size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
     uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
-    privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, keySize);
+    privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, (long)keySize);
 
     RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
     //*sig = parcMemory_Allocate(RSA_size(rsa));
@@ -196,7 +196,7 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
     EVP_PKEY *privateKey = NULL;
     size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
     uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
-    privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, keySize);
+    privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, (long)keySize);
 
     EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
 
@@ -283,7 +283,7 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
       {
         EVP_PKEY *privateKey = NULL;
         uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
-        privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, parcBuffer_Limit(privateKeyBuffer));
+        privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, (long)parcBuffer_Limit(privateKeyBuffer));
 
         RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
 
@@ -297,7 +297,7 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
         EVP_PKEY *privateKey = NULL;
         size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
         uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
-        privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, keySize);
+        privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, (long)keySize);
 
         EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
 

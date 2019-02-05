@@ -148,7 +148,7 @@ parcDiffieHellmanKeyShare_SerializePublicKey(PARCDiffieHellmanKeyShare *keyShare
     const EC_POINT *point = EC_KEY_get0_public_key(ecKey);
     const EC_GROUP *group = EC_KEY_get0_group(ecKey);
     char *keyBuffer = EC_POINT_point2hex(group, point, form, bnctx);
-    int length = strlen(keyBuffer);
+    int length = (int)strlen(keyBuffer);
 
     PARCBuffer *publicKey = parcBuffer_Allocate(length);
     parcBuffer_PutArray(publicKey, length, (uint8_t *) keyBuffer);

@@ -25,20 +25,21 @@
 #define __USE_XOPEN_EXTENDED
 #endif //__USE_XOPEN_EXTENDED
 
-#include <stdio.h>
+#ifndef _WIN32
 #include <unistd.h>
+#include <ftw.h>
+#endif
+
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 
-
-#include <ftw.h>
 #include <inttypes.h>
 #include <pthread.h>
 #include <string.h>
 #include <errno.h>
 
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_PathName.h>
 #include <parc/algol/parc_File.h>
@@ -134,7 +135,13 @@ parcFile_Mkdir(const PARCFile *file)
     parcFile_OptionalAssertValid(file);
 
     char *string = parcPathName_ToString(file->pathName);
+
+#ifndef _WIN32
     bool result = (mkdir(string, 0777) == 0);
+#else
+    bool result = (CreateDirectory(string, NULL) == 0);
+#endif
+
     parcMemory_Deallocate((void **) &string);
 
     return result;
@@ -167,6 +174,7 @@ parcFile_IsDirectory(const PARCFile *file)
     return result;
 }
 
+#ifndef _WIN32
 static int
 _deleteNode(const char *path, const struct stat *stat, int flag, struct FTW *ftwbuf)
 {
@@ -179,6 +187,7 @@ _deleteNode(const char *path, const struct stat *stat, int flag, struct FTW *ftw
     }
     return result;
 }
+#endif
 
 /**
  * @function parcFile_Delete
@@ -201,16 +210,21 @@ parcFile_Delete(const PARCFile *file)
 
     bool result = false;
     if (parcFile_IsDirectory(file)) {
-        // depth first, dont't follow symlinks, do not cross mount points.
-        int flags = FTW_DEPTH | FTW_PHYS | FTW_MOUNT;
 
-        // maximum 20 fds open at a time
-        int maximumFileDescriptors = 20;
+#ifndef _WIN32
+    // depth first, dont't follow symlinks, do not cross mount points.
+    int flags = FTW_DEPTH | FTW_PHYS | FTW_MOUNT;
+    // maximum 20 fds open at a time
+    int maximumFileDescriptors = 20;
 
-        int failure = nftw(string, _deleteNode, maximumFileDescriptors, flags);
-        parcAssertFalse(failure, "Error on recursive delete: (%d) %s", errno, strerror(errno));
+    int failure = nftw(string, _deleteNode, maximumFileDescriptors, flags);
+    parcAssertFalse(failure, "Error on recursive delete: (%d) %s", errno, strerror(errno));
 
-        result = failure == false;
+    result = failure == false;
+#else
+    result = RemoveDirectoryA(string);
+#endif
+
     } else {
         result = (unlink(string) == 0);
     }

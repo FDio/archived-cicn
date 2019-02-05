@@ -13,21 +13,17 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 #include <ctype.h>
 #include <stdarg.h>
-
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_URISegment.h>
-
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
 
@@ -131,7 +127,7 @@ parcURISegment_CreateFromBuffer(PARCBuffer *buffer)
 }
 
 PARCURISegment *
-parcURISegment_Create(size_t length, const unsigned char segment[length])
+parcURISegment_Create(size_t length, const unsigned char *segment)
 {
     PARCURISegment *result = NULL;
 

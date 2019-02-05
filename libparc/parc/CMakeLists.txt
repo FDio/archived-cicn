@@ -285,6 +285,19 @@ set (LIBPARC_ASSERT_HEADER_FILES
     assert/parc_Assert.h
     )
 
+if(WIN32)
+  set (WINDOWS_UTILITY_HEADER_FILES
+    windows/parc_Utils.h
+	windows/queue.h
+	windows/getopt.h
+  )
+  set (WINDOWS_UTILITY_SOURCE_FILES
+    windows/parc_Utils.c
+	windows/getopt.c
+	windows/getopt_long.c
+  )
+endif()
+
 set(LIBPARC_LOGGING_SOURCE_FILES
 	logging/parc_Log.c
 	logging/parc_LogEntry.c
@@ -352,6 +365,13 @@ if(ENABLE_TEST)
 	)
 endif()
 
+if(WIN32)
+  list(APPEND LIBPARC_SOURCE_FILES
+    ${WINDOWS_UTILITY_SOURCE_FILES}
+    ${WINDOWS_UTILITY_HEADER_FILES}
+  )
+endif()
+
 set(LIBPARC_ALGOL_FILES ${LIBPARC_ALGOL_SOURCE_FILES} ${LIBPARC_ALGOL_HEADER_FILES})
 list(SORT LIBPARC_ALGOL_FILES)
 source_group(algol FILES ${LIBPARC_ALGOL_FILES})
@@ -381,9 +401,12 @@ if(COMPILE_FOR_IOS OR ANDROID_API)
     )
 else()
   add_library(parc         STATIC ${LIBPARC_SOURCE_FILES})
+  target_link_libraries(parc ${LIBEVENT_LIBRARIES})
+  target_link_libraries(parc ${OPENSSL_LIBRARIES})
   add_library(parc.shared  SHARED ${LIBPARC_SOURCE_FILES})
   target_link_libraries(parc.shared ${LIBEVENT_LIBRARIES})
   target_link_libraries(parc.shared ${OPENSSL_LIBRARIES})
+  target_link_libraries(parc.shared ${PARC_BIN_LIBRARIES})
   set_target_properties(parc.shared PROPERTIES
     C_STANDARD 99
     SOVERSION 1
@@ -411,6 +434,9 @@ install(FILES ${LIBPARC_BASE_HEADER_FILES}       DESTINATION include/parc COMPON
 install(FILES ${LIBPARC_STATISTICS_HEADER_FILES} DESTINATION include/parc/statistics COMPONENT headers)
 install(FILES ${LIBPARC_MEMORY_HEADER_FILES}     DESTINATION include/parc/memory COMPONENT headers)
 install(FILES ${LIBPARC_ASSERT_HEADER_FILES}     DESTINATION include/parc/assert COMPONENT headers)
+if(WIN32)
+  install(FILES ${WINDOWS_UTILITY_HEADER_FILES}     DESTINATION include/parc/windows COMPONENT headers)
+endif()
 
 if(ENABLE_TEST)
 	install(FILES ${LIBPARC_TESTING_HEADER_FILES}    DESTINATION include/parc/testing COMPONENT headers)

@@ -50,8 +50,10 @@
 #error OpenSSL version must be at least 0.9.8 release
 #endif
 
+#ifndef _WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 #include <openssl/evp.h>
 #include <openssl/err.h>
@@ -120,8 +122,10 @@ _getThreadId(CRYPTO_THREADID *id)
 #elif defined(__linux__)
     // linux (at least ubuntu and redhat) uses unsigned long int
     CRYPTO_THREADID_set_numeric(id, threadid);
+#elif _WIN32
+    CRYPTO_THREADID_set_pointer(id, threadid.p);
 #else
-#error Unsupported platform, only __APPLE__ and __linux__ supported
+#error Unsupported platform, only __APPLE__, __linux__ and MSVC supported
 #endif
 }
 #endif
@@ -206,4 +210,6 @@ parcSecurity_Fini(void)
     parcAssertTrue(unlockSuccessful, "Unable to unlock the PARC Security framework.");
 }
 
+#ifndef _WIN32
 #pragma GCC diagnostic pop
+#endif

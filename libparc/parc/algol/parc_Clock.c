@@ -68,7 +68,7 @@ _counterClock_GetTimeval(const PARCClock *clock, struct timeval *output)
     uint64_t value = parcAtomicInteger_Uint64Increment(&cc->counter);
 
     // put 19 bits in the micro-seconds so it is never larger than 1E+6
-    output->tv_sec = value >> 19;
+    output->tv_sec = (long) (value >> 19);
     output->tv_usec = value & 0x7FFFF;
 }
 
@@ -94,6 +94,17 @@ parcClock_Counter(void)
     return clock;
 }
 
+#ifdef _WIN32
+static int _clock_gettime(int value, struct timespec *spec) {
+    __int64 wintime;
+    GetSystemTimeAsFileTime((FILETIME *)&wintime);
+    wintime -= 116444736000000000i64;            //1jan1601 to 1jan1970
+    spec->tv_sec = wintime / 10000000i64;        //seconds
+    spec->tv_nsec = wintime % 10000000i64 * 100; //nano-seconds
+    return 0;
+}
+#endif
+
 // ===========
 // Wallclock
 
@@ -104,6 +115,11 @@ _wallclock_GetTimeval(const PARCClock *dummy __attribute__((unused)), struct tim
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     output->tv_sec = ts.tv_sec;
+    output->tv_usec = ts.tv_nsec / 1000;
+#elif _WIN32
+    struct timespec ts;
+    _clock_gettime(TIME_UTC, &ts);
+    output->tv_sec = (long)ts.tv_sec;
     output->tv_usec = ts.tv_nsec / 1000;
 #else
     clock_serv_t clockService;
@@ -166,6 +182,11 @@ _monoclock_GetTimeval(const PARCClock *dummy __attribute__((unused)), struct tim
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     output->tv_sec = ts.tv_sec;
+    output->tv_usec = ts.tv_nsec / 1000;
+#elif _WIN32
+    struct timespec ts;
+    _clock_gettime(TIME_UTC, &ts);
+    output->tv_sec = (long)ts.tv_sec;
     output->tv_usec = ts.tv_nsec / 1000;
 #else
     clock_serv_t clockService;

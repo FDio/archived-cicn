@@ -13,20 +13,18 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
+#ifndef _WIN32
+#include <sys/errno.h>
+#endif
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/errno.h>
 #include <stdbool.h>
 #include <string.h>
-#include <strings.h>
 #include <pthread.h>
 
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/algol/parc_StdlibMemory.h>
 
 static uint32_t _parcStdlibMemory_OutstandingAllocations;
@@ -114,14 +112,23 @@ parcStdlibMemory_MemAlign(void **pointer, size_t alignment, size_t size)
         return EINVAL;
     }
 
+#ifndef _WIN32
     int failure = posix_memalign(pointer, alignment, size);
 
     if (failure != 0) {
         return failure;
     }
+
     if (*pointer == NULL) {
         return ENOMEM;
     }
+#else
+    *pointer= _aligned_malloc(size, alignment);
+
+    if (*pointer == NULL) {
+        return errno;
+    }
+#endif
 
     _parcStdlibMemory_IncrementOutstandingAllocations();
 
@@ -140,6 +147,22 @@ parcStdlibMemory_Deallocate(void **pointer)
 
     _parcStdlibMemory_DecrementOutstandingAllocations();
 }
+
+#ifdef _WIN32
+void
+parcStdlibMemory_DeallocateAlign(void **pointer)
+{
+#ifndef PARCLibrary_DISABLE_VALIDATION
+    parcTrapIllegalValueIf(_parcStdlibMemory_OutstandingAllocations == 0,
+                       "parcStdlibMemory_DeallocateAlign invoked with nothing left to free (double free somewhere?)\n");
+#endif
+    _aligned_free(*pointer);
+    *pointer = NULL;
+
+    _parcStdlibMemory_DecrementOutstandingAllocations();
+}
+
+#endif
 
 void *
 parcStdlibMemory_Reallocate(void *pointer, size_t newSize)
@@ -174,6 +197,9 @@ PARCMemoryInterface PARCStdlibMemoryAsPARCMemory = {
     .AllocateAndClear = (uintptr_t) parcStdlibMemory_AllocateAndClear,
     .MemAlign         = (uintptr_t) parcStdlibMemory_MemAlign,
     .Deallocate       = (uintptr_t) parcStdlibMemory_Deallocate,
+#ifdef _WIN32
+    .DeallocateAlign  = (uintptr_t) parcStdlibMemory_DeallocateAlign,
+#endif
     .Reallocate       = (uintptr_t) parcStdlibMemory_Reallocate,
     .StringDuplicate  = (uintptr_t) parcStdlibMemory_StringDuplicate,
     .Outstanding      = (uintptr_t) parcStdlibMemory_Outstanding

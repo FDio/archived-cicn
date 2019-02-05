@@ -13,21 +13,19 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
+#include <config.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_SafeMemory.h>
 #include <parc/algol/parc_StdlibMemory.h>
@@ -93,6 +91,14 @@ parcMemory_DeallocateImpl(void **pointer)
     ((PARCMemoryDeallocate *) parcMemory->Deallocate)(pointer);
 }
 
+#ifdef _WIN32
+void
+parcMemory_DeallocateAlignImpl(void **pointer)
+{
+    ((PARCMemoryDeallocateAlign *) parcMemory->DeallocateAlign)(pointer);
+}
+#endif
+
 void *
 parcMemory_Reallocate(void *pointer, size_t newSize)
 {
@@ -138,6 +144,9 @@ PARCMemoryInterface PARCMemoryAsPARCMemory = {
     .AllocateAndClear = (uintptr_t) parcMemory_AllocateAndClear,
     .MemAlign         = (uintptr_t) parcMemory_MemAlign,
     .Deallocate       = (uintptr_t) parcMemory_DeallocateImpl,
+#ifdef _WIN32
+    .DeallocateAlign  = (uintptr_t)parcMemory_DeallocateAlignImpl,
+#endif
     .Reallocate       = (uintptr_t) parcMemory_Reallocate,
     .StringDuplicate  = (uintptr_t) parcMemory_StringDuplicate,
     .Outstanding      = (uintptr_t) parcMemory_Outstanding

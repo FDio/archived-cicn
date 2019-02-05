@@ -175,4 +175,5 @@ void parcNotifier_PauseEvents(PARCNotifier *notifier);
  * @endcode
  */
 void parcNotifier_StartEvents(PARCNotifier *notifier);
+
 #endif // libparc_parc_Notifier_h

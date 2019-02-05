@@ -761,7 +761,7 @@ parcBuffer_GetUint8(PARCBuffer *buffer)
 }
 
 PARCBuffer *
-parcBuffer_GetBytes(PARCBuffer *buffer, size_t length, uint8_t array[length])
+parcBuffer_GetBytes(PARCBuffer *buffer, size_t length, uint8_t *array)
 {
     parcBuffer_OptionalAssertValid(buffer);
     _trapIfBufferUnderflow(buffer, length);
@@ -863,7 +863,7 @@ parcBuffer_PutAtIndex(PARCBuffer *buffer, size_t index, uint8_t value)
 }
 
 PARCBuffer *
-parcBuffer_PutArray(PARCBuffer *buffer, size_t arrayLength, const uint8_t array[arrayLength])
+parcBuffer_PutArray(PARCBuffer *buffer, size_t arrayLength, const uint8_t *array)
 {
     parcBuffer_OptionalAssertValid(buffer);
     parcAssertTrue(parcBuffer_Remaining(buffer) >= arrayLength,
@@ -977,7 +977,7 @@ parcBuffer_ToHexString(const PARCBuffer *buffer)
 }
 
 bool
-parcBuffer_SkipOver(PARCBuffer *buffer, size_t length, const uint8_t bytesToSkipOver[length])
+parcBuffer_SkipOver(PARCBuffer *buffer, size_t length, const uint8_t *bytesToSkipOver)
 {
     while (parcBuffer_Remaining(buffer) > 0) {
         uint8_t character = parcBuffer_GetUint8(buffer);
@@ -990,7 +990,7 @@ parcBuffer_SkipOver(PARCBuffer *buffer, size_t length, const uint8_t bytesToSkip
 }
 
 bool
-parcBuffer_SkipTo(PARCBuffer *buffer, size_t length, const uint8_t bytesToSkipTo[length])
+parcBuffer_SkipTo(PARCBuffer *buffer, size_t length, const uint8_t *bytesToSkipTo)
 {
     bool result = false;
 

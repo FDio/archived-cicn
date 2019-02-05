@@ -13,10 +13,6 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
 #include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Memory.h>
 #include "internal_parc_Event.h"

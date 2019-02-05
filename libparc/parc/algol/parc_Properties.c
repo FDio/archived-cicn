@@ -222,7 +222,7 @@ parcProperties_SetProperty(PARCProperties *properties, const char *name, const c
 }
 
 const char *
-parcProperties_GetProperty(const PARCProperties *properties, const char *name)
+parcProperties_GetProperty(const PARCProperties *properties, const char *restrict name)
 {
     char *result = NULL;
 

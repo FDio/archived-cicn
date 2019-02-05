@@ -35,7 +35,10 @@ static int _parc_event_socket_debug_enabled = 0;
  * Current implementation based on top of libevent2
  */
 
+#ifndef _WIN32
 #include <sys/errno.h>
+#endif
+
 #include <event2/listener.h>
 
 /**
@@ -71,7 +74,7 @@ _parc_evconn_error_callback(struct evconnlistener *listener, void *ctx)
     PARCEventSocket *parcEventSocket = (PARCEventSocket *) ctx;
 
     int error = EVUTIL_SOCKET_ERROR();
-    char *errorString = evutil_socket_error_to_string(error);
+    char *errorString = (char *)evutil_socket_error_to_string(error);
     parcEventSocket_LogDebug(parcEventSocket,
                              "_parc_evconn_error_callback(error=%d,errorString=%s,parcEventSocket=%p)\n",
                              error, errorString, parcEventSocket);

@@ -176,7 +176,7 @@ parcEventQueue_SetFileDescriptor(PARCEventQueue *parcEventQueue, int fd)
 int
 parcEventQueue_GetFileDescriptor(PARCEventQueue *parcEventQueue)
 {
-    return bufferevent_getfd(parcEventQueue->buffereventBuffer);
+    return (int)bufferevent_getfd(parcEventQueue->buffereventBuffer);
 }
 
 PARCEventType
@@ -239,7 +239,7 @@ parcEventQueue_Printf(PARCEventQueue *parcEventQueue, const char *fmt, ...)
 int
 parcEventQueue_Read(PARCEventQueue *parcEventQueue, void *data, size_t dataLength)
 {
-    return bufferevent_read(parcEventQueue->buffereventBuffer, data, dataLength);
+    return (int)bufferevent_read(parcEventQueue->buffereventBuffer, data, dataLength);
 }
 
 int

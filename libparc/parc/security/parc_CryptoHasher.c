@@ -435,7 +435,7 @@ static const uint32_t _crc32c_table[] = {
  */
 __attribute__((unused))
 static uint32_t
-_crc32c_UpdateSoftware(uint32_t crc, size_t len, uint8_t p[len])
+_crc32c_UpdateSoftware(uint32_t crc, size_t len, uint8_t *p)
 {
     for (int i = 0; i < len; i++) {
         crc = (crc >> 8) ^ _crc32c_table[((uint8_t) (crc & 0xFF)) ^ p[i]];
@@ -469,7 +469,7 @@ _crc32c_Finalize(uint32_t crc)
  * the CRC table used by the software calculation.
  */
 static uint32_t
-_crc32c_Update(uint32_t crc, size_t len, uint8_t p[len])
+_crc32c_Update(uint32_t crc, size_t len, uint8_t *p)
 {
 #ifdef __SSE4_2__
     crc = _crc32c_UpdateIntel(crc, len, p);

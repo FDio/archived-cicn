@@ -623,7 +623,7 @@ const PARCObjectDescriptor *parcObject_SetDescriptor(PARCObject *object, const P
     }; \
     _Pragma("GCC diagnostic pop") \
     const PARCObjectDescriptor parcObject_DescriptorName(_subtype)
-#else
+#elif defined(__GNUC__)
     #define parcObject_Extends(_subtype, _superType, ...) \
     _Pragma("GCC diagnostic ignored \"-Woverride-init\"") \
     parcObjectDescriptor_Declaration(_subtype) = { \
@@ -646,6 +646,28 @@ const PARCObjectDescriptor *parcObject_SetDescriptor(PARCObject *object, const P
         __VA_ARGS__  \
     }; \
     _Pragma("GCC diagnostic warning \"-Woverride-init\"") \
+    const PARCObjectDescriptor parcObject_DescriptorName(_subtype)
+#else
+#define parcObject_Extends(_subtype, _superType, ...) \
+    parcObjectDescriptor_Declaration(_subtype) = { \
+        .super           = &parcObject_DescriptorName(_superType), \
+        .name            = #_subtype, \
+        .objectSize      = 0, \
+        .objectAlignment = 0, \
+        .destroy         = NULL,    \
+        .destructor      = NULL, \
+        .release         = NULL,   \
+        .copy            = NULL,   \
+        .toString        = NULL,   \
+        .equals          = NULL,   \
+        .compare         = NULL,   \
+        .hashCode        = NULL,   \
+        .toJSON          = NULL,   \
+        .display         = NULL,   \
+        .isLockable      = true, \
+        .typeState       = NULL, \
+        __VA_ARGS__  \
+    }; \
     const PARCObjectDescriptor parcObject_DescriptorName(_subtype)
 #endif
 

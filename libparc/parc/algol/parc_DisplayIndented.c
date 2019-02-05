@@ -13,19 +13,18 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_DisplayIndented.h>
 
 static char *_spaces = "                                                                                                           ";
@@ -38,7 +37,7 @@ _indent(int indentation)
     size_t result = 0;
 
     if (indentation > 0) {
-        result = write(1, _spaces, indentation * _indentationFactor);
+        result = write(1, _spaces, (unsigned int)(indentation * _indentationFactor));
         parcAssertTrue(result == (indentation * _indentationFactor),
                    "Write(2) failed to write %zd bytes.", indentation * _indentationFactor);
     }
@@ -54,11 +53,11 @@ _parcDisplayIndented_Print(int indentation, char *string)
     while (start != NULL) {
         _indent(indentation);
         if (end != NULL) {
-            ssize_t nwritten = write(1, start, end - start + 1);
+            ssize_t nwritten = write(1, start, (unsigned int)(end - start + 1));
             parcAssertTrue(nwritten >= 0, "Error calling write");
             start = end + 1;
         } else {
-            ssize_t nwritten = write(1, start, strlen(start));
+            ssize_t nwritten = write(1, start, (unsigned int)strlen(start));
             parcAssertTrue(nwritten >= 0, "Error calling write");
             break;
         }
@@ -87,11 +86,10 @@ parcDisplayIndented_PrintLine(int indentation, const char *format, ...)
 }
 
 void
-parcDisplayIndented_PrintMemory(int indentation, size_t length, const char memory[length])
+parcDisplayIndented_PrintMemory(int indentation, size_t length, const char *memory)
 {
     int bytesPerLine = 16;
-
-    char accumulator[bytesPerLine + 1];
+    char *accumulator = (char *)malloc(sizeof(char)*(bytesPerLine + 1));
     memset(accumulator, ' ', bytesPerLine);
     accumulator[bytesPerLine] = 0;
 
@@ -111,4 +109,5 @@ parcDisplayIndented_PrintMemory(int indentation, size_t length, const char memor
         offset += bytesInLine;
     }
     printf("  %s]\n", accumulator);
+    free(accumulator);
 }

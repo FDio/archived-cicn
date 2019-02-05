@@ -108,7 +108,7 @@ parcByteArray_Allocate(const size_t length)
 }
 
 PARCByteArray *
-parcByteArray_Wrap(const size_t length, uint8_t array[length])
+parcByteArray_Wrap(const size_t length, uint8_t *array)
 {
     if (array != NULL) {
         PARCByteArray *result = parcObject_CreateInstance(PARCByteArray);
@@ -209,7 +209,7 @@ parcByteArray_Compare(const PARCByteArray *x, const PARCByteArray *y)
 }
 
 PARCByteArray *
-parcByteArray_PutBytes(PARCByteArray *result, size_t offset, size_t length, const uint8_t source[length])
+parcByteArray_PutBytes(PARCByteArray *result, size_t offset, size_t length, const uint8_t *source)
 {
     parcByteArray_OptionalAssertValid(result);
     parcTrapOutOfBoundsIf(offset > result->length,
@@ -224,7 +224,7 @@ parcByteArray_PutBytes(PARCByteArray *result, size_t offset, size_t length, cons
 }
 
 PARCByteArray *
-parcByteArray_GetBytes(const PARCByteArray *result, size_t offset, size_t length, uint8_t array[length])
+parcByteArray_GetBytes(const PARCByteArray *result, size_t offset, size_t length, uint8_t *array)
 {
     parcByteArray_OptionalAssertValid(result);
 
@@ -265,7 +265,7 @@ static void
 _parcByteArray_PrettyPrintLine(const unsigned char *memory, size_t offset, size_t length)
 {
     int bytesPerLine = 16;
-    char accumulator[bytesPerLine + 1];
+    char *accumulator = (char *)malloc(sizeof(char) * (bytesPerLine + 1));
     memset(accumulator, ' ', bytesPerLine);
     accumulator[bytesPerLine] = 0;
 
@@ -286,6 +286,7 @@ _parcByteArray_PrettyPrintLine(const unsigned char *memory, size_t offset, size_
         }
     }
     printf("   %s\n", accumulator);
+	free(accumulator);
 }
 
 void

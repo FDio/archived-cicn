@@ -93,7 +93,7 @@ parcEWMA_Compare(const PARCEWMA *instance, const PARCEWMA *other)
     } else if (other == NULL) {
         result = 1;
     } else {
-        result = instance->value - other->value;
+        result = (int)(instance->value - other->value);
     }
 
     return result;
@@ -132,7 +132,7 @@ parcEWMA_Equals(const PARCEWMA *x, const PARCEWMA *y)
     } else {
         if (x->initialized == y->initialized) {
             if (_parcEWMA_FloatEquals(x->coefficient, y->coefficient, 0.00001)) {
-                if (_parcEWMA_FloatEquals(x->value, y->value, 0.00001)) {
+                if (_parcEWMA_FloatEquals((double)(x->value), (double)(y->value), 0.00001)) {
                     result = true;
                 }
             }
@@ -192,7 +192,7 @@ parcEWMA_Update(PARCEWMA *ewma, const int64_t value)
         double x = (ewma->coefficient * value);
         double y = (ewma->coefficient_r * ewma->value);
 
-        ewma->value = x + y;
+        ewma->value = (int64_t)(x + y);
     } else {
         ewma->value = value;
         ewma->initialized = true;

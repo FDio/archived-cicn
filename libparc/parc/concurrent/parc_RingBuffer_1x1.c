@@ -71,22 +71,23 @@
  *
  */
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/concurrent/parc_RingBuffer_1x1.h>
 
-#ifdef __GNUC__
-
+#if defined(__GNUC__)
 // on x86 or x86_64, simple assignment will work
 #if (__x86_64__ || __i386__)
 #define ATOMIC_ADD_AND_FETCH(ptr, increment)      __sync_add_and_fetch(ptr, increment)
@@ -100,6 +101,10 @@
 #define ATOMIC_SET(ptr, oldvalue, newvalue)       ATOMIC_BOOL_CAS(ptr, oldvalue, newvalue)
 #endif
 
+#elif defined(_WIN32)
+#define ATOMIC_FETCH(ptr)                        *(ptr)
+#define ATOMIC_SET(ptr, oldvalue, newvalue)      *(ptr) = newvalue
+#define ATOMIC_BOOL_CAS(ptr, oldvalue, newvalue) (InterlockedCompareExchangePointer(ptr,newvalue,oldvalue) == ptr)
 #else
 #error "Only GNUC supported, we need atomic operations"
 #endif

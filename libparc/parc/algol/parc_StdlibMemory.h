@@ -103,6 +103,20 @@ int parcStdlibMemory_MemAlign(void **pointer, size_t alignment, size_t size);
  */
 void parcStdlibMemory_Deallocate(void **pointer);
 
+#ifdef _WIN32
+/**
+ * Deallocate the memory pointed to by @p pointer
+ *
+ * @param [in,out] pointer A pointer to a pointer to the memory to be deallocated
+ *
+ * Example:
+ * @code
+ * <#example#>
+ * @endcode
+ */
+void parcStdlibMemory_DeallocateAlign(void **pointer);
+#endif
+
 /**
  * Resizes previously allocated memory at @p pointer to @p newSize. If necessary,
  * new memory is allocated and the content copied from the old memory to the

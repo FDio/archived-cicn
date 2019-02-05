@@ -22,8 +22,10 @@
 #ifndef libparc_parc_Networking_h
 #define libparc_parc_Networking_h
 
+#ifndef _WIN32
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#endif
 
 #include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_Buffer.h>

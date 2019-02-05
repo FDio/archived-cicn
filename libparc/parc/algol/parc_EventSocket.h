@@ -27,8 +27,11 @@
 #ifndef libparc_parc_EventSocket_h
 #define libparc_parc_EventSocket_h
 
-#include <sys/types.h>
+#ifndef _WIN32
 #include <sys/socket.h>
+#endif
+
+#include <sys/types.h>
 
 /**
  * Current implementation based on top of libevent2

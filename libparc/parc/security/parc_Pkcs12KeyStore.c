@@ -13,31 +13,27 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include <config.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/algol/parc_Object.h>
-
 #include <parc/security/parc_Security.h>
 #include <parc/security/parc_Signer.h>
 #include <parc/security/parc_KeyStore.h>
 #include <parc/algol/parc_Memory.h>
-
 #include <parc/security/parc_Certificate.h>
 #include <parc/security/parc_CertificateFactory.h>
 #include <parc/security/parc_CertificateType.h>
 #include <parc/security/parc_ContainerEncoding.h>
 #include <parc/security/parc_KeyType.h>
-
 #include <parc/security/parc_Pkcs12KeyStore.h>
 
 #include <openssl/pkcs12.h>
@@ -102,12 +98,22 @@ _parcPkcs12KeyStore_ParseFile(PARCPkcs12KeyStore *keystore, const char *filename
 {
     parcSecurity_AssertIsInitialized();
 
+#ifndef _WIN32
     FILE *fp = fopen(filename, "rb");
-
     parcAssertNotNull(fp, "Error opening %s: %s", filename, strerror(errno));
     if (fp == NULL) {
         return -1;
     }
+#else
+    FILE *fp;
+    errno_t err = fopen_s(&fp, filename, "rb");
+    char errmsg[1024];
+    strerror_s(errmsg, 1024, err);
+    parcAssertNotNull(fp, "Error opening %s: %s", filename, errmsg);
+    if (err != 0) {
+        return -1;
+    }
+#endif
 
     PKCS12 *p12Keystore = NULL;
     d2i_PKCS12_fp(fp, &p12Keystore);
@@ -156,17 +162,17 @@ PKCS12 *_createPkcs12KeyStore_RSA(
     // Extract the private key
     EVP_PKEY *privateKey = NULL;
     uint8_t *privateKeyBytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
-    d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &privateKeyBytes, parcBuffer_Limit(privateKeyBuffer));
+    d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &privateKeyBytes, (long)parcBuffer_Limit(privateKeyBuffer));
     parcBuffer_Release(&privateKeyBuffer);
-    
+
     // Extract the certificate
     PARCBuffer *certBuffer = parcCertificate_GetDEREncodedCertificate(certificate);
     uint8_t *certBytes = parcBuffer_Overlay(certBuffer, parcBuffer_Limit(certBuffer));
     X509 *cert = NULL;
-    d2i_X509(&cert, (const unsigned char **) &certBytes, parcBuffer_Limit(certBuffer));
-    
+    d2i_X509(&cert, (const unsigned char **) &certBytes, (long)parcBuffer_Limit(certBuffer));
+
     parcCertificate_Release(&certificate);
-    
+
     PKCS12 *pkcs12 = PKCS12_create((char *) password,
                                    "ccnxuser",
                                    privateKey,
@@ -190,17 +196,17 @@ PKCS12 *_createPkcs12KeyStore_ECDSA(
     // Extract the private key
     EVP_PKEY *privateKey = NULL;
     uint8_t *privateKeyBytes = parcBuffer_Overlay(privateKeyBuffer, parcBuffer_Limit(privateKeyBuffer));
-    d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &privateKeyBytes, parcBuffer_Limit(privateKeyBuffer));
+    d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &privateKeyBytes, (long)parcBuffer_Limit(privateKeyBuffer));
     parcBuffer_Release(&privateKeyBuffer);
-    
+
     // Extract the certificate
     PARCBuffer *certBuffer = parcCertificate_GetDEREncodedCertificate(certificate);
     uint8_t *certBytes = parcBuffer_Overlay(certBuffer, parcBuffer_Limit(certBuffer));
     X509 *cert = NULL;
-    d2i_X509(&cert, (const unsigned char **) &certBytes, parcBuffer_Limit(certBuffer));
-    
+    d2i_X509(&cert, (const unsigned char **) &certBytes, (long)parcBuffer_Limit(certBuffer));
+
     parcCertificate_Release(&certificate);
-    
+
     PKCS12 *pkcs12 = PKCS12_create((char *) password,
                                    "ccnxuser",
                                    privateKey,

@@ -13,19 +13,16 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
+#ifndef _WIN32
 #include <sys/socket.h>
+#include <netdb.h>
+#endif
+
+#include <config.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <netdb.h>
-
 #include <parc/algol/parc_Network.h>
-
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_BufferComposer.h>
 #include <parc/algol/parc_Buffer.h>
@@ -52,7 +49,7 @@ parcNetwork_SockAddress(const char *address, in_port_t port)
                 parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in));
                 if (result != NULL) {
                     parcAssertTrue(ai->ai_addrlen == sizeof(struct sockaddr_in),
-                               "Sockaddr wrong length, expected %zu got %u", sizeof(struct sockaddr_in), ai->ai_addrlen);
+                               "Sockaddr wrong length, expected %zu got %zu", sizeof(struct sockaddr_in), ai->ai_addrlen);
                     memcpy(result, ai->ai_addr, ai->ai_addrlen);
                     result->sin_port = htons(port);
                     addr = (struct sockaddr *) result;
@@ -65,7 +62,7 @@ parcNetwork_SockAddress(const char *address, in_port_t port)
                 parcAssertNotNull(result, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(struct sockaddr_in6));
                 if (result != NULL) {
                     parcAssertTrue(ai->ai_addrlen == sizeof(struct sockaddr_in6),
-                               "Sockaddr wrong length, expected %zu got %u", sizeof(struct sockaddr_in6), ai->ai_addrlen);
+                               "Sockaddr wrong length, expected %zu got %zu", sizeof(struct sockaddr_in6), ai->ai_addrlen);
 
                     memcpy(result, ai->ai_addr, ai->ai_addrlen);
                     result->sin6_port = htons(port);
@@ -304,6 +301,7 @@ parcNetwork_ParseLinkAddress(const char *address)
     }
 
     parcTrapIllegalValue(address, "Bad scheme '%s'", address);
+    return NULL;
 }
 
 bool
@@ -370,9 +368,11 @@ parcNetwork_IsSocketLocal(struct sockaddr *sock)
     bool isLocal = false;
 
     switch (sock->sa_family) {
+#ifndef _WIN32
         case PF_LOCAL:
             isLocal = true;
             break;
+#endif
 
         case PF_INET:
             isLocal = _isInet4Loopback((struct sockaddr_in *) sock);

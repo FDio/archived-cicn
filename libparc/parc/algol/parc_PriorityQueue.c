@@ -251,7 +251,7 @@ _bubbleUp(PARCPriorityQueue *queue, size_t elementIndex)
  * @endcode
  */
 static void
-_expand(PARCPriorityQueue *queue)
+_expandTable(PARCPriorityQueue *queue)
 {
     queue->capacity *= 2;
     queue->array = parcMemory_Reallocate(queue->array, sizeof(HeapEntry) * queue->capacity);
@@ -320,7 +320,7 @@ parcPriorityQueue_Add(PARCPriorityQueue *queue, void *data)
     parcAssertNotNull(data, "Parameter data must be non-null");
 
     if (queue->size + 1 > queue->capacity) {
-        _expand(queue);
+        _expandTable(queue);
     }
 
     // insert at the end of the array

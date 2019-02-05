@@ -389,7 +389,7 @@ parcX509Certificate_CreateFromDERBuffer(const PARCBuffer *buffer)
     PARCByteArray *array = parcBuffer_Array(buffer);
     uint8_t *arrayIn = parcByteArray_Array(array);
 
-    cert->certificate = d2i_X509(&cert->certificate, (const unsigned char **) &arrayIn, parcBuffer_Remaining(buffer));
+    cert->certificate = d2i_X509(&cert->certificate, (const unsigned char **) &arrayIn, (long)parcBuffer_Remaining(buffer));
     if (cert->certificate == NULL) {
         parcX509Certificate_Release(&cert);
         return NULL;

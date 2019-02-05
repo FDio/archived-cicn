@@ -98,8 +98,11 @@
 #ifndef PARC_parc_Clock_h
 #define PARC_parc_Clock_h
 
-#include <inttypes.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
+
+#include <inttypes.h>
 
 struct parc_clock;
 typedef struct parc_clock PARCClock;

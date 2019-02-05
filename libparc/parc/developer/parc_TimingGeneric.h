@@ -23,9 +23,12 @@
 #ifndef libparc_parc_TimingLinux_h
 #define libparc_parc_TimingLinux_h
 
+#ifndef _WIN32
+#include <sys/time.h>
+#endif
+
 #include <stdint.h>
 #include <time.h>
-#include <sys/time.h>
 
 #ifdef PARCTIMING_GENERIC
 

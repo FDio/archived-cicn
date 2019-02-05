@@ -13,19 +13,16 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-
 #include <parc/algol/parc_Deque.h>
-
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_DisplayIndented.h>
 #include <parc/algol/parc_Memory.h>
@@ -80,7 +77,7 @@ parcObject_ExtendPARCObject(PARCPathName, _destroy, parcPathName_Copy, parcPathN
                             parcPathName_Equals, NULL, NULL, NULL);
 
 PARCPathName *
-parcPathName_ParseToLimit(size_t limit, const char path[limit])
+parcPathName_ParseToLimit(size_t limit, const char *path)
 {
     PARCPathName *result = parcPathName_Create();
 

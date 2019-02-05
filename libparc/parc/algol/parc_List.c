@@ -101,7 +101,7 @@ parcList_Add(PARCList *list, void *element)
 }
 
 bool
-parcList_AddAll(PARCList *list, size_t argc, void *argv[argc])
+parcList_AddAll(PARCList *list, size_t argc, void **argv)
 {
     for (int i = 0; i < argc; i++) {
         (list->interface->Add)(list->instance, argv[i]);
@@ -166,7 +166,7 @@ parcList_GetAtIndex(const PARCList *list, size_t index)
 int
 parcList_HashCode(const PARCList *list)
 {
-    return (list->interface->HashCode)(list->instance);
+    return (int)(list->interface->HashCode)(list->instance);
 }
 
 ssize_t
@@ -177,7 +177,7 @@ parcList_IndexOf(const PARCList *list, PARCObject *element)
     if (list->interface->IndexOf) {
         result = (list->interface->IndexOf)(list->instance, element);
     } else {
-        for (ssize_t i = 0; i < parcList_Size(list); i++) {
+        for (size_t i = 0; i < parcList_Size(list); i++) {
             PARCObject *e = parcList_GetAtIndex(list, i);
             if (parcObject_Equals(e, element)) {
                 result = i;

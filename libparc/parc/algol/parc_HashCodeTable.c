@@ -165,7 +165,7 @@ _rehash(LinearAddressingHashTable *old_table, LinearAddressingHashTable *new_tab
 }
 
 static void
-_expand(PARCHashCodeTable *hashCodeTable)
+_expandTable(PARCHashCodeTable *hashCodeTable)
 {
     LinearAddressingHashTable temp_table;
     LinearAddressingHashTable *old_table = &hashCodeTable->hashtable;
@@ -269,7 +269,7 @@ parcHashCodeTable_Add(PARCHashCodeTable *table, void *key, void *data)
     parcAssertNotNull(data, "Parameter data must be non-null");
 
     if (table->hashtable.tableSize >= table->hashtable.expandThreshold) {
-        _expand(table);
+        _expandTable(table);
     }
 
     HashCodeType hashcode = table->keyHashCodeFunc(key);
@@ -278,7 +278,7 @@ parcHashCodeTable_Add(PARCHashCodeTable *table, void *key, void *data)
     do {
         result = _innerTableAdd(&table->hashtable, table->keyEqualsFunc, hashcode, key, data);
         if (result == ADD_NOSPACE) {
-            _expand(table);
+            _expandTable(table);
         }
     } while (result == ADD_NOSPACE);
 

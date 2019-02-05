@@ -210,7 +210,11 @@ parcThread_Cancel(PARCThread *thread)
 int
 parcThread_GetId(const PARCThread *thread)
 {
-    return (int) thread->thread;
+#ifndef _WIN32
+    return (int)thread->thread;
+#else
+    return pthread_getw32threadid_np(thread->thread);
+#endif
 }
 
 bool

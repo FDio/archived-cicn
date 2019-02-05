@@ -362,7 +362,7 @@ PARCBuffer *parcBuffer_AllocateCString(const char *string);
  * }
  * @endcode
  */
-PARCBuffer *parcBuffer_CreateFromArray(const void *bytes, size_t length);
+PARCBuffer *parcBuffer_CreateFromArray(const void *bytes, const size_t length);
 
 /**
  * Parse a null-terminated hexadecimal string to create a new `PARCBuffer` instance.

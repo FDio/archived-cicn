@@ -171,7 +171,7 @@ parcBitVector_SetVector(PARCBitVector *parcBitVector, const PARCBitVector *bitsT
     parcAssertNotNull(parcBitVector, "parcBitVector_SetVector passed a NULL parcBitVector");
     parcAssertNotNull(parcBitVector, "parcBitVector_SetVector passed a NULL vector of bits to set");
     int settingBit = 0;
-    for (int i = 0; i < bitsToSet->numberOfBitsSet; i++) {
+    for (unsigned int i = 0; i < bitsToSet->numberOfBitsSet; i++) {
         settingBit = parcBitVector_NextBitSet(bitsToSet, settingBit);
         parcAssertTrue(settingBit != -1, "Number of bits claimed set inconsistent with bits found");
         parcBitVector_Set(parcBitVector, settingBit);
@@ -220,8 +220,8 @@ parcBitVector_ClearVector(PARCBitVector *parcBitVector, const PARCBitVector *bit
         return;
     }
 
-    int clearingBit = 0;
-    for (int i = 0; i < bitsToClear->numberOfBitsSet; i++) {
+    unsigned int clearingBit = 0;
+    for (unsigned int i = 0; i < bitsToClear->numberOfBitsSet; i++) {
         clearingBit = parcBitVector_NextBitSet(bitsToClear, clearingBit);
         // only clear up to the end of the original vector
         if (clearingBit >= parcBitVector->bitLength) {
@@ -271,7 +271,7 @@ parcBitVector_Contains(const PARCBitVector *parcBitVector, const PARCBitVector *
     bool result = true;
 
     int testBit = 0;
-    for (int i = 0; i < testVector->numberOfBitsSet; i++, testBit++) {
+    for (unsigned int i = 0; i < testVector->numberOfBitsSet; i++, testBit++) {
         testBit = parcBitVector_NextBitSet(testVector, testBit);
         if (parcBitVector_Get(parcBitVector, testBit) != 1) {
             result = false;

@@ -35,12 +35,11 @@ parcCryptoSuite_GetCryptoHash(PARCCryptoSuite suite)
         case PARCCryptoSuite_HMAC_SHA512:     // fallthrough
         case PARCCryptoSuite_RSA_SHA512:
             return PARCCryptoHashType_SHA512;
-
         case PARCCryptoSuite_NULL_CRC32C:
             return PARCCryptoHashType_CRC32C;
-
         default:
             parcTrapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+            return PARCCryptoHashType_NULL;
     }
 }
 
@@ -66,6 +65,7 @@ parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits)
 
         default:
             parcTrapIllegalValue(suite, "Unknown crypto suite: %d", suite);
+            return -1;
     }
 }
 
@@ -82,6 +82,7 @@ PARCCryptoSuite parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorithm signAlgo
       return PARCCryptoSuite_NULL_CRC32C;
     default:
       parcTrapIllegalValue(suite, "Unknown signing algorithm suite: %d", signAlgo);
+      return PARCSigningAlgorithm_UNKNOWN;
   }
 }
 
@@ -107,5 +108,6 @@ parcCryptoSuite_GetSigningAlgorithm(PARCCryptoSuite suite)
 
         default:
             parcTrapIllegalValue(suit, "Unknown crypto suite: %d", suite);
+            return PARCSigningAlgorithm_UNKNOWN;
     }
 }

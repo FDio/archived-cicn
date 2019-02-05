@@ -43,6 +43,10 @@ typedef int (PARCMemoryMemAlign)(void **pointer, size_t alignment, size_t size);
 
 typedef void (PARCMemoryDeallocate)(void **pointer);
 
+#ifdef _WIN32
+typedef void (PARCMemoryDeallocateAlign)(void **pointer);
+#endif
+
 typedef void *(PARCMemoryReallocate)(void *pointer, size_t newSize);
 
 typedef char *(PARCMemoryStringDuplicate)(const char *string, size_t length);
@@ -120,6 +124,19 @@ typedef struct parc_memory_interface {
      * @see Reallocate
      */
     uintptr_t Deallocate;
+
+#ifdef _WIN32
+    /**
+     * Deallocate memory previously Aligned allocated via `MemAlign`.
+     *
+     * @param [in,out] pointer A pointer to a `void *` pointer to the address of the allocated memory that will be set to zero.
+     *
+     * @see AllocateAndClear
+     * @see Allocate
+     * @see Reallocate
+    */
+    uintptr_t DeallocateAlign;
+#endif
 
     /**
      * Try to change the size of the allocation pointed to by @p pointer to @p newSize, and returns ptr.
@@ -308,7 +325,34 @@ int parcMemory_MemAlign(void **pointer, const size_t alignment, const size_t siz
  */
 void parcMemory_DeallocateImpl(void **pointer);
 
+#ifdef _WIN32
+/**
+ * Deallocate memory previously allocated via `MemAlign`.
+ *
+ * @param [in,out] pointer A pointer to a `void *` pointer to the address of the allocated memory that will be set to zero.
+ *
+ * Example:
+ * @code
+ * {
+ *     void *allocatedMemory;
+ *
+ *     allocatedMemory = parcMemory_Allocate(100);
+ *     if (allocatedMemory == NULL) {
+ *         // allocation failed
+ *     }
+ * }
+ * @endcode
+ *
+ * @see parcMemory_MemAlign
+ */
+void parcMemory_DeallocateAlignImpl(void **pointer);
+#endif
+
 #define parcMemory_Deallocate(_pointer_) parcMemory_DeallocateImpl((void **) _pointer_)
+
+#ifdef _WIN32
+#define parcMemory_DeallocateAlign(_pointer_) parcMemory_DeallocateAlignImpl((void **) _pointer_)
+#endif
 
 /**
  * Try to change the size of the allocation pointed to by @p pointer to @p newSize, and returns ptr.
@@ -432,7 +476,7 @@ size_t parcMemory_RoundUpToCacheLine(const size_t size);
  *
  * @see parcMemory_RoundUpToCacheLine
  */
-size_t parcMemory_RoundUpToMultiple(size_t size, size_t multiple);
+size_t parcMemory_RoundUpToMultiple(const size_t size, const size_t multiple);
 
 /**
  * @def parcMemory_SafeFree

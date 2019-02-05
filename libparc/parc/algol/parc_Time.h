@@ -26,7 +26,10 @@
 #ifndef libparc_parc_Time_h
 #define libparc_parc_Time_h
 
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
+
 #include <stdint.h>
 
 /**

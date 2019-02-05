@@ -91,7 +91,7 @@ _parcHashMap_GetEntry(const PARCHashMap *hashMap, const PARCObject *key)
 {
     PARCHashCode keyHash = parcObject_HashCode(key);
 
-    int bucket = keyHash % hashMap->capacity;
+    int bucket = (int)(keyHash % hashMap->capacity);
 
     _PARCHashMapEntry *result = NULL;
 
@@ -399,7 +399,7 @@ _parcHashMap_Resize(PARCHashMap *hashMap, size_t newCapacity)
                 while (parcIterator_HasNext(elementIt)) {
                     _PARCHashMapEntry *entry = parcIterator_Next(elementIt);
                     PARCHashCode keyHash = parcObject_HashCode(entry->key);
-                    int newBucket = keyHash % newCapacity;
+                    int newBucket = (int)(keyHash % newCapacity);
                     if (newBuckets[newBucket] == NULL) {
                         newBuckets[newBucket] = parcLinkedList_Create();
                     }
@@ -422,7 +422,7 @@ parcHashMap_Remove(PARCHashMap *hashMap, const PARCObject *key)
 {
     PARCHashCode keyHash = parcObject_HashCode(key);
 
-    int bucket = keyHash % hashMap->capacity;
+    int bucket = (int)(keyHash % hashMap->capacity);
 
     bool result = false;
 
@@ -476,7 +476,7 @@ parcHashMap_Put(PARCHashMap *hashMap, const PARCObject *key, const PARCObject *v
         entry = _parcHashMapEntry_Create(key, value);
 
         PARCHashCode keyHash = parcObject_HashCode(key);
-        int bucket = keyHash % hashMap->capacity;
+        int bucket = (int)(keyHash % hashMap->capacity);
 
         if (hashMap->buckets[bucket] == NULL) {
             hashMap->buckets[bucket] = parcLinkedList_Create();
@@ -560,7 +560,7 @@ _parcHashMap_Init(PARCHashMap *map __attribute__((unused)))
         state->listIterator = NULL;
         for (size_t i = 0; i < map->capacity; ++i) {
             if (map->buckets[i] != NULL) {
-                state->bucket = i;
+                state->bucket = (int)i;
                 state->listIterator = parcLinkedList_CreateIterator(map->buckets[i]);
                 break;
             }

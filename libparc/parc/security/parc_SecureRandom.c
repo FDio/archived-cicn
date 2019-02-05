@@ -13,19 +13,17 @@
  * limitations under the License.
  */
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
-/**
- */
 #include <config.h>
-
 #include <stdlib.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_DisplayIndented.h>
 #include <parc/algol/parc_Memory.h>
-
 #include <parc/security/parc_SecureRandom.h>
 
 struct parc_securerandom {
@@ -77,7 +75,7 @@ static void
 _parcSecureRandom_ReSeed(PARCSecureRandom *random, PARCBuffer *buffer)
 {
     size_t length = parcBuffer_Remaining(buffer);
-    int wrote_bytes = write(random->randomfd, parcBuffer_Overlay(buffer, length), length);
+    int wrote_bytes = write(random->randomfd, parcBuffer_Overlay(buffer, length), (long)length);
 }
 
 PARCSecureRandom *
@@ -104,7 +102,7 @@ ssize_t
 parcSecureRandom_NextBytes(PARCSecureRandom *random, PARCBuffer *buffer)
 {
     size_t length = parcBuffer_Remaining(buffer);
-    ssize_t result = read(random->randomfd, parcBuffer_Overlay(buffer, 0), length);
+    ssize_t result = read(random->randomfd, parcBuffer_Overlay(buffer, 0), (unsigned int)length);
     return result;
 }
 

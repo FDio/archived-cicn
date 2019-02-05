@@ -276,7 +276,7 @@ parcThreadPool_AwaitTermination(PARCThreadPool *pool, PARCTimeout *timeout)
                 } else {
                     // This is not accurate as this will continue the delay, rather than keep a cumulative amount of delay.
                     uint64_t delay = parcTimeout_InNanoSeconds(timeout);
-                    parcLinkedList_WaitFor(pool->workQueue, delay);
+                    parcLinkedList_WaitFor(pool->workQueue, (const unsigned long)delay);
                 }
             }
             result = true;

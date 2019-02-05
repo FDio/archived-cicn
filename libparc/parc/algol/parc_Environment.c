@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
 
-#include <sys/types.h>
-#include <pwd.h>
-#include <stdlib.h>
+#ifndef _WIN32
 #include <unistd.h>
+#include <pwd.h>
+#endif
 
+#include <config.h>
+#include <sys/types.h>
+#include <stdlib.h>
 #include <parc/algol/parc_Environment.h>
 #include <parc/algol/parc_File.h>
 
@@ -35,11 +35,23 @@ parcEnvironment_GetHomeDirectory(void)
 PARCFile *
 parcEnvironment_HomeDirectory(void)
 {
-    char *path;
 
+#ifdef _WIN32
+    char *pValue;
+    size_t len;
+    errno_t err = _dupenv_s(&pValue, &len, "USERPROFILE");
+    if (err != 0) {
+        return parcFile_Create(pValue);
+    }
+    else {
+        return NULL;
+    }
+#else
+    char *path;
     if ((path = getenv("HOME")) == NULL) {
         path = getpwuid(getuid())->pw_dir;
     }
-
     return parcFile_Create(path);
+#endif
+
 }

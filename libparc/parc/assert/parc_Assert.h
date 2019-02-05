@@ -182,8 +182,8 @@
     parcLog_PrintError("Cannot obtain lock: " M, ##__VA_ARGS__); \
     assert(!(A));                                                \
   }
-#define parcAssertAligned(address, alignment, ...)             \
-  parcLog_PrintError(__VA_ARGS__);                             \
+#define parcAssertAligned(address, alignment, M,  ...)         \
+  parcLog_PrintError(M,##__VA_ARGS__);                         \
   assert(((alignment & (~alignment + 1)) == alignment)         \
              ? (((uintptr_t)address) % alignment) == 0 ? 1 : 0 \
              : 0);

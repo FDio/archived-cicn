@@ -13,15 +13,14 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
-#include <stdio.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
+#include <config.h>
+#include <stdio.h>
 
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/algol/parc_FileOutputStream.h>
 #include <parc/algol/parc_Object.h>
 
@@ -75,7 +74,7 @@ parcFileOutputStream_Write(PARCFileOutputStream *outputStream, PARCBuffer *buffe
         size_t remaining = parcBuffer_Remaining(buffer);
         size_t chunkSize = remaining > maximumChunkSize ? maximumChunkSize : remaining;
         void *buf = parcBuffer_Overlay(buffer, chunkSize);
-        ssize_t nwritten = write(outputStream->fd, buf, chunkSize);
+        ssize_t nwritten = write(outputStream->fd, buf, (unsigned int)chunkSize);
         if (nwritten == -1) {
             break;
         }

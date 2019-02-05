@@ -13,17 +13,16 @@
  * limitations under the License.
  */
 
-
-/**
- */
-#include <config.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
+
+#include <config.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_DisplayIndented.h>
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Time.h>
-
 #include <parc/concurrent/parc_ScheduledTask.h>
 #include <parc/concurrent/parc_FutureTask.h>
 

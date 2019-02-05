@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <config.h>
 #include <inttypes.h>
-#include <unistd.h>
 
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_OutputStream.h>

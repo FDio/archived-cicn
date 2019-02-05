@@ -156,7 +156,7 @@ PARCByteArray *parcByteArray_Allocate(const size_t capacity);
  * }
  * @endcode
  */
-PARCByteArray *parcByteArray_Wrap(size_t capacity, uint8_t *array);
+PARCByteArray *parcByteArray_Wrap(const size_t capacity, uint8_t *array);
 
 /**
  * Returns the pointer to the `uint8_t` array that backs this `PARCByteArray`.
@@ -560,7 +560,7 @@ PARCHashCode parcByteArray_HashCode(const PARCByteArray *array);
  * }
  * @endcode
  */
-uint8_t *parcByteArray_AddressOfIndex(const PARCByteArray *array, size_t index);
+uint8_t *parcByteArray_AddressOfIndex(const PARCByteArray *array, const size_t index);
 
 /**
  * Pretty print the given `PARCByteArray` instance.

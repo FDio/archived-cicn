@@ -99,6 +99,7 @@ _parcInMemoryVerifier_GetCryptoHasher(void *interfaceContext, PARCKeyId *keyid, 
 
         default:
             parcTrapUnexpectedState("unsupported hash type: %d", hashType);
+            return NULL;
     }
 }
 
@@ -275,7 +276,7 @@ _parcInMemoryVerifier_RSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHa
 {
     const uint8_t *der_bytes = parcByteArray_Array(parcBuffer_Array(derEncodedKey));
 
-    long der_length = parcBuffer_Remaining(derEncodedKey);
+    long der_length = (long)parcBuffer_Remaining(derEncodedKey);
     EVP_PKEY *unwrapped_key = d2i_PUBKEY(NULL, &der_bytes, der_length);
 
     if (unwrapped_key != NULL) {
@@ -337,7 +338,7 @@ _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCrypto
 {
     const uint8_t *der_bytes = parcByteArray_Array(parcBuffer_Array(derEncodedKey));
 
-    long der_length = parcBuffer_Remaining(derEncodedKey);
+    long der_length = (long)parcBuffer_Remaining(derEncodedKey);
     EVP_PKEY *unwrapped_key = d2i_PUBKEY(NULL, &der_bytes, der_length);
 
     if (unwrapped_key != NULL) {

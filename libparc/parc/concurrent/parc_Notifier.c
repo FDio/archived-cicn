@@ -13,24 +13,27 @@
  * limitations under the License.
  */
 
-/**
- */
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/concurrent/parc_Notifier.h>
 #include <parc/algol/parc_Object.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__)
 #define ATOMIC_ADD_AND_FETCH(ptr, increment)      __sync_add_and_fetch(ptr, increment)
 #define ATOMIC_BOOL_CAS(ptr, oldvalue, newvalue)  __sync_bool_compare_and_swap(ptr, oldvalue, newvalue)
+#define ATOMIC_FETCH(ptr)                         ATOMIC_ADD_AND_FETCH(ptr, 0)
+#define ATOMIC_SET(ptr, oldvalue, newvalue)       ATOMIC_BOOL_CAS(ptr, oldvalue, newvalue)
+#elif defined(_WIN32)
+#define ATOMIC_ADD_AND_FETCH(ptr, increment)      (++(*(ptr)))
+#define ATOMIC_BOOL_CAS(ptr, oldvalue, newvalue)  (InterlockedCompareExchangePointer((volatile PVOID *)ptr, (PVOID)newvalue, (PVOID)oldvalue) == ptr)
 #define ATOMIC_FETCH(ptr)                         ATOMIC_ADD_AND_FETCH(ptr, 0)
 #define ATOMIC_SET(ptr, oldvalue, newvalue)       ATOMIC_BOOL_CAS(ptr, oldvalue, newvalue)
 #else
@@ -63,6 +66,8 @@ parcObject_ExtendPARCObject(PARCNotifier, _parcNotifier_Finalize, NULL, NULL, NU
 static bool
 _parcNotifier_MakeNonblocking(PARCNotifier *notifier)
 {
+
+#ifndef _WIN32
     // set the read side to be non-blocking
     int flags = fcntl(notifier->fds[PARCNotifierReadFd], F_GETFL, 0);
     if (flags == 0) {
@@ -71,6 +76,8 @@ _parcNotifier_MakeNonblocking(PARCNotifier *notifier)
         }
     }
     perror("fcntl error");
+#endif
+
     return false;
 }
 
@@ -82,12 +89,15 @@ parcNotifier_Create(void)
         notifier->paused = false;
         notifier->skippedNotify = false;
 
+#ifndef _WIN32
         int failure = pipe(notifier->fds);
         parcAssertFalse(failure, "Error on pipe: %s", strerror(errno));
 
         if (!_parcNotifier_MakeNonblocking(notifier)) {
-            parcObject_Release((void **) &notifier);
+            parcObject_Release((void **)&notifier);
         }
+#endif
+
     }
 
     return notifier;

@@ -26,13 +26,15 @@
  * @endcode
  */
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <config.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
 #include <limits.h>
-#include <unistd.h>
 
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
@@ -390,9 +392,11 @@ parcSymmetricKeyStore_CreateKey(unsigned bits)
     parcAssertTrue((bits & 0x07) == 0, "bits must be a multiple of 8");
 
     unsigned keylength = bits / 8;
-    uint8_t buffer[keylength];
+    uint8_t *buffer = (uint8_t *)malloc(sizeof(uint8_t) * keylength);
     RAND_bytes(buffer, keylength);
-    return parcBuffer_Flip(parcBuffer_PutArray(parcBuffer_Allocate(keylength), keylength, buffer));
+    PARCBuffer *parcBuffer = parcBuffer_Flip(parcBuffer_PutArray(parcBuffer_Allocate(keylength), keylength, buffer));
+    free(buffer);
+    return parcBuffer;
 }
 
 PARCBuffer *

@@ -13,22 +13,17 @@
  * limitations under the License.
  */
 
-/**
- *
- */
-#include <config.h>
-
-#include <parc/assert/parc_Assert.h>
-
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 #include <ctype.h>
 #include <stdarg.h>
-
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_URI.h>
-
 #include <parc/algol/parc_URIPath.h>
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_Buffer.h>

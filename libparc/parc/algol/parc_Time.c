@@ -13,17 +13,16 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
+#ifndef _WIN32
+#include <sys/time.h>
+#endif
 
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <sys/time.h>
 
 #include <parc/assert/parc_Assert.h>
-
 #include <parc/algol/parc_Time.h>
 #include <parc/algol/parc_Memory.h>
 
@@ -43,11 +42,20 @@ char *
 parcTime_TimevalAsRFC3339(const struct timeval *utcTime, char result[64])
 {
     char tmbuf[64];
-    struct tm theTime;
+    struct tm *nowtm;
 
-    struct tm *nowtm = gmtime_r(&utcTime->tv_sec, &theTime);
+#ifndef _WIN32
+    struct tm theTime;
+    nowtm = gmtime_r(&utcTime->tv_sec, &theTime);
+#else
+    struct tm theTime;
+    __int64 ltime = utcTime->tv_sec;
+    int x = _gmtime64_s(&theTime, &ltime);
+    nowtm = &theTime;
+#endif
+
     strftime(tmbuf, sizeof tmbuf, "%Y-%m-%dT%H:%M:%S", nowtm);
-    snprintf(result, 64, "%s.%06ldZ", tmbuf, (long) utcTime->tv_usec);
+    snprintf(result, 64, "%s.%06ldZ", tmbuf, (long)utcTime->tv_usec);
     return result;
 }
 
@@ -57,7 +65,16 @@ parcTime_TimevalAsISO8601(const struct timeval *utcTime, char result[64])
     char tmbuf[64];
     struct tm theTime;
 
-    struct tm *nowtm = gmtime_r(&utcTime->tv_sec, &theTime);
+    struct tm *nowtm;
+
+#ifndef _WIN32
+    nowtm = gmtime_r(&utcTime->tv_sec, &theTime);
+#else
+    __int64 ltime = utcTime->tv_sec;
+    _gmtime64_s(&theTime, &ltime);
+    nowtm = &theTime;
+#endif
+
     strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S", nowtm);
     snprintf(result, 64, "%s.%06ldZ", tmbuf, (long) utcTime->tv_usec);
     return result;
@@ -66,7 +83,7 @@ parcTime_TimevalAsISO8601(const struct timeval *utcTime, char result[64])
 char *
 parcTime_TimeAsRFC3339(const time_t utcTime, char result[64])
 {
-    struct timeval theTime = { utcTime, 0 };
+    struct timeval theTime = { (long)utcTime, 0 };
 
     return parcTime_TimevalAsRFC3339(&theTime, result);
 }
@@ -83,7 +100,7 @@ parcTime_NowAsRFC3339(char result[64])
 char *
 parcTime_TimeAsISO8601(const time_t utcTime, char result[64])
 {
-    struct timeval theTime = { utcTime, 0 };
+    struct timeval theTime = { (long)utcTime, 0 };
 
     return parcTime_TimevalAsISO8601(&theTime, result);
 }

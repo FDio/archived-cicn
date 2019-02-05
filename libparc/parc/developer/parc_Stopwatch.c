@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-/**
- */
-#include <config.h>
-
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
+
+#include <config.h>
 #include <inttypes.h>
 
 #if __APPLE__
