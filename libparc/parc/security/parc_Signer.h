@@ -84,10 +84,12 @@ typedef struct parc_signer_interface {
      *
      * @param [in] interfaceContextPtr A pointer to a concrete PARCSigner instance.
      * @param [in] hashToSign The output of the given digest to sign
+     * @param [in] signature Portion of memory that will contain the signature (expected to be large enough to contain the signature)
+     * @param [in] sig_len Size in bytes of the supplied buffer
      *
      * @return A pointer to a PARCSignature instance that must be released via parcSignature_Release()
      */
-    PARCSignature *(*SignDigest)(void *interfaceContext, const PARCCryptoHash * parcDigest);
+    PARCSignature *(*SignDigest)(void *interfaceContext, const PARCCryptoHash * parcDigest, uint8_t * signature, uint32_t sign_len);
 
     /**
      * Return the PARSigningAlgorithm used for signing with the given `PARCSigner`
@@ -283,6 +285,8 @@ PARCCryptoHasher *parcSigner_GetCryptoHasher(const PARCSigner *signer);
  *
  * @param [in] signer A pointer to a PARCSigner instance.
  * @param [in] hashToSign The output of the given digest
+ * @param [in] signature Portion of memory that will contain the signature (expected to be large enough to contain the signature)
+ * @param [in] sig_len Size in bytes of the supplied buffer
  *
  * @return A pointer to a PARCSignature instance that must be released via parcSignature_Release()
  *
@@ -300,7 +304,7 @@ PARCCryptoHasher *parcSigner_GetCryptoHasher(const PARCSigner *signer);
  * }
  * @endcode
  */
-PARCSignature *parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *hashToSign);
+PARCSignature *parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *hashToSign, uint8_t * signature, uint32_t sig_len);
 
 /**
  * Compute the signature of a given `PARCBuffer`.
@@ -320,7 +324,7 @@ PARCSignature *parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoH
  * }
  * @endcode
  */
-PARCSignature *parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer *buffer);
+PARCSignature *parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer *buffer, uint8_t * signature, uint32_t sig_len);
 
 /**
  * Return the PARSigningAlgorithm used for signing with the given `PARCSigner`

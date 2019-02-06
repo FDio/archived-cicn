@@ -108,16 +108,16 @@ parcSigner_GetCryptoHasher(const PARCSigner *signer)
 }
 
 PARCSignature *
-parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *parcDigest)
+parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *parcDigest, uint8_t * signature, uint32_t sig_len)
 {
     parcSigner_OptionalAssertValid(signer);
 
     parcAssertNotNull(parcDigest, "parcDigest to sign must not be null");
-    return signer->interface->SignDigest(signer->instance, parcDigest);
+    return signer->interface->SignDigest(signer->instance, parcDigest, signature, sig_len);
 }
 
 PARCSignature *
-parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer *buffer)
+parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer *buffer, uint8_t * signature_buf, uint32_t sig_len)
 {
     parcSigner_OptionalAssertValid(signer);
     parcAssertNotNull(buffer, "buffer to sign must not be null");
@@ -129,7 +129,7 @@ parcSigner_SignBuffer(const PARCSigner *signer, const PARCBuffer *buffer)
     PARCCryptoHash *hash = parcCryptoHasher_Finalize(hasher);
     parcCryptoHasher_Release(&hasher);
 
-    PARCSignature *signature = parcSigner_SignDigest(signer, hash);
+    PARCSignature *signature = parcSigner_SignDigest(signer, hash, signature_buf, sig_len);
     parcCryptoHash_Release(&hash);
 
     return signature;

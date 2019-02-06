@@ -165,7 +165,7 @@ _GetKeyStore(PARCPublicKeySigner *signer)
     return signer->keyStore;
 }
 
-static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t ** sig, unsigned * sigLength)
+static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t * sig, uint32_t supplied_siglen, unsigned * sigLength)
 {
     EVP_PKEY *privateKey = NULL;
     size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
@@ -173,16 +173,16 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
     privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, keySize);
 
     RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
-    *sig = parcMemory_Allocate(RSA_size(rsa));
+    //*sig = parcMemory_Allocate(RSA_size(rsa));
 
-    parcAssertNotNull(*sig, "parcMemory_Allocate(%u) returned NULL", RSA_size(rsa));
+    parcAssertNotNull(sig, "Expected pointer to a memory region for storing the signature %u. Pointer is NULL", RSA_size(rsa));
 
     *sigLength = 0;
     PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
     int result = RSA_sign(opensslDigestType,
                           (unsigned char *) parcByteArray_Array(parcBuffer_Array(bb_digest)),
                           (int) parcBuffer_Remaining(bb_digest),
-                          *sig,
+                          sig,
                           sigLength,
                           rsa);
     parcAssertTrue(result == 1, "Got error from RSA_sign: %d", result);
@@ -191,7 +191,7 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
     return result;
 }
 
-static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t ** sig, unsigned * sigLength)
+static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t * sig, uint32_t supplied_siglen, unsigned * sigLength)
 {
     EVP_PKEY *privateKey = NULL;
     size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
@@ -200,15 +200,15 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
 
     EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
 
-    *sig = parcMemory_Allocate(ECDSA_size(ec_key));
-    parcAssertNotNull(sig, "parcMemory_Allocate(%u) returned NULL", ECDSA_size(ec_key));
+    //*sig = parcMemory_Allocate(ECDSA_size(ec_key));
+    parcAssertNotNull(sig, "Expected pointer to a memory region for storing the signature %u. Pointer is NULL", ECDSA_size(ec_key));
 
     *sigLength = 0;
     PARCBuffer *bb_digest = parcCryptoHash_GetDigest(digestToSign);
     int result = ECDSA_sign(opensslDigestType,
                           (unsigned char *) parcByteArray_Array(parcBuffer_Array(bb_digest)),
                           (int) parcBuffer_Remaining(bb_digest),
-                          *sig,
+                          sig,
                           sigLength,
                           ec_key);
     parcAssertTrue(result == 1, "Got error from ECDSA_sign: %d", result);
@@ -217,7 +217,7 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
 }
 
 static PARCSignature *
-_SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
+_SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign, uint8_t * signature_buf, uint32_t sig_len)
 {
     parcSecurity_AssertIsInitialized();
 
@@ -229,8 +229,7 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
     PARCBuffer *privateKeyBuffer = parcKeyStore_GetDEREncodedPrivateKey(keyStore);
 
     int opensslDigestType;
-    uint8_t *sig;
-    unsigned sigLength;
+    unsigned signLenght;
 
     switch (parcCryptoHash_GetDigestType(digestToSign)) {
         case PARCCryptoHashType_SHA256:
@@ -246,18 +245,18 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
 
     switch (signer->signingAlgorithm) {
         case PARCSigningAlgorithm_RSA:
-            _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, &sig, &sigLength);
+            _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, sig_len, &signLenght);
             break;
         case PARCSigningAlgorithm_ECDSA:
-            _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, &sig, &sigLength);
+            _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, sig_len, &signLenght);
             break;
         default:
             return NULL;
     }
 
-    PARCBuffer *bbSign = parcBuffer_Allocate(sigLength);
-    parcBuffer_Flip(parcBuffer_PutArray(bbSign, sigLength, sig));
-    parcMemory_Deallocate((void **) &sig);
+    PARCBuffer *bbSign = parcBuffer_Wrap(signature_buf, signLenght, 0, signLenght);
+    //parcBuffer_Flip(parcBuffer_PutArray(bbSign, sigLength, sig));
+    //parcMemory_Deallocate((void **) &sig);
 
     PARCSignature *signature =
         parcSignature_Create(_GetSigningAlgorithm(signer),
@@ -317,7 +316,7 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
 
 PARCSigningInterface *PARCPublicKeySignerAsSigner = &(PARCSigningInterface) {
     .GetCryptoHasher = (PARCCryptoHasher * (*)(void *))_GetCryptoHasher,
-    .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *))_SignDigest,
+    .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *, uint8_t *, uint32_t))_SignDigest,
     .GetSigningAlgorithm = (PARCSigningAlgorithm (*)(void *))_GetSigningAlgorithm,
     .GetCryptoHashType = (PARCCryptoHashType (*)(void *))_GetCryptoHashType,
     .GetKeyStore = (PARCKeyStore * (*)(void *))_GetKeyStore,
