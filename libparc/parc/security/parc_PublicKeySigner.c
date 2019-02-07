@@ -200,7 +200,6 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
 
     EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
 
-    //*sig = parcMemory_Allocate(ECDSA_size(ec_key));
     parcAssertNotNull(sig, "Expected pointer to a memory region for storing the signature %u. Pointer is NULL", ECDSA_size(ec_key));
 
     *sigLength = 0;
@@ -255,8 +254,6 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign, uin
     }
 
     PARCBuffer *bbSign = parcBuffer_Wrap(signature_buf, signLenght, 0, signLenght);
-    //parcBuffer_Flip(parcBuffer_PutArray(bbSign, sigLength, sig));
-    //parcMemory_Deallocate((void **) &sig);
 
     PARCSignature *signature =
         parcSignature_Create(_GetSigningAlgorithm(signer),

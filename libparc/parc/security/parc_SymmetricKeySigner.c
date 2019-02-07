@@ -265,7 +265,7 @@ _signDigest(PARCSymmetricKeySigner *interfaceContext, const PARCCryptoHash *hash
 {
     // The digest computed via our hash function (hmac) is the actual signature.
     // just need to wrap it up with the right parameters.
-    PARCBuffer *signatureBits = parcBuffer_Wrap(signature, sig_len, 0, sig_len);//parcBuffer_Copy(parcCryptoHash_GetDigest(hashToSign));
+    PARCBuffer *signatureBits = parcBuffer_Wrap(signature, sig_len, 0, sig_len);
     PARCSignature  *result = parcSignature_Create(_getSigningAlgorithm(interfaceContext), parcCryptoHash_GetDigestType(hashToSign), signatureBits);
     parcBuffer_Release(&signatureBits);
     return result;
