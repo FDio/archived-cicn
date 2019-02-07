@@ -30,7 +30,9 @@
 struct parc_buffer_composer;
 typedef struct parc_buffer_composer PARCBufferComposer;
 
-#include <config.h>
+#ifdef _WIN32
+#include <parc/windows/parc_Utils.h>
+#endif
 #include <parc/algol/parc_Buffer.h>
 
 extern parcObjectDescriptor_Declaration(PARCBufferComposer);
