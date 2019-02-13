@@ -77,7 +77,8 @@ typedef struct parc_signer_interface {
     PARCCryptoHasher *(*GetCryptoHasher)(void *interfaceContext);
 
     /**
-     * Compute the signature of the given PARCCryptoHash.
+     * Compute the signature of the given PARCCryptoHash. This api Does not allocate the buffer holding the signature, it must
+     * be passed from the caller.
      *
      * Equivalent of (for rsa/sha256)
      *    openssl rsautl -sign -inkey test_rsa_key.pem -in infile_digest -out infile.sig
@@ -89,7 +90,22 @@ typedef struct parc_signer_interface {
      *
      * @return A pointer to a PARCSignature instance that must be released via parcSignature_Release()
      */
-    PARCSignature *(*SignDigest)(void *interfaceContext, const PARCCryptoHash * parcDigest, uint8_t * signature, uint32_t sign_len);
+    PARCSignature *(*SignDigestNoAlloc)(void *interfaceContext, const PARCCryptoHash * parcDigest, uint8_t * signature, uint32_t sign_len);
+
+    /**
+     * Compute the signature of the given PARCCryptoHash. This api allocate the buffer for the signature
+     *
+     * Equivalent of (for rsa/sha256)
+     *    openssl rsautl -sign -inkey test_rsa_key.pem -in infile_digest -out infile.sig
+     *
+     * @param [in] interfaceContextPtr A pointer to a concrete PARCSigner instance.
+     * @param [in] hashToSign The output of the given digest to sign
+     * @param [in] signature Portion of memory that will contain the signature (expected to be large enough to contain the signature)
+     * @param [in] sig_len Size in bytes of the supplied buffer
+     *
+     * @return A pointer to a PARCSignature instance that must be released via parcSignature_Release()
+     */
+    PARCSignature *(*SignDigest)(void *interfaceContext, const PARCCryptoHash * parcDigest);
 
     /**
      * Return the PARSigningAlgorithm used for signing with the given `PARCSigner`
@@ -278,7 +294,8 @@ PARCKey *parcSigner_CreatePublicKey(PARCSigner *signer);
 PARCCryptoHasher *parcSigner_GetCryptoHasher(const PARCSigner *signer);
 
 /**
- * Compute the signature of the given PARCCryptoHash.
+ * Compute the signature of the given PARCCryptoHash. This api Does not allocate the buffer holding the signature, it must
+ * be passed from the caller.
  *
  * Equivalent of (for rsa/sha256)
  *    openssl rsautl -sign -inkey test_rsa_key.pem -in infile_digest -out infile.sig
@@ -304,7 +321,36 @@ PARCCryptoHasher *parcSigner_GetCryptoHasher(const PARCSigner *signer);
  * }
  * @endcode
  */
-PARCSignature *parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *hashToSign, uint8_t * signature, uint32_t sig_len);
+PARCSignature *parcSigner_SignDigestNoAlloc(const PARCSigner *signer, const PARCCryptoHash *hashToSign, uint8_t * signature, uint32_t sig_len);
+
+/**
+ * Compute the signature of the given PARCCryptoHash. This function allocate the buffer holding the signature.
+ *
+ * Equivalent of (for rsa/sha256)
+ *    openssl rsautl -sign -inkey test_rsa_key.pem -in infile_digest -out infile.sig
+ *
+ * @param [in] signer A pointer to a PARCSigner instance.
+ * @param [in] hashToSign The output of the given digest
+ * @param [in] signature Portion of memory that will contain the signature (expected to be large enough to contain the signature)
+ * @param [in] sig_len Size in bytes of the supplied buffer
+ *
+ * @return A pointer to a PARCSignature instance that must be released via parcSignature_Release()
+ *
+ * Example:
+ * @code
+ * {
+ *     PARCSigner *signer = parcSigner_Create(publicKeySigner, PARCRSASignerAsSigner);
+ *
+ *     PARCCryptoHasher *hasher = parcSigner_GetCryptoHasher(signer);
+ *     parcCryptoHasher_Init(hasher);
+ *     parcCryptoHasher_Update_Bytes(hasher, &block->memory[relativePosition], length);
+ *     PARCCryptoHash *hashToSign = parcCryptoHasher_Finalize(hasher);
+ *
+ *     PARCSignature signature = parcSigner_SignDigest(signer, hashToSign);
+ * }
+ * @endcode
+ */
+PARCSignature *parcSigner_SignDigest(const PARCSigner *signer, const PARCCryptoHash *hashToSign);
 
 /**
  * Compute the signature of a given `PARCBuffer`.

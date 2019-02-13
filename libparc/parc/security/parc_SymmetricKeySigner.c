@@ -261,7 +261,7 @@ _GetSignatureSize(PARCSymmetricKeySigner *signer)
  * @param hashToSign is the HMAC computed by the our PARCCryptoHasher.
  */
 static PARCSignature  *
-_signDigest(PARCSymmetricKeySigner *interfaceContext, const PARCCryptoHash *hashToSign, uint8_t * signature, uint32_t sig_len)
+_signDigestNoAlloc(PARCSymmetricKeySigner *interfaceContext, const PARCCryptoHash *hashToSign, uint8_t * signature, uint32_t sig_len)
 {
     // The digest computed via our hash function (hmac) is the actual signature.
     // just need to wrap it up with the right parameters.
@@ -271,10 +271,27 @@ _signDigest(PARCSymmetricKeySigner *interfaceContext, const PARCCryptoHash *hash
     return result;
 }
 
+/**
+ * wrap the HMAC in digestToSign in a PARCSignature. Allocate the buffer for the hash.
+ *
+ * @param hashToSign is the HMAC computed by the our PARCCryptoHasher.
+ */
+static PARCSignature  *
+_signDigest(PARCSymmetricKeySigner *interfaceContext, const PARCCryptoHash *hashToSign)
+{
+    // The digest computed via our hash function (hmac) is the actual signature.
+    // just need to wrap it up with the right parameters.
+    PARCBuffer *signatureBits = parcBuffer_Copy(parcCryptoHash_GetDigest(hashToSign));
+    PARCSignature  *result = parcSignature_Create(_getSigningAlgorithm(interfaceContext), parcCryptoHash_GetDigestType(hashToSign), signatureBits);
+    parcBuffer_Release(&signatureBits);
+    return result;
+}
+
 PARCSigningInterface *PARCSymmetricKeySignerAsSigner = &(PARCSigningInterface) {
     .GetCryptoHashType = (PARCCryptoHashType (*)(void *))_getCryptoHashType,
     .GetCryptoHasher = (PARCCryptoHasher * (*)(void *))_getCryptoHasher,
-    .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *, uint8_t *, uint32_t))_signDigest,
+    .SignDigestNoAlloc = (PARCSignature * (*)(void *, const PARCCryptoHash *, uint8_t *, uint32_t))_signDigestNoAlloc,
+    .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *))_signDigest,
     .GetSigningAlgorithm = (PARCSigningAlgorithm (*)(void *))_getSigningAlgorithm,
     .GetKeyStore = (PARCKeyStore * (*)(void *))_getKeyStore,
     .GetSignatureSize = (size_t (*)(void *))_GetSignatureSize

@@ -54,7 +54,7 @@ parcCryptoSuite_GetSignatureSizeBytes(PARCCryptoSuite suite, int keyLengthBits)
             return keyLengthBytes;
 
         case PARCCryptoSuite_ECDSA_SHA256:
-            return keyLengthBytes*2 + 8; //Overhead added by ECDSA 
+            return keyLengthBytes*2 + 8; //Overhead added by ECDSA
 
         case PARCCryptoSuite_HMAC_SHA256:     // fallthrough
         case PARCCryptoSuite_HMAC_SHA512:     // fallthrough

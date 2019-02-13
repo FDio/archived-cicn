@@ -255,7 +255,7 @@ parcPkcs12KeyStore_CreateFile(
             default:
                 return result;
         }
-        
+
         if (pkcs12 != NULL) {
             int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0600);
             if (fd != -1) {

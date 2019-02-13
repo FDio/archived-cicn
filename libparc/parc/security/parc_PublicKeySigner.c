@@ -165,7 +165,7 @@ _GetKeyStore(PARCPublicKeySigner *signer)
     return signer->keyStore;
 }
 
-static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t * sig, uint32_t supplied_siglen, unsigned * sigLength)
+static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t * sig, unsigned * sigLength)
 {
     EVP_PKEY *privateKey = NULL;
     size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
@@ -173,7 +173,6 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
     privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, (long)keySize);
 
     RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
-    //*sig = parcMemory_Allocate(RSA_size(rsa));
 
     parcAssertNotNull(sig, "Expected pointer to a memory region for storing the signature %u. Pointer is NULL", RSA_size(rsa));
 
@@ -191,7 +190,7 @@ static inline int _SignDigestRSA(const PARCCryptoHash *digestToSign, PARCBuffer 
     return result;
 }
 
-static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t * sig, uint32_t supplied_siglen, unsigned * sigLength)
+static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffer *privateKeyBuffer, int opensslDigestType, uint8_t * sig, unsigned * sigLength)
 {
     EVP_PKEY *privateKey = NULL;
     size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
@@ -216,7 +215,7 @@ static inline int _SignDigestECDSA(const PARCCryptoHash *digestToSign, PARCBuffe
 }
 
 static PARCSignature *
-_SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign, uint8_t * signature_buf, uint32_t sig_len)
+_SignDigestNoAlloc(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign, uint8_t * signature_buf, uint32_t sig_len)
 {
     parcSecurity_AssertIsInitialized();
 
@@ -244,11 +243,86 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign, uin
 
     switch (signer->signingAlgorithm) {
         case PARCSigningAlgorithm_RSA:
-            _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, sig_len, &signLenght);
+            _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, &signLenght);
             break;
         case PARCSigningAlgorithm_ECDSA:
-            _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, sig_len, &signLenght);
+            _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, &signLenght);
             break;
+        default:
+            return NULL;
+    }
+
+    PARCBuffer *bbSign = parcBuffer_Wrap(signature_buf, signLenght, 0, signLenght);
+
+    PARCSignature *signature =
+        parcSignature_Create(_GetSigningAlgorithm(signer),
+                             parcCryptoHash_GetDigestType(digestToSign),
+                             bbSign
+                             );
+    parcBuffer_Release(&bbSign);
+    parcBuffer_Release(&privateKeyBuffer);
+    return signature;
+}
+
+static PARCSignature *
+_SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
+{
+    parcSecurity_AssertIsInitialized();
+
+    parcAssertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
+    parcAssertNotNull(digestToSign, "Buffer to sign must not be null");
+
+    // TODO: what is the best way to expose this?
+    PARCKeyStore *keyStore = signer->keyStore;
+    PARCBuffer *privateKeyBuffer = parcKeyStore_GetDEREncodedPrivateKey(keyStore);
+
+    int opensslDigestType;
+    unsigned signLenght;
+
+    uint8_t * signature_buf;
+
+    switch (parcCryptoHash_GetDigestType(digestToSign)) {
+        case PARCCryptoHashType_SHA256:
+            opensslDigestType = NID_sha256;
+            break;
+        case PARCCryptoHashType_SHA512:
+            opensslDigestType = NID_sha512;
+            break;
+        default:
+            parcTrapUnexpectedState("Unknown digest type: %s",
+                                parcCryptoHashType_ToString(parcCryptoHash_GetDigestType(digestToSign)));
+    }
+
+    switch (signer->signingAlgorithm) {
+        case PARCSigningAlgorithm_RSA:
+            {
+                EVP_PKEY *privateKey = NULL;
+                size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
+                uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
+                privateKey = d2i_PrivateKey(EVP_PKEY_RSA, &privateKey, (const unsigned char **) &bytes, (long)keySize);
+
+                RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
+
+                uint8_t * sig = parcMemory_Allocate(RSA_size(rsa));
+                _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, &signLenght);
+                RSA_free(rsa);
+                break;
+            }
+        case PARCSigningAlgorithm_ECDSA:
+            {
+                //Need to retrieve the public key to know how much to allocate to hold the signature
+                EVP_PKEY *privateKey = NULL;
+                size_t keySize = parcBuffer_Remaining(privateKeyBuffer);
+                uint8_t *bytes = parcBuffer_Overlay(privateKeyBuffer, keySize);
+                privateKey = d2i_PrivateKey(EVP_PKEY_EC, &privateKey, (const unsigned char **) &bytes, (long)keySize);
+
+                EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
+
+                uint8_t * sig = parcMemory_Allocate(ECDSA_size(ec_key));
+                _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, &signLenght);
+                EC_KEY_free(ec_key);
+                break;
+            }
         default:
             return NULL;
     }
@@ -313,7 +387,8 @@ _GetSignatureSize(PARCPublicKeySigner *signer)
 
 PARCSigningInterface *PARCPublicKeySignerAsSigner = &(PARCSigningInterface) {
     .GetCryptoHasher = (PARCCryptoHasher * (*)(void *))_GetCryptoHasher,
-    .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *, uint8_t *, uint32_t))_SignDigest,
+    .SignDigestNoAlloc = (PARCSignature * (*)(void *, const PARCCryptoHash *, uint8_t *, uint32_t))_SignDigestNoAlloc,
+    .SignDigest = (PARCSignature * (*)(void *, const PARCCryptoHash *))_SignDigest,
     .GetSigningAlgorithm = (PARCSigningAlgorithm (*)(void *))_GetSigningAlgorithm,
     .GetCryptoHashType = (PARCCryptoHashType (*)(void *))_GetCryptoHashType,
     .GetKeyStore = (PARCKeyStore * (*)(void *))_GetKeyStore,
