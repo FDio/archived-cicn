@@ -22,7 +22,7 @@
 #include <parc/algol/parc_DisplayIndented.h>
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Time.h>
-
+#include <parc/assert/parc_Assert.h>
 #include <ccnx/api/ccnx_Portal/ccnx_PortalAnchor.h>
 
 struct CCNxPortalAnchor {
@@ -33,7 +33,7 @@ struct CCNxPortalAnchor {
 static bool
 _ccnxPortalAnchor_Destructor(CCNxPortalAnchor **instancePtr)
 {
-    assertNotNull(instancePtr, "Parameter must be a non-null pointer to a CCNxPortalAnchor pointer.");
+    parcAssertNotNull(instancePtr, "Parameter must be a non-null pointer to a CCNxPortalAnchor pointer.");
     CCNxPortalAnchor *instance = *instancePtr;
 
     ccnxName_Release(&instance->prefix);
@@ -61,7 +61,7 @@ parcObject_Override(CCNxPortalAnchor, PARCObject,
 void
 ccnxPortalAnchor_AssertValid(const CCNxPortalAnchor *instance)
 {
-    assertTrue(ccnxPortalAnchor_IsValid(instance),
+    parcAssertTrue(ccnxPortalAnchor_IsValid(instance),
                "CCNxPortalAnchor is not valid.");
 }
 
