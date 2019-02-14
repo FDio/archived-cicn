@@ -20,6 +20,7 @@
 #include <ccnx/forwarder/metis/core/metis_Wldr.h>
 #include <ccnx/forwarder/metis/core/metis_Forwarder.h>
 #include <parc/logging/parc_LogReporterTextStdout.h>
+#include <parc/assert/parc_Assert.h>
 
 struct metis_wldr_buffer {
     MetisMessage *message;
@@ -38,12 +39,12 @@ MetisWldr *
 metisWldr_Init()
 {
     MetisWldr *wldr = parcMemory_AllocateAndClear(sizeof(MetisWldr));
-    assertNotNull(wldr, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(MetisWldr));
+    parcAssertNotNull(wldr, "parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(MetisWldr));
     wldr->expected_label = 1;
     wldr->next_label = 1;
     for (int i = 0; i < BUFFER_SIZE; i++) {
         MetisWldrBuffer *entry = parcMemory_AllocateAndClear(sizeof(MetisWldrBuffer));
-        assertNotNull(entry, "WldrBuffer init: parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(MetisWldrBuffer));
+        parcAssertNotNull(entry, "WldrBuffer init: parcMemory_AllocateAndClear(%zu) returned NULL", sizeof(MetisWldrBuffer));
         entry->message = NULL;
         entry->rtx_counter = 0;
         wldr->buffer[i] = entry;
@@ -112,7 +113,7 @@ _metisWldr_SendWldrNotificaiton(MetisWldr *wldr, const MetisConnection *conn, Me
     MetisMessage *notification = metisMessage_Slice(message, 0, metisMessage_Length(message), 0, NULL);
     metisMessage_SetWldrNotification(notification, expected_lbl, received_lbl);
     //printf("------------send notification %u, %u\n",expected_lbl, received_lbl);
-    assertNotNull(notification, "Got null from Slice");
+    parcAssertNotNull(notification, "Got null from Slice");
     metisConnection_ReSend(conn, notification);
 }
 

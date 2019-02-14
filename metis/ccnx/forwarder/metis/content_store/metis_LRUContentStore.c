@@ -20,6 +20,7 @@
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_HashCodeTable.h>
 #include <parc/algol/parc_DisplayIndented.h>
+#include <parc/assert/parc_Assert.h>
 
 #include <ccnx/forwarder/metis/core/metis_Logger.h>
 
@@ -299,10 +300,10 @@ _metisLRUContentStore_PutContent(MetisContentStoreInterface *storeImpl, MetisMes
 {
     bool result = false;
     _MetisLRUContentStore *store = (_MetisLRUContentStore *) metisContentStoreInterface_GetPrivateData(storeImpl);
-    assertNotNull(store, "Parameter store must be non-null");
-    assertNotNull(content, "Parameter objectMessage must be non-null");
+    parcAssertNotNull(store, "Parameter store must be non-null");
+    parcAssertNotNull(content, "Parameter objectMessage must be non-null");
 
-    assertTrue(metisMessage_GetType(content) == MetisMessagePacketType_ContentObject,
+    parcAssertTrue(metisMessage_GetType(content) == MetisMessagePacketType_ContentObject,
                "Parameter objectMessage must be a Content Object");
 
     if (store->objectCapacity == 0) {
@@ -383,9 +384,9 @@ _metisLRUContentStore_MatchInterest(MetisContentStoreInterface *storeImpl, Metis
 
     _MetisLRUContentStore *store = (_MetisLRUContentStore *) metisContentStoreInterface_GetPrivateData(storeImpl);
 
-    assertNotNull(store, "Parameter store must be non-null");
-    assertNotNull(interest, "Parameter interestMessage must be non-null");
-    assertTrue(metisMessage_GetType(interest) == MetisMessagePacketType_Interest,
+    parcAssertNotNull(store, "Parameter store must be non-null");
+    parcAssertNotNull(interest, "Parameter interestMessage must be non-null");
+    parcAssertTrue(metisMessage_GetType(interest) == MetisMessagePacketType_Interest,
                "Parameter interestMessage must be an Interest");
 
     // This will do the most restrictive lookup.
@@ -491,7 +492,7 @@ metisLRUContentStore_Create(MetisContentStoreConfig *config, MetisLogger *logger
 {
     MetisContentStoreInterface *storeImpl = NULL;
 
-    assertNotNull(logger, "MetisLRUContentStore requires a non-NULL logger");
+    parcAssertNotNull(logger, "MetisLRUContentStore requires a non-NULL logger");
 
     storeImpl = parcObject_CreateAndClearInstance(MetisContentStoreInterface);
 

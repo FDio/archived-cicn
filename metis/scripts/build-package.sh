@@ -83,17 +83,21 @@ update_fdio_repo() {
             REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.xenial.main/"
             REPO=${REPO_NAME:-"master.ubuntu.xenial.main"}
             REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
+            echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
+            echo "deb ${REPO_CICN_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.master.list
         elif [ "$DISTRIB_CODENAME" == "trusty" ]; then
             REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.trusty.main/"
             REPO=${REPO_NAME:-"master.ubuntu.trusty.main"}
             REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
+            echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
+            echo "deb ${REPO_CICN_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.master.list
+        elif [ "$DISTRIB_CODENAME" == "bionic" ]; then
+            curl -s https://packagecloud.io/install/repositories/fdio/release/script.deb.sh | sudo bash
+            curl -s https://packagecloud.io/install/repositories/fdio/master/script.deb.sh | sudo bash
         else
             echo "Distribution $DISTRIB_CODENAME is not supported"
             exit -1
         fi
-
-        echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
-        echo "deb ${REPO_CICN_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.master.list
 
     elif [ "$DISTRIB_ID" == "CentOS" ]; then
         REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.centos7/"

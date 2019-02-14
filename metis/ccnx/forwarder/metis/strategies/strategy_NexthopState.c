@@ -18,6 +18,7 @@
 
 #include <parc/algol/parc_Memory.h>
 #include <parc/algol/parc_Object.h>
+#include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_DisplayIndented.h>
 
 #include <ccnx/forwarder/metis/strategies/strategy_NexthopState.h>
@@ -52,7 +53,7 @@ parcObject_Override(StrategyNexthopState, PARCObject,
 void
 strategyNexthopState_AssertValid(const StrategyNexthopState *instance)
 {
-    assertTrue(strategyNexthopState_IsValid(instance),
+    parcAssertTrue(strategyNexthopState_IsValid(instance),
                "StrategyNexthopState is not valid.");
 }
 
@@ -188,7 +189,7 @@ char *
 strategyNexthopState_ToString(const StrategyNexthopState *x)
 {
     //this is not implemented
-    trapNotImplemented("strategyNexthopState_ToString is not implemented");
+    parcTrapNotImplemented("strategyNexthopState_ToString is not implemented");
     return NULL;
 }
 

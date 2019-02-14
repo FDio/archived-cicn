@@ -25,6 +25,7 @@
 #include <parc/algol/parc_Object.h>
 #include <parc/algol/parc_ArrayList.h>
 #include <parc/algol/parc_List.h>
+#include <parc/assert/parc_Assert.h>
 #include <ccnx/forwarder/metis/config/metis_ConfigurationFile.h>
 #include <ccnx/forwarder/metis/config/metis_Configuration.h>
 #include <ccnx/forwarder/metis/config/metis_ControlState.h>
@@ -206,8 +207,8 @@ parcObject_ImplementRelease(metisConfigurationFile, MetisConfigurationFile);
 MetisConfigurationFile *
 metisConfigurationFile_Create(MetisForwarder *metis, const char *filename)
 {
-    assertNotNull(metis, "Parameter metis must be non-null");
-    assertNotNull(filename, "Parameter filename must be non-null");
+    parcAssertNotNull(metis, "Parameter metis must be non-null");
+    parcAssertNotNull(filename, "Parameter filename must be non-null");
 
     MetisConfigurationFile *configFile = parcObject_CreateInstance(MetisConfigurationFile);
 
@@ -215,7 +216,7 @@ metisConfigurationFile_Create(MetisForwarder *metis, const char *filename)
         configFile->linesRead = 0;
         configFile->metis = metis;
         configFile->filename = parcMemory_StringDuplicate(filename, strlen(filename));
-        assertNotNull(configFile->filename, "Could not copy string '%s'", filename);
+        parcAssertNotNull(configFile->filename, "Could not copy string '%s'", filename);
 
         // setup the control state for the command parser
         configFile->controlState = metisControlState_Create(configFile, _writeRead);
@@ -252,7 +253,7 @@ metisConfigurationFile_Create(MetisForwarder *metis, const char *filename)
 bool
 metisConfigurationFile_Process(MetisConfigurationFile *configFile)
 {
-    assertNotNull(configFile, "Parameter configFile must be non-null");
+    parcAssertNotNull(configFile, "Parameter configFile must be non-null");
 
     // default to a "true" return value and only set to false if we encounter an error.
     bool success = true;
