@@ -78,6 +78,7 @@ update_fdio_repo() {
         	echo "deb ${REPO_CICN_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.master.list
         elif [ "$DISTRIB_CODENAME" == "bionic" ]; then
             curl -s https://packagecloud.io/install/repositories/fdio/release/script.deb.sh | sudo bash
+            curl -s https://packagecloud.io/install/repositories/fdio/master/script.deb.sh | sudo bash
         else
             echo "Distribution $DISTRIB_CODENAME is not supported"
             exit -1
