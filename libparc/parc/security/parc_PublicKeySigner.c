@@ -303,7 +303,7 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
 
                 RSA *rsa = EVP_PKEY_get1_RSA(privateKey);
 
-                uint8_t * sig = parcMemory_Allocate(RSA_size(rsa));
+                signature_buf = parcMemory_Allocate(RSA_size(rsa));
                 _SignDigestRSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, &signLenght);
                 RSA_free(rsa);
                 break;
@@ -318,7 +318,7 @@ _SignDigest(PARCPublicKeySigner *signer, const PARCCryptoHash *digestToSign)
 
                 EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(privateKey);
 
-                uint8_t * sig = parcMemory_Allocate(ECDSA_size(ec_key));
+                signature_buf = parcMemory_Allocate(ECDSA_size(ec_key));
                 _SignDigestECDSA(digestToSign, privateKeyBuffer, opensslDigestType, signature_buf, &signLenght);
                 EC_KEY_free(ec_key);
                 break;
