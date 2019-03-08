@@ -267,7 +267,9 @@ parcPkcs12KeyStore_CreateFile(
                 } else {
                     parcTrapUnrecoverableState("Cannot fdopen(3) the file descriptor %d", fd);
                 }
+#ifndef _WIN32
                 close(fd);
+#endif
             } else {
                 parcTrapUnrecoverableState("Cannot open(2) the file '%s': %s", filename, strerror(errno));
             }
