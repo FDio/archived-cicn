@@ -111,6 +111,8 @@ int dprintf(int fd, char *fmt, ...);
 #define access _access
 #endif
 
+#ifndef __cplusplus
+
 #ifndef close
 #define close _close
 #endif
@@ -121,6 +123,8 @@ int dprintf(int fd, char *fmt, ...);
 
 #ifndef open
 #define open _open
+#endif
+
 #endif
 
 #ifndef unlink
