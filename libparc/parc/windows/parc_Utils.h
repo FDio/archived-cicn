@@ -113,6 +113,10 @@ int dprintf(int fd, char *fmt, ...);
 
 #ifndef __cplusplus
 
+#ifndef read
+#define read _read
+#endif
+
 #ifndef close
 #define close _close
 #endif
@@ -129,10 +133,6 @@ int dprintf(int fd, char *fmt, ...);
 
 #ifndef unlink
 #define unlink _unlink
-#endif
-
-#ifndef read
-#define read _read
 #endif
 
 #ifndef strcasecmp
