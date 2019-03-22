@@ -11,6 +11,7 @@
 
 #include "DASHPlayer.h"
 #include <iostream>
+#include "QtAV/AVError.h"
 
 using namespace libdash::framework::adaptation;
 using namespace libdash::framework::mpd;

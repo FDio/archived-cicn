@@ -18,12 +18,11 @@ android {
   QT += androidextras
 }
 
-message($$TRANSPORT_LIBRARY)
 CONFIG -= release
 CONFIG += debug
-CONFIG += c++11
-QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DANDROID_STL=c++_static #-DICNICPDOWNLOAD
-QMAKE_CXXFLAGS += -std=c++11 -g -fpermissive
+CONFIG += c++14
+QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DANDROID_STL=c++_static
+QMAKE_CXXFLAGS += -std=c++14 -g -fpermissive -DASIO_STANDALONE=1
 # Add more folders to ship with the application, here
 folder_01.source = qml/Viper
 folder_01.target = qml
@@ -277,30 +276,32 @@ unix:!macx:!android {
     INCLUDEPATH += /usr/include
     INCLUDEPATH += /usr/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-	    LIBS += -L/usr/local/lib -ldash -lboost_system -lhicnet -lavcodec -lavutil -lavformat
+	LIBS += -L/usr/local/lib -ldash  -lhicntransport -lavcodec -lavutil -lavformat
     	DEFINES += "HICNET=ON"
     } else {
-        LIBS += -L/usr/local/lib -ldash -lboost_system -licnet -lavcodec -lavutil -lavformat
+        LIBS += -L/usr/local/lib -ldash -licnet -lavcodec -lavutil -lavformat
     	DEFINES += "ICNET=ON"
     }
 
 }
 
 macx:!ios {
-
     QMAKE_INFO_PLIST = $$COMMON/Info.plist
     ICON = $$COMMON/Viper.icns
     QMAKE_RPATHDIR += /usr/local/lib
     INCLUDEPATH += /usr/local/include
     INCLUDEPATH += /usr/local/include/libdash
     INCLUDEPATH += $$[QT_HOST_PREFIX]/include/
+    INCLUDEPATH += $$[QT_HOST_PREFIX]/lib/QtAV.framework/Headers
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -lhicnet -lssl -lcrypto
-		DEFINES += "HICNET=ON"
-	} else {
-	    LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lboost_system -lboost_regex -lswscale -licnet -lssl -lcrypto
-		DEFINES += "ICNET=ON"
-	}
+        LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lswscale -lhicntransport -lssl -lcrypto
+        LIBS += -F$$[QT_HOST_PREFIX]/lib/ -framework QtAV
+        DEFINES += "HICNET=ON"
+    } else {
+        LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lswscale -licnet -lssl -lcrypto
+         LIBS += -F$$[QT_HOST_PREFIX]/lib/ -framework QtAV
+        DEFINES += "ICNET=ON"
+    }
 }
 SOURCES *= main.cpp
 android {
@@ -318,12 +319,12 @@ android {
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -lhicnet -ljsoncpp -ldash -lcurl  -lxml2 -lccnx_hicn_api_portal -lccnx_hicn_transport_rta -lccnx_hicn_api_control -lccnx_hicn_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -lhicn -levent -lssl -lcrypto -lavcodec -lavutil -lavformat -lboost_system
-		DEFINES += "HICNET=ON"
-	} else {
-	    LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -licnet -ldash -lcurl  -lxml2 -lccnx_api_portal -lccnx_transport_rta -lccnx_api_control -lccnx_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -levent -lssl -lcrypto -lavcodec -lavutil -lavformat   -lboost_system
-		DEFINES += "ICNET=ON"
-	}
+        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -lhicnet -ljsoncpp -ldash -lcurl  -lxml2 -lccnx_common -lparc -lhicntransport -lhicn -levent -lssl -lcrypto -lavcodec -lavutil -lavformat
+        DEFINES += "HICNET=ON"
+    } else {
+        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -licnet -ldash -lcurl  -lxml2 -lccnx_api_portal -lccnx_transport_rta -lccnx_api_control -lccnx_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -levent -lssl -lcrypto -lavcodec -lavutil -lavformat   -lboost_system
+        DEFINES += "ICNET=ON"
+    }
 }
 
 
@@ -336,4 +337,3 @@ DISTFILES += \
     android/gradle.properties \
     android/src/org/qtav/qmlplayer/ViperActivity.java \
     android/src/org/player/viper/ViperActivity.java
-

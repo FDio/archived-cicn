@@ -18,7 +18,6 @@
 #include "connection-pool.h"
 #include "query.h"
 #include "communication-protocol.h"
-#include <boost/algorithm/string/trim.hpp>
 
 
 class WebSocketService

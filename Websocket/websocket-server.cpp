@@ -29,7 +29,7 @@ WebSocketServer::WebSocketServer(unsigned short port)
     server.set_message_handler(bind(&WebSocketServer::onMessage, this, &server, ::_1, ::_2));
 
     // Listen on port
-    server.listen(boost::asio::ip::tcp::v4(),port);
+    server.listen(asio::ip::tcp::v4(),port);
 
   } catch (websocketpp::exception const & e) {
     std::cout << e.what() << std::endl;
@@ -58,10 +58,10 @@ WebSocketServer::start()
 
       //Set interrupt callbacks
 
-      boost::asio::io_service io_service;
-      boost::asio::signal_set signals(server.get_io_service(), SIGINT, SIGQUIT);
+      asio::io_service io_service;
+      asio::signal_set signals(server.get_io_service(), SIGINT, SIGQUIT);
 
-      signals.async_wait([this](const boost::system::error_code &errorCode, int) {
+      signals.async_wait([this](const std::error_code &errorCode, int) {
         std::cout << "Gracefully terminating websocket server" << std::endl;
         this->m_isRunning = false;
         this->server.stop();

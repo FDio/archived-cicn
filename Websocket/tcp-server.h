@@ -17,8 +17,8 @@
 #define TCP_SERVER_H
 
 #include <functional>
-#include <boost/asio.hpp>
 #include <iostream>
+#include <asio.hpp>
 
 typedef std::function<std::string(const uint8_t*,
                                   std::size_t)> HandlerFunction;
@@ -43,14 +43,14 @@ private:
   accept();
 
   void
-  processIncomingData(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+  processIncomingData(std::shared_ptr<asio::ip::tcp::socket> socket);
 
-  std::shared_ptr<boost::asio::deadline_timer>
-  set_timeout_on_socket(std::shared_ptr<boost::asio::ip::tcp::socket> socket, long seconds);
+  std::shared_ptr<asio::steady_timer>
+  set_timeout_on_socket(std::shared_ptr<asio::ip::tcp::socket> socket, long seconds);
 
   unsigned short port;
-  boost::asio::io_service io_service;
-  boost::asio::ip::tcp::acceptor acceptor;
+  asio::io_service io_service;
+  asio::ip::tcp::acceptor acceptor;
   long read_timeout;
   HandlerFunction handler;
 };

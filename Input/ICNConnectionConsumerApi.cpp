@@ -55,8 +55,12 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
     this->res = false;
     InitializeConditionVariable (&this->contentRetrieved);
     InitializeCriticalSection   (&this->monitorMutex);
-	this->hTTPClientConnection = new libl4::http::HTTPClientConnection();
-	libl4::transport::ConsumerSocket &c = this->hTTPClientConnection->getConsumer();
+    this->hTTPClientConnection = new libl4::http::HTTPClientConnection();
+#ifdef HICNET
+    transport::interface::ConsumerSocket &c = this->hTTPClientConnection->getConsumer();
+#else
+    libl4::transport::ConsumerSocket &c = this->hTTPClientConnection->getConsumer();
+#endif
     bool configFile = false;
     //CHECK if we are not going to override the configuration file. (if !autotune)
     if(FILE *fp = fopen("/usr/etc/consumer.conf", "r"))
@@ -64,14 +68,25 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
         fclose(fp);
         configFile = true;
     }
+#ifdef HICNET
     if(!configFile)
     {
         qDebug("beta %f, drop %f", this->beta, this->drop);
 
-        c.setSocketOption(libl4::transport::RaaqmTransportOptions::BETA_VALUE, this->beta);
-        c.setSocketOption(libl4::transport::RaaqmTransportOptions::DROP_FACTOR, this->drop);
+        c.setSocketOption(transport::interface::RaaqmTransportOptions::BETA_VALUE, this->beta);
+        c.setSocketOption(transport::interface::RaaqmTransportOptions::DROP_FACTOR, this->drop);
     }
-    c.setSocketOption(int(libl4::transport::RateEstimationOptions::RATE_ESTIMATION_OBSERVER), (libl4::transport::IcnObserver * )this);
+    c.setSocketOption(int(transport::interface::RateEstimationOptions::RATE_ESTIMATION_OBSERVER), (transport::protocol::IcnObserver * )this);
+#else
+    if(!configFile)
+     {
+         qDebug("beta %f, drop %f", this->beta, this->drop);
+
+         c.setSocketOption(libl4::transport::RaaqmTransportOptions::BETA_VALUE, this->beta);
+         c.setSocketOption(libl4::transport::RaaqmTransportOptions::DROP_FACTOR, this->drop);
+     }
+     c.setSocketOption(int(libl4::transport::RateEstimationOptions::RATE_ESTIMATION_OBSERVER), (libl4::transport::IcnObserver * )this);
+#endif
 #ifdef NO_GUI
     if(this->icnAlpha != 20)
         this->icnRateBased = true;

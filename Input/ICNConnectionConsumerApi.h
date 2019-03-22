@@ -17,7 +17,8 @@
 #define QTPLAYER_INPUT_ICNCONNECTIONCONSUMERAPI_H_
 
 #if defined(HICNET)
-#include <hicnet/hicnet_http_facade.h>
+#include <hicn/transport/http/facade.h>
+#include <hicn/transport/protocols/download_observer.h>
 #else
 #include <icnet/icnet_http_facade.h>
 #endif
@@ -45,7 +46,6 @@
 #include <errno.h>
 
 #include "../Portable/MultiThreading.h"
-#include <boost/exception/diagnostic_information.hpp>
 
 //logging purpose
 #include <chrono>
@@ -56,7 +56,13 @@ namespace libdash {
 namespace framework {
 namespace input {
 
+#if defined(HICNET)
+class ICNConnectionConsumerApi : public IICNConnection, public transport::protocol::IcnObserver{
+#else
 class ICNConnectionConsumerApi : public IICNConnection, public libl4::transport::IcnObserver{
+#endif
+
+
 public:
     ICNConnectionConsumerApi(double alpha, float beta, float drop);
     virtual ~ICNConnectionConsumerApi();
@@ -81,7 +87,6 @@ public:
     virtual void SetBeta(float beta);
     virtual void SetDrop(float drop);
 
-    //libl4::transport::IcnObserver
     virtual void notifyStats(double throughput);
     virtual void notifyDownloadTime(double downloadingTime);
 

@@ -71,14 +71,14 @@ public:
   void
   setGraphDataSource(GraphDataSource *graphDataSource);
 
-  static std::function<void(const boost::system::error_code&)> timerCallback;
+  static std::function<void(const std::error_code&)> timerCallback;
 
 
 private:
   GraphDataSource *graphDataSource;
   ProtocolVersion  version;
 
-  std::shared_ptr<boost::asio::deadline_timer> subscribeTimer;
+  std::shared_ptr<asio::steady_timer> subscribeTimer;
 };
 
 

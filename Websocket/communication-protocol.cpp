@@ -16,7 +16,6 @@
 #include "websocket-server.h"
 #include "communication-protocol.h"
 
-
 ///////////////////
 //Explanation: A query can select/update 2 objects:
 //  - Coordinates of a node
@@ -34,7 +33,7 @@ std::set<std::string> ProtocolDetails::AllowedObjectName = {"stats"};
 std::set<std::string> ProtocolDetails::AllowedActions = { "select", "subscribe"};
 std::set<std::string> ProtocolDetails::AllowedFields = {"quality", "rate", "all"};
 
-std::function<void(const boost::system::error_code&)> CommunicationProtocol::timerCallback;
+std::function<void(const std::error_code&)> CommunicationProtocol::timerCallback;
 
 CommunicationProtocol::CommunicationProtocol(ProtocolVersion version)
     : version(version)
@@ -150,10 +149,10 @@ CommunicationProtocol::processQuery(Server *s, websocketpp::connection_hdl hdl, 
 
     } else if (action == *ProtocolDetails::AllowedActions.find("subscribe")) {
 
-        subscribeTimer = std::shared_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(s->get_io_service(),
-                                                                                                      boost::posix_time::milliseconds(1000)));
+        subscribeTimer = std::shared_ptr<asio::steady_timer>(new asio::steady_timer(s->get_io_service(),
+                                                                                                      std::chrono::milliseconds(1000)));
         timerCallback = [this, s, hdl, msg, query]
-                (const boost::system::error_code &ec) {
+                (const std::error_code &ec) {
             if (!ec) {
                 Query reply = this->makeReplyQuery(query);
 
@@ -171,7 +170,7 @@ CommunicationProtocol::processQuery(Server *s, websocketpp::connection_hdl hdl, 
                     return;
                 }
 
-                subscribeTimer->expires_from_now(boost::posix_time::milliseconds(1000));
+                subscribeTimer->expires_from_now(std::chrono::milliseconds(1000));
                 subscribeTimer->async_wait(timerCallback);
             }
         };

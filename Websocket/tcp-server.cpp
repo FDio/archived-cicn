@@ -35,11 +35,11 @@ TcpServer::start()
   if (io_service.stopped())
     io_service.reset();
 
-  boost::asio::ip::tcp::endpoint endpoint;
-  endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port);
+  asio::ip::tcp::endpoint endpoint;
+  endpoint = asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port);
 
   acceptor.open(endpoint.protocol());
-  acceptor.set_option(boost::asio::socket_base::reuse_address(true));
+  acceptor.set_option(asio::socket_base::reuse_address(true));
   acceptor.bind(endpoint);
   acceptor.listen();
 
@@ -47,10 +47,10 @@ TcpServer::start()
 
   //Set interrupt callbacks
 
-  boost::asio::io_service io_service;
-  boost::asio::signal_set signals(io_service, SIGINT, SIGQUIT);
+  asio::io_service io_service;
+  asio::signal_set signals(io_service, SIGINT, SIGQUIT);
 
-  signals.async_wait([this] (const boost::system::error_code &errorCode, int) {
+  signals.async_wait([this] (const std::error_code &errorCode, int) {
     std::cout << "Gracefully terminating tcp server" << std::endl;
     this->io_service.reset();
     this->acceptor.cancel();
@@ -64,12 +64,12 @@ TcpServer::accept()
 {
   //Create new socket for this connection
   //Shared_ptr is used to pass temporary objects to the asynchronous functions
-  std::shared_ptr<boost::asio::ip::tcp::socket> socket(new boost::asio::ip::tcp::socket(io_service));
-  acceptor.async_accept(*socket, [this, socket](const boost::system::error_code &ec) {
+  std::shared_ptr<asio::ip::tcp::socket> socket(new asio::ip::tcp::socket(io_service));
+  acceptor.async_accept(*socket, [this, socket](const std::error_code &ec) {
     accept();
 
     if (ec) {
-      if (ec == boost::asio::error::operation_aborted) // when the socket is closed by someone
+      if (ec == asio::error::operation_aborted) // when the socket is closed by someone
         return;
     }
 
@@ -78,17 +78,17 @@ TcpServer::accept()
 }
 
 void
-TcpServer::processIncomingData(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
+TcpServer::processIncomingData(std::shared_ptr<asio::ip::tcp::socket> socket)
 {
   // Set timeout on the following boost::asio::async-read or write function
-  std::shared_ptr<boost::asio::deadline_timer> timer;
+  std::shared_ptr<asio::steady_timer> timer;
   if (read_timeout > 0)
     timer = set_timeout_on_socket(socket, read_timeout);
 
-  std::shared_ptr<boost::asio::streambuf> buffer(new boost::asio::streambuf());
+  std::shared_ptr<asio::streambuf> buffer(new asio::streambuf());
 
-  boost::asio::async_read_until(*socket, *buffer, "\r\n\r\n",
-                                [this, timer, buffer, socket](const boost::system::error_code& error, std::size_t bytes_transferred) {
+  asio::async_read_until(*socket, *buffer, "\r\n\r\n",
+                                [this, timer, buffer, socket](const std::error_code& error, std::size_t bytes_transferred) {
     if (read_timeout > 0)
       timer->cancel();
 
@@ -99,14 +99,14 @@ TcpServer::processIncomingData(std::shared_ptr<boost::asio::ip::tcp::socket> soc
 
     std::size_t bufferSize = buffer->size();
     buffer->commit(buffer->size());
-    const uint8_t *data = boost::asio::buffer_cast<const uint8_t *>(buffer->data());
+    const uint8_t *data = asio::buffer_cast<const uint8_t *>(buffer->data());
 
     std::string reply = handler(data, bufferSize);
 
     if (reply != "") {
 
-      boost::asio::async_write(*socket, boost::asio::buffer(reply.c_str(), reply.size()), [this]
-      (boost::system::error_code ec, std::size_t /*length*/)
+      asio::async_write(*socket, asio::buffer(reply.c_str(), reply.size()), [this]
+      (std::error_code ec, std::size_t /*length*/)
       {
         if (!ec) {
           std::cout << "Reply sent!" << std::endl;
@@ -120,16 +120,16 @@ TcpServer::processIncomingData(std::shared_ptr<boost::asio::ip::tcp::socket> soc
 
 }
 
-std::shared_ptr<boost::asio::deadline_timer>
-TcpServer::set_timeout_on_socket(std::shared_ptr<boost::asio::ip::tcp::socket> socket, long seconds)
+std::shared_ptr<asio::steady_timer>
+TcpServer::set_timeout_on_socket(std::shared_ptr<asio::ip::tcp::socket> socket, long seconds)
 {
-  std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(io_service));
-  timer->expires_from_now(boost::posix_time::seconds(seconds));
-  timer->async_wait([socket](const boost::system::error_code &ec) {
+  std::shared_ptr<asio::steady_timer> timer(new asio::steady_timer(io_service));
+  timer->expires_from_now(std::chrono::seconds(seconds));
+  timer->async_wait([socket](const std::error_code &ec) {
     if (!ec) {
-      boost::system::error_code ec;
+      std::error_code ec;
       std::cout << "Connection timeout!" << std::endl;
-      socket->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+      socket->lowest_layer().shutdown(asio::ip::tcp::socket::shutdown_both, ec);
       socket->lowest_layer().close();
     }
   });

@@ -65,7 +65,9 @@ void* WebSocketService::listenWebsocket(void *webSocketServiceObject)
 
         std::string command((char *) data, size);
 
-        boost::trim(command);
+        std::stringstream trimmer;
+        trimmer << command;
+        trimmer >> command;
 
         std::cout << command << std::endl;
 
