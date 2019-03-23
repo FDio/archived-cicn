@@ -142,8 +142,11 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
 {
     if(!res)
     {
+       std::map<std::string, std::string> headers = {{"Host", "localhost"},
+                                                       {"User-Agent", "higet/1.0"},
+                                                       {"Connection", "Keep-Alive"}};
        std::string s(m_name.c_str());
-       hTTPClientConnection->get(s);
+       hTTPClientConnection->get(s, headers);
        response  = hTTPClientConnection->response();
        this->res = true;
        this->dataPos = 0;
