@@ -44,7 +44,7 @@ namespace managers
 class MultimediaStream : public libdash::framework::input::IDASHManagerObserver, public libdash::framework::buffer::IBufferObserver
 {
 public:
-    MultimediaStream(StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, uint32_t segmentBufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop);
+    MultimediaStream(StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, uint32_t segmentBufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop, std::string v6FirstWord);
     virtual ~MultimediaStream();
 
     bool start();
@@ -80,6 +80,7 @@ public:
 private:
     float                                               beta;
     float                                               drop;
+    std::string                                         v6FirstWord;
     std::vector<IStreamObserver *>                      observers;
     libdash::framework::mpd::MPDWrapper                 *mpdWrapper;
     libdash::framework::adaptation::IAdaptationLogic    *logic;

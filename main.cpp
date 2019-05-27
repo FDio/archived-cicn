@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
     gui.setPlayButton(viewer.rootObject()->findChild<QObject*>(QStringLiteral("playBtn")));
     gui.setGraphDataSource(&graphDataSource);
     gui.setRootObject(viewer.rootObject());
-    DASHPlayer dashPlayer(gui, &Config::instance());
+    DASHPlayer dashPlayer(argc, argv, gui, &Config::instance());
     engine->rootContext()->setContextProperty("dashPlayer",&dashPlayer);
     QMetaObject::invokeMethod(viewer.rootObject(), "initGraph", Q_ARG(QVariant, (&Config::instance())->graph()));
     QMetaObject::invokeMethod(viewer.rootObject(), "initRepeat", Q_ARG(QVariant, (&Config::instance())->repeat()));

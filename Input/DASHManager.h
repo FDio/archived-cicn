@@ -36,7 +36,7 @@ namespace input
 class DASHManager : public IDASHReceiverObserver, public IBufferObserver
 {
 public:
-    DASHManager             (viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver *multimediaStream, libdash::framework::mpd::MPDWrapper *mpdWrapper, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop);
+    DASHManager             (viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver *multimediaStream, libdash::framework::mpd::MPDWrapper *mpdWrapper, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop, std::string v6FirstWord);
     virtual ~DASHManager    ();
 
     bool start();
@@ -66,6 +66,7 @@ public:
 private:
     float                                               beta;
     float                                               drop;
+    std::string                                         v6FirstWord;
     buffer::Buffer<MediaObject>                         *buffer;
     DASHReceiver                                        *receiver;
     uint32_t                                            readSegmentCount;

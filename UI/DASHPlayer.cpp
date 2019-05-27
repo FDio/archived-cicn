@@ -21,7 +21,7 @@ using namespace viper::managers;
 using namespace dash::mpd;
 using namespace std;
 
-DASHPlayer::DASHPlayer(ViperGui &gui, Config *config) :
+DASHPlayer::DASHPlayer(int argc, char* argv[], ViperGui &gui, Config *config) :
     gui         (&gui),
     config      (config)
 {
@@ -36,12 +36,28 @@ DASHPlayer::DASHPlayer(ViperGui &gui, Config *config) :
     this->multimediaManager = new MultimediaManager(this->gui, this->parametersAdaptation->segmentBufferSize, config->getConfigPath().toStdString() + QString::fromLatin1("/").toStdString());
     this->multimediaManager->setBeta(config->beta());
     this->multimediaManager->setDrop(config->drop());
+    this->multimediaManager->setV6FirstWord(config->v6FirstWord().toStdString());
     connect(this->gui->getVideoPlayer(), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
     connect(this->gui->getVideoPlayer(), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(manageGraph(QtAV::AVPlayer::State)));
     connect(this->gui->getVideoPlayer(), SIGNAL(error(QtAV::AVError)), this, SLOT(error(QtAV::AVError)));
     this->multimediaManager->attachManagerObserver(this);
     this->mpdWrapper = new MPDWrapper(NULL);
     this->multimediaManager->setMPDWrapper(this->mpdWrapper);
+
+    //TODO adding a proper parsing function to handle command line arguments
+
+    int index = 1;
+
+    while(index < argc)
+    {
+        if(!strcmp(argv[index], "-P") && index+1 < argc)
+        {
+            this->setV6FirstWord(argv[index+1]);
+            index += 2;
+        }
+    }
+
+
 }
 
 DASHPlayer::~DASHPlayer()
@@ -416,6 +432,7 @@ void DASHPlayer::reloadParameters()
     this->beta = config->beta();
     this->drop = config->drop();
     this->videoURI = config->videoURI().toStdString();
+    this->v6FirstWord = config->v6FirstWord().toStdString();
     this->alpha = config->alpha();
     this->repeat = config->repeat();
     this->parametersAdaptation = (struct AdaptationParameters *)malloc(sizeof(struct AdaptationParameters));
@@ -467,9 +484,20 @@ QString DASHPlayer::getVideoURI()
     return config->videoURI();
 }
 
+QString DASHPlayer::getV6FirstWord()
+{
+    return config->v6FirstWord();
+}
+
 void DASHPlayer::setVideoURI(QString videoURI)
 {
     config->setVideoURI(videoURI);
+}
+
+void DASHPlayer::setV6FirstWord(QString v6FirstWord)
+{
+    config->setV6FirstWord(v6FirstWord);
+    this->multimediaManager->setV6FirstWord(v6FirstWord.toStdString());
 }
 
 qreal DASHPlayer::getAlpha()

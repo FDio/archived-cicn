@@ -37,6 +37,7 @@ Rectangle {
     property bool buffering: false
     property string adaptationLogic: ""
     property string videoURI: ""
+    property string v6FirstWord: ""
     property real alpha: 0
     property real segmentBufferSize: 0
     property bool icn: false
@@ -412,6 +413,7 @@ Rectangle {
             icn = dashPlayer.getIcn()
             adaptationLogic = dashPlayer.getAdaptationLogic()
             videoURI = dashPlayer.getVideoURI()
+            v6FirstWord = dashPlayer.getV6FirstWord()
             segmentBufferSize = dashPlayer.getSegmentBufferSize()
             rateAlpha = dashPlayer.getRateAlpha()
             bufferReservoirThreshold = dashPlayer.getBufferReservoirThreshold()
@@ -572,6 +574,11 @@ Rectangle {
         onSaveVideoURI: {
             dashPlayer.setVideoURI(selectedVideoURI)
             videoURI = selectedVideoURI
+        }
+
+        onSaveV6FirstWord: {
+           dashPlayer.setV6FirstWord(selectedV6FirstWord)
+           v6FirstWord = selectedV6FirstWord
         }
 
         onSaveSegmentBufferSize: {

@@ -19,7 +19,7 @@ using namespace dash::mpd;
 
 using duration_in_seconds = std::chrono::duration<double, std::ratio<1, 1> >;
 
-DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrapper *mpdWrapper, IDASHReceiverObserver *obs, Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop) :
+DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrapper *mpdWrapper, IDASHReceiverObserver *obs, Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop, std::string v6FirstWord) :
     type                        (type),
     mpdWrapper                  (mpdWrapper),
     adaptationSetStream         (NULL),
@@ -42,6 +42,7 @@ DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrappe
     isLooping                   (false),
     beta                        (beta),
     drop                        (drop),
+    v6FirstWord               (v6FirstWord),
     bufferingThread             (NULL),
     mpdFetcherThread            (NULL)
 {
@@ -57,8 +58,8 @@ DASHReceiver::DASHReceiver          (viper::managers::StreamType type, MPDWrappe
 
     if(icn)
     {
-        this->conn = new ICNConnectionConsumerApi(this->icnAlpha, this->beta, this->drop);
-        this->initConn = new ICNConnectionConsumerApi(this->icnAlpha, this->beta, this->drop);
+        this->conn = new ICNConnectionConsumerApi(this->icnAlpha, this->beta, this->drop, this->v6FirstWord);
+        this->initConn = new ICNConnectionConsumerApi(this->icnAlpha, this->beta, this->drop, this->v6FirstWord);
     }
     InitializeCriticalSection(&this->monitorMutex);
     InitializeCriticalSection(&this->monitorPausedMutex);

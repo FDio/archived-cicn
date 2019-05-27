@@ -64,7 +64,7 @@ class ICNConnectionConsumerApi : public IICNConnection, public libl4::transport:
 
 
 public:
-    ICNConnectionConsumerApi(double alpha, float beta, float drop);
+    ICNConnectionConsumerApi(double alpha, float beta, float drop, std::string v6FirstWord);
     virtual ~ICNConnectionConsumerApi();
 
     virtual void Init(dash::network::IChunk *chunk);
@@ -95,6 +95,7 @@ private:
     libl4::http::HTTPResponse response;
     float beta;
     float drop;
+    std::string v6FirstWord;
     uint64_t i_chunksize;
     int i_lifetime;
     int i_missed_co;

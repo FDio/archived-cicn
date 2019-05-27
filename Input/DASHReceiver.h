@@ -48,7 +48,7 @@ class MediaObject;
 class DASHReceiver
 {
 public:
-    DASHReceiver(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, IDASHReceiverObserver *obs, buffer::Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop);
+    DASHReceiver(viper::managers::StreamType type, libdash::framework::mpd::MPDWrapper *mpdWrapper, IDASHReceiverObserver *obs, buffer::Buffer<MediaObject> *buffer, uint32_t bufferSize, bool icnEnabled, double icnAlpha, float beta, float drop, std::string v6FirstWord);
     virtual ~DASHReceiver();
 
     bool Start();
@@ -84,6 +84,7 @@ public:
 private:
     float                                               beta;
     float                                               drop;
+    std::string                                         v6FirstWord;
     bool                                                withFeedBack;
     bool                                                isBufferBased;
     std::map<std::string, MediaObject*>                 initSegments;

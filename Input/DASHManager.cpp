@@ -19,22 +19,23 @@ using namespace dash::network;
 using namespace dash::mpd;
 using namespace libdash::framework::mpd;
 
-DASHManager::DASHManager(viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver* stream, MPDWrapper* mpdWrapper, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
-    readSegmentCount	(0),
-    receiver		(NULL),
-    multimediaStream	(stream),
-    isRunning		(false),
-    icn			(icnEnabled),
-    icnAlpha		(icnAlpha),
-    noDecoding		(nodecoding),
-    beta			(beta),
-    drop			(drop)
+DASHManager::DASHManager(viper::managers::StreamType type, uint32_t maxCapacity, IDASHManagerObserver* stream, MPDWrapper* mpdWrapper, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop, std::string v6FirstWord) :
+    readSegmentCount    (0),
+    receiver            (NULL),
+    multimediaStream    (stream),
+    isRunning           (false),
+    icn                 (icnEnabled),
+    icnAlpha            (icnAlpha),
+    noDecoding          (nodecoding),
+    beta                (beta),
+    drop                (drop),
+    v6FirstWord         (v6FirstWord)
 {
 
     this->buffer = new Buffer<MediaObject>(maxCapacity,libdash::framework::buffer::VIDEO);
     this->buffer->attachObserver(this);
 
-    this->receiver  = new DASHReceiver(type, mpdWrapper, this, this->buffer, maxCapacity, this->isICN(), this->icnAlpha, this->beta, this->drop);
+    this->receiver  = new DASHReceiver(type, mpdWrapper, this, this->buffer, maxCapacity, this->isICN(), this->icnAlpha, this->beta, this->drop, this->v6FirstWord);
 }
 DASHManager::~DASHManager()
 {

@@ -45,7 +45,7 @@ class DASHPlayer : public IDASHPlayerGuiObserver, public managers::IMultimediaMa
     Q_OBJECT
 
 public:
-    DASHPlayer(ViperGui& gui, Config *config);
+    DASHPlayer(int argc, char* argv[], ViperGui& gui, Config *config);
     virtual ~DASHPlayer();
 
     virtual void onSettingsChanged(int period, int videoAdaptationSet, int videoRepresentation, int audioAdaptationSet, int audioRepresentation);
@@ -74,7 +74,9 @@ public:
     Q_INVOKABLE bool getIcn();
     Q_INVOKABLE void setIcn(bool icn);
     Q_INVOKABLE QString getVideoURI();
+    Q_INVOKABLE QString getV6FirstWord();
     Q_INVOKABLE void setVideoURI(QString videoURI);
+    Q_INVOKABLE void setV6FirstWord(QString v6FirstWord);
     Q_INVOKABLE qreal getAlpha();
     Q_INVOKABLE void setAlpha(qreal alpha);
     Q_INVOKABLE qreal getSegmentBufferSize();
@@ -174,6 +176,7 @@ private:
     const char                                                  *url;
     bool                                                        icn;
     std::string                                                 videoURI;
+    std::string                                                 v6FirstWord;
     double                                                      alpha;
     struct libdash::framework::adaptation::AdaptationParameters *parametersAdaptation;
     libdash::framework::adaptation::LogicType                   adaptLogic;

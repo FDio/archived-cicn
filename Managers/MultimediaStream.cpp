@@ -18,7 +18,7 @@ using namespace libdash::framework::buffer;
 using namespace libdash::framework::mpd;
 using namespace dash::mpd;
 
-MultimediaStream::MultimediaStream(StreamType type, MPDWrapper *mpdWrapper, uint32_t bufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop) :
+MultimediaStream::MultimediaStream(StreamType type, MPDWrapper *mpdWrapper, uint32_t bufferSize, bool icnEnabled, double icnAlpha, bool nodecoding, float beta, float drop, std::string v6FirstWord) :
     type                (type),
     segmentBufferSize   (bufferSize),
     dashManager         (NULL),
@@ -27,7 +27,8 @@ MultimediaStream::MultimediaStream(StreamType type, MPDWrapper *mpdWrapper, uint
     icnAlpha            (icnAlpha),
     noDecoding          (nodecoding),
     beta                (beta),
-    drop                (drop)
+    drop                (drop),
+    v6FirstWord         (v6FirstWord)
 {
     this->init();
 }
@@ -69,7 +70,7 @@ void MultimediaStream::setPositionInMsec(uint32_t milliSecs)
 
 void MultimediaStream::init()
 {
-    this->dashManager   = new DASHManager(this->type, this->segmentBufferSize, this, this->mpdWrapper, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop);
+    this->dashManager   = new DASHManager(this->type, this->segmentBufferSize, this, this->mpdWrapper, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop, this->v6FirstWord);
 }
 
 bool MultimediaStream::start()

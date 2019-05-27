@@ -70,6 +70,7 @@ class COMMON_EXPORT Config : public QObject
     Q_PROPERTY(QString fragSample READ fragSample WRITE setFragSample NOTIFY fragSampleChanged)
     Q_PROPERTY(QString fragPostProcess READ fragPostProcess WRITE setFragPostProcess NOTIFY fragPostProcessChanged)
     Q_PROPERTY(QString videoURI READ videoURI WRITE setVideoURI NOTIFY videoURIChanged)
+    Q_PROPERTY(QString v6FirstWord READ v6FirstWord WRITE setV6FirstWord NOTIFY v6FirstWordChanged)
 
     Q_PROPERTY(qreal segmentBufferSize READ segmentBufferSize WRITE setSegmentBufferSize NOTIFY segmentBufferSizeChanged)
     Q_PROPERTY(QString adaptationLogic READ adaptationLogic WRITE setAdaptationLogic NOTIFY adaptationLogicChanged)
@@ -266,6 +267,8 @@ public:
     QString fragPostProcess() const;
     Config& setVideoURI(const QString &value);
     QString videoURI() const;
+    Config& setV6FirstWord(const QString &value);
+    QString v6FirstWord() const;
     Config& setSegmentBufferSize(qreal value);
     qreal segmentBufferSize() const;
     Config& setAdaptationLogic(const QString &value);
@@ -392,6 +395,7 @@ public:
     Q_SIGNAL void languageChanged();
     Q_SIGNAL void historyChanged();
     Q_SIGNAL void videoURIChanged();
+    Q_SIGNAL void v6FirstWordChanged();
     Q_SIGNAL void segmentBufferSizeChanged();
     Q_SIGNAL void adaptationLogicChanged();
     Q_SIGNAL void icnChanged();

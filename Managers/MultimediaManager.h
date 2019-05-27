@@ -73,6 +73,7 @@ public:
     void                                    setOffset					(int offset);
     void                                    setBeta                     (float beta);
     void                                    setDrop                     (float drop);
+    void                                    setV6FirstWord              (std::string v6FirstWord);
     bool                                    canPush                     ();
     void                                    fetchMPD                    ();
 
@@ -85,6 +86,7 @@ public:
 private:
     float                                                       beta;
     float                                                       drop;
+    std::string                                                 v6FirstWord;
     std::string                                                 downloadPath;
     int                                                         segmentBufferSize;
     ViperGui                                                    *viperGui;

@@ -25,6 +25,7 @@ Rectangle {
     signal saveAdaptationLogic(string selectedAdaptationLogic, int adaptationLogicKey)
     signal saveIcn(bool selectedIcn)
     signal saveVideoURI(string selectedVideoURI)
+    signal saveV6FirstWord(string selectedV6FirstWord)
     signal saveSegmentBufferSize(real selectedSegmentBufferSize)
     signal saveRateAlpha(real selectedRateAlpha)
     signal saveBufferReservoirThreshold(real selectedBufferReservoirThreshold)
@@ -432,6 +433,37 @@ Rectangle {
             font.pixelSize: Utils.scaled(20)
             color: "white"
             text: videoURI
+        }
+    }
+    Item {
+        id: itemv6Prefix
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.rightMargin: parent.width/2
+        anchors.topMargin: Utils.scaled(18) + 2*heightRow
+        Label {
+            text: "IPv6 First Word:"
+            id: labelv6Prefix
+            color: "white"
+            anchors.top: parent.top
+            anchors.right: textInputv6FirstWord.left
+            anchors.rightMargin: Utils.scaled(5)
+            anchors.topMargin: (textInputv6Prefix.height - height)/2
+            font.bold: true
+            font.pixelSize: Utils.scaled(10);
+        }
+
+        TextInput {
+            id: textInputv6FirstWord
+            z: parent.z + 1
+            width: parent.width/4*3
+            anchors.top: parent.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: Utils.scaled(200)
+            font.pixelSize: Utils.scaled(20)
+            color: "white"
+            text: v6FirstWord
         }
     }
 
@@ -1582,6 +1614,7 @@ Rectangle {
                 saveAdaptationLogic(adaptationLogicModel.get(comboAdaptationSetList.currentIndex).text, comboAdaptationSetList.currentIndex);
                 saveIcn(switchIcn.checked)
                 saveVideoURI(textInputVideoURI.text)
+                saveV6FirstWord(textInputv6FirstWord.text)
                 saveSegmentBufferSize(spinboxSegmentBufferSize.value/100)
                 saveRateAlpha(spinboxRateAlpha.value/100)
                 saveBufferReservoirThreshold(spinboxBufferReservoirThreshold.value/100)

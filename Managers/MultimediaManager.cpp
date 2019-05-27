@@ -99,7 +99,7 @@ bool    MultimediaManager::initICN(const std::string& url)
 {
     this->url = url;
     EnterCriticalSection(&this->monitorMutex);
-    this->icnConn = new libdash::framework::input::ICNConnectionConsumerApi(20.0, this->beta, this->drop);
+    this->icnConn = new libdash::framework::input::ICNConnectionConsumerApi(20.0, this->beta, this->drop, this->v6FirstWord);
     icnConn->InitForMPD(url);
     int ret = 0;
     char * data = (char *)malloc(4096);
@@ -394,14 +394,14 @@ void MultimediaManager::notifyAudioBufferObservers(uint32_t fillstateInPercent)
 
 void MultimediaManager::initVideoRendering(uint32_t offset)
 {
-    this->videoStream = new MultimediaStream(viper::managers::VIDEO, this->mpdWrapper, this->segmentBufferSize, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop);
+    this->videoStream = new MultimediaStream(viper::managers::VIDEO, this->mpdWrapper, this->segmentBufferSize, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop, this->v6FirstWord);
     this->videoStream->attachStreamObserver(this);
     this->videoStream->setPosition(offset);
 }
 
 void MultimediaManager::initAudioPlayback(uint32_t offset)
 {
-    this->audioStream = new MultimediaStream(viper::managers::AUDIO, this->mpdWrapper, this->segmentBufferSize, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop);
+    this->audioStream = new MultimediaStream(viper::managers::AUDIO, this->mpdWrapper, this->segmentBufferSize, this->isICN(), this->icnAlpha, this->noDecoding, this->beta, this->drop, this->v6FirstWord);
     this->audioStream->attachStreamObserver(this);
     this->audioStream->setPosition(offset);
 }
@@ -671,6 +671,11 @@ void MultimediaManager::setBeta(float beta)
 void MultimediaManager::setDrop(float drop)
 {
     this->drop = drop;
+}
+
+void MultimediaManager::setV6FirstWord(std::string v6FirstWord)
+{
+    this->v6FirstWord = v6FirstWord;
 }
 
 void MultimediaManager::fetchMPD()

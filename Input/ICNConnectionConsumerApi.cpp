@@ -36,14 +36,15 @@ using duration_in_seconds = std::chrono::duration<double, std::ratio<1, 1> >;
 namespace libdash {
 namespace framework {
 namespace input {
-ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, float drop) :
+ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, float drop, std::string v6FirstWord) :
     m_first(1),
     m_isFinished(false),
     sizeDownloaded (0),
     cumulativeBytesReceived(0),
     icnAlpha(alpha),
     beta(beta),
-    drop(drop)
+    drop(drop),
+    v6FirstWord(v6FirstWord)
 {
     gamma = 1;
     this->speed = 0.0;
@@ -146,7 +147,7 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
                                                        {"User-Agent", "higet/1.0"},
                                                        {"Connection", "Keep-Alive"}};
        std::string s(m_name.c_str());
-       hTTPClientConnection->get(s, headers);
+       hTTPClientConnection->get(s, headers, {}, nullptr, nullptr, this->v6FirstWord);
        response  = hTTPClientConnection->response();
        this->res = true;
        this->dataPos = 0;

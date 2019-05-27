@@ -158,6 +158,7 @@ public:
 
         settings.beginGroup(QString::fromLatin1("backend"));
         settings.setValue(QString::fromLatin1("video_uri"), video_uri);
+        settings.setValue(QString::fromLatin1("v6FirstWord"), v6FirstWord);
         settings.setValue(QString::fromLatin1("segment_buffer_size"), segment_buffer_size);
         settings.endGroup();
 
@@ -283,6 +284,7 @@ public:
     QString frag_sample;
     QString frag_pp;
     QString video_uri;
+    QString v6FirstWord;
     qreal segment_buffer_size;
     QString last_played;
     QString adaptation_logic;
@@ -522,6 +524,7 @@ void Config::reload()
 
     settings.beginGroup(QString::fromLatin1("backend"));
     setVideoURI(settings.value(QString::fromLatin1("video_uri"), QString::fromLatin1("http://webserver/sintel/mpd")).toString());
+    setV6FirstWord(settings.value(QString::fromLatin1("v6FirstWord"), QString::fromLatin1("b001")).toString());
 
     setSegmentBufferSize(settings.value(QString::fromLatin1("segment_buffer_size"), 20).toReal());
     settings.endGroup();
@@ -1291,6 +1294,10 @@ QString Config::videoURI() const
 {
     return mpData->video_uri;
 }
+QString Config::v6FirstWord() const
+{
+    return mpData->v6FirstWord;
+}
 
 Config& Config::setVideoURI(const QString &text)
 {
@@ -1298,6 +1305,16 @@ Config& Config::setVideoURI(const QString &text)
         return *this;
     mpData->video_uri = text;
     Q_EMIT videoURIChanged();
+    Q_EMIT changed();
+    return *this;
+}
+
+Config& Config::setV6FirstWord(const QString &text)
+{
+    if (mpData->v6FirstWord == text)
+        return *this;
+    mpData->v6FirstWord = text;
+    Q_EMIT v6FirstWordChanged();
     Q_EMIT changed();
     return *this;
 }
