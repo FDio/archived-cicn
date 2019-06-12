@@ -112,7 +112,6 @@ bool    MultimediaManager::initICN(const std::string& url)
     {
         pos = pos + 1;
     }
-
     std::string downloadFile(this->downloadPath + url.substr(pos).c_str());
     FILE *fp;
     fp = fopen(downloadFile.c_str(), "w");
@@ -131,6 +130,7 @@ bool    MultimediaManager::initICN(const std::string& url)
     }
     fclose(fp);
     IMPD* mpd = this->manager->Open(const_cast<char*>(downloadFile.c_str()), url);
+    qDebug("downloadFile %s", downloadFile.c_str());
     remove(downloadFile.c_str());
     free(data);
     if(mpd == NULL)
@@ -143,11 +143,10 @@ bool    MultimediaManager::initICN(const std::string& url)
     this->mpdWrapper->updateMPD(mpd);
     for (size_t i = 0; i < this->managerObservers.size(); i++)
         this->managerObservers.at(i)->setMPDWrapper(this->mpdWrapper);
-    if( !strcmp(this->mpdWrapper->getType().c_str(), "static") )
+    if( this->mpdWrapper->getType().compare("static") )
     {
         delete icnConn;
     }
-
     LeaveCriticalSection(&this->monitorMutex);
     return true;
 }

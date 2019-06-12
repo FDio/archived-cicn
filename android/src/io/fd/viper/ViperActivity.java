@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.player.viper;
+package io.fd.viper;
 import org.qtproject.qt5.android.bindings.QtActivity;
 import android.content.Context;
 import android.content.Intent;

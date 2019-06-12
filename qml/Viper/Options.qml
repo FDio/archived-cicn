@@ -449,7 +449,6 @@ Rectangle {
             anchors.top: parent.top
             anchors.right: textInputv6FirstWord.left
             anchors.rightMargin: Utils.scaled(5)
-            anchors.topMargin: (textInputv6Prefix.height - height)/2
             font.bold: true
             font.pixelSize: Utils.scaled(10);
         }

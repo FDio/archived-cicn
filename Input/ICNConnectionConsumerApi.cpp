@@ -160,8 +160,8 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
     } else
     {
         memcpy(data, (char*)response.getPayload().data() + this->dataPos, response.getPayload().size() - this->dataPos);
-	 int length = response.getPayload().size() - this->dataPos;
-	if (length == 0)
+        int length = response.getPayload().size() - this->dataPos;
+        if (length == 0)
         {
           this->res = false;
         }

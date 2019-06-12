@@ -27,6 +27,7 @@
 #include <QtAV/QtAV.h>
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
+#include <QtAndroid>
 #endif
 #include "Common/QtQuick2ApplicationViewer.h"
 #include "../Common/Common.h"
@@ -159,7 +160,8 @@ int main(int argc, char *argv[])
         viewer.setY(op.value().toInt());
     if (options.value(QStringLiteral("fullscreen")).toBool())
         viewer.showFullScreen();
-    viewer.setTitle(QStringLiteral("Viper"));
+    viewer.setTitle(QStringLiteral("Viper")); 
+
 #if 1
     QString json = app.arguments().join(QStringLiteral("\",\""));
     json.prepend(QLatin1String("[\"")).append(QLatin1String("\"]"));
@@ -171,8 +173,19 @@ int main(int argc, char *argv[])
     qApp->installEventFilter(ae);
     QString file;
 #ifdef Q_OS_ANDROID
-    engine->rootContext()->setContextProperty("platform",  1);
-    file = QAndroidJniObject::callStaticObjectMethod("org.viper.com.ViperActivity"
+    const QVector<QString> permissions({"android.permission.INTERNET",
+                                        "android.permission.WRITE_EXTERNAL_STORAGE",
+                                        "android.permission.READ_EXTERNAL_STORAGE"});
+    for(const QString &permission : permissions){
+            auto result = QtAndroid::checkPermission(permission);
+            if(result == QtAndroid::PermissionResult::Denied){
+                auto resultHash = QtAndroid::requestPermissionsSync(QStringList({permission}));
+                if(resultHash[permission] == QtAndroid::PermissionResult::Denied)
+                    return 0;
+            }
+        }
+
+    file = QAndroidJniObject::callStaticObjectMethod("io.fd.viper.ViperActivity"
                                                      , "getUrl"
                                                      , "()Ljava/lang/String;")
             .toString();

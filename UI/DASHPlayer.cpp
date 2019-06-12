@@ -216,7 +216,7 @@ bool DASHPlayer::downloadMPD(const QString &adaptationLogic, bool icn)
 
         this->segmentDuration = this->mpdWrapper->onFirstDownloadMPD(this->gui);
         this->multimediaManager->setSegmentDuration(this->segmentDuration);
-        this->parametersAdaptation->segmentDuration = this->segmentDuration / 1000.0; //to have it in seconds 
+        this->parametersAdaptation->segmentDuration = this->segmentDuration / 1000.0; //to have it in seconds
         this->onSettingsChanged(0,0,0,0,0);
         int j =0;
         std::string temp = adaptationLogic.toStdString();

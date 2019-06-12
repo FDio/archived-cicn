@@ -21,8 +21,7 @@ android {
 CONFIG -= release
 CONFIG += debug
 CONFIG += c++14
-QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DANDROID_STL=c++_static
-QMAKE_CXXFLAGS += -std=c++14 -g -fpermissive -DASIO_STANDALONE=1
+QMAKE_CXXFLAGS += -std=c++14 -g -fpermissive -DASIO_STANDALONE=1 -stdlib=libc++ -DQTC_ENABLE_CLANG_LIBTOOLING=ON
 # Add more folders to ship with the application, here
 folder_01.source = qml/Viper
 folder_01.target = qml
@@ -306,7 +305,7 @@ macx:!ios {
 SOURCES *= main.cpp
 android {
     DISTFILES += \
-    android/src/org/player/viper/ViperActivity.java \
+    android/src/io/fd/viper/ViperActivity.java \
     android/gradle/wrapper/gradle-wrapper.jar \
     android/AndroidManifest.xml \
     android/res/values/libs.xml \
@@ -319,8 +318,16 @@ android {
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -lhicnet -ljsoncpp -ldash -lcurl  -lxml2 -lccnx_common -lparc -lhicntransport -lhicn -levent -lssl -lcrypto -lavcodec -lavutil -lavformat
+        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -ldash -lhicntransport  -lhicn -lparc -lavcodec -lavutil -lavformat -lswresample -lcurl -lxml2 -lssl -lcrypto -lQtAV
         DEFINES += "HICNET=ON"
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libswresample.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavresample.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavdevice.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavfilter.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavcodec.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavformat.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libswscale.so
+        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavutil.so
     } else {
         LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -licnet -ldash -lcurl  -lxml2 -lccnx_api_portal -lccnx_transport_rta -lccnx_api_control -lccnx_api_notify -lccnx_common -lparc -llongbow -llongbow-ansiterm -llongbow-textplain -levent -lssl -lcrypto -lavcodec -lavutil -lavformat   -lboost_system
         DEFINES += "ICNET=ON"
@@ -336,4 +343,4 @@ DISTFILES += \
     android/res/drawable-mdpi/icon.png \
     android/gradle.properties \
     android/src/org/qtav/qmlplayer/ViperActivity.java \
-    android/src/org/player/viper/ViperActivity.java
+    android/src/io/fd/viper/ViperActivity.java
