@@ -17,6 +17,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 #include <config.h>
 #include <stdio.h>
 
@@ -74,10 +78,14 @@ parcFileOutputStream_Write(PARCFileOutputStream *outputStream, PARCBuffer *buffe
         size_t remaining = parcBuffer_Remaining(buffer);
         size_t chunkSize = remaining > maximumChunkSize ? maximumChunkSize : remaining;
         void *buf = parcBuffer_Overlay(buffer, chunkSize);
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO,"PARC", "%.*s", (int)chunkSize, buf);
+#else
         ssize_t nwritten = write(outputStream->fd, buf, (unsigned int)chunkSize);
         if (nwritten == -1) {
             break;
         }
+#endif
     }
 
     return parcBuffer_HasRemaining(buffer) == false;

@@ -22,7 +22,7 @@ include(version)
 include(detectCacheSize)
 include(CheckRealloc)
 
-if(ANDROID_API)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
   message("############ Detected cross compile for $ENV{CMAKE_SYSTEM_NAME}")
   message("############ This build will not include doxygen, tools, or tests")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ANDROID_C_FLAGS} -Wall")
@@ -108,7 +108,7 @@ add_custom_target(${PROJECT_NAME}_cleanup_profiling_data
         "find" "." "-name" "*.gcda" "-delete"
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Cleanup previous profiling data.")
-if (ANDROID_API)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
   macro(AddTest testFile)
     message("Android build: Skipping test ${ARGV0}")
   endmacro(AddTest)
