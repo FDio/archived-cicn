@@ -36,6 +36,8 @@
 #include <parc/algol/parc_Hash.h>
 #include <parc/concurrent/parc_AtomicUint64.h>
 
+int asprintf(char **strp, const char *fmt, ...);
+
 typedef struct parc_object_locking {
     pthread_mutex_t lock;
     pthread_cond_t notification;

@@ -28,6 +28,9 @@
 #include <parc/logging/parc_Log.h>
 #include <parc/logging/parc_LogReporter.h>
 
+
+int vasprintf(char **strp, const char *fmt, va_list ap);
+
 struct PARCLog {
     char *hostName;
     char *applicationName;

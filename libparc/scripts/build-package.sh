@@ -15,6 +15,11 @@ BUILD_TOOLS_GROUP_CENTOS="'Development Tools'"
 LIBSSL_LIBEVENT_CENTOS="libevent-devel openssl-devel"
 DEPS_CENTOS="$LIBSSL_LIBEVENT_CENTOS"
 
+PACKAGECLOUD_RELEASE_REPO_DEB="https://packagecloud.io/install/repositories/fdio/release/script.deb.sh"
+PACKAGECLOUD_RELEASE_REPO_RPM="https://packagecloud.io/install/repositories/fdio/release/script.rpm.sh"
+
+LATEST_EPEL_REPO="http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+
 update_cmake_repo() {
 
     cat /etc/resolv.conf
@@ -41,7 +46,7 @@ update_qt_repo() {
         exit -1
     fi
 
-    sudo ${apt_get} install -y --allow-unauthenticated software-properties-common
+    sudo DEBIAN_FRONTEND=noninteractive ${apt_get} install -y --allow-unauthenticated software-properties-common
     sudo add-apt-repository --yes ppa:beineri/opt-qt571-$DISTRIBUTION_CODENAME
 
     wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
@@ -63,40 +68,12 @@ update_fdio_repo() {
     REPO_VPP_URL=""
 
     if [ "$DISTRIB_ID" == "Ubuntu" ]; then
-        if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.xenial.main/"
-            REPO=${REPO_NAME:-"master.ubuntu.xenial.main"}
-            REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
-        elif [ "$DISTRIB_CODENAME" == "bionic" ]; then
-            REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.stable.1701.ubuntu.bionic.main/"
-            REPO=${REPO_NAME:-"master.ubuntu.bionic.main"}
-            REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
-        else
-            echo "Distribution $DISTRIB_CODENAME is not supported"
-            exit -1
-        fi
-
-        echo "deb ${REPO_VPP_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.list
-        echo "deb ${REPO_CICN_URL} ./" | sudo tee /etc/apt/sources.list.d/99fd.io.master.list
+        curl -s ${PACKAGECLOUD_RELEASE_REPO_DEB} | sudo bash
     elif [ "$DISTRIB_ID" == "CentOS" ]; then
-        REPO_VPP_URL="${NEXUS_PROXY}/content/repositories/fd.io.centos7/"
-        REPO=${REPO_NAME:-"master.centos7"}
-        REPO_CICN_URL="${NEXUS_PROXY}/content/repositories/fd.io.${REPO}"
-
-                sudo cat << EOF > fdio.repo
-[fdio-vpp-master]
-name=fd.io master branch latest merge
-baseurl=${REPO_VPP_URL}
-enabled=1
-gpgcheck=0
-
-[fdio-cicn-master]
-name=fd.io master branch latest merge
-baseurl=${REPO_CICN_URL}
-enabled=1
-gpgcheck=0
-EOF
-        sudo mv fdio.repo /etc/yum.repos.d/fdio.repo
+        curl -s ${PACKAGECLOUD_RELEASE_REPO_RPM} | sudo bash
+        curl ${LATEST_EPEL_REPO} > epel-release-latest-7.noarch.rpm
+        rpm -ivh epel-release-latest-7.noarch.rpm || true
+        rm epel-release-latest-7.noarch.rpm
     else
         echo "Distribution $DISTRIB_CODENAME is not supported"
         exit -1
@@ -106,9 +83,13 @@ EOF
 setup() {
 
     DISTRIB_ID=$1
+
     DISTRIB_CODENAME=$2
 
-    update_cmake_repo
+    ARCH=`uname -m`
+    if [ "$ARCH" == "x86_64" ] || [ "$ARCH" == "x86" ]; then
+        update_cmake_repo
+    fi
     update_fdio_repo $DISTRIB_ID $DISTRIB_CODENAME
 
 
@@ -158,11 +139,11 @@ build_package() {
     echo DISTRIB_CODENAME: $DISTRIB_CODENAME
     echo DISTRIB_DESCRIPTION: $DISTRIB_DESCRIPTION
 
-    setup $DISTRIB_ID $DISTRIB_CODENAME
+    setup $DISTRIB_ID $DISTRIB_CODENAME $ARCHITECTURE
 
     # Install package dependencies
     if [ $DISTRIB_ID == "Ubuntu" ]; then
-        echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU | xargs sudo ${apt_get} install -y --allow-unauthenticated
+        echo $BUILD_TOOLS_UBUNTU $DEPS_UBUNTU | xargs sudo DEBIAN_FRONTEND=noninteractive ${apt_get} install -y --allow-unauthenticated
     elif [ $DISTRIB_ID == "CentOS" ]; then
         echo $BUILD_TOOLS_GROUP_CENTOS | xargs sudo yum groupinstall -y --nogpgcheck
         echo $DEPS_CENTOS | xargs sudo yum install -y --nogpgcheck || true

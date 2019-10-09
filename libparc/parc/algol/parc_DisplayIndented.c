@@ -27,6 +27,9 @@
 #include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_DisplayIndented.h>
 
+int asprintf(char **strp, const char *fmt, ...);
+int vasprintf(char **strp, const char *fmt, va_list ap);
+
 static char *_spaces = "                                                                                                           ";
 
 static size_t _indentationFactor = 2;

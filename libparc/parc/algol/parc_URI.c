@@ -45,6 +45,9 @@ char *gen_delims = ":/?#[]@";
 #define isReserved(c) (isGenDelims(c) || isSubDelims(c))
 #define isPchar(c) (isUnreserved(c) || isSubDelims(c) || c == ':' || c == '@')
 
+
+int vasprintf(char **strp, const char *fmt, va_list ap);
+
 struct parc_uri {
     char *scheme;
     char *authority;

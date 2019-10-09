@@ -17,6 +17,13 @@
 #include <sys/time.h>
 #endif
 
+#ifdef __linux__
+#if __GNUC__ >= 8
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+#endif
+
 #include <config.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +32,8 @@
 #include <parc/assert/parc_Assert.h>
 #include <parc/algol/parc_Time.h>
 #include <parc/algol/parc_Memory.h>
+
+int asprintf(char **strp, const char *fmt, ...);
 
 char *
 parcTime_TimevalAsString(struct timeval timeval)
@@ -169,3 +178,9 @@ parcTime_NowNanoseconds(void)
     uint64_t result = timeval.tv_sec * 1000000000 + timeval.tv_usec * 1000;
     return result;
 }
+
+#ifdef __linux__
+#if __GNUC__ >= 8
+#pragma GCC diagnostic pop
+#endif
+#endif
