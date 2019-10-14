@@ -79,8 +79,8 @@ internal_parc_initializeLibevent(void)
     struct event *event = event_new(evbase, -1, 0, NULL, NULL);
     parcAssertNotNull(event, "Libevent event_new returned NULL");
     event_del(event);
-    event_base_free(evbase);
     event_free(event);
+    event_base_free(evbase);
 
     event_set_mem_functions(internal_parc_alloc,
                             internal_parc_realloc,
