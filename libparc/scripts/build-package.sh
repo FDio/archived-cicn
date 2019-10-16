@@ -2,7 +2,6 @@
 # basic build script example
 set -euxo pipefail
 IFS=$'\n\t'
-
 SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
@@ -116,6 +115,8 @@ build_package() {
 
         if [ "$ARCHITECTURE" == "x86_64" ]; then
             ARCHITECTURE="amd64"
+        elif [ "$ARCHITECTURE" == "aarch64" ]; then
+            ARCHITECTURE="arm64"
         fi
 
     elif [ -f /etc/redhat-release ];then
