@@ -6,7 +6,7 @@ SCRIPT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 APT_PATH=`which apt-get` || true
 apt_get=${APT_PATH:-"/usr/local/bin/apt-get"}
 
-BUILD_TOOLS_UBUNTU="build-essential doxygen"
+BUILD_TOOLS_UBUNTU="build-essential doxygen xmlstarlet"
 LIBSSL_LIBEVENT_UBUNTU="libevent-dev libssl-dev"
 DEPS_UBUNTU="$LIBSSL_LIBEVENT_UBUNTU"
 
