@@ -318,7 +318,8 @@ android {
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -ldash -lhicntransport  -lhicn -lparc -lavcodec -lavutil -lavformat -lswresample -lcurl -lxml2 -lssl -lcrypto -lQtAV
+        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -ldash -lhicntransport  -lhicn -lparc -lavcodec -lavutil -lavformat -lswresample -lcurl -lxml2 -lssl -lcrypto
+        LIBS += -L"$$(QT_HOME)/$$(QT_VERSION)/android_$$(ANDROID_ARCH)/lib/" -lQtAV
         DEFINES += "HICNET=ON"
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libswresample.so
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavresample.so
