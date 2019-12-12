@@ -85,15 +85,13 @@ static int
 _hmacInit(void *ctx)
 {
     // reset the HMAC state with NULLs, so we'll re-use the values we had from setup.
-    HMAC_Init_ex((HMAC_CTX *) ctx, NULL, 0, NULL, NULL);
-    return 0;
+    return HMAC_Init_ex((HMAC_CTX *) ctx, NULL, 0, NULL, NULL);
 }
 
 static int
 _hmacUpdate(void *ctx, const void *buffer, size_t length)
 {
-    HMAC_Update(ctx, buffer, length);
-    return 0;
+    return HMAC_Update(ctx, buffer, length);
 }
 
 static PARCBuffer*
@@ -244,12 +242,7 @@ static size_t
 _GetSignatureSize(PARCSymmetricKeySigner *signer)
 {
   parcAssertNotNull(signer, "Parameter must be non-null CCNxFileKeystore");
-
-  // TODO: what is the best way to expose this?
-  PARCSymmetricKeyStore *keyStore = signer->keyStore;
-  PARCBuffer *secretKeyBuffer = parcSymmetricKeyStore_GetKey(keyStore);
-
-  return parcBuffer_Limit(secretKeyBuffer);
+  return (size_t)(signer->hashLength);
 }
 
 // ==================================================
@@ -266,7 +259,8 @@ _signDigestNoAlloc(PARCSymmetricKeySigner *interfaceContext, const PARCCryptoHas
     // The digest computed via our hash function (hmac) is the actual signature.
     // just need to wrap it up with the right parameters.
     PARCBuffer *signatureBits = parcBuffer_Wrap(signature, sig_len, 0, sig_len);
-    PARCSignature  *result = parcSignature_Create(_getSigningAlgorithm(interfaceContext), parcCryptoHash_GetDigestType(hashToSign), signatureBits);
+    parcBuffer_PutBuffer(signatureBits, parcCryptoHash_GetDigest(hashToSign));
+    PARCSignature *result = parcSignature_Create(_getSigningAlgorithm(interfaceContext), parcCryptoHash_GetDigestType(hashToSign), signatureBits);
     parcBuffer_Release(&signatureBits);
     return result;
 }

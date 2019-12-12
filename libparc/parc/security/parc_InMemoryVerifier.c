@@ -51,6 +51,8 @@ _parcInMemoryVerifier_Destructor(PARCInMemoryVerifier **verifierPtr)
     parcCryptoHasher_Release(&(verifier->hasher_sha256));
     parcCryptoHasher_Release(&(verifier->hasher_sha512));
     parcCryptoCache_Destroy(&(verifier->key_cache));
+    parcMemory_Deallocate((void **)verifierPtr);
+    *verifierPtr = NULL;
 
     return true;
 }
@@ -87,8 +89,6 @@ _parcInMemoryVerifier_GetCryptoHasher(void *interfaceContext, PARCKeyId *keyid, 
     if (key == NULL) {
         return false;
     }
-
-    parcAssertFalse(parcKey_GetSigningAlgorithm(key) == PARCSigningAlgorithm_HMAC, "HMAC not supported yet");
 
     switch (hashType) {
         case PARCCryptoHashType_SHA256:
@@ -137,15 +137,14 @@ _parcInMemoryVerifier_AllowedCryptoSuite(void *interfaceContext, PARCKeyId *keyi
             }
             break;
 
-            
-        case PARCSigningAlgorithm_DSA:
+      case PARCSigningAlgorithm_DSA:
             switch (suite) {
                 default:
                     return false;
             }
             break;
 
-        case PARCSigningAlgorithm_HMAC:
+      case PARCSigningAlgorithm_HMAC:
             switch (suite) {
                 case PARCCryptoSuite_HMAC_SHA256:
                     return true;
@@ -154,7 +153,7 @@ _parcInMemoryVerifier_AllowedCryptoSuite(void *interfaceContext, PARCKeyId *keyi
             }
             break;
 
-        default:
+      default:
             parcTrapUnexpectedState("Unknown signing algorithm: %s",
                                 parcSigningAlgorithm_ToString(parcKey_GetSigningAlgorithm(key)));
             return false;
@@ -167,7 +166,9 @@ static bool _parcInMemoryVerifier_RSAKey_Verify(PARCInMemoryVerifier *verifier, 
                                                 PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey);
 
 static bool _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHash *localHash,
-                                      PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey);
+                                                  PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey);
+
+static bool _parcInMemoryVerifier_HMACKey_Verify(PARCCryptoHash *localHash, PARCSignature *signatureToVerify);
 /**
  * The signature verifies if:
  * 0) we know the key for keyid
@@ -214,12 +215,11 @@ _parcInMemoryVerifier_VerifyDigest(void *interfaceContext, PARCKeyId *keyid, PAR
         case PARCSigningAlgorithm_ECDSA:
             return _parcInMemoryVerifier_ECDSAKey_Verify(verifier, locallyComputedHash, objectSignature, parcKey_GetKey(key));
 
+        case PARCSigningAlgorithm_HMAC:
+            return _parcInMemoryVerifier_HMACKey_Verify(locallyComputedHash, objectSignature);
+
         case PARCSigningAlgorithm_DSA:
             parcTrapNotImplemented("DSA not supported");
-            break;
-
-        case PARCSigningAlgorithm_HMAC:
-            parcTrapNotImplemented("HMAC not supported");
             break;
 
         default:
@@ -334,7 +334,7 @@ _parcInMemoryVerifier_RSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHa
  */
 static bool
 _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCryptoHash *localHash,
-                                    PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey)
+                                      PARCSignature *signatureToVerify, PARCBuffer *derEncodedKey)
 {
     const uint8_t *der_bytes = parcByteArray_Array(parcBuffer_Array(derEncodedKey));
 
@@ -381,6 +381,23 @@ _parcInMemoryVerifier_ECDSAKey_Verify(PARCInMemoryVerifier *verifier, PARCCrypto
         }
     }
     return false;
+}
+
+/**
+ * Return if the signature verify with the local hash.
+ *
+ * PRECONDITION:
+ *  - You know the signature is HMAC.
+ *
+ * Example:
+ * @code
+ * <#example#>
+ * @endcode
+ */
+static bool
+_parcInMemoryVerifier_HMACKey_Verify(PARCCryptoHash *localHash, PARCSignature *signatureToVerify)
+{
+  return parcBuffer_Equals(parcCryptoHash_GetDigest(localHash), parcSignature_GetSignature(signatureToVerify));
 }
 
 PARCVerifierInterface *PARCInMemoryVerifierAsVerifier = &(PARCVerifierInterface) {
