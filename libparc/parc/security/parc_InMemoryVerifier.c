@@ -51,8 +51,6 @@ _parcInMemoryVerifier_Destructor(PARCInMemoryVerifier **verifierPtr)
     parcCryptoHasher_Release(&(verifier->hasher_sha256));
     parcCryptoHasher_Release(&(verifier->hasher_sha512));
     parcCryptoCache_Destroy(&(verifier->key_cache));
-    parcMemory_Deallocate((void **)verifierPtr);
-    *verifierPtr = NULL;
 
     return true;
 }
