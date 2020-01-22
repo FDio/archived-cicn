@@ -23,6 +23,10 @@
 #include <icnet/icnet_http_facade.h>
 #endif
 
+#ifdef always_inline
+#undef always_inline
+#endif
+
 #include <QMessageLogger>
 #include "../Portable/Networking.h"
 #include "IICNConnection.h"
