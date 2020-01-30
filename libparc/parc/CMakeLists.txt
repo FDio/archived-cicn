@@ -392,7 +392,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR COMPILE_FOR_IOS)
     set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 	message( "-- Set \"-undefined dynamic_lookup\" for shared libraries")
 endif()
-if(COMPILE_FOR_IOS OR ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+if(DISABLE_SHARED_LIBRARIES)
   add_library(parc         STATIC ${LIBPARC_SOURCE_FILES} ${LIBEVENT_LIBRARIES} ${OPENSSL_LIBRARIES})
   target_link_libraries(parc ${LIBEVENT_LIBRARIES})
   target_link_libraries(parc ${OPENSSL_LIBRARIES})
@@ -416,7 +416,6 @@ else()
     parc
     parc.shared
     )
-
 endif()
 
 
@@ -443,7 +442,6 @@ if(ENABLE_TEST)
 endif()
 
 if(ENABLE_TEST)
-  if(NOT COMPILE_FOR_IOS)
 	add_subdirectory(security/command-line)
 	add_subdirectory(algol/test)
 	add_subdirectory(concurrent/test)
@@ -453,10 +451,7 @@ if(ENABLE_TEST)
 	add_subdirectory(testing/test)
 	add_subdirectory(statistics/test)
 	add_subdirectory(memory/test)
-  endif()
 else()
-  if(NOT COMPILE_FOR_IOS)
 	add_subdirectory(security/command-line)
-  endif()
 endif()
 

@@ -25,6 +25,7 @@
 
 #include <openssl/pem.h>
 #include <openssl/rand.h>
+#include <openssl/bn.h>
 
 struct parc_diffie_hellman_keyshare {
     PARCDiffieHellmanGroup groupType;

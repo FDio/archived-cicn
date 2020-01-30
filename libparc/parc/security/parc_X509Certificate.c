@@ -37,6 +37,7 @@
 #include <openssl/x509v3.h>
 #include <openssl/rand.h>
 #include <openssl/pkcs12.h>
+#include <openssl/x509.h>
 
 static PARCCryptoHash *_getPublicKeyDigest(void *interfaceContext);
 static PARCCryptoHash *_getCertificateDigest(void *interfaceContext);

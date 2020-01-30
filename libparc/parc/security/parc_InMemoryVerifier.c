@@ -35,6 +35,7 @@
 
 #include <openssl/x509v3.h>
 #include <openssl/ecdsa.h>
+#include <openssl/rsa.h>
 
 
 struct parc_inmemory_verifier {
