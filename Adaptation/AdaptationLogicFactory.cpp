@@ -21,28 +21,28 @@ IAdaptationLogic* AdaptationLogicFactory::create(LogicType logic, viper::manager
     switch(logic)
     {
     case AlwaysLowest:
-        Debug("Always lowest\n");
+        qDebug("Always lowest");
         return new AlwaysLowestLogic(type, mpdWrapper, paramsForAdaptation);
     case RateBased:
-        Debug("Rate based\n");
+        qDebug("Rate based");
         return new RateBasedAdaptation(type, mpdWrapper, paramsForAdaptation);
     case BufferBased:
-        Debug("Buffer based\n");
+        qDebug("Buffer based");
         return new BufferBasedAdaptation(type, mpdWrapper, paramsForAdaptation);
     case AdapTech:
-        Debug("AdapTech\n");
+        qDebug("AdapTech");
         return new AdapTechAdaptation(type, mpdWrapper, paramsForAdaptation);
     case BufferBasedThreeThreshold:
-        Debug("Buffer based 3 threshold\n");
+        qDebug("Buffer based 3 threshold");
         return new BufferBasedThreeThresholdAdaptation(type, mpdWrapper, paramsForAdaptation);
     case Panda:
-        Debug("Panda\n");
+        qDebug("Panda");
         return new PandaAdaptation(type, mpdWrapper, paramsForAdaptation);
     case Bola:
-        Debug("Bola\n");
+        qDebug("Bola");
         return new BolaAdaptation(type, mpdWrapper, paramsForAdaptation);
     default:
-        Debug("default => return Always Lowest\n");
+        qDebug("default => return Always Lowest");
         return new AlwaysLowestLogic(type, mpdWrapper, paramsForAdaptation);
     }
 }

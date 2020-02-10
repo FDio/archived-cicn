@@ -67,7 +67,9 @@ public:
     Q_INVOKABLE void seekVideo(float value);
     Q_INVOKABLE void repeatVideo(bool repeat);
     Q_INVOKABLE void onStopButtonPressed();
+#if 0
     Q_INVOKABLE void play();
+#endif
     Q_INVOKABLE void onStopped();
     Q_INVOKABLE QString getAdaptationLogic();
     Q_INVOKABLE void setAdaptationLogic(QString adaptationLogic);

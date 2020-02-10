@@ -94,7 +94,7 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
 #else
     this->icnRateBased = true;
 #endif
-    Debug("ICN class created\n");
+    qDebug("ICN class created");
 
 }
 
@@ -110,15 +110,15 @@ ICNConnectionConsumerApi::~ICNConnectionConsumerApi() {
 }
 
 void ICNConnectionConsumerApi::Init(IChunk *chunk) {
-    Debug("ICN Connection:	STARTING\n");
+    qDebug("ICN Connection:	STARTING");
     m_first = 1;
     sizeDownloaded = 0;
     m_name = chunk->AbsoluteURI().c_str();
     m_isFinished = false;
 
     res = false;
-    Debug("ICN_Connection:\tINTIATED_to_name %s\n", m_name.c_str());
-    Debug("ICN_Connection:\tSTARTING DOWNLOAD %s\n", m_name.c_str());
+    qDebug("ICN_Connection:\tINTIATED_to_name %s", m_name.c_str());
+    qDebug("ICN_Connection:\tSTARTING DOWNLOAD %s", m_name.c_str());
 }
 
 void ICNConnectionConsumerApi::InitForMPD(const std::string& url)
@@ -131,7 +131,7 @@ void ICNConnectionConsumerApi::InitForMPD(const std::string& url)
     res = false;
     dataPos = 0;
     datSize = 0;
-    Debug("ICN_Connection:\tINTIATED_for_mpd %s\n", m_name.c_str());
+    qDebug("ICN_Connection:\tINTIATED_for_mpd %s", m_name.c_str());
 }
 
 int	ICNConnectionConsumerApi::Read(uint8_t* data, size_t len, IChunk *chunk)
@@ -177,13 +177,13 @@ int             ICNConnectionConsumerApi::Peek(uint8_t *data, size_t len, IChunk
 
 double ICNConnectionConsumerApi::GetAverageDownloadingSpeed()
 {
-    Debug("ICNConnection:	DL speed is %f\n", this->speed);
+    qDebug("ICNConnection:	DL speed is %f", this->speed);
     return this->speed;
 }
 
 double ICNConnectionConsumerApi::GetDownloadingTime()
 {
-    Debug("ICNConnection:	DL time is %f\n", this->dnltime);
+    qDebug("ICNConnection:	DL time is %f", this->dnltime);
     return this->dnltime;
 }
 
@@ -198,7 +198,7 @@ const std::vector<IHTTPTransaction *> &ICNConnectionConsumerApi::GetHTTPTransact
 void ICNConnectionConsumerApi::notifyStats(double winSize)
 {
     this->speed = (winSize); // * 1000000 * 1400 * 8;
-    Debug("ICNConnection:\tNotificationICPDL\t%f\t%f\n", winSize, speed);
+    qDebug("ICNConnection:\tNotificationICPDL\t%f\t%f", winSize, speed);
 }
 
 void ICNConnectionConsumerApi::notifyDownloadTime(double downloadingTime)

@@ -41,10 +41,10 @@ bool    DOMParser::Parse                    (std::string path)
     if(xmlTextReaderRead(this->reader))
         this->root = this->ProcessNode(path);
 
+    xmlFreeTextReader(this->reader);
+
     if(this->root == NULL)
         return false;
-
-    xmlFreeTextReader(this->reader);
 
     return true;
 }
@@ -110,6 +110,7 @@ Node*   DOMParser::ProcessNode              (std::string path)
            Node *node = new Node();
            node->SetType(type);
            node->SetText(text);
+           delete text;
            return node;
        }
     }

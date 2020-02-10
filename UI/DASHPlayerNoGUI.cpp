@@ -129,7 +129,7 @@ void DASHPlayerNoGUI::onStartButtonPressed(int period, int videoAdaptationSet, i
         return;
     }
 
-    Debug("DASH PLAYER:	STARTING VIDEO\n");
+    qDebug("DASH PLAYER:	STARTING VIDEO");
     this->multimediaManager->start(this->isICN, this->alpha, 0);
 }
 

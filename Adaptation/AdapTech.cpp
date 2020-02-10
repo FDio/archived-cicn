@@ -42,8 +42,8 @@ AdapTechAdaptation::AdapTechAdaptation(viper::managers::StreamType type, MPDWrap
     this->isCheckedForReceiver = false;
     this->myQuality = 0;
     this->currentBitrate = 0;
-    Debug("BufferRateBasedParams:\talpha:%f\tfirst threshold: %f\tsecond threshold: %f\tswitch-up margin: %d\tSlack: %f\n",this->alphaRate, (double)reservoirThreshold/100, (double)maxThreshold/100, this->switchUpThreshold, this->slackParam);
-    Debug("Buffer Adaptation:	STARTED\n");
+    qDebug("BufferRateBasedParams:\talpha:%f\tfirst threshold: %f\tsecond threshold: %f\tswitch-up margin: %d\tSlack: %f",this->alphaRate, (double)reservoirThreshold/100, (double)maxThreshold/100, this->switchUpThreshold, this->slackParam);
+    qDebug("Buffer Adaptation:	STARTED");
 }
 AdapTechAdaptation::~AdapTechAdaptation()
 {
@@ -98,7 +98,7 @@ void AdapTechAdaptation::setBitrate(uint32_t bufferFill)
 
     if(flagIsSet)
     {
-        Debug("Adaptech:\tFor %s:\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu,already set: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
+        qDebug("Adaptech:\tFor %s:\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu,already set: %d",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
 
         if(bufferFill < this->reservoirThreshold)
         {
@@ -107,7 +107,7 @@ void AdapTechAdaptation::setBitrate(uint32_t bufferFill)
                 mySetQuality = this->myQuality;
                 this->myQuality = 0;
                 this->representation = representations.at(this->myQuality);
-                Debug("Adaptech:\tFor %s: buffer level too low, going to panic mode, old quality: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", mySetQuality);
+                qDebug("Adaptech:\tFor %s: buffer level too low, going to panic mode, old quality: %d",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", mySetQuality);
                 this->mpdWrapper->setSegmentQuality(this->type, mySetQuality);
             }
         }
@@ -116,7 +116,7 @@ void AdapTechAdaptation::setBitrate(uint32_t bufferFill)
             if(mySetQuality != -1)
             {
                 this->myQuality = mySetQuality;
-                Debug("AdaptechNA:\tFor %s: buffer level high enough, restoring old computed quality: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", mySetQuality);
+                qDebug("AdaptechNA:\tFor %s: buffer level high enough, restoring old computed quality: %d",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio", mySetQuality);
             }
             this->representation = representations.at(this->myQuality);
         }
@@ -134,7 +134,7 @@ void AdapTechAdaptation::setBitrateOption1(uint32_t bufferFill)
     representations = this->mpdWrapper->getRepresentations(this->type);
     size_t i = 0;
 
-    Debug("bufferlevel: %u, instant rate %lu, average rate %lu\n", bufferFill, this->instantBw, this->averageBw);
+    qDebug("bufferlevel: %u, instant rate %lu, average rate %lu", bufferFill, this->instantBw, this->averageBw);
     phi1 = 0;
     phi2 = 0;
     while(i < representations.size())
@@ -200,12 +200,12 @@ void AdapTechAdaptation::setBitrateOption1(uint32_t bufferFill)
     }
     this->representation = representations.at(this->myQuality);
     this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
+    qDebug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->averageBw , this->myQuality);
 }
 
 void AdapTechAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)
 {
-    Debug("rate estimation: %lu\n", bps);
+    qDebug("rate estimation: %lu", bps);
     this->instantBw = bps;
     if(this->averageBw == 0)
     {
@@ -228,7 +228,7 @@ void AdapTechAdaptation::checkedByDASHReceiver()
 }
 void AdapTechAdaptation::bufferUpdate(uint32_t bufferFill, int maxC)
 {
-    Debug("buffer update: %u\n", bufferFill);
+    qDebug("buffer update: %u", bufferFill);
     EnterCriticalSection(&this->monitorLock);
     this->setBitrate(bufferFill);
     this->notifyBitrateChange();

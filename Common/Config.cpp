@@ -523,14 +523,14 @@ void Config::reload()
     settings.endGroup();
 
     settings.beginGroup(QString::fromLatin1("backend"));
-    setVideoURI(settings.value(QString::fromLatin1("video_uri"), QString::fromLatin1("http://webserver/sintel/mpd")).toString());
+    setVideoURI(settings.value(QString::fromLatin1("video_uri"), QString::fromLatin1("http://httpserver/sintel/mpd")).toString());
     setV6FirstWord(settings.value(QString::fromLatin1("v6FirstWord"), QString::fromLatin1("b001")).toString());
 
     setSegmentBufferSize(settings.value(QString::fromLatin1("segment_buffer_size"), 20).toReal());
     settings.endGroup();
 
     settings.beginGroup(QString::fromLatin1("playback"));
-    setAdaptationLogic(settings.value(QString::fromLatin1("adaptation_logic"), QString::fromLatin1("Buffer Based")).toString());
+    setAdaptationLogic(settings.value(QString::fromLatin1("adaptation_logic"), QString::fromLatin1("AdapTech")).toString());
     setIcn(settings.value(QString::fromLatin1("icn"), true).toBool());
     settings.endGroup();
 

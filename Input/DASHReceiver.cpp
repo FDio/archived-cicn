@@ -313,7 +313,7 @@ void*                       DASHReceiver::DoBuffering               (void *recei
         if(dashReceiver->isScheduledPaced)
         {
             double delay = std::chrono::duration_cast<duration_in_seconds>(std::chrono::system_clock::now() - m_start_time).count();
-            Debug("delay: %f, target: %f\n", delay, dashReceiver->targetDownload);
+            qDebug("delay: %f, target: %f", delay, dashReceiver->targetDownload);
             if(delay < dashReceiver->targetDownload)
             {
                 sleep(dashReceiver->targetDownload - delay);
@@ -372,9 +372,9 @@ bool					DASHReceiver::CanPush					()
 }
 void					DASHReceiver::ShouldAbort				()
 {
-    Debug("DASH RECEIVER SEGMENT --\n");
+    qDebug("DASH RECEIVER SEGMENT --");
     this->segmentNumber--;
-    Debug("DASH RECEIVER ABORT REQUEST\n");
+    qDebug("DASH RECEIVER ABORT REQUEST");
 }
 
 void					DASHReceiver::SetTargetDownloadingTime	(double target)

@@ -249,6 +249,7 @@ void ViperGui::setStop(bool stop)
     this->stop = stop;
     this->segment = 0;
     this->bufferDuration = 0;
+    this->position = 0;
 }
 
 bool ViperGui::getStop()

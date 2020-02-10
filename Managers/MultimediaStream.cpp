@@ -164,13 +164,13 @@ void MultimediaStream::notifyStatistics(int segNum, uint32_t bitrate, int fps, u
         this->observers.at(i)->notifyStatistics(segNum, bitrate, fps, quality);
 }
 
-void	    MultimediaStream::notifyQualityDownloading(uint32_t quality)
+void MultimediaStream::notifyQualityDownloading(uint32_t quality)
 {
     for(size_t i = 0; i < observers.size(); i++)
         this->observers.at(i)->notifyQualityDownloading(quality);
 }
 
-int	    MultimediaStream::getBufferLevel()
+int MultimediaStream::getBufferLevel()
 {
     int bufferFill = 0;
     for(size_t i=0; i < observers.size(); i++)

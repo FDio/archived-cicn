@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
         pthread_mutex_init(&mainMutex,NULL);
         pthread_cond_init(&mainCond, NULL);
 
-        Debug("STARTING NO GUI\n");
+        qDebug("STARTING NO GUI");
         DASHPlayerNoGUI p(argc,argv, &mainCond, true);
 
 

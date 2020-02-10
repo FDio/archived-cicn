@@ -66,17 +66,17 @@ PandaAdaptation::PandaAdaptation(StreamType type, MPDWrapper *mpdWrapper, struct
     std::vector<IRepresentation* > representations = this->mpdWrapper->getRepresentations(this->type);
     this->mpdWrapper->releaseLock();
     this->availableBitrates.clear();
-    Debug("PANDA Available Bitrates...\n");
+    qDebug("PANDA Available Bitrates...");
     for(size_t i = 0; i < representations.size(); i++)
     {
         this->availableBitrates.push_back((uint64_t)(representations.at(i)->GetBandwidth()));
-        Debug("%d  -  %I64u bps\n", i+1, this->availableBitrates[i]);
+        qDebug("%d  -  %I64u bps", i+1, this->availableBitrates[i]);
     }
 
     this->representation = representations.at(0);
     this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
 
-    Debug("Panda parameters: K= %f, Bmin = %f, alpha = %f, beta = %f, W = %f \n", param_K, param_Bmin, param_Alpha, param_Beta, param_W);
+    qDebug("Panda parameters: K= %f, Bmin = %f, alpha = %f, beta = %f, W = %f ", param_K, param_Bmin, param_Alpha, param_Beta, param_W);
 }
 
 PandaAdaptation::~PandaAdaptation() {
@@ -127,12 +127,12 @@ void PandaAdaptation::quantizer()
     this->deltaUp = this->param_Epsilon * (double)this->smoothBw;
     this->deltaDown = 0.0;
 
-    Debug("** DELTA UP:\t%f\n", this->deltaUp);
+    qDebug("** DELTA UP:\t%f", this->deltaUp);
 
     uint64_t smoothBw_UP = this->smoothBw - this->deltaUp;
     uint64_t smoothBw_DOWN = this->smoothBw - this->deltaDown;
 
-    Debug("** Smooth-BW UP:\t%d\t Smooth-BW DOWN:\t%d\n", smoothBw_UP, smoothBw_DOWN);
+    qDebug("** Smooth-BW UP:\t%d\t Smooth-BW DOWN:\t%d", smoothBw_UP, smoothBw_DOWN);
 
     std::vector<IRepresentation *> representations;
     representations = this->mpdWrapper->getRepresentations(this->type);
@@ -155,7 +155,7 @@ void PandaAdaptation::quantizer()
         iDown = 0;
 
     bitrateDown = (uint64_t) representations.at(iDown)->GetBandwidth();
-    Debug("** Bitrate DOWN:\t%d\t at Quality:\t%d\n", bitrateDown, iDown);
+    qDebug("** Bitrate DOWN:\t%d\t at Quality:\t%d", bitrateDown, iDown);
 
     // UP
     uint32_t iUp = 0;
@@ -170,9 +170,9 @@ void PandaAdaptation::quantizer()
         iUp = 0;
 
     bitrateUp = (uint64_t) representations.at(iUp)->GetBandwidth();
-    Debug("** Bitrate UP:\t%d\t at Quality:\t%d\n", bitrateUp, iUp);
+    qDebug("** Bitrate UP:\t%d\t at Quality:\t%d", bitrateUp, iUp);
 
-    Debug("** Current RATE:\t%d\n Current QUALITY:\t%d\n", this->currentBitrate, this->current);
+    qDebug("** Current RATE:\t%d Current QUALITY:\t%d\n", this->currentBitrate, this->current);
 
 
     // Next bitrate computation
@@ -183,7 +183,7 @@ void PandaAdaptation::quantizer()
     }
     else if(this->currentBitrate <= bitrateDown && this->currentBitrate >= bitrateUp)
     {
-        Debug("** CURRENT UNCHANGED **\n");
+        qDebug("** CURRENT UNCHANGED **");
     }
     else
     {
@@ -208,9 +208,9 @@ void PandaAdaptation::setBitrate(uint64_t bps)
     else
         this->targetBw = bps;
 
-    Debug("** INSTANTANEOUS BW:\t%d\n", bps);
-    Debug("** CLASSIC EWMA BW:\t%d\n", this->averageBw);
-    Debug("** PANDA TARGET BW:\t%d\n", this->targetBw);
+    qDebug("** INSTANTANEOUS BW:\t%d", bps);
+    qDebug("** CLASSIC EWMA BW:\t%d", this->averageBw);
+    qDebug("** PANDA TARGET BW:\t%d", this->targetBw);
 
     // 2. Calculating the smoothBW
     if(this->interTime)
@@ -218,23 +218,23 @@ void PandaAdaptation::setBitrate(uint64_t bps)
     else
         this->smoothBw = this->targetBw;
 
-    Debug("** PANDA SMOOTH BW:\t%d\n", this->smoothBw);
+    qDebug("** PANDA SMOOTH BW:\t%d", this->smoothBw);
 
     // 3. Quantization
     this->quantizer();
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferLevel/100 , (double)bufferLevel/100, this->instantBw, this->averageBw , this->current);
+    qDebug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, AverageBW: %lu, choice: %d",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferLevel/100 , (double)bufferLevel/100, this->instantBw, this->averageBw , this->current);
     this->lastBufferLevel = this->bufferLevel;
 
     // 4. Computing the "actual inter time"
     this->bufferLevelSeconds = (double)((this->bufferLevel * this->bufferMaxSizeSeconds) *1./100);
     this->targetInterTime = ((double)this->currentBitrate * segmentDuration) * 1./this->smoothBw + param_Beta * (this->bufferLevelSeconds - param_Bmin);
-    Debug("** TARGET INTER TIME:\t%f\n", this->targetInterTime);
-    Debug("** DOWNLOAD TIME:\t%f\n", this->downloadTime);
+    qDebug("** TARGET INTER TIME:\t%f", this->targetInterTime);
+    qDebug("** DOWNLOAD TIME:\t%f", this->downloadTime);
     this->targetInterTime = (this->targetInterTime > 0) ? this->targetInterTime : 0.0;
     this->interTime = this->targetInterTime > this->downloadTime ? this->targetInterTime : this->downloadTime;
     this->interTime = this->interTime > 3 ? 3 : this->interTime;
 
-    Debug("** ACTUAL INTER TIME:\t%f\n", this->interTime);
+    qDebug("** ACTUAL INTER TIME:\t%f", this->interTime);
     this->multimediaManager->setTargetDownloadingTime((this->type == viper::managers::StreamType::VIDEO), interTime);
 }
 
@@ -264,7 +264,7 @@ void PandaAdaptation::dLTimeUpdate(double time)
 
 void PandaAdaptation::bufferUpdate(uint32_t bufferfill, int maxC)
 {
-    Debug("bufferlvl: %d\n", bufferfill);
+    qDebug("bufferlvl: %d", bufferfill);
     this->bufferLevel = bufferfill;
 }
 

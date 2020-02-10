@@ -36,8 +36,8 @@ BufferBasedThreeThresholdAdaptation::BufferBasedThreeThresholdAdaptation(viper::
     this->shouldAbort = false;
     this->isCheckedForReceiver = false;
     this->currentBitrate = 0;
-    Debug("BufferRateBasedParams:\t%f\t%f\t%f\n",(double)this->firstThreshold/100, (double)secondThreshold/100, (double)thirdThreshold/100);
-    Debug("Buffer Adaptation:	STARTED\n");
+    qDebug("BufferRateBasedParams:\t%f\t%f\t%f",(double)this->firstThreshold/100, (double)secondThreshold/100, (double)thirdThreshold/100);
+    qDebug("Buffer Adaptation:	STARTED");
 }
 
 BufferBasedThreeThresholdAdaptation::~BufferBasedThreeThresholdAdaptation()
@@ -139,7 +139,7 @@ void BufferBasedThreeThresholdAdaptation::setBitrate(uint32_t bufferFill)
     }
     this->representation = representations.at(this->myQuality);
     this->currentBitrate = (uint64_t) this->representation->GetBandwidth();
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, choice: %d\n",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->myQuality);
+    qDebug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, instantaneousBw: %lu, choice: %d",(this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, this->instantBw, this->myQuality);
 }
 
 void BufferBasedThreeThresholdAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)

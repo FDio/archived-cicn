@@ -37,7 +37,7 @@ RateBasedAdaptation::RateBasedAdaptation(StreamType type, MPDWrapper *mpdWrapper
     this->mpdWrapper->releaseLock();
     this->multimediaManager = NULL;
     this->alpha = params->Rate_Alpha;
-    Debug("RateBasedParams:\t%f\n",alpha);
+    qDebug("RateBasedParams:\t%f",alpha);
     this->averageBw = 0;
 }
 
@@ -103,14 +103,14 @@ void RateBasedAdaptation::setBitrate(uint64_t bps)
     if((size_t)i == (size_t)(representations.size()))
         i = i-1;
 
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tBW_estimation(ewma): %lu, choice: %lu\n", ((this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio"), this->averageBw, i);
+    qDebug("ADAPTATION_LOGIC:\tFor %s:\tBW_estimation(ewma): %lu, choice: %lu", ((this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio"), this->averageBw, i);
     this->representation = representations.at(i);
     this->currentBitrate = this->representation->GetBandwidth();
 }
 
 void RateBasedAdaptation::bitrateUpdate(uint64_t bps, uint32_t segNum)
 {
-    Debug("Rate Based adaptation: speed received: %lu\n", bps);
+    qDebug("Rate Based adaptation: speed received: %lu", bps);
     this->mpdWrapper->acquireLock();
     this->setBitrate(bps);
     this->notifyBitrateChange();

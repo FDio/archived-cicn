@@ -80,13 +80,13 @@ bool    MultimediaManager::init(const std::string& url)
     this->url = url;
     EnterCriticalSection(&this->monitorMutex);
     IMPD* mpd = this->manager->Open((char *)url.c_str());
-    Debug("url : %s\n", url.c_str());
+    qDebug("url : %s", url.c_str());
     if(mpd == NULL)
     {
         LeaveCriticalSection(&this->monitorMutex);
         return false;
     }
-    Debug("Done DL the mpd\n");
+    qDebug("Done DL the mpd");
     this->mpdWrapper->setIsStopping(false);
     this->mpdWrapper->updateMPD(mpd);
     for (size_t i = 0; i < this->managerObservers.size(); i++)
@@ -220,10 +220,10 @@ void MultimediaManager::start(bool icnEnabled, double icnAlpha, uint32_t nextOff
         this->stop();
     if(icnAlpha <= 1 && icnAlpha >=0)
     {
-        qDebug("ICN-enhanced rate estimation: alpha = %f\n",icnAlpha);
+        qDebug("ICN-enhanced rate estimation: alpha = %f",icnAlpha);
 
     } else {
-        qDebug("normal rate estimation\n");
+        qDebug("normal rate estimation");
     }
     EnterCriticalSection(&this->monitorMutex);
     if(this->mpdWrapper->hasVideoAdaptationSetAndVideoRepresentation())
@@ -252,7 +252,7 @@ void MultimediaManager::stop()
     this->stopping = false;
     this->started = false;
     LeaveCriticalSection(&this->monitorMutex);
-    Debug("VIDEO STOPPED\n");
+    qDebug("VIDEO STOPPED");
     this->mpdWrapper->reInit(viper::managers::StreamType::VIDEO);
     this->mpdWrapper->reInit(viper::managers::StreamType::AUDIO);
 }
@@ -303,6 +303,7 @@ bool MultimediaManager::isUserDependent()
 
 bool MultimediaManager::setVideoAdaptationLogic(libdash::framework::adaptation::LogicType type, struct libdash::framework::adaptation::AdaptationParameters *params)
 {
+
     if(this->mpdWrapper->hasVideoAdaptationSetAndVideoRepresentation())
     {
         if(this->videoLogic)
@@ -485,6 +486,7 @@ bool MultimediaManager::startVideoRenderingThread()
     if(this->videoRendererHandle == NULL)
         return false;
 
+
     return true;
 }
 
@@ -551,13 +553,13 @@ void* MultimediaManager::pushVideoNoOut(void *data)
             actualPosition = std::chrono::duration_cast<duration_in_milliSeconds>(manager->bufferingLimit - timeOfInsertion).count();
             if(actualPosition < 0)
             {
-                Debug("MANAGER:\tRebuffered %d ms\n", actualPosition *(-1));
+                qDebug("MANAGER:\tRebuffered %d ms", actualPosition *(-1));
                 manager->lastPointInTime = timeOfInsertion;
                 manager->bufferingLimit = manager->lastPointInTime + std::chrono::seconds(((int)manager->getSegmentDuration() / 1000));
             }
             else
             {
-                Debug("MANAGER: INSERT TO BUFFER old_fillness: %f, new_fillness: %f\n", (double)((double)actualPosition/1000.0) / (double) this->segmentBufferSize, (double)((double)(actualPosition + 2000)/1000.0) / (double) manager->segmentBufferSize);
+                qDebug("MANAGER: INSERT TO BUFFER old_fillness: %f, new_fillness: %f", (double)((double)actualPosition/1000.0) / (double) manager->segmentBufferSize, (double)((double)(actualPosition + 2000)/1000.0) / (double) manager->segmentBufferSize);
                 manager->bufferingLimit = manager->bufferingLimit + std::chrono::seconds(((int)manager->getSegmentDuration() /1000));
                 manager->lastPointInTime = timeOfInsertion;
             }

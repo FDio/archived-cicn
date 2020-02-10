@@ -67,7 +67,8 @@ Rectangle {
 
     function setStopState()
     {
-        isPlaying = "stop"
+        playState = "stop"
+        isPlaying = false
         playBtn.checked = false
 
     }

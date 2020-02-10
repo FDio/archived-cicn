@@ -33,8 +33,8 @@ BufferBasedAdaptation::BufferBasedAdaptation          (viper::managers::StreamTy
     this->lastBufferFill = 0;
     this->bufferEOS = false;
     this->shouldAbort = false;
-    Debug("BufferBasedParams:\t%f\t%f\n", (double)reservoirThreshold/100, (double)maxThreshold/100);
-    Debug("Buffer Adaptation:	STARTED\n");
+    qDebug("BufferBasedParams:\t%f\t%f", (double)reservoirThreshold/100, (double)maxThreshold/100);
+    qDebug("Buffer Adaptation:	STARTED");
 }
 
 BufferBasedAdaptation::~BufferBasedAdaptation         ()
@@ -111,7 +111,7 @@ void BufferBasedAdaptation::setBitrate(uint32_t bufferFill)
     {
         this->shouldAbort = true;
     }
-    Debug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, choice: %lu, should_trigger_abort: %s\n", (this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, i, this->shouldAbort ? "YES" : "NO");
+    qDebug("ADAPTATION_LOGIC:\tFor %s:\tlast_buffer: %f\tbuffer_level: %f, choice: %lu, should_trigger_abort: %s", (this->type == viper::managers::StreamType::VIDEO) ? "video" : "audio",(double)lastBufferFill/100 , (double)bufferFill/100, i, this->shouldAbort ? "YES" : "NO");
     this->lastBufferFill = bufferFill;
 
 }

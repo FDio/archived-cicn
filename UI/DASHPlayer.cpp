@@ -83,7 +83,7 @@ void DASHPlayer::onStartButtonPressed(int period, int videoAdaptationSet, int vi
     {
         return;
     }
-    Debug("DASH PLAYER:	STARTING VIDEO\n");
+    qDebug("DASH PLAYER:	STARTING VIDEO");
     this->multimediaManager->start(this->icn, 20, 0);
 }
 void DASHPlayer::stopButtonPressed()
@@ -210,7 +210,7 @@ bool DASHPlayer::downloadMPD(const QString &adaptationLogic, bool icn)
         this->segment = 0;
         std::string mUrl = this->videoURI;
 
-        Debug("MPD is: %s\n", mUrl.c_str());
+        qDebug("MPD is: %s", mUrl.c_str());
         if (!this->onDownloadMPDPressed(mUrl))
             return false;
 
@@ -249,6 +249,7 @@ bool DASHPlayer::downloadMPD(const QString &adaptationLogic, bool icn)
     return true;
 }
 
+#if 0
 void DASHPlayer::play()
 {
     this->offset = 0;
@@ -257,6 +258,7 @@ void DASHPlayer::play()
     this->onSettingsChanged(0,0,0,0,0);
     this->onStartButtonPressed(0,0,0,0,0, this->adaptationLogic);
 }
+#endif
 
 void DASHPlayer::repeatVideo(bool repeat)
 {
@@ -328,21 +330,20 @@ void DASHPlayer::initSlider()
 
 }
 
-std::string DASHPlayer::msec2string(uint64_t milliseconds)
+std::string DASHPlayer::msec2string(uint64_t ms)
 {
-    uint64_t seconds = milliseconds/1000;
-    int32_t sec = seconds%60;
-    seconds = (seconds - sec)/60;
-    int32_t min = seconds%60;
-    int32_t hours = (seconds - min)/60;
-    char timeStamp[10];
-    sprintf(timeStamp, "%02d:%02d:%02d", hours, min, sec);
-    return std::string(timeStamp);
+    std::ostringstream oss;
+    oss << (ms / 3600000)
+        << ":"
+        << (ms / 60000) % 60
+        << ":"
+        << (ms / 1000) % 60;
+    return oss.str();
 }
 
 void DASHPlayer::onStopped()
 {
-    int posPlayer = this->position;
+    uint64_t posPlayer = this->position;
     if (this->seek)
     {
         this->seek = false;
@@ -887,7 +888,7 @@ void DASHPlayer::setRateEstimator(int rateEstimator)
 
 void DASHPlayer::error(const QtAV::AVError &e)
 {
-    qDebug("error in the player!");
+    qDebug("error in the player; %s", qPrintable(e.string()));
     seekVideo(0);
 }
 

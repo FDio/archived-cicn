@@ -310,7 +310,7 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 	    //double timeSinceLastDownload = getDelayFromLastFragmentInSeconds();		// Define function
 	    double timeSinceLastDownload = this->currentDownloadTimeInstant - this->lastDownloadTimeInstant;
 
-	    Debug("VirtualBuffer - Time Since Last Download:\t%f\n", timeSinceLastDownload);
+	    qDebug("VirtualBuffer - Time Since Last Download:\t%f", timeSinceLastDownload);
 
 	    if (timeSinceLastDownload > 0.0) {
 	    	this->virtualBuffer += timeSinceLastDownload;
@@ -322,7 +322,7 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 	    	this->virtualBuffer = 0.0;
 	    }
 
-	    Debug("VirtualBuffer - Virtual Buffer Value:\t%f\n", this->virtualBuffer);
+	    qDebug("VirtualBuffer - Virtual Buffer Value:\t%f", this->virtualBuffer);
 
 	    // Update currentDownloadTimeInstant
 	    this->lastDownloadTimeInstant = this->currentDownloadTimeInstant;
@@ -330,7 +330,7 @@ void BolaAdaptation::setBitrate(uint32_t bufferFill)
 	    // Update bolaQuality using virtualBuffer: bufferLevel might be artificially low because of lack of availability
 
 	    int bolaQualityVirtual = getQualityFromBufferLevel(bufferLevelSeconds + this->virtualBuffer);
-	    Debug("VirtualBuffer - Bola Quality Virtual:\t%d\n", bolaQualityVirtual);
+	    qDebug("VirtualBuffer - Bola Quality Virtual:\t%d", bolaQualityVirtual);
 	    if (bolaQualityVirtual > bolaQuality) {
 	    	// May use quality higher than that indicated by real buffer level.
 	    	// In this case, make sure there is enough throughput to download a fragment before real buffer runs out.

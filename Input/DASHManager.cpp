@@ -54,7 +54,7 @@ bool DASHManager::isICN()
 
 void		DASHManager::shouldAbort()
 {
-    Debug("DASH MANAGER: ABORT REQUEST\n");
+    qDebug("DASH MANAGER: ABORT REQUEST");
     this->receiver->ShouldAbort();
 }
 
