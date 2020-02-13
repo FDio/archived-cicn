@@ -322,8 +322,6 @@ android {
         LIBS += -L"$$(QT_HOME)/$$(QT_VERSION)/android_$$(ANDROID_ARCH)/lib/" -lQtAV
         DEFINES += "HICNET=ON"
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libswresample.so
-        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavresample.so
-        ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavdevice.so
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavfilter.so
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavcodec.so
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libavformat.so
