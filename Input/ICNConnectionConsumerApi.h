@@ -96,7 +96,11 @@ public:
 
 private:
     libl4::http::HTTPClientConnection *hTTPClientConnection;
-    libl4::http::HTTPResponse response;
+#ifdef HICNET
+    libl4::http::HTTPPayload response;
+#else
+    std::shared_ptr<libl4::http::HTTPResponse> response;
+#endif
     float beta;
     float drop;
     std::string v6FirstWord;
