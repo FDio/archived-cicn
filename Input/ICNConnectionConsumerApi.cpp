@@ -148,24 +148,36 @@ int	ICNConnectionConsumerApi::Read(uint8_t *data, size_t len)
                                                        {"Connection", "Keep-Alive"}};
        std::string s(m_name.c_str());
        hTTPClientConnection->get(s, headers, {}, nullptr, nullptr, this->v6FirstWord);
+#ifdef HICNET
+       response = hTTPClientConnection->response()->getPayload();
+#else
        response  = hTTPClientConnection->response();
+#endif
        this->res = true;
        this->dataPos = 0;
     }
-    if (response.getPayload().size() - this->dataPos > (int)len)
+#ifdef HICNET
+    char * bytes = (char*)response->writableData();
+    std::size_t size = response->length();
+#else
+    char *bytes = response.getPayload().data();
+    std::size_t size = response.getPayload().size();
+#endif
+
+    if (size - this->dataPos > (int)len)
     {
-       memcpy(data, (char*)response.getPayload().data() + this->dataPos, len);
+       memcpy(data, bytes + this->dataPos, len);
        this->dataPos += len;
        return len;
     } else
     {
-        memcpy(data, (char*)response.getPayload().data() + this->dataPos, response.getPayload().size() - this->dataPos);
-        int length = response.getPayload().size() - this->dataPos;
+        memcpy(data, bytes + this->dataPos, size - this->dataPos);
+        int length = size - this->dataPos;
         if (length == 0)
         {
           this->res = false;
         }
-        this->dataPos = response.getPayload().size();
+        this->dataPos = size;
         return length;
     }
 }
