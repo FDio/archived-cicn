@@ -21,24 +21,26 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qmake_build)
 option(ICNET "Link against Libicnet." ON)
 option(HICNET "Link against Libhicnet." OFF)
 if (HICNET)
+    set (VIPER_NAME hicn-viper)
     set (TRANSPORT_LIBRARY HICNET)
     set(ICNET OFF)
 
 else()
+    set (VIPER_NAME hicn-viper)
     set (TRANSPORT_LIBRARY ICNET)
 endif()
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/qmake_build/viper_
-                  COMMAND /opt/qt57/bin/qmake ${CMAKE_SOURCE_DIR}/viper.pro "TRANSPORT_LIBRARY = ${TRANSPORT_LIBRARY}"
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/qmake_build/${VIPER_NAME}_
+                  COMMAND qmake ${CMAKE_SOURCE_DIR}/viper.pro "TRANSPORT_LIBRARY = ${TRANSPORT_LIBRARY}"
                   COMMAND make
-                  COMMAND mv viper viper_
+                  COMMAND mv ${VIPER_NAME} ${VIPER_NAME}_
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qmake_build
                   VERBATIM)
 
 add_custom_target(viper ALL
-                  COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/qmake_build/viper_ ./viper
-                  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}//qmake_build/viper_)
+                  COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/qmake_build/${VIPER_NAME}_ ./${VIPER_NAME}
+                  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}//qmake_build/${VIPER_NAME}_)
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/viper DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${VIPER_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Generate DEB / RPM packages
 
@@ -51,7 +53,11 @@ set(DISTRIBUTION "xenial" CACHE STRING "Distribution")
 set(ARCHITECTURE "amd64" CACHE STRING "Architecture")
 set(PACKAGE_MAINTAINER "Mauro Sardara (msardara@cisco.com)" CACHE STRING "Maintainer")
 set(BUILD_NUMBER "1" CACHE STRING "Build Number")
+if (HICNET)
+string(TOLOWER hicn-${CMAKE_PROJECT_NAME} PACKAGE_NAME)
+else ()
 string(TOLOWER ${CMAKE_PROJECT_NAME} PACKAGE_NAME)
+endif ()
 set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 set(CPACK_PACKAGE_VENDOR ${VENDOR})
 set(CPACK_PACKAGE_CONTACT ${CONTACT})
@@ -66,7 +72,7 @@ if(DEB_PACKAGE)
     set(GENERATOR "DEB")
     set(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}_${PACKAGE_VERSION}_${ARCHITECTURE}")
     set(CPACK_${TYPE}_PACKAGE_SHLIBDEPS ON)
-    set(CPACK_${TYPE}_PACKAGE_DEPENDS "qt57base, qt57svg, qt57charts-no-lgpl, qt57multimedia, libqtav1, libicnet, libavcodec-ffmpeg56, libavformat-ffmpeg56, libswscale-ffmpeg3, libavresample-ffmpeg2, libdash, libqml-module-qtav, qt57quickcontrols, qt57quickcontrols2")
+    set(CPACK_${TYPE}_PACKAGE_DEPENDS "libdash, libhicntransport, qml-module-qtav, qml-module-qtav, qml-module-qtquick-window2, qml-module-qtquick2, qml-module-qtquick-dialogs, qml-module-qtcharts, qml-module-qtquick-layouts, qml-module-qtquick-controls2, qml-module-qtquick-controls, qml-module-qt-labs-settings, qml-module-qt-labs-folderlistmodel, qml-module-qtquick-extras, qml-module-qtquick-extras")
     set(CPACK_${TYPE}_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/scripts/postinst;")
 elseif(RPM_PACKAGE)
     set(TYPE "RPM")

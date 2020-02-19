@@ -11,7 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TARGET = viper
+equals(TRANSPORT_LIBRARY, "HICNET") {
+  TARGET = hicn-viper
+} else {
+  TARGET = viper
+}
+
 VERSION = $$QTAV_VERSION
 QT += av svg qml quick sql core gui opengl multimedia charts
 android {
@@ -21,7 +26,16 @@ android {
 CONFIG -= release
 CONFIG += debug
 CONFIG += c++14
-QMAKE_CXXFLAGS += -std=c++14 -g -fpermissive -DASIO_STANDALONE=1 -stdlib=libc++ -DQTC_ENABLE_CLANG_LIBTOOLING=ON
+QMAKE_CXXFLAGS += -std=c++14 -g -fpermissive -DASIO_STANDALONE=1
+equals(QMAKE_CXX, clang++) {
+  QMAKE_CXXFLAGS += -stdlib=libc++ -DQTC_ENABLE_CLANG_LIBTOOLING=ON
+}
+
+linux-g++ {
+   GCC_VERSION = $$system("g++ -dumpversion")
+   INCLUDEPATH += /usr/include/c++/$$GCC_VERSION
+}
+
 # Add more folders to ship with the application, here
 folder_01.source = qml/Viper
 folder_01.target = qml
