@@ -1,23 +1,16 @@
-Viper Player for ICN
+Viper Player for hICN
 
 ====================================================
 
-This application is designed to provide a tool to test the adaptation video streaming using the ICN protocol stack.
+This application is designed to provide a tool to test the adaptation video streaming using the hICN protocol stack.
 
 Dependencies
 ------------
 
 - ffmpeg
-- libboost-system-dev
 - libparc
-- libccnx-common
-- libccnx-transport-rta
-- long-bow
-- libxml2
-- libcurl4
-- libdash
-- libicnet
-- Qt5.7
+- libhicntransport-dev
+- Qt5.9
 - QtAV
 
 Build the dependencies
@@ -56,7 +49,7 @@ For building the player, from the root folder of the project:
 ```bash
  $ cd viper
  $ mkdir build && cd build 
- $ qmake ../viper.pro
+ $ qmake ../viper.pro "TRANSPORT_LIBRARY = HICNET"
  $ make
  $ ./viper
 ```
@@ -67,4 +60,4 @@ Platforms
 
 Viper has been tested in:
 
-    - Ubuntu 16.04 (x86_64)
+    - Ubuntu 18.04 (x86_64)

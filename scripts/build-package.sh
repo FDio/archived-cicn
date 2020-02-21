@@ -11,7 +11,7 @@ PACKAGE_NAME="VIPER"
 VIPER_DEPS_UBUNTU="zlib1g-dev git-core build-essential libxml2-dev libcurl4-openssl-dev \
 libqtav-dev qt5-default libqt5svg5-dev qtdeclarative5-dev libqt5charts5-dev \
 qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 \
-libhicntransport-dev"
+libhicntransport-dev libavcodec-dev libavutil-dev libavformat-dev"
 
 BUILD_TOOLS="build-essential doxygen"
 
