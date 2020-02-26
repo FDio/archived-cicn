@@ -18,7 +18,7 @@
 
 #if defined(HICNET)
 #include <hicn/transport/http/facade.h>
-#include <hicn/transport/protocols/download_observer.h>
+#include <hicn/transport/interfaces/statistics.h>
 #else
 #include <icnet/icnet_http_facade.h>
 #endif
@@ -61,7 +61,7 @@ namespace framework {
 namespace input {
 
 #if defined(HICNET)
-class ICNConnectionConsumerApi : public IICNConnection, public transport::protocol::IcnObserver{
+class ICNConnectionConsumerApi : public IICNConnection, public transport::interface::IcnObserver{
 #else
 class ICNConnectionConsumerApi : public IICNConnection, public libl4::transport::IcnObserver{
 #endif
