@@ -77,7 +77,7 @@ ICNConnectionConsumerApi::ICNConnectionConsumerApi(double alpha, float beta, flo
         c.setSocketOption(transport::interface::RaaqmTransportOptions::BETA_VALUE, this->beta);
         c.setSocketOption(transport::interface::RaaqmTransportOptions::DROP_FACTOR, this->drop);
     }
-    c.setSocketOption(int(transport::interface::RateEstimationOptions::RATE_ESTIMATION_OBSERVER), (transport::protocol::IcnObserver * )this);
+    c.setSocketOption(int(transport::interface::RateEstimationOptions::RATE_ESTIMATION_OBSERVER), (transport::interface::IcnObserver * )this);
 #else
     if(!configFile)
      {
