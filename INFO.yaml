@@ -59,6 +59,11 @@ committers:
       email: 'micpapal@cisco.com'
       id: 'micpapal'
       timezone: 'Unknown/Unknown'
+    - name: ' Angelo Mantellini'
+      company: 'cisco'
+      email: 'manangel@cisco.com'
+      id: 'manang'
+      timezone: 'Unknown/Unknown'
 tsc:
     approval: 'https://wiki.fd.io/view/TSC/Meeting_Minutes'
     changes:
