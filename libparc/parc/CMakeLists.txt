@@ -409,8 +409,6 @@ else()
   target_link_libraries(parc.shared ${PARC_BIN_LIBRARIES})
   set_target_properties(parc.shared PROPERTIES
     C_STANDARD 99
-    SOVERSION 1
-    VERSION 1.0
     OUTPUT_NAME parc )
   set(libparcLibraries
     parc
