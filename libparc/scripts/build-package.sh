@@ -25,9 +25,9 @@ update_cmake_repo() {
     echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
     cat /etc/resolv.conf
 
-    CMAKE_INSTALL_SCRIPT_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh"
+    CMAKE_INSTALL_SCRIPT_URL="https://github.com/Kitware/CMake/releases/download/v3.18.4/cmake-3.18.4-Linux-x86_64.sh"
     CMAKE_INSTALL_SCRIPT="/tmp/install_cmake.sh"
-    curl ${CMAKE_INSTALL_SCRIPT_URL} > ${CMAKE_INSTALL_SCRIPT}
+    curl -L ${CMAKE_INSTALL_SCRIPT_URL} > ${CMAKE_INSTALL_SCRIPT}
 
     sudo mkdir -p /opt/cmake
     sudo bash ${CMAKE_INSTALL_SCRIPT} --skip-license --prefix=/opt/cmake
@@ -70,9 +70,6 @@ update_fdio_repo() {
         curl -s ${PACKAGECLOUD_RELEASE_REPO_DEB} | sudo bash
     elif [ "$DISTRIB_ID" == "CentOS" ]; then
         curl -s ${PACKAGECLOUD_RELEASE_REPO_RPM} | sudo bash
-        curl ${LATEST_EPEL_REPO} > epel-release-latest-7.noarch.rpm
-        rpm -ivh epel-release-latest-7.noarch.rpm || true
-        rm epel-release-latest-7.noarch.rpm
     else
         echo "Distribution $DISTRIB_CODENAME is not supported"
         exit -1
