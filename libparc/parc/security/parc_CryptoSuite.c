@@ -76,6 +76,8 @@ PARCCryptoSuite parcCryptoSuite_GetFromSigningHash(PARCSigningAlgorithm signAlgo
       return PARCCryptoSuite_DSA_SHA256 + hash;
     case PARCSigningAlgorithm_RSA:
       return PARCCryptoSuite_RSA_SHA256 + hash;
+    case PARCSigningAlgorithm_HMAC:
+      return PARCCryptoSuite_HMAC_SHA256 + hash;
     case PARCSigningAlgorithm_ECDSA:
       return PARCCryptoSuite_ECDSA_SHA256 + hash;
     case PARCSigningAlgorithm_NULL:
