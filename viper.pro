@@ -289,7 +289,7 @@ unix:!macx:!android {
     INCLUDEPATH += /usr/include
     INCLUDEPATH += /usr/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-	LIBS += -L/usr/local/lib -ldash  -lhicntransport -lavcodec -lavutil -lavformat
+	LIBS += -L/usr/local/lib -ldash  -lhicntransport -lavcodec -lavutil -lavformat -lconfig++
     	DEFINES += "HICNET=ON"
     } else {
         LIBS += -L/usr/local/lib -ldash -licnet -lavcodec -lavutil -lavformat
@@ -307,7 +307,7 @@ macx:!ios {
     INCLUDEPATH += $$[QT_HOST_PREFIX]/include/
     INCLUDEPATH += $$[QT_HOST_PREFIX]/lib/QtAV.framework/Headers
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lswscale -lhicntransport -lssl -lcrypto
+        LIBS += -L"/usr/local/lib" -framework CoreServices -ldash -lavformat -lavutil -lavcodec -lswscale -lhicntransport -lssl -lcrypto -lconfig++
         LIBS += -F$$[QT_HOST_PREFIX]/lib/ -framework QtAV
         DEFINES += "HICNET=ON"
     } else {
@@ -332,7 +332,7 @@ android {
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include
     INCLUDEPATH += $$(DISTILLARY_INSTALLATION_PATH)/include/libdash
     equals(TRANSPORT_LIBRARY, "HICNET") {
-        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -ldash -lhicntransport  -lhicn -lparc -lavcodec -lavutil -lavformat -lswresample -lcurl -lxml2 -lssl -lcrypto
+        LIBS += -L"$$(DISTILLARY_INSTALLATION_PATH)/lib" -ldash -lhicntransport  -lhicn -lparc -lavcodec -lavutil -lavformat -lswresample -lcurl -lxml2 -lssl -lcrypto -lconfig++
         LIBS += -L"$$(QT_HOME)/$$(QT_VERSION)/android_$$(ANDROID_ARCH)/lib/" -lQtAV
         DEFINES += "HICNET=ON"
         ANDROID_EXTRA_LIBS += $$(DISTILLARY_INSTALLATION_PATH)/lib/libswresample.so
