@@ -2,7 +2,6 @@ Libparc
 =======
 The PARC C Library
 
-
 ## Quick Start ##
 ```
 
